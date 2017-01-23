@@ -184,7 +184,7 @@ public class Arena implements Listener{
                 }, preparationTime*20);
                 countDownStart = System.currentTimeMillis();
             }
-            int remainingTime = preparationTime-(int)((countDownStart-System.currentTimeMillis())/1000);
+            int remainingTime = preparationTime-(int)((System.currentTimeMillis()-countDownStart)/1000);
             
             for(UUID uuid : player_uuids)
             {
