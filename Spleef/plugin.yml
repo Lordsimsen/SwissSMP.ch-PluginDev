@@ -8,6 +8,9 @@ permissions:
   spleef.admin:
     description: Allows you to use the power of the gods
     default: op
+  spleef.play:
+    description: Allows you to play spleef
+    default: op
 commands:
   spleef:
     description: Admin commands

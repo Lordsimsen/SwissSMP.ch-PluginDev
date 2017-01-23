@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -156,6 +157,10 @@ public class Arena implements Listener{
             player.sendActionBar(ChatColor.YELLOW + "Partie im Gange. Warte bis nächste Runde.");
             return;
         }
+        
+        if(player.getGameMode()!=GameMode.SURVIVAL) return;
+        if(!player.hasPermission("spleef.play")) return;
+        player.setInvulnerable(true);
         player.teleport(joinLocation);
         player.sendActionBar(ChatColor.YELLOW + name + " betreten.");
         for(String line : instructions)
@@ -233,7 +238,8 @@ public class Arena implements Listener{
                         
             return;
         }
-        
+
+        player.setInvulnerable(false);
         this.player_uuids.remove(player.getUniqueId());
         player.teleport(leaveLocation);
         player.sendActionBar(ChatColor.YELLOW + name + " verlassen.");
@@ -324,7 +330,7 @@ public class Arena implements Listener{
             }
             
             tempPlayer = SwissSMPler.get(uuid);
-            tempPlayer.sendTitle("VERLOREN", tempPlayer.getDisplayName() + ChatColor.RED + " hat gewonnen!");
+            tempPlayer.sendTitle("VERLOREN", player.getDisplayName() + ChatColor.RED + " hat gewonnen!");
         }
     }
     

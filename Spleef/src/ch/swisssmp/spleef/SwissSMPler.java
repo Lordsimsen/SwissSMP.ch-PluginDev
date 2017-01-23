@@ -16,6 +16,7 @@ import net.minecraft.server.v1_11_R1.PlayerConnection;
 import net.minecraft.server.v1_11_R1.IChatBaseComponent.ChatSerializer;
 import net.minecraft.server.v1_11_R1.PacketPlayOutTitle.EnumTitleAction;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 
 public class SwissSMPler {
@@ -53,6 +54,18 @@ public class SwissSMPler {
     public String getDisplayName()
     {
         return player.getDisplayName();
+    }
+    
+    public GameMode getGameMode(){
+    	return player.getGameMode();
+    }
+    
+    public boolean hasPermission(String permission){
+    	return player.hasPermission(permission);
+    }
+    
+    public void setInvulnerable(boolean invulnerable){
+    	player.setInvulnerable(invulnerable);
     }
     
     public void sendActionBar(String message){
