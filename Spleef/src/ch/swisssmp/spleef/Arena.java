@@ -25,12 +25,13 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitTask;
 
 public class Arena implements Listener{
     
-    private final static HashMap<Integer,Arena> arenas = new HashMap<Integer,Arena>();
+    protected final static HashMap<Integer,Arena> arenas = new HashMap<Integer,Arena>();
     private static BukkitTask countDownTask = null;
     private static long countDownStart = 0;
     private static Random random = new Random();
@@ -149,6 +150,13 @@ public class Arena implements Listener{
         }
     }
     
+    @EventHandler
+    private void onPlayerLogout(PlayerQuitEvent event)
+    {
+    	Player player = event.getPlayer();
+    	leave(SwissSMPler.get(player));
+    }
+    
     protected  void join(SwissSMPler player)
     {
         if(player==null) return;
@@ -229,10 +237,12 @@ public class Arena implements Listener{
             player.teleport(spectateLocation);
             player.sendActionBar(ChatColor.RED + deathMessages.get(random.nextInt(deathMessages.size())));
             
-            if(alive_uuids.size() == 1)
+            if(alive_uuids.size() <= 1)
             {
-                SwissSMPler winner = SwissSMPler.get(alive_uuids.get(0));
-                win(winner);
+            	if(alive_uuids.size()==1){
+                    SwissSMPler winner = SwissSMPler.get(alive_uuids.get(0));
+                    win(winner);
+            	}
                 endGame();
             }
                         
@@ -294,6 +304,8 @@ public class Arena implements Listener{
     protected void startGame()
     {
     	isRunning = true;
+    	resetField();
+    	
         alive_uuids.clear();
         for(UUID uuid : player_uuids)
         {
@@ -305,6 +317,8 @@ public class Arena implements Listener{
     protected void endGame()
     {
         isRunning = false;
+        resetField();
+        
         if(countDownTask != null)
             return;
         this.reportPlayers();
@@ -342,7 +356,7 @@ public class Arena implements Listener{
     
     private void resetField()
     {
-        
+        SchematicUtil.paste(schematicName, schematicLocation);
     }
     
     protected void resetGame()          //TODO: Bei command resetten

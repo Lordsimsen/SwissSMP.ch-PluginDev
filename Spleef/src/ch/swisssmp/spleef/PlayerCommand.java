@@ -8,6 +8,7 @@ package ch.swisssmp.spleef;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 /**
  *
@@ -37,6 +38,7 @@ public class PlayerCommand implements CommandExecutor{
                 
                 break;
             case "reset":
+            {
             	if(args.length<2){
             		sender.sendMessage("Bitte eine ID angeben.");
             		return true;
@@ -49,6 +51,33 @@ public class PlayerCommand implements CommandExecutor{
             	}
             	arena.resetGame();
             	sender.sendMessage("Arena "+arena_id+" zurückgesetzt.");
+            	break;
+            }
+            	
+            case "save":
+            {
+            	if(!(sender instanceof Player))
+            	{
+            		sender.sendMessage("Can only be executed from within the game");
+            		return true;
+            	}
+            	
+            	Player player = (Player) sender;
+            	if(args.length<2){
+            		sender.sendMessage("Bitte eine ID angeben.");
+            		return true;
+            	}
+            	int arena_id = Integer.parseInt(args[1]);
+            	String schematicName = "arena_" + arena_id;
+            	Arena arena = Arena.get(arena_id);
+            	if(arena==null){
+            		sender.sendMessage("Arena "+args[1]+" nicht gefunden.");
+            		return true;
+            	}
+            	SchematicUtil.save(player, schematicName);
+            	sender.sendMessage("Arena "+arena_id+" gespeichert.");
+            	break;
+            }
                 
             default:
                 break;
