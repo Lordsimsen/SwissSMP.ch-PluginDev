@@ -156,14 +156,15 @@ public class Arena implements Listener{
             player.sendActionBar(ChatColor.YELLOW + "Partie im Gange. Warte bis nächste Runde.");
             return;
         }
-        
-        this.player_uuids.add(player.getUniqueId());
         player.teleport(joinLocation);
         player.sendActionBar(ChatColor.YELLOW + name + " betreten.");
         for(String line : instructions)
         {
             player.sendMessage(ChatColor.RESET+"["+ChatColor.YELLOW+"Spleef"+ChatColor.RESET+"] "+line);
         }
+
+        this.player_uuids.add(player.getUniqueId());
+        this.reportPlayers();
         
         if(canStart())
         {
@@ -204,6 +205,16 @@ public class Arena implements Listener{
         }
     }
     
+    private void reportPlayers(){
+        Spleef.debug("Reporting joined players");
+        for(UUID uuid : player_uuids){
+        	try{
+        		Spleef.info(Bukkit.getPlayer(uuid).getName());
+        	}
+        	catch(Exception e){}
+        }
+    }
+    
     protected  void leave(SwissSMPler player)
     {
         if(player==null) return;
@@ -226,6 +237,7 @@ public class Arena implements Listener{
         this.player_uuids.remove(player.getUniqueId());
         player.teleport(leaveLocation);
         player.sendActionBar(ChatColor.YELLOW + name + " verlassen.");
+        this.reportPlayers();
     }
     
     protected  void prepareGame()
@@ -288,13 +300,14 @@ public class Arena implements Listener{
         isRunning = false;
         if(countDownTask != null)
             return;
+        this.reportPlayers();
         
         Bukkit.getScheduler().runTaskLater(Spleef.plugin, new Runnable() {
             @Override
             public void run() {
                 prepareGame();
             }
-        }, 100l);
+        }, this.preparationTime*20);
     }
     
     protected void win(SwissSMPler player)
@@ -311,7 +324,7 @@ public class Arena implements Listener{
             }
             
             tempPlayer = SwissSMPler.get(uuid);
-            player.sendTitle("VERLOREN", player.getDisplayName() + ChatColor.RED + " hat gewonnen!");
+            tempPlayer.sendTitle("VERLOREN", tempPlayer.getDisplayName() + ChatColor.RED + " hat gewonnen!");
         }
     }
     
