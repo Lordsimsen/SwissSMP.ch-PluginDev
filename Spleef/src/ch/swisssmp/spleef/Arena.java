@@ -70,6 +70,7 @@ public class Arena implements Listener{
     protected SwissSMPler tempPlayer;
     
     protected boolean isRunning = false;
+    private boolean isPreparationPhase = false;
     
     public Arena(ConfigurationSection dataSection)
     {
@@ -184,24 +185,29 @@ public class Arena implements Listener{
         {
             if(countDownTask == null) 
             {
+            	isPreparationPhase = true;
                 countDownTask = Bukkit.getScheduler().runTaskLater(Spleef.plugin, new Runnable() {
                     @Override
                     public void run() {
+                    	isPreparationPhase = false;
                         countDownTask = null;
                         prepareGame();
                     }
-                }, preparationTime*20);
+                }, preparationTime*20);  
                 countDownStart = System.currentTimeMillis();
             }
-            int remainingTime = preparationTime-(int)((System.currentTimeMillis()-countDownStart)/1000);
             
-            for(UUID uuid : player_uuids)
-            {
-                tempPlayer = SwissSMPler.get(uuid);
-                if(tempPlayer == null)
-                    continue;
+            if(isPreparationPhase){
+                int remainingTime = preparationTime-(int)((System.currentTimeMillis()-countDownStart)/1000);
                 
-                tempPlayer.sendActionBar(ChatColor.GREEN + String.valueOf(player_uuids.size()) + ChatColor.YELLOW + " Spieler, starte in " + remainingTime + " Sekunden...");
+                for(UUID uuid : player_uuids)
+                {
+                    tempPlayer = SwissSMPler.get(uuid);
+                    if(tempPlayer == null)
+                        continue;
+                    
+                    tempPlayer.sendActionBar(ChatColor.GREEN + String.valueOf(player_uuids.size()) + ChatColor.YELLOW + " Spieler, starte in " + remainingTime + " Sekunden...");
+                }
             }
                     
         }
