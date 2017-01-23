@@ -36,6 +36,19 @@ public class PlayerCommand implements CommandExecutor{
                     sender.sendMessage("Der Debug-Modus ist nun deaktiviert.");
                 
                 break;
+            case "reset":
+            	if(args.length<2){
+            		sender.sendMessage("Bitte eine ID angeben.");
+            		return true;
+            	}
+            	int arena_id = Integer.parseInt(args[1]);
+            	Arena arena = Arena.get(arena_id);
+            	if(arena==null){
+            		sender.sendMessage("Arena "+args[1]+" nicht gefunden.");
+            		return true;
+            	}
+            	arena.resetGame();
+            	sender.sendMessage("Arena "+arena_id+" zurückgesetzt.");
                 
             default:
                 break;

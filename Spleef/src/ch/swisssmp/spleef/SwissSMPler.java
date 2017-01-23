@@ -18,10 +18,6 @@ import net.minecraft.server.v1_11_R1.PacketPlayOutTitle.EnumTitleAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-/**
- *
- * @author cagat
- */
 public class SwissSMPler {
     protected final Player player;
     private SwissSMPler(Player player){
