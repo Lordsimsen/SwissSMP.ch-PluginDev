@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.RandomizedLocation;
 import ch.swisssmp.utils.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,9 +51,9 @@ public class Arena implements Listener{
     protected final int preparationTime;
     
     //Locations
-    protected final Location joinLocation;
-    protected final Location leaveLocation;
-    protected final Location spectateLocation;
+    protected final RandomizedLocation joinLocation;
+    protected final RandomizedLocation leaveLocation;
+    protected final RandomizedLocation spectateLocation;
     protected final Location schematicLocation;
     
     //Player lists
@@ -82,10 +83,10 @@ public class Arena implements Listener{
         this.schematicName = dataSection.getString("schematic");
         
         ConfigurationSection pointsSection = dataSection.getConfigurationSection("points");
-        this.joinLocation = getLocationFromYaml(pointsSection.getConfigurationSection("join"));
-        this.leaveLocation = getLocationFromYaml(pointsSection.getConfigurationSection("leave"));
-        this.spectateLocation = getLocationFromYaml(pointsSection.getConfigurationSection("spectator"));
-        this.schematicLocation = getLocationFromYaml(pointsSection.getConfigurationSection("schematic"));
+        this.joinLocation = pointsSection.getRandomizedLocation("join");
+        this.leaveLocation = pointsSection.getRandomizedLocation("leave");
+        this.spectateLocation = pointsSection.getRandomizedLocation("spectator");
+        this.schematicLocation = pointsSection.getLocation("schematic");
         
         ConfigurationSection regionsSection = dataSection.getConfigurationSection("regions");
         this.enterRegionName = regionsSection.getString("enter");
@@ -123,7 +124,7 @@ public class Arena implements Listener{
         Block block = event.getClickedBlock();
         Material material = block.getType();
         
-        if(!breakableMaterials.contains(material) || !alive_uuids.contains(player.getUniqueId()) || isRunning)
+        if(!breakableMaterials.contains(material) || !alive_uuids.contains(player.getUniqueId()) || !isRunning)
         {
             event.setCancelled(true);
             return;
@@ -169,7 +170,7 @@ public class Arena implements Listener{
         if(player.getGameMode()!=GameMode.SURVIVAL) return;
         if(!player.hasPermission("spleef.play")) return;
         player.setInvulnerable(true);
-        player.teleport(joinLocation);
+        player.teleport(joinLocation.getLocation(true, true));
         player.sendActionBar(ChatColor.YELLOW + name + " betreten.");
         for(String line : instructions)
         {
@@ -234,7 +235,7 @@ public class Arena implements Listener{
         if(alive_uuids.contains(player.getUniqueId()))
         {
             this.alive_uuids.remove(player.getUniqueId());
-            player.teleport(spectateLocation);
+            player.teleport(spectateLocation.getLocation(true, true));
             player.sendActionBar(ChatColor.RED + deathMessages.get(random.nextInt(deathMessages.size())));
             
             if(alive_uuids.size() <= 1)
@@ -251,7 +252,7 @@ public class Arena implements Listener{
 
         player.setInvulnerable(false);
         this.player_uuids.remove(player.getUniqueId());
-        player.teleport(leaveLocation);
+        player.teleport(leaveLocation.getLocation(true, true));
         player.sendActionBar(ChatColor.YELLOW + name + " verlassen.");
         this.reportPlayers();
     }
@@ -267,7 +268,7 @@ public class Arena implements Listener{
             if(player == null)
                 continue;
             
-            player.teleport(joinLocation);
+            player.teleport(joinLocation.getLocation(true, true));
             player.sendActionBar(ChatColor.YELLOW + "Neuer Partie beigetreten.");
         }
         

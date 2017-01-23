@@ -9,7 +9,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class Spleef extends JavaPlugin{
 	protected static Spleef plugin;
@@ -26,6 +25,8 @@ public class Spleef extends JavaPlugin{
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		
+		dataFolder = this.getDataFolder();
 		
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("spleef").setExecutor(playerCommand);

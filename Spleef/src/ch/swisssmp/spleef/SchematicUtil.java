@@ -28,7 +28,7 @@ public class SchematicUtil {
         try {
 			Bukkit.dispatchCommand(player, "/copy"); 
             File schematic = new File(Spleef.dataFolder, "/schematics/" + schematicName + ".schematic");
- 
+            schematic.getParentFile().mkdirs();
             WorldEditPlugin wep = Spleef.worldEditPlugin;
  
             LocalSession localSession = wep.getSession(player);
@@ -56,10 +56,13 @@ public class SchematicUtil {
     
 	public static boolean paste(String schematicName, Location pasteLoc) {
         try {
-        	String fileName = "/schematics/" + schematicName;
+        	String fileName = "/schematics/" + schematicName + ".schematic";
         	Spleef.info("Loading schematic from "+fileName);
             File file = new File(Spleef.dataFolder, fileName);
- 
+            if(!file.exists()){
+            	Spleef.info("Couldn't load "+fileName);
+            	return false;
+            }
             EditSession editSession = new EditSession(new BukkitWorld(pasteLoc.getWorld()), 999999999);
             editSession.enableQueue();
  
