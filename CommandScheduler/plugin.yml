@@ -1,0 +1,16 @@
+main: ch.swisssmp.commandscheduler.CommandScheduler
+version: 1.0
+name: CommandScheduler
+author: detig_iii
+description: Execute commands from remote source
+depend: [WebCore]
+permissions: 
+  commandscheduler.admin:
+    default: op
+    description: Allows you to manage the plugin ingame
+commands:
+  commandscheduler:
+    aliases: [cschedule,cscheduler]
+    usage: /commandscheduler [run/toggle]
+    description: Runs all scheduled commands immediatly
+    permission: commandscheduler.admin

@@ -1,0 +1,21 @@
+main: ch.swisssmp.craftbank.Main
+version: 1.0
+name: CraftBank
+author: detig_iii
+description: Use banks to store experience
+permissions:
+  craftbank.admin:
+    description: Allows you to reload the config
+    default: false
+  craftbank.use:
+    description: Allows you to use your bank account
+    default: false
+  craftbank.employee:
+    description: Allows you to set up bank counters and ATMs in your city
+    default: false
+commands:
+  CraftBank:
+    description: use commands of the CraftBank plugin
+    usage: /CraftBank [debug/reload]
+    aliases: [cb]
+    permission: craftbank.admin

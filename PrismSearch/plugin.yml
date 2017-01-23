@@ -1,0 +1,14 @@
+main: ch.swisssmp.prismsearch.Main
+version: 1.0
+name: PrismSearch
+author: detig_iii
+description: Useful tools for searching the prism db
+permissions:
+  prismsearch.admin:
+    description: Allows you to operate the race
+    default: op
+commands:
+  search:
+    description: Hauptbefehl
+    usage: /search - Schaltet die Suche an und ab, Resultate sind im Web-Tool
+    permission: prismsearch.admin

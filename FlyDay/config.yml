@@ -1,0 +1,6 @@
+flyday: FALSE
+permitted_worlds:
+- world
+permission: essentials.fly
+command: pex user {player} add {permission}
+reverse_command: pex user {player} remove {permission}

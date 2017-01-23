@@ -1,0 +1,9 @@
+main: ch.swisssmp.bigdoors.Main
+version: 1.0
+name: BigDoors
+author: detig_iii
+description: Create big objects with two shapes and switch between them with levers
+commands:
+  BigDoors:
+    description: use commands of the BigDoors plugin
+    aliases: [door]

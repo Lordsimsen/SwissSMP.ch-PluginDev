@@ -1,0 +1,5 @@
+main: ch.swisssmp.interactivelore.Main
+version: 1.0
+name: InteractiveLore
+author: detig_iii
+description: Create interactive elements that tell lore

@@ -1,0 +1,14 @@
+main: ch.swisssmp.chatnotifier.Main
+version: 1.0
+name: ChatNotifier
+author: detig_iii
+description: Get a audio-notification when someone types a certain word.
+permissions:
+  chatnotifier.personalalert:
+    description: Sends personal messages to the webinterface to alert the player
+    default: op
+commands:
+  chat:
+    description: Send a chat message
+    default: op
+    usage: /chat [sender] [message]

@@ -1,0 +1,12 @@
+main: ch.swisssmp.craftmultiverse.Main
+version: 1.0
+name: CraftMultiverse
+author: detig_iii
+description: Manage multiple dimensions
+permissions:
+  multiverse.*:
+    multiverse.edit
+commands:
+  mv:
+    description: Main command of the CraftMultiverse Plugin
+    usage: /mv [action] [world] [arguments]

@@ -1,0 +1,14 @@
+main: ch.swisssmp.tablist.TabList
+version: 1.0
+name: TabList
+author: detig_iii
+description: Make the Tab List beautiful again
+permissions:
+  tablist.admin:
+    description: Allows you to change settings
+    default: op
+commands:
+  tablist:
+    description: Perform various actions
+    usage: /tablist [reload/debug]
+    permission: tablist.admin

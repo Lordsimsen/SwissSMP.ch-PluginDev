@@ -1,0 +1,8 @@
+main: ch.swisssmp.craftpolice.Main
+version: 1.0
+name: CraftPolice
+commands:
+  CraftPolice:
+    description: use commands of the CraftPolice plugin
+    usage: /craftpolice
+    aliases: [cp]

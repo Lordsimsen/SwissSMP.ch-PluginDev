@@ -1,0 +1,16 @@
+main: ch.swisssmp.webcore.Main
+version: 1.0
+name: WebCore
+author: detig_iii
+description: Get resources from external source
+load: startup
+depend: [SwissSMPUtils]
+permissions: 
+  webcore.admin:
+    default: op
+    description: Allows you to change settings ingame
+commands:
+  webcore:
+    usage: /webcore [reload/debug]
+    description: Change settings ingame
+    permission: webcore.admin

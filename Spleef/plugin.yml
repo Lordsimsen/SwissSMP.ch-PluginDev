@@ -1,0 +1,15 @@
+name: Spleef
+authors: [Nevac, detig_iii]
+version: 1.0.0
+description: Awesome Spleef SwissSMP version!!!!!11einself
+
+main: ch.swisssmp.spleef.Spleef
+permissions:
+  spleef.admin:
+    description: Allows you to use the power of the gods
+    default: op
+commands:
+  spleef:
+    description: Admin commands
+    usage: /spleef [action] [args]
+    permission: spleef.admin

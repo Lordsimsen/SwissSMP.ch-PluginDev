@@ -1,0 +1,17 @@
+main: ch.swisssmp.regioneffects.Main
+version: 1.0
+name: RegionEffects
+author: detig_iii
+description: affect players with effects when they enter or leave regions
+depend: [WorldGuard]
+permissions:
+  regioneffects.admin:
+    description: Allows you to use RegionEffects
+    default: op
+commands:
+  RegionEffects:
+    description: use commands of the RegionEffect plugin
+    usage: /regioneffects
+    aliases: [re, regioneffect]
+    default: op
+    permission: refioneffects.admin

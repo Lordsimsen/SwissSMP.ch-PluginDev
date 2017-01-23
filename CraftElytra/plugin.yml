@@ -1,0 +1,23 @@
+main: ch.swisssmp.craftelytra.Main
+version: 1.0
+name: CraftElytra
+author: detig_iii
+description: Craft Elytra like any other item
+permissions:
+  craftelytra.admin:
+    description: Override the template to validate new gates
+    default: op
+  craftelytra.elytragate.use:
+    description: Get a boost when flying through elytra gates
+    default: true
+  craftelytra.elytragate.build:
+    description: Build Elytra Gates
+    default: op
+  craftelytra.craft:
+    description: Craft Elytra
+    default: op
+commands:
+  elytragate:
+    usage: /elytragate
+    permission: craftelytra.admin
+depend: [WorldGuard]

@@ -1,0 +1,16 @@
+main: ch.swisssmp.permissionmanager.PermissionManager
+version: 1.0
+name: PermissionManager
+author: detig_iii
+description: Enable Permission Management from a Web Interface
+load: startup
+depend: [PermissionsEx, WebCore, TabList]
+permissions:
+  permissionmanager.admin:
+    default: op
+    description: Allows you to change settings ingame
+commands:
+  permission:
+    usage: /permission [reload/debug]
+    description: Change settings ingame
+    permission: permissionmanager.admin

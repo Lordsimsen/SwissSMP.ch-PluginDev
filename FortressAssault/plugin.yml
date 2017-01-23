@@ -1,0 +1,23 @@
+main: ch.swisssmp.fortressassault.Main
+version: 1.0
+name: FortressAssault
+author: detig_iii
+description: Play the minigame Fortress Assault
+depend: [WorldGuard]
+permissions: 
+  fortressassault.admin:
+    default: op
+    description: Allows you to manage the Minigame
+commands:
+  fortress:
+    description: use general commands of the FortressAssault plugin
+    usage: /fortress [reset/advance/edit/reload/debug]
+    aliases: [fa]
+    permission: fortressassault.admin
+  sign:
+    description: create floating text
+    usage: /sign [text] [color=white]
+    permission: fortressassault.admin
+  teams:
+    description: Listet alle Spieler auf
+    usage: /teams

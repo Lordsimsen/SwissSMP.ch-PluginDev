@@ -1,0 +1,13 @@
+world:
+  name: World
+  generator: 
+  gamemode: SURVIVAL
+  daylightcycle: TRUE
+  mobspawning: TRUE
+  difficulty: HARD
+  pvp: TRUE
+  seed: yourseed
+  spawn:
+    x: 0
+    y: 0
+    z: 0

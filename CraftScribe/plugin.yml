@@ -1,0 +1,9 @@
+main: ch.swisssmp.craftscribe.Main
+version: 1.0
+name: CraftScribe
+author: detig_iii
+description: Disenchant items
+permissions:
+  craftscribe.use:
+    description: Allows you to disenchant items
+    default: false

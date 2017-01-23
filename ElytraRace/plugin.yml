@@ -1,0 +1,27 @@
+main: ch.swisssmp.elytrarace.Main
+version: 1.0
+name: ElytraRace
+author: detig_iii
+description: Make racing tracks for Elytra!
+permissions:
+  elytrarace.admin:
+    description: Allows you to operate the race
+    default: false
+commands:
+  spielen:
+    description: Dem Rennen als Spieler beitreten
+    usage: /spielen
+    aliases: [play]
+  zuschauen:
+    description: Dem Rennen als Zuschauer beiwohnen
+    usage: /zuschauen
+    aliases: [spectate]
+  rangliste:
+    description: Zeigt dir eine Rangliste an
+    usage: /rangliste
+    aliases: [rank,ranking,highscore,highscores]
+  reset:
+    description: Setzt alle Punkte auf 0 und beendet alle Rennen
+    usage: /reset
+    permission: elytrarace.admin
+depend: [WorldGuard]

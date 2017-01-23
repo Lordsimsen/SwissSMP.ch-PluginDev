@@ -1,0 +1,8 @@
+main: ch.swisssmp.flyday.Main
+version: 1.0
+name: FlyDay
+author: detig_iii
+description: Enable and disable FlyDay
+commands:
+  FlyDay:
+    description: Enable and disable the flyday

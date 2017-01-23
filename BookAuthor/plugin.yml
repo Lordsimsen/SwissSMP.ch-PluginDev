@@ -1,0 +1,22 @@
+main: ch.swisssmp.bookauthor.Main
+version: 1.0
+name: BookAuthor
+author: detig_iii
+description: Edit books the way you've always wanted!
+permissions:
+  bookauthor.admin:
+    description: Allows you to operate the plugin
+    default: false
+commands:
+  bookauthor:
+    description: Den Buch-Autor setzen
+    usage: /bookauthor [name]
+    permission: bookauthor.admin
+  booktitle:
+    description: Den Buch-Titel setzen
+    usage: /booktitle [title]
+    permission: bookauthor.admin
+  booktype:
+    description: Den Buch-Typ setzen
+    usage: /booktype [type] - original (o), copy of original (co), copy of copy (cc), tattered (t)
+    permission: bookauthor.admin

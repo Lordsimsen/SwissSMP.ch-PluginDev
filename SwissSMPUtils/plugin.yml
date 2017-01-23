@@ -1,0 +1,6 @@
+main: ch.swisssmp.utils.SwissSMPUtils
+version: 1.0
+name: SwissSMPUtils
+author: detig_iii
+description: Provides core functionality for other plugins
+load: startup
