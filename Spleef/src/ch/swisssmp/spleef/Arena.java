@@ -16,8 +16,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -29,7 +29,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class Arena implements Listener{
     
-    private final static HashMap<Integer,Arena> arenas = new HashMap<>();
+    private final static HashMap<Integer,Arena> arenas = new HashMap<Integer,Arena>();
     private static BukkitTask countDownTask = null;
     private static long countDownStart = 0;
     private static Random random = new Random();
@@ -54,11 +54,11 @@ public class Arena implements Listener{
     protected final Location schematicLocation;
     
     //Player lists
-    protected final ArrayList<UUID> player_uuids = new ArrayList<>();
-    protected final ArrayList<UUID> alive_uuids = new ArrayList<>();
+    protected final ArrayList<UUID> player_uuids = new ArrayList<UUID>();
+    protected final ArrayList<UUID> alive_uuids = new ArrayList<UUID>();
     
     //Other
-    protected final ArrayList<Material> breakableMaterials = new ArrayList<>();
+    protected final ArrayList<Material> breakableMaterials = new ArrayList<Material>();
     protected final List<String> instructions;
     protected final List<String> deathMessages;
     protected final List<String> winMessages;
