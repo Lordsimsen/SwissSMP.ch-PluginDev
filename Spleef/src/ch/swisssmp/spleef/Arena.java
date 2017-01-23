@@ -293,6 +293,7 @@ public class Arena implements Listener{
     
     protected void startGame()
     {
+    	isRunning = true;
         alive_uuids.clear();
         for(UUID uuid : player_uuids)
         {
