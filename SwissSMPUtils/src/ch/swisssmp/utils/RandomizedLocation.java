@@ -11,6 +11,7 @@ public class RandomizedLocation {
 	private final double range;
 	
 	public RandomizedLocation(Location location, double range){
+		if(location==null) throw new NullPointerException("Cannot create a randomized location without a location!");
 		this.location = location;
 		this.range = range;
 	}

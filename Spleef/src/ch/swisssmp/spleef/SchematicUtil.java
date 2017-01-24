@@ -63,6 +63,14 @@ public class SchematicUtil {
             	Spleef.info("Couldn't load "+fileName);
             	return false;
             }
+            if(pasteLoc==null){
+            	Spleef.debug("The location to paste the schematic is invalid.");
+            	return false;
+            }
+            if(pasteLoc.getWorld()==null){
+            	Spleef.debug("The world to paste the schematic is invalid.");
+            	return false;
+            }
             EditSession editSession = new EditSession(new BukkitWorld(pasteLoc.getWorld()), 999999999);
             editSession.enableQueue();
  
