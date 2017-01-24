@@ -52,7 +52,7 @@ public class PermissionManager extends JavaPlugin{
 		try {
 			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/permissions.php");
 			if(yamlConfiguration==null){
-				Bukkit.getLogger().info("Permissions couldn't be loaded. Trying again in 5 minutes.");
+				Bukkit.getLogger().info("Permissions couldn't be loaded.");
 				return;
 			}
 			yamlConfiguration.save(new File(permissionsExPlugin.getDataFolder(), "permissions.yml"));

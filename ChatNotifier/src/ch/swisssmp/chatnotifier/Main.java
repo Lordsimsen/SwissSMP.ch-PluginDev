@@ -49,10 +49,10 @@ public class Main extends JavaPlugin implements Listener{
 		String world = event.getPlayer().getWorld().getName();
 		String message = event.getMessage();
 		try{
-		DataSource.getResponse("chat_notifications/.php", new String[]{
-			"player_uuid="+player_uuid,
-			"name="+name,
-			"world="+world,
+		DataSource.getResponse("chat_notifications/chat.php", new String[]{
+			"player_uuid="+URLEncoder.encode(player_uuid, "utf-8"),
+			"name="+URLEncoder.encode(name, "utf-8"),
+			"world="+URLEncoder.encode(world, "utf-8"),
 			"message="+URLEncoder.encode(message, "utf-8")
 		});
 		}
@@ -89,9 +89,9 @@ public class Main extends JavaPlugin implements Listener{
 					String world = event.getPlayer().getWorld().getName();
 					message = "(an "+recipient+") "+event.getMessage().substring("/tell".length()+recipient.length()+2);
 					DataSource.getResponse("chat_notifications/chat.php", new String[]{
-						"player_uuid="+player_uuid,
-						"name="+name,
-						"world="+world,
+						"player_uuid="+URLEncoder.encode(player_uuid, "utf-8"),
+						"name="+URLEncoder.encode(name, "utf-8"),
+						"world="+URLEncoder.encode(world, "utf-8"),
 						"message="+URLEncoder.encode(message, "utf-8")
 					});
 					}

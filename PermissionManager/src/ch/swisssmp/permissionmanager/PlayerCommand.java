@@ -8,7 +8,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 
+import ch.swisssmp.commandscheduler.CommandScheduler;
 import ch.swisssmp.webcore.DataSource;
 
 public class PlayerCommand implements CommandExecutor{
@@ -99,10 +101,15 @@ public class PlayerCommand implements CommandExecutor{
 				else{
 					String user = args[1];
 					try {
-						DataSource.getResponse("permissions/promote.php", new String[]{
-								"user="+URLEncoder.encode(user, "utf-8")
-						});
-						PermissionManager.loadPermissions();
+						String senderName = "console";
+						if(sender instanceof Player){
+							senderName = ((Player)sender).getUniqueId().toString();
+						}
+						sender.sendMessage(DataSource.getResponse("permissions/promote.php", new String[]{
+								"user="+URLEncoder.encode(user, "utf-8"),
+								"promoter="+URLEncoder.encode(senderName, "utf-8")
+						}));
+						CommandScheduler.runCommands();
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
 					}
@@ -117,10 +124,15 @@ public class PlayerCommand implements CommandExecutor{
 				else{
 					String user = args[1];
 					try {
-						DataSource.getResponse("permissions/demote.php", new String[]{
-								"user="+URLEncoder.encode(user, "utf-8")
-						});
-						PermissionManager.loadPermissions();
+						String senderName = "console";
+						if(sender instanceof Player){
+							senderName = ((Player)sender).getUniqueId().toString();
+						}
+						sender.sendMessage(DataSource.getResponse("permissions/demote.php", new String[]{
+								"user="+URLEncoder.encode(user, "utf-8"),
+								"promoter="+URLEncoder.encode(senderName, "utf-8")
+						}));
+						CommandScheduler.runCommands();
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
 					}
