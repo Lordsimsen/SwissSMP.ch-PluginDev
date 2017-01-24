@@ -1,4 +1,4 @@
-package ch.swisssmp.utils;
+package ch.swisssmp.holosign;
 
 import java.io.File;
 import java.util.logging.Logger;
@@ -6,11 +6,11 @@ import java.util.logging.Logger;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class SwissSMPUtils extends JavaPlugin{
+public class HoloSign extends JavaPlugin{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
 	protected static File dataFolder;
-	protected static SwissSMPUtils plugin;
+	protected static HoloSign plugin;
 	protected static boolean debug;
 	
 	@Override
@@ -19,6 +19,8 @@ public class SwissSMPUtils extends JavaPlugin{
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		
+		this.getCommand("sign").setExecutor(new PlayerCommand());
 	}
 
 	@Override

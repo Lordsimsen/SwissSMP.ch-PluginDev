@@ -1,0 +1,16 @@
+main: ch.swisssmp.holosign.HoloSign
+version: 1.0
+name: HoloSign
+author: detig_iii
+description: Place floating text into the world
+permissions: 
+  holosign.admin:
+    default: op
+    description: Allows you to use the plugin
+commands:
+  sign:
+    usage: |
+      /sign create [color] [text]
+      /sign delete [contains text] (range=5) 
+    description: Place a HoloSign
+    permission: holosign.admin
