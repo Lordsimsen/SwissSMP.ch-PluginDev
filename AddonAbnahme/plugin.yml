@@ -16,5 +16,4 @@ commands:
            Usage:
            /AddonSign update [addon_instance_id]
            /AddonSign clear [x] [y] [z]
-    aliases: [sign]
     permission: addonabnahme.admin
