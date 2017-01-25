@@ -112,15 +112,18 @@ public class Arena implements Listener{
         if(hand != EquipmentSlot.HAND)
             return;
         
-        Action action = event.getAction();
-        
-        if(action != Action.LEFT_CLICK_BLOCK)
-            return;
-        
         Player player = event.getPlayer();
         
         if(!player_uuids.contains(player.getUniqueId()))
             return;
+        
+        Action action = event.getAction();
+        
+        if(action != Action.LEFT_CLICK_BLOCK)
+        {
+        	event.setCancelled(true);
+        	return;
+        }
         
         Block block = event.getClickedBlock();
         Material material = block.getType();
@@ -156,7 +159,9 @@ public class Arena implements Listener{
     private void onPlayerLogout(PlayerQuitEvent event)
     {
     	Player player = event.getPlayer();
-    	leave(SwissSMPler.get(player));
+    	if(this.player_uuids.contains(player.getUniqueId())){
+        	leave(SwissSMPler.get(player));
+    	}
     }
     
     protected  void join(SwissSMPler player)
