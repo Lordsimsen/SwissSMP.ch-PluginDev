@@ -1,9 +1,9 @@
 package ch.swisssmp.craftbank;
 
-import org.bukkit.entity.Player;
+import ch.swisssmp.utils.SwissSMPler;
 
 public class ExperienceManager {
-	public static int getExperience(Player player){
+	public static int getExperience(SwissSMPler player){
 		int level = player.getLevel();
 		float levelProgress = player.getExp();
 		int levelExperience = convertLevelToExperience(level);
