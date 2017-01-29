@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,6 +17,7 @@ public class Main extends JavaPlugin{
 	protected static File configFile;
 	protected static YamlConfiguration config;
 	protected static PluginDescriptionFile pdfFile;
+	protected static String server_name = "WebCoreServer";
 	protected static File dataFolder;
 	protected static Main plugin;
 	protected static boolean debug;
@@ -38,6 +41,14 @@ public class Main extends JavaPlugin{
 	    }
 		config = new YamlConfiguration();
 		loadYamls();
+		
+		try {
+			DataSource.getResponse("session/start.php", new String[]{
+					"name="+URLEncoder.encode(server_name, "utf-8")
+			});
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -70,6 +81,9 @@ public class Main extends JavaPlugin{
         	config.load(configFile);
     		DataSource.rootURL = config.getString("webserver");
     		DataSource.pluginToken = config.getString("token");
+    		if(config.contains("name")){
+        		server_name = config.getString("name");
+    		}
     		debug = config.getBoolean("debug");
     		if(!DataSource.rootURL.endsWith("/")){
     			DataSource.rootURL+="/";

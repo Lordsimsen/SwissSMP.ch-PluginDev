@@ -1,4 +1,6 @@
 webserver: http://127.0.0.1/api
 token: yourtoken
+#use this name to identify your server in the web interface
+name: WebCoreServer
 #set this to true to get output of web traffic in the console
 debug: false
