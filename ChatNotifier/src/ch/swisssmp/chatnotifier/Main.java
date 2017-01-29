@@ -87,7 +87,9 @@ public class Main extends JavaPlugin implements Listener{
 					String player_uuid = event.getPlayer().getUniqueId().toString();
 					String name = event.getPlayer().getName();
 					String world = event.getPlayer().getWorld().getName();
-					message = "(an "+recipient+") "+event.getMessage().substring("/tell".length()+recipient.length()+2);
+					int offset = "/tell".length()+recipient.length()+2;
+					if(message.length()<=offset) return;
+					message = "(an "+recipient+") "+event.getMessage().substring(offset);
 					DataSource.getResponse("chat_notifications/chat.php", new String[]{
 						"player_uuid="+URLEncoder.encode(player_uuid, "utf-8"),
 						"name="+URLEncoder.encode(name, "utf-8"),
