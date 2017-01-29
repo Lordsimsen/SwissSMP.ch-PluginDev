@@ -19,6 +19,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.RandomizedLocation;
+import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
