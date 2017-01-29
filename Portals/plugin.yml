@@ -1,0 +1,6 @@
+main: ch.swisssmp.portals.Portals
+version: 1.0
+name: Portals
+author: detig_iii
+description: Create Teleport Portals
+depend: [WebCore]
