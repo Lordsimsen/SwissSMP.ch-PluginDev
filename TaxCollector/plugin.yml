@@ -9,9 +9,9 @@ permissions:
     description: Allows you to use the plugin
     default: op
 commands:
-  taxcollector:
+  tax:
     description: Use the plugin
     usage: |
-      /taxcollector collect
-      /taxcollector info
+      /tax collect
+      /tax info
     permission: taxcollector.admin

@@ -36,7 +36,7 @@ public class TaxCollector extends JavaPlugin{
 		logger = Logger.getLogger("Minecraft");
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
-		this.getCommand("taxcollector").setExecutor(new ConsoleCommand());
+		this.getCommand("tax").setExecutor(new ConsoleCommand());
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class TaxCollector extends JavaPlugin{
 		if(yamlConfiguration==null) return;
 		for(String key : yamlConfiguration.getKeys(false)){
 			ConfigurationSection taxSection = yamlConfiguration.getConfigurationSection(key);
-			int city_id = taxSection.getInt("city_id");
+			int addon_id = taxSection.getInt("addon_id");
 			HashMap<String, Integer> resources = new HashMap<String, Integer>();
 			Location chestLocation = taxSection.getLocation("chest");
 			if(chestLocation==null){
@@ -110,7 +110,8 @@ public class TaxCollector extends JavaPlugin{
 				Inventory inventory = ((Chest)blockState).getInventory();
 				for(ItemStack itemStack : inventory){
 					if(itemStack==null) continue;
-					String displayName = itemStack.getItemMeta().getDisplayName();
+					@SuppressWarnings("deprecation")
+					String displayName = itemStack.getType().toString()+"-"+itemStack.getData().getData();
 					int amount = itemStack.getAmount();
 					if(!resources.containsKey(displayName)){
 						resources.put(displayName, amount);
@@ -124,7 +125,7 @@ public class TaxCollector extends JavaPlugin{
 				continue;
 			}
 			List<String> arguments = new ArrayList<String>();
-			arguments.add("city_id="+city_id);
+			arguments.add("addon="+addon_id);
 			for(Entry<String,Integer> entry : resources.entrySet()){
 				arguments.add("resources["+entry.getKey()+"]="+entry.getValue());
 			}
