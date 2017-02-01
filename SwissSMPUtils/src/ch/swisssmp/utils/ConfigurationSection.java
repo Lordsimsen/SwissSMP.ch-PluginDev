@@ -7,9 +7,23 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
+
+import ch.swisssmp.webcore.WebCore;
 
 public class ConfigurationSection{
 
@@ -81,12 +95,35 @@ public class ConfigurationSection{
 	public Color getColor(String arg0) {
 		return configurationSection.getColor(arg0);
 	}
-
 	
-	public Color getColor(String arg0, Color arg1) {
-		return configurationSection.getColor(arg0, arg1);
+	public ShapedRecipe getShapedRecipe(String arg0){
+		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
+		ItemStack resultStack = recipeSection.getItemStack("result");
+		ShapedRecipe result = new ShapedRecipe(resultStack);
+		List<String> shape = recipeSection.getStringList("shape");
+		String[] shapeArray = new String[shape.size()];
+		result.shape(shape.toArray(shapeArray));
+		ConfigurationSection ingredientsSection = recipeSection.getConfigurationSection("ingredients");
+		for(String key : ingredientsSection.getKeys(false)){
+			MaterialData material = ingredientsSection.getMaterialData(key);
+			result.setIngredient(key.toCharArray()[0], material);
+		}
+		return result;
 	}
 
+	public ShapelessRecipe getShapelessRecipe(String arg0){
+		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
+		ItemStack resultStack = recipeSection.getItemStack("result");
+		ShapelessRecipe result = new ShapelessRecipe(resultStack);
+		ConfigurationSection ingredientsSection = recipeSection.getConfigurationSection("ingredients");
+		for(String key : ingredientsSection.getKeys(false)){
+			ConfigurationSection ingredientSection = ingredientsSection.getConfigurationSection(key);
+			int count = ingredientSection.getInt("count");
+			MaterialData material = ingredientSection.getMaterialData(key);
+			result.addIngredient(count, material);
+		}
+		return result;
+	}
 	
 	public ConfigurationSection getConfigurationSection(String arg0) {
 		return new ConfigurationSection(configurationSection.getConfigurationSection(arg0));
@@ -129,9 +166,107 @@ public class ConfigurationSection{
 
 	
 	public ItemStack getItemStack(String arg0) {
-		return configurationSection.getItemStack(arg0);
+		ConfigurationSection configurationSection = this.getConfigurationSection(arg0);
+		MaterialData material = configurationSection.getMaterialData("material");
+		int amount = configurationSection.getInt("amount");
+		@SuppressWarnings("deprecation")
+		ItemStack result = new ItemStack(material.getItemType(), amount, material.getData());
+		if(configurationSection.contains("durability")){
+			result.setDurability((short) configurationSection.getInt("durability"));
+		}
+		ItemMeta itemMeta = result.getItemMeta();
+		if(configurationSection.contains("name")){
+			String name = configurationSection.getString("name");
+			itemMeta.setDisplayName(name);
+		}
+		if(configurationSection.contains("lore")){
+			List<String> lore = configurationSection.getStringList("lore");
+			itemMeta.setLore(lore);
+		}
+		if(configurationSection.contains("unbreakable")){
+			itemMeta.setUnbreakable(configurationSection.getInt("unbreakable")==1);
+		}
+		if(configurationSection.contains("enchantments")){
+			ConfigurationSection enchantmentsSection = configurationSection.getConfigurationSection("enchantments");
+			for(String key : enchantmentsSection.getKeys(false)){
+				ConfigurationSection enchantmentSection = enchantmentsSection.getConfigurationSection(key);
+				String enchantmentName = enchantmentSection.getString("enchantment");
+				try{
+					Enchantment enchantment = Enchantment.getByName(enchantmentName);
+					int level = enchantmentSection.getInt("level");
+					itemMeta.addEnchant(enchantment, level, true);
+				}
+				catch(Exception e){
+					WebCore.debug("Unkown enchantment "+enchantmentName);
+				}
+			}
+		}
+		if(configurationSection.contains("flags")){
+			ConfigurationSection flagsSection = configurationSection.getConfigurationSection("flags");
+			for(String flag : flagsSection.getKeys(false)){
+				try{
+					itemMeta.addItemFlags(ItemFlag.valueOf(flag));
+				}
+				catch(Exception e){
+					WebCore.debug("Unkown item flag "+flag);
+				}
+			}
+		}
+		if(configurationSection.contains("potion") && itemMeta instanceof PotionMeta){
+			ConfigurationSection potionSection = configurationSection.getConfigurationSection("potion");
+			PotionMeta potionMeta = (PotionMeta) itemMeta;
+			PotionData base = potionSection.getPotionData("base");
+			if(base!=null){
+				potionMeta.setBasePotionData(base);
+			}
+			if(potionSection.contains("color")){
+				Color color = potionSection.getColor("color");
+				potionMeta.setColor(color);
+			}
+			if(potionSection.contains("custom")){
+				ConfigurationSection customsSection = potionSection.getConfigurationSection("custom");
+				for(String key : customsSection.getKeys(false)){
+					PotionEffect potionEffect = customsSection.getPotionEffect(key);
+					potionMeta.addCustomEffect(potionEffect, true);
+				}
+			}
+		}
+		result.setItemMeta(itemMeta);
+		return result;
 	}
 
+	public PotionData getPotionData(String arg0){
+		ConfigurationSection potionSection = this.getConfigurationSection(arg0);
+		String typeName = potionSection.getString("type");
+		try{
+			PotionType type = PotionType.valueOf(typeName);
+			boolean extended = potionSection.getInt("extended")==1;
+			boolean upgraded = potionSection.getInt("upgraded")==1;
+			return new PotionData(type, extended, upgraded);
+		}
+		catch(Exception e){
+			WebCore.debug("Unkown potion type "+typeName);
+			return null;
+		}
+	}
+	
+	public PotionEffect getPotionEffect(String arg0){
+		ConfigurationSection potionSection = this.getConfigurationSection(arg0);
+		String typeName = potionSection.getString("type");
+		try{
+			PotionEffectType type = PotionEffectType.getByName(typeName);
+			int duration = potionSection.getInt("duration");
+			int amplifier = potionSection.getInt("amplifier");
+			boolean ambient = potionSection.getInt("ambient")==1;
+			boolean particles = potionSection.getInt("particles")==1;
+			Color color = potionSection.getColor("color");
+			return new PotionEffect(type, duration, amplifier, ambient, particles, color);
+		}
+		catch(Exception e){
+			WebCore.debug("Unkown potion type "+typeName);
+			return null;
+		}
+	}
 	
 	public Set<String> getKeys(boolean arg0) {
 		return configurationSection.getKeys(arg0);
@@ -162,6 +297,28 @@ public class ConfigurationSection{
 		return configurationSection.getLongList(arg0);
 	}
 
+	public Material getMaterial(String arg0){
+		try{
+			return Material.valueOf(configurationSection.getString(arg0));
+		}
+		catch(Exception e){
+			return null;
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	public MaterialData getMaterialData(String arg0){
+		try{
+			String[] parts = this.configurationSection.getString(arg0).split(":");
+			Material material = Material.valueOf(parts[0]);
+			byte data = 0;
+			if(parts.length>1) data = Byte.valueOf(parts[1]);
+			return new MaterialData(material, data);
+		}
+		catch(Exception e){
+			return null;
+		}
+	}
 	
 	public String getName() {
 		return configurationSection.getName();

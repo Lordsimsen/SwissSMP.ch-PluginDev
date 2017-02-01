@@ -5,10 +5,13 @@
  */
 package ch.swisssmp.utils;
 
+import java.util.HashMap;
 import java.util.UUID;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 import net.minecraft.server.v1_11_R1.IChatBaseComponent;
 import net.minecraft.server.v1_11_R1.PacketPlayOutChat;
 import net.minecraft.server.v1_11_R1.PacketPlayOutTitle;
@@ -16,11 +19,14 @@ import net.minecraft.server.v1_11_R1.PlayerConnection;
 import net.minecraft.server.v1_11_R1.IChatBaseComponent.ChatSerializer;
 import net.minecraft.server.v1_11_R1.PacketPlayOutTitle.EnumTitleAction;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 public class SwissSMPler {
+	protected static HashMap<UUID, Vector> last_vectors = new HashMap<UUID, Vector>();
+	protected static HashMap<UUID, BukkitTask> afk_tasks = new HashMap<UUID, BukkitTask>();
     protected final Player player;
     private SwissSMPler(Player player){
         this.player = player;
@@ -97,6 +103,38 @@ public class SwissSMPler {
     	return player.getWorld();
     }
     
+    public void setAfk(boolean afk){
+		if(SwissSMPler.afk_tasks.containsKey(player.getUniqueId())){
+			if(afk) return;
+			else {
+				SwissSMPler.afk_tasks.get(player.getUniqueId()).cancel();
+				SwissSMPler.afk_tasks.remove(player.getUniqueId());
+				SwissSMPler.last_vectors.remove(this.getUniqueId());
+				SwissSMPUtils.broadcastMessage(this.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+" ist wieder da.");
+			}
+		}
+		else{
+			if(afk){
+				if(!this.hasPermission("smp.afk.auto")) return;
+				BukkitTask task = Bukkit.getScheduler().runTaskLater(SwissSMPUtils.plugin, new Runnable(){
+
+					@Override
+					public void run() {
+						if(!hasPermission("smp.afk.kick")) return;
+						player.kickPlayer("Du wurdest gekickt, weil du länger als 15 Minuten abwesend warst.");
+						SwissSMPler.afk_tasks.remove(player.getUniqueId());
+					}
+					
+				}, 15*60*20L);
+				SwissSMPler.afk_tasks.put(player.getUniqueId(), task);
+				SwissSMPUtils.broadcastMessage(this.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+" ist nun abwesend.");
+			}
+			else{
+				SwissSMPler.last_vectors.remove(this.getUniqueId());
+			}
+		}
+    }
+    
     public void sendActionBar(String message){
     	if(player==null || message==null) return;
         CraftPlayer craftPlayer = (CraftPlayer) player;
@@ -115,5 +153,18 @@ public class SwissSMPler {
         PacketPlayOutTitle subtitlePacket = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitleJSON);
         connection.sendPacket(titlePacket);
         connection.sendPacket(subtitlePacket);
+    }
+    
+    protected static void checkAllAfk(boolean setAfk){
+		for(Player player : Bukkit.getOnlinePlayers()){
+			if(SwissSMPler.last_vectors.containsKey(player.getUniqueId())){
+				Vector last = SwissSMPler.last_vectors.get(player.getUniqueId());
+				double distance = player.getLocation().toVector().distanceSquared(last);
+				boolean afk = distance<1;
+				if(!afk || (afk && setAfk))
+					SwissSMPler.get(player).setAfk(afk);
+			}
+			SwissSMPler.last_vectors.put(player.getUniqueId(), player.getLocation().toVector());
+		}
     }
 }
