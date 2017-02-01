@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.BanList.Type;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -33,15 +32,6 @@ public abstract class MmoPlayer{
 	private static HashMap<UUID, String> assignedResourcepacks = new HashMap<UUID, String>();
 	
 	public static void login(Player player){
-		String response = MmoResourceManager.getResponse("login.php", new String[]{
-				"player_uuid="+player.getUniqueId().toString(),
-				"player_name="+player.getName(),
-			});
-		if(response.equals("1")){
-			Bukkit.getBanList(Type.NAME).addBan(player.getName(), "", null, "Admin");
-			player.kickPlayer("Du wurdest gebannt. Mehr Infos findest du im Forum unter SwissSMP.ch");
-			return;
-		}
 		MmoDungeonInstance dungeonInstance = MmoDungeon.getInstance(player);
 		if(dungeonInstance==null) {
 			String worldName = player.getWorld().getName();
