@@ -13,12 +13,12 @@ public class PlayerCommand implements CommandExecutor {
 		if(args.length<1) return false;
 		switch(args[0]){
 		case "reload":
-			Main.loadYamls();
+			WebCore.loadYamls();
 			sender.sendMessage(ChatColor.DARK_GRAY+"Konfiguration neu geladen.");
 			break;
 		case "debug":
-			Main.debug = !Main.debug;
-			if(Main.debug){
+			WebCore.debug = !WebCore.debug;
+			if(WebCore.debug){
 				sender.sendMessage(ChatColor.GREEN+"Der Debug-Modus wurde aktiviert.");
 			}
 			else{

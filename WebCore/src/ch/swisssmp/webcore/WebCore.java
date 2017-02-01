@@ -12,14 +12,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin{
+public class WebCore extends JavaPlugin{
 	protected static Logger logger;
 	protected static File configFile;
 	protected static YamlConfiguration config;
 	protected static PluginDescriptionFile pdfFile;
 	protected static String server_name = "WebCoreServer";
 	protected static File dataFolder;
-	protected static Main plugin;
+	protected static WebCore plugin;
 	protected static boolean debug;
 	
 	@Override

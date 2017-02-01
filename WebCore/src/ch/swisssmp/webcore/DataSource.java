@@ -21,11 +21,11 @@ public class DataSource {
 	public static String getResponse(String relativeURL, String[] params){
 		String resultString = "";
 		try{
-			String urlString = rootURL+relativeURL+"?token="+pluginToken+"&random="+random.nextInt(1000)+"&server="+URLEncoder.encode(Main.server_name,"utf-8");
+			String urlString = rootURL+relativeURL+"?token="+pluginToken+"&random="+random.nextInt(1000)+"&server="+URLEncoder.encode(WebCore.server_name,"utf-8");
 			if(params!=null && params.length>0){
 				urlString+="&"+String.join("&", params);
 			}
-			Main.info("Connecting to: "+urlString);
+			WebCore.info("Connecting to: "+urlString);
 			URL url = new URL(urlString);
 			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 			String tempString = "";
@@ -33,14 +33,14 @@ public class DataSource {
 				resultString+= tempString;
 			}
 			if(resultString.isEmpty()){
-				Main.info("Returning empty result");
+				WebCore.info("Returning empty result");
 				return "";
 			}
 			return resultString;
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			Main.info("Causing the error: "+resultString);
+			WebCore.info("Causing the error: "+resultString);
 			return "";
 		}
 	}
@@ -52,16 +52,16 @@ public class DataSource {
 	public static YamlConfiguration getYamlResponse(String relativeURL, String[] params){
 		String resultString = convertWebYamlString(getResponse(relativeURL, params));
 		if(resultString.isEmpty()){
-			Main.info("Returning empty result");
+			WebCore.info("Returning empty result");
 			return new YamlConfiguration();
 		}
 		try{
-			Main.info("Result: "+resultString);
+			WebCore.info("Result: "+resultString);
 			return new YamlConfiguration(resultString);
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			Main.info("Causing the error: "+resultString);
+			WebCore.info("Causing the error: "+resultString);
 			return new YamlConfiguration();
 		}
 	}

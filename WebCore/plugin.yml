@@ -1,4 +1,4 @@
-main: ch.swisssmp.webcore.Main
+main: ch.swisssmp.webcore.WebCore
 version: 1.0
 name: WebCore
 author: detig_iii
