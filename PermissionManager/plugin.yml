@@ -3,16 +3,35 @@ version: 1.0
 name: PermissionManager
 author: detig_iii
 description: Enable Permission Management from a Web Interface
-depend: [PermissionsEx, WebCore, TabList, SwissSMPUtils]
+depend: [WebCore, TabList, SwissSMPUtils]
 permissions:
   permissionmanager.admin:
     default: op
     description: Allows you to change settings ingame
+  permissionmanager.promote:
+    default: op
+    description: Allows you to promote players
+  permissionmanager.demote:
+    default: op
+    description: Allows you to demote players
   permissionmanager.commands.autocomplete:
     default: op
     description: Allows you to autocomplete commands
 commands:
   permission:
-    usage: /permission [reload/debug]
+    usage: |
+      /permission reload
+      /permission user [user]
+      /permission rank [rank]
+      /permission city [city]
     description: Change settings ingame
     permission: permissionmanager.admin
+    aliases: [pex,perm]
+  promote:
+    usage: /promote [user]
+    description: Lasse einen Spieler aufsteigen
+    permission: permissionmanager.promote
+  demote:
+    usage: /demote [user]
+    description: Lasse einen Spieler absteigen
+    permission: permissionmanager.demote
