@@ -1,6 +1,49 @@
 main: ch.swisssmp.utils.SwissSMPUtils
-version: 1.0
+version: 2.0
 name: SwissSMPUtils
 author: detig_iii
 description: Provides core functionality for other plugins
 load: startup
+permissions:
+  smp.commands.balance:
+    description: Allows you to use the /balance command
+    default: true
+  smp.commands.seen:
+    description: Allows you to use the /seen command
+    default: true
+  smp.commands.afk:
+    description: Allows you to set yourself to afk
+    default: true
+  smp.commands.list:
+    description: Allows you to use the /list command
+    default: true
+  smp.commands.tell:
+    description: Allows you to use the /tell command
+    default: true
+  smp.afk.auto:
+    description: Automatically sets you to afk when you stand still on the same spot for two world auto saves
+    default: true
+  smp.afk.kick:
+    description: Being afk for too long will kick you from the server
+    default: true
+commands:
+  balance:
+    description: Displays your balance
+    usage: /balance
+    permission: smp.commands.balance
+  seen:
+    description: Displays the last time a player was online
+    usage: /seen [player]
+    permission: smp.commands.seen
+  afk:
+    description: Toggles your afk state
+    usage: /afk
+    permission: smp.commands.afk
+  list:
+    description: Lists all currently online players
+    usage: /list
+    permission: smp.commands.list
+  tell:
+    description: Sendet eine private Nachricht an einen Spieler
+    usage: /tell [player] [message]
+    permission: smp.commands.tell
