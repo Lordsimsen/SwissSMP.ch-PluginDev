@@ -1,0 +1,21 @@
+main: ch.swisssmp.craftcity.CraftCity
+version: 1.0
+name: CraftCity
+author: detig_iii
+description: Gives players ingame control over their city with various items
+depend: [SwissSMPUtils,WebCore]
+permissions:
+  craftcity.mayor:
+    description: Allows you access the chest containing your mayors sigil
+    default: false
+  craftcity.priest:
+    description: Allows you access the chest containing your akromas staff
+    default: false
+  craftcity.admin:
+    description: Allows you to manage the plugin
+    default: op
+commands:
+  craftcity:
+    description: Manage the plugin
+    usage: /craftcity [reload/debug]
+    permission: craftcity.admin
