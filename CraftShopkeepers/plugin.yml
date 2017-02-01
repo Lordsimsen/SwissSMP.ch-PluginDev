@@ -1,3 +1,7 @@
-main: ch.swisssmp.craftshopkeepers.Main
+main: ch.swisssmp.craftshopkeepers.CraftShopkeepers
 version: 1.1
 name: CraftShopkeepers
+permissions:
+  craftshopkeepers.craft:
+    description: Allows you to craft shopkeepers
+    default: op
