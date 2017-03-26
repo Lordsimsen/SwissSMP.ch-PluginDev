@@ -6,12 +6,16 @@ description: Provides core functionality for other plugins
 depend: [WebCore,SwissSMPUtils]
 permissions:
   taxcollector.admin:
-    description: Allows you to use the plugin
+    description: Allows you to use admin commands
     default: op
 commands:
   tax:
     description: Use the plugin
     usage: |
-      /tax collect
-      /tax info
+      /tax reload
+      /tax info [player]
     permission: taxcollector.admin
+  abgaben:
+    description: Zeigt deine verbleibenden Abgaben an
+    usage: /abgaben
+    aliases: [abgabe,opfergabe,opfergaben,steuer,steuern]
