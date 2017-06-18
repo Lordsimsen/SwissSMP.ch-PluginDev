@@ -1,12 +1,12 @@
 main: ch.swisssmp.bookauthor.Main
-version: 1.0
+version: 1.1
 name: BookAuthor
 author: detig_iii
 description: Edit books the way you've always wanted!
 permissions:
   bookauthor.admin:
     description: Allows you to operate the plugin
-    default: false
+    default: op
 commands:
   bookauthor:
     description: Den Buch-Autor setzen
