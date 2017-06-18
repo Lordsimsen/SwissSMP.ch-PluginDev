@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.Server;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -31,6 +32,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import ch.swisssmp.utils.RandomizedLocation;
 
 public class CraftAlchemy extends JavaPlugin implements Listener{
 	public ItemMeta philosopherstonemeta;
@@ -175,6 +178,10 @@ public class CraftAlchemy extends JavaPlugin implements Listener{
     				LivingEntity target = (LivingEntity) _target;
     				if(target.getHealth()!=target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()){
         				target.setHealth(Math.min(target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), target.getHealth()+10));
+        				RandomizedLocation location = new RandomizedLocation(target.getEyeLocation(), 0.2f);
+        				for(int i = 0; i < 5; i++){
+            				target.getWorld().spawnParticle(Particle.HEART, location.getLocation(), 1);
+        				}
         				ItemMeta meta = item.getItemMeta();
         				meta.removeEnchant(Enchantment.ARROW_DAMAGE);
 						meta.addEnchant(Enchantment.ARROW_DAMAGE, prev_level-1, true);
