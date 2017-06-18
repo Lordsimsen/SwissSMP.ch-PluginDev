@@ -3,6 +3,7 @@ version: 1.0
 name: ServerManager
 author: detig_iii
 description: Displays server info on the web interface
+depend: [WebCore]
 permissions:
   smpserver.admin:
     description: Allows you to use the admin commands

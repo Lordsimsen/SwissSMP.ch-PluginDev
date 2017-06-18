@@ -1,5 +1,7 @@
 package ch.swisssmp.server;
 
+import java.util.ArrayList;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,13 +16,20 @@ public class PlayerCommand implements CommandExecutor{
 		switch(args[0]){
 		case "reload":{
 			ServerManager.plugin.UpdatePluginInfos();
+			sender.sendMessage("[ServerManager] Plugin Infos aktualisiert.");
 			break;
 		}
 		case "rename":{
 			if(args.length<2){
 				return false;
 			}
-			ServerManager.plugin.Rename(args[1]);
+			ArrayList<String> nameParts = new ArrayList<String>();
+			for(int i = 1; i < args.length; i++){
+				nameParts.add(args[i]);
+			}
+			String name = String.join(" ", nameParts);
+			ServerManager.plugin.Rename(name);
+			sender.sendMessage("[ServerManager] Der Server heisst nun '"+name+"'.");
 			break;
 		}
 		default:{

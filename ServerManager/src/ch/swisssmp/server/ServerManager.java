@@ -21,6 +21,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.RequestMethod;
 
 public class ServerManager extends JavaPlugin{
 	protected static Logger logger;
@@ -133,17 +134,23 @@ public class ServerManager extends JavaPlugin{
 							subobject_id++;
 						}
 					}
-					
+
+					subobject_id = 0;
 					Map<String,Map<String,Object>> commandsMap = pluginDescriptionFile.getCommands();
 					if(commandsMap!=null){
 						commands = commandsMap.keySet();
+						Map<String,Object> commandData;
 						for(String command : commands){
-							informations.add("commands[]="+URLEncoder.encode(command, encoding));
+							commandData = commandsMap.get(command);
+							for(String property : commandData.keySet()){
+								informations.add("commands["+command+"]["+property+"]="+URLEncoder.encode(String.valueOf(commandData.get(property)), encoding));
+							}
 						}
 					}
 					
 					infoArray = new String[informations.size()];
-					DataSource.getResponse("server/plugin_info.php", informations.toArray(infoArray));
+					
+					DataSource.getResponse("server/plugin_info.php", informations.toArray(infoArray), RequestMethod.POST);
 				}
 				catch(Exception e){
 					logger.info("[ServerManager] Error updating plugin info for "+plugin.getName());
