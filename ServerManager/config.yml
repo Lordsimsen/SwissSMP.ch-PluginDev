@@ -1,0 +1,4 @@
+#this identifies the server for the system
+server_id: -1
+#this identifies the server for you
+server_name: YourServerName
