@@ -1,15 +1,15 @@
 package ch.swisssmp.craftmmo.mmoentity;
 
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import ch.swisssmp.craftmmo.mmoshop.MmoShop;
-import net.minecraft.server.v1_11_R1.EntityVillager;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.EntityVillager;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoMerchantAgent extends EntityVillager{
 	
@@ -28,7 +28,7 @@ public class MmoMerchantAgent extends EntityVillager{
 		PotionEffect invisibleEffect = new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false);
 		villager.addPotionEffect(invisibleEffect);
 	}
-	public MmoMerchantAgent(net.minecraft.server.v1_11_R1.World world){
+	public MmoMerchantAgent(net.minecraft.server.v1_12_R1.World world){
 		super(world);
 		this.getBukkitEntity().remove();
 	}

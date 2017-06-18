@@ -10,8 +10,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import ch.swisssmp.craftmmo.Main;
 import ch.swisssmp.craftmmo.util.MmoResourceManager;
-import net.minecraft.server.v1_11_R1.NBTTagList;
-import net.minecraft.server.v1_11_R1.NBTTagString;
+import net.minecraft.server.v1_12_R1.NBTTagList;
+import net.minecraft.server.v1_12_R1.NBTTagString;
 
 public class MmoMining {
 	public static HashMap<MmoMiningType, MmoMining> types = new HashMap<MmoMiningType, MmoMining>();

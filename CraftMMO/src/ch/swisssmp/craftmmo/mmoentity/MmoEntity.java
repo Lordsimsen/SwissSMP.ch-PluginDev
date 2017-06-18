@@ -14,7 +14,7 @@ import ch.swisssmp.craftmmo.mmoattribute.MmoAttributes;
 import ch.swisssmp.craftmmo.mmoattribute.MmoElement;
 import ch.swisssmp.craftmmo.mmoitem.MmoItem;
 import ch.swisssmp.craftmmo.mmoitem.MmoItemStack;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoEntity {
 	public final LivingEntity entity;

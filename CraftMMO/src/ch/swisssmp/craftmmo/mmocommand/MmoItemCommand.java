@@ -6,7 +6,7 @@ import ch.swisssmp.craftmmo.mmoitem.MmoItemManager;
 import ch.swisssmp.craftmmo.mmoitem.MmoItemclass;
 import ch.swisssmp.craftmmo.mmoplayer.MmoQuestbook;
 import ch.swisssmp.craftmmo.mmoshop.MmoShop;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

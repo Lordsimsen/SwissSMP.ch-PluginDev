@@ -4,12 +4,12 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
  
-import net.minecraft.server.v1_11_R1.BiomeBase;
-import net.minecraft.server.v1_11_R1.Entity;
-import net.minecraft.server.v1_11_R1.BiomeBase.BiomeMeta;
-import net.minecraft.server.v1_11_R1.EntityInsentient;
-import net.minecraft.server.v1_11_R1.EntityTypes;
-import net.minecraft.server.v1_11_R1.EntityVillager;
+import net.minecraft.server.v1_12_R1.BiomeBase;
+import net.minecraft.server.v1_12_R1.Entity;
+import net.minecraft.server.v1_12_R1.BiomeBase.BiomeMeta;
+import net.minecraft.server.v1_12_R1.EntityInsentient;
+import net.minecraft.server.v1_12_R1.EntityTypes;
+import net.minecraft.server.v1_12_R1.EntityVillager;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -183,6 +183,6 @@ try {
 public static void spawnEntity(Entity entity, Location loc)
 	{
 	entity.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
-	((org.bukkit.craftbukkit.v1_11_R1.CraftWorld)loc.getWorld()).getHandle().addEntity(entity);
+	((org.bukkit.craftbukkit.v1_12_R1.CraftWorld)loc.getWorld()).getHandle().addEntity(entity);
 	}
 }

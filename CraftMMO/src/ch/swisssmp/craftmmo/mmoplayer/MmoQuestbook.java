@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -19,9 +19,9 @@ import ch.swisssmp.craftmmo.mmoquest.MmoQuest;
 import ch.swisssmp.craftmmo.mmoquest.MmoQuestObjective;
 import ch.swisssmp.craftmmo.util.MmoResourceManager;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_11_R1.MojangsonParseException;
-import net.minecraft.server.v1_11_R1.MojangsonParser;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.MojangsonParseException;
+import net.minecraft.server.v1_12_R1.MojangsonParser;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoQuestbook {
 	public static final HashMap<UUID, MmoQuestbook> questbooks = new HashMap<UUID, MmoQuestbook>();
@@ -161,7 +161,7 @@ public class MmoQuestbook {
 			ItemStack questbook = new ItemStack(Material.WRITTEN_BOOK);
 			String dataString = "{title:'Questbuch',author:'"+player.getName()+"',pages:["+String.join(",", pages)+"]}";
 			NBTTagCompound tags = MojangsonParser.parse(dataString.replace("'", "\""));
-			net.minecraft.server.v1_11_R1.ItemStack itemStack = CraftItemStack.asNMSCopy(questbook);
+			net.minecraft.server.v1_12_R1.ItemStack itemStack = CraftItemStack.asNMSCopy(questbook);
 			itemStack.setTag(tags);
 			this.instance = CraftItemStack.asCraftMirror(itemStack);
 			HashMap<Integer, ItemStack> failedItems = player.getInventory().addItem(this.instance);

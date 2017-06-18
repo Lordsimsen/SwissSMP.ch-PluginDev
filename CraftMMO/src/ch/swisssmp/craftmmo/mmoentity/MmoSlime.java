@@ -1,18 +1,18 @@
 package ch.swisssmp.craftmmo.mmoentity;
 
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 
-import net.minecraft.server.v1_11_R1.EntityInsentient;
-import net.minecraft.server.v1_11_R1.EntitySlime;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.EntityInsentient;
+import net.minecraft.server.v1_12_R1.EntitySlime;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoSlime extends EntitySlime implements IControllable{
 	
 	public MmoEntitySaveData data;
 	public MmoAI mmoAI;
 	
-	public MmoSlime(net.minecraft.server.v1_11_R1.World world){
+	public MmoSlime(net.minecraft.server.v1_12_R1.World world){
 		super(world);
 	}
 	

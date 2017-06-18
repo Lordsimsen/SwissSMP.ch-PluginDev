@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.craftmmo.mmoitem.MmoItem;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public interface IDurable {
 	public int getTotalDurability();

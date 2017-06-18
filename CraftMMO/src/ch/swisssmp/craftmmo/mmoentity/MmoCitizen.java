@@ -4,21 +4,21 @@ package ch.swisssmp.craftmmo.mmoentity;
 import java.util.ArrayList;
 
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.MerchantRecipe;
 
-import net.minecraft.server.v1_11_R1.EntityInsentient;
-import net.minecraft.server.v1_11_R1.EntityVillager;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.EntityInsentient;
+import net.minecraft.server.v1_12_R1.EntityVillager;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoCitizen extends EntityVillager implements IControllable{
 		
 	public MmoEntitySaveData data;
 	public MmoAI mmoAI;
 	
-	public MmoCitizen(net.minecraft.server.v1_11_R1.World world){
+	public MmoCitizen(net.minecraft.server.v1_12_R1.World world){
 		super(world);
 	}
 	

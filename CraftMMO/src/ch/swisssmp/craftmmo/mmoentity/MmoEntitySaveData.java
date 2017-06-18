@@ -5,8 +5,8 @@ import org.bukkit.Bukkit;
 import ch.swisssmp.craftmmo.Main;
 import ch.swisssmp.craftmmo.mmocamp.MmoCampMob;
 import ch.swisssmp.craftmmo.mmocamp.MmoCampSpawnpoint;
-import net.minecraft.server.v1_11_R1.EntityInsentient;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.EntityInsentient;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoEntitySaveData {
 	public int mmo_mob_id = -1;

@@ -20,7 +20,7 @@ import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -36,12 +36,12 @@ import org.bukkit.potion.PotionType;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
-import net.minecraft.server.v1_11_R1.IChatBaseComponent;
-import net.minecraft.server.v1_11_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_11_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_11_R1.PlayerConnection;
-import net.minecraft.server.v1_11_R1.IChatBaseComponent.ChatSerializer;
-import net.minecraft.server.v1_11_R1.PacketPlayOutTitle.EnumTitleAction;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent;
+import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
+import net.minecraft.server.v1_12_R1.PlayerConnection;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent.ChatSerializer;
+import net.minecraft.server.v1_12_R1.PacketPlayOutTitle.EnumTitleAction;
 
 public class Main extends JavaPlugin implements Listener{
 	private Logger logger;
@@ -107,7 +107,7 @@ public class Main extends JavaPlugin implements Listener{
     	if(player==null || message==null) return;
         CraftPlayer craftPlayer = (CraftPlayer) player;
         IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \"" + message + "\"}");
-        PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc,(byte) 2);
+        PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc);
         ((CraftPlayer) craftPlayer).getHandle().playerConnection.sendPacket(ppoc);
     }
     protected static void sendTitle(Player player, String title, String subtitle, int fadeIn, int stay, int fadeOut) {

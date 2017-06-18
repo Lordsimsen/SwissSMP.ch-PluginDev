@@ -11,10 +11,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftVillager;
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -31,7 +31,7 @@ import ch.swisssmp.craftmmo.mmoitem.MmoEquipmentType;
 import ch.swisssmp.craftmmo.mmoitem.MmoItemManager;
 import ch.swisssmp.craftmmo.mmoitem.MmoChanceItem;
 import ch.swisssmp.craftmmo.util.MmoResourceManager;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoMob {
 	public static HashMap<Integer, MmoMob> templates;
@@ -161,7 +161,7 @@ public class MmoMob {
 		pending_AI_assignments.clear();
 	}
 	public static Integer getID(Entity entity){
-		net.minecraft.server.v1_11_R1.Entity nmsEntity = ((CraftEntity)entity).getHandle();
+		net.minecraft.server.v1_12_R1.Entity nmsEntity = ((CraftEntity)entity).getHandle();
 		if(!(nmsEntity instanceof IControllable)){
 			return -1;
 		}
@@ -170,7 +170,7 @@ public class MmoMob {
 	}
 	
 	public static final NBTTagCompound getSaveData(ItemStack itemStack){
-		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_12_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
 		if(!nmsItem.hasTag()){
 			return null;
 		}
@@ -409,7 +409,7 @@ public class MmoMob {
 		entity.setCanPickupItems(false);
 		entity.setSilent(muted);
 		((LivingEntity)entity).setRemoveWhenFarAway(false);
-		net.minecraft.server.v1_11_R1.EntityLiving nmsEntity = ((CraftLivingEntity) entity).getHandle();
+		net.minecraft.server.v1_12_R1.EntityLiving nmsEntity = ((CraftLivingEntity) entity).getHandle();
 		if(nmsEntity instanceof IControllable){
 			IControllable iControllable = (IControllable) nmsEntity;
 			iControllable.setMmoAI(this.ai);

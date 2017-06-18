@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -24,7 +24,7 @@ import ch.swisssmp.adventuredungeons.mmoentity.MmoMerchantAgent;
 import ch.swisssmp.adventuredungeons.mmoitem.MmoItemManager;
 import ch.swisssmp.adventuredungeons.mmosound.MmoSound;
 import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
-import net.minecraft.server.v1_11_R1.Entity;
+import net.minecraft.server.v1_12_R1.Entity;
 
 public class MmoShop implements Listener{
 	public static HashMap<Integer, MmoShop> shops;

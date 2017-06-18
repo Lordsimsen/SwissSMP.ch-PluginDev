@@ -3,7 +3,7 @@ package ch.swisssmp.craftmmo.mmoevent;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -64,7 +64,7 @@ public class MmoEventListenerThrowable extends MmoEventListener{
 		item.setPickupDelay(Integer.MAX_VALUE);
 		snowball.setPassenger(item);
 		CraftEntity craftEntity = (CraftEntity)snowball;
-		net.minecraft.server.v1_11_R1.Entity nmsEntity = craftEntity.getHandle();
+		net.minecraft.server.v1_12_R1.Entity nmsEntity = craftEntity.getHandle();
 		nmsEntity.setInvisible(true);
 	}
 	@EventHandler(ignoreCancelled=true)

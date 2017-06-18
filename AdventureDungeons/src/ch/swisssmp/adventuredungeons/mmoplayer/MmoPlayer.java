@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.adventuredungeons.Main;
@@ -20,12 +20,12 @@ import ch.swisssmp.adventuredungeons.mmoworld.MmoDungeonInstance;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
 import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
-import net.minecraft.server.v1_11_R1.IChatBaseComponent;
-import net.minecraft.server.v1_11_R1.IChatBaseComponent.ChatSerializer;
-import net.minecraft.server.v1_11_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_11_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_11_R1.PacketPlayOutTitle.EnumTitleAction;
-import net.minecraft.server.v1_11_R1.PlayerConnection;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent.ChatSerializer;
+import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
+import net.minecraft.server.v1_12_R1.PacketPlayOutTitle.EnumTitleAction;
+import net.minecraft.server.v1_12_R1.PlayerConnection;
 
 public abstract class MmoPlayer{
 	
@@ -151,7 +151,7 @@ public abstract class MmoPlayer{
     	if(player==null || message==null) return;
         CraftPlayer craftPlayer = (CraftPlayer) player;
         IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \"" + message + "\"}");
-        PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc,(byte) 2);
+        PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc);
         ((CraftPlayer) craftPlayer).getHandle().playerConnection.sendPacket(ppoc);
     }
     public static void updateMusic(Player player){

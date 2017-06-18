@@ -27,9 +27,6 @@ import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-import ru.tehkode.permissions.PermissionUser;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
  
 public class Main extends JavaPlugin implements Listener{
 	public static Logger logger;
@@ -93,7 +90,7 @@ public class Main extends JavaPlugin implements Listener{
     		//apply all permissions
     		if(regionSection.contains("give_permissions")){
         		List<String> give_permissionList = regionSection.getStringList("give_permissions");
-        		setPermissions(player, give_permissionList, PermissionState.ALLOW);
+        		//setPermissions(player, give_permissionList, PermissionState.ALLOW);
     		}
     		ConfigurationSection effectSection = regionSection.getConfigurationSection("effects");
     		if(effectSection==null) return;
@@ -138,7 +135,7 @@ public class Main extends JavaPlugin implements Listener{
     		//remove permissions
     		if(regionSection.contains("give_permissions")){
         		List<String> give_permissionList = regionSection.getStringList("give_permissions");
-        		setPermissions(player, give_permissionList, PermissionState.UNSET);
+        		//setPermissions(player, give_permissionList, PermissionState.UNSET);
     		}
     		//remove effects
     		if(regionSection.contains("effects")){
@@ -165,7 +162,7 @@ public class Main extends JavaPlugin implements Listener{
     	UNSET
     }
     
-    private void setPermissions(Player player, List<String> permissions, PermissionState state){
+    /*private void setPermissions(Player player, List<String> permissions, PermissionState state){
     	PermissionUser permissionuser = PermissionsEx.getUser(player);
 		for(String permission : permissions){
 			switch(state){
@@ -181,7 +178,7 @@ public class Main extends JavaPlugin implements Listener{
 			}
 		}
 		permissionuser.save();
-    }
+    }*/
     private boolean playerIsPermitted(Player player, List<String> permissions){
 		for(String permission : permissions){
 			if(!player.hasPermission(permission))

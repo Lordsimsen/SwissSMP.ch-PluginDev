@@ -14,8 +14,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ch.swisssmp.craftmmo.mmoattribute.IDurable;
 import ch.swisssmp.craftmmo.mmoattribute.MmoDurability;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
-import net.minecraft.server.v1_11_R1.NBTTagList;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagList;
 
 public abstract class MmoPhysicalWeapon extends MmoItem implements IDurable{
 	public final String subclass_enum;

@@ -99,7 +99,7 @@ public class ConfigurationSection{
 	public ShapedRecipe getShapedRecipe(String arg0){
 		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
 		ItemStack resultStack = recipeSection.getItemStack("result");
-		ShapedRecipe result = new ShapedRecipe(resultStack);
+		ShapedRecipe result = new ShapedRecipe(SwissSMPUtils.GetNamespacedKey(), resultStack);
 		List<String> shape = recipeSection.getStringList("shape");
 		String[] shapeArray = new String[shape.size()];
 		result.shape(shape.toArray(shapeArray));
@@ -114,7 +114,7 @@ public class ConfigurationSection{
 	public ShapelessRecipe getShapelessRecipe(String arg0){
 		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
 		ItemStack resultStack = recipeSection.getItemStack("result");
-		ShapelessRecipe result = new ShapelessRecipe(resultStack);
+		ShapelessRecipe result = new ShapelessRecipe(SwissSMPUtils.GetNamespacedKey(), resultStack);
 		ConfigurationSection ingredientsSection = recipeSection.getConfigurationSection("ingredients");
 		for(String key : ingredientsSection.getKeys(false)){
 			ConfigurationSection ingredientSection = ingredientsSection.getConfigurationSection(key);

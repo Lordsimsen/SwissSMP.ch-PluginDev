@@ -9,7 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -22,11 +22,11 @@ import ch.swisssmp.craftmmo.mmoattribute.MmoElement;
 import ch.swisssmp.craftmmo.mmoshop.MmoShop;
 import ch.swisssmp.craftmmo.util.MmoResourceManager;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
-import net.minecraft.server.v1_11_R1.NBTTagDouble;
-import net.minecraft.server.v1_11_R1.NBTTagInt;
-import net.minecraft.server.v1_11_R1.NBTTagList;
-import net.minecraft.server.v1_11_R1.NBTTagString;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagDouble;
+import net.minecraft.server.v1_12_R1.NBTTagInt;
+import net.minecraft.server.v1_12_R1.NBTTagList;
+import net.minecraft.server.v1_12_R1.NBTTagString;
 
 public class MmoItem {
 	protected static HashMap<Integer, Class<? extends MmoItem>> itemclasses = new HashMap<Integer, Class<? extends MmoItem>>();
@@ -101,7 +101,7 @@ public class MmoItem {
 	}
 	
 	public static final NBTTagCompound getSaveData(ItemStack itemStack){
-		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_12_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
 		if(nmsItem==null){
 			return null;
 		}
@@ -116,7 +116,7 @@ public class MmoItem {
 		if(mmoItem==null){
 			return;
 		}
-		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_12_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
 		nmsItem.setTag(nbttagcompound);
 		ItemMeta itemMeta = CraftItemStack.getItemMeta(nmsItem);
 		mmoItem.applyItemMeta(itemStack, itemMeta);
@@ -169,7 +169,7 @@ public class MmoItem {
 		else{
 			itemStack = new ItemStack(mc_enum);
 		}
-		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_12_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
 		nbttagcompound = applyDefaultSaveData(nbttagcompound);
 		nmsItem.setTag(nbttagcompound);
@@ -293,7 +293,7 @@ public class MmoItem {
 		return damageCompound;
 	}
 	public static void setAttributes(ItemStack itemStack, NBTTagList modifiers){
-		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
 		compound.set("AttributeModifiers", modifiers);
 		nmsStack.setTag(compound);

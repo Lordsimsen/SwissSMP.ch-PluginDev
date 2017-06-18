@@ -1,18 +1,18 @@
 package ch.swisssmp.craftmmo.mmoentity;
 
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 
-import net.minecraft.server.v1_11_R1.EntityInsentient;
-import net.minecraft.server.v1_11_R1.EntityMagmaCube;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.EntityInsentient;
+import net.minecraft.server.v1_12_R1.EntityMagmaCube;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MmoMagmaCube extends EntityMagmaCube implements IControllable{
 	
 	public MmoEntitySaveData data;
 	public MmoAI mmoAI;
 	
-	public MmoMagmaCube(net.minecraft.server.v1_11_R1.World world){
+	public MmoMagmaCube(net.minecraft.server.v1_12_R1.World world){
 		super(world);
 	}
 	

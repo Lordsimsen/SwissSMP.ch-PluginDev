@@ -1,6 +1,6 @@
 package ch.swisssmp.craftmmo.mmoentity;
 
-import net.minecraft.server.v1_11_R1.EntityInsentient;
+import net.minecraft.server.v1_12_R1.EntityInsentient;
 
 public interface IControllable {
 	public EntityInsentient getEntity();

@@ -1,13 +1,13 @@
 package ch.swisssmp.adventuredungeons.pathfinder;
 
-import net.minecraft.server.v1_11_R1.DamageSource;
-import net.minecraft.server.v1_11_R1.Entity;
-import net.minecraft.server.v1_11_R1.EntityCreature;
-import net.minecraft.server.v1_11_R1.EntityLiving;
-import net.minecraft.server.v1_11_R1.MathHelper;
-import net.minecraft.server.v1_11_R1.PathEntity;
-import net.minecraft.server.v1_11_R1.PathfinderGoal;
-import net.minecraft.server.v1_11_R1.World;
+import net.minecraft.server.v1_12_R1.DamageSource;
+import net.minecraft.server.v1_12_R1.Entity;
+import net.minecraft.server.v1_12_R1.EntityCreature;
+import net.minecraft.server.v1_12_R1.EntityLiving;
+import net.minecraft.server.v1_12_R1.MathHelper;
+import net.minecraft.server.v1_12_R1.PathEntity;
+import net.minecraft.server.v1_12_R1.PathfinderGoal;
+import net.minecraft.server.v1_12_R1.World;
 
 public class PathfinderGoalAnimalMeleeAttack extends PathfinderGoal {
     World a;
@@ -55,7 +55,7 @@ public class PathfinderGoalAnimalMeleeAttack extends PathfinderGoal {
         }
     }
 
-    public boolean b() {
+    /*public boolean b() {
         EntityLiving entityliving = this.entity.getGoalTarget();
         if(entityliving == null){
         	return false;
@@ -68,16 +68,16 @@ public class PathfinderGoalAnimalMeleeAttack extends PathfinderGoal {
         }
         //entity.c(double x, double y, double z) means entity.getInWater(double x, double y, double z);
         return this.entity.c(MathHelper.floor(entityliving.locX), MathHelper.floor(entityliving.locY), MathHelper.floor(entityliving.locZ));
-    }
+    }*/
 
     public void c() {
         this.entity.getNavigation().a(this.target, this.speed);
         this.h = 0;
     }
 
-    public void d() {
+    /*public void d() {
         this.entity.getNavigation().h();
-    }
+    }*/
 
     public void e() {
         EntityLiving entityliving = this.entity.getGoalTarget();
