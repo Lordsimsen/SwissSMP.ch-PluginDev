@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -23,17 +24,20 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin implements Listener{
+public class InfiniBucket extends JavaPlugin implements Listener{
 	public ItemMeta infinibucketmeta;
 	public Logger logger;
 	public ItemStack infinibucket;
 	public Server server;
+	private NamespacedKey namespacedKey;
+	
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		server = getServer();
+		namespacedKey = new NamespacedKey(this, "Wasserversorgung");
 		
 		server.getPluginManager().registerEvents(this, this);
 		createRecipe();
@@ -48,7 +52,7 @@ public class Main extends JavaPlugin implements Listener{
 		meta.setLore(Arrays.asList("Dieser Eimer wird", "niemals leer."));
 		infinibucketmeta = meta;
 		infinibucket.setItemMeta(infinibucketmeta);
-		ShapedRecipe bucket = new ShapedRecipe(infinibucket);
+		ShapedRecipe bucket = new ShapedRecipe(namespacedKey, infinibucket);
 		bucket.shape(" e "," w "," b ");
 		bucket.setIngredient('e', Material.EYE_OF_ENDER);
 		bucket.setIngredient('w', Material.POTION);
@@ -60,8 +64,9 @@ public class Main extends JavaPlugin implements Listener{
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
-    @EventHandler
+    @EventHandler(ignoreCancelled=true)
     public void craftItem(PrepareItemCraftEvent event) {
+    	if(event.getRecipe()==null) return;
     	ItemStack result = event.getRecipe().getResult();
     	if(result.hashCode() == infinibucket.hashCode()){
             HumanEntity human = event.getView().getPlayer();

@@ -1,3 +1,12 @@
-main: ch.swisssmp.infinibucket.Main
-version: 1.0
+main: ch.swisssmp.infinibucket.InfiniBucket
+version: 1.1
 name: InfiniBucket
+author: detig_iii
+description: Unendlicher Wassereimer
+permissions:
+  infinibucket.craft:
+    description: Erlaubt das Crafting des unendlichen Wassereimers
+    default: op
+  infinibucket.use:
+    description: Erlaubt die Verwendung des unendlichen Wassereimers
+    default: op
