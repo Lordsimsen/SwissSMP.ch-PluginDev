@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -30,13 +31,15 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin implements Listener{
+public class CraftAlchemy extends JavaPlugin implements Listener{
 	public ItemMeta philosopherstonemeta;
 	public Logger logger;
 	public ItemStack philosopherstone;
 	public Server server;
 	public Map<Material, Byte> loops;
 	public Random random;
+	protected NamespacedKey namespacedKey;
+	
 	public void onEnable() {
 		random = new Random();
 		PluginDescriptionFile pdfFile = getDescription();
@@ -44,6 +47,8 @@ public class Main extends JavaPlugin implements Listener{
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		server = getServer();
+		
+		namespacedKey = new NamespacedKey(this, "Alchemie");
 		
 		server.getPluginManager().registerEvents(this, this);
 		createRecipe();
@@ -59,7 +64,7 @@ public class Main extends JavaPlugin implements Listener{
 		meta.setLore(Arrays.asList("Der Stein der Transmutation", "beherrscht die Elemente."));
 		philosopherstonemeta = meta;
 		philosopherstone.setItemMeta(philosopherstonemeta);
-		ShapedRecipe stone = new ShapedRecipe(philosopherstone);
+		ShapedRecipe stone = new ShapedRecipe(namespacedKey, philosopherstone);
 		stone.shape("bnb","dfd","brb");
 		stone.setIngredient('b', Material.BLAZE_POWDER);
 		stone.setIngredient('n', Material.NETHER_STAR);
@@ -79,8 +84,9 @@ public class Main extends JavaPlugin implements Listener{
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
-    @EventHandler
+    @EventHandler(ignoreCancelled=true)
     public void craftItem(PrepareItemCraftEvent event) {
+    	if(event.getRecipe()==null) return;
     	ItemStack result = event.getRecipe().getResult();
         HumanEntity human = event.getView().getPlayer();
     	if(result.hashCode() != philosopherstone.hashCode() || !(human instanceof Player)){
@@ -153,7 +159,8 @@ public class Main extends JavaPlugin implements Listener{
     	toConvert.setItemMeta(meta);
     	return toConvert;
     }
-    @EventHandler
+    @SuppressWarnings("deprecation")
+	@EventHandler
     public void onPlayerEntityInteract(PlayerInteractEntityEvent event) {
     	Player player = event.getPlayer();
     	Integer hand = player.getInventory().getHeldItemSlot();
