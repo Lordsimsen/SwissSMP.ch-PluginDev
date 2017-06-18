@@ -2,3 +2,4 @@ main: ch.swisssmp.craftalchemy.CraftAlchemy
 version: 1.1
 name: CraftAlchemy
 description: Crafte einen Stein der Weisen, um Blocks zu transformieren
+author: detig_iii

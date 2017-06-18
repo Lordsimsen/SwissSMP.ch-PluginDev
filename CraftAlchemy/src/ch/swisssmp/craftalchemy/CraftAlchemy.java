@@ -11,11 +11,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -159,7 +160,6 @@ public class CraftAlchemy extends JavaPlugin implements Listener{
     	toConvert.setItemMeta(meta);
     	return toConvert;
     }
-    @SuppressWarnings("deprecation")
 	@EventHandler
     public void onPlayerEntityInteract(PlayerInteractEntityEvent event) {
     	Player player = event.getPlayer();
@@ -171,10 +171,10 @@ public class CraftAlchemy extends JavaPlugin implements Listener{
 			Integer prev_level = item.getEnchantmentLevel(Enchantment.ARROW_DAMAGE);
     		if(prev_level>0){
     			Entity _target = event.getRightClicked();
-    			if(_target instanceof Damageable){
-    				Damageable target = (Damageable) _target;
-    				if(target.getHealth()!=target.getMaxHealth()){
-        				target.setHealth(Math.min(target.getMaxHealth(), target.getHealth()+10));
+    			if(_target instanceof LivingEntity){
+    				LivingEntity target = (LivingEntity) _target;
+    				if(target.getHealth()!=target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()){
+        				target.setHealth(Math.min(target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), target.getHealth()+10));
         				ItemMeta meta = item.getItemMeta();
         				meta.removeEnchant(Enchantment.ARROW_DAMAGE);
 						meta.addEnchant(Enchantment.ARROW_DAMAGE, prev_level-1, true);
