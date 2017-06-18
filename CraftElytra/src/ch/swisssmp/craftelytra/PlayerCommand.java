@@ -21,7 +21,7 @@ public class PlayerCommand implements CommandExecutor{
 		}
 		Player player = (Player) sender;
 
-        WorldEditPlugin wep = Main.worldEditPlugin;
+        WorldEditPlugin wep = CraftElytra.worldEditPlugin;
 
         LocalSession localSession = wep.getSession(player);
         ClipboardHolder selection;

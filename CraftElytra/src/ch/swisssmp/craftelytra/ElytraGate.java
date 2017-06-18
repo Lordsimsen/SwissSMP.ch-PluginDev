@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,6 +30,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 public class ElytraGate implements Listener{
 	protected static int next_id = 0;
 	protected final int gate_id;
+	protected final String owner;
 	
 	protected final Block sign;
 	protected final Block lever;
@@ -39,8 +41,9 @@ public class ElytraGate implements Listener{
 	protected ProtectedRegion bottomRegion;
 	protected ProtectedRegion topRegion = null;
 	
-	protected ElytraGate(Block sign, Block pivot, BlockFace direction, int elevation){
+	protected ElytraGate(Block sign, Block pivot, BlockFace direction, int elevation, Player owner){
 		this.gate_id = ElytraGate.next_id;
+		this.owner = owner.getName();
 		ElytraGate.next_id++;
 		this.sign = sign;
 		this.pivot = pivot;
@@ -50,14 +53,15 @@ public class ElytraGate implements Listener{
 		this.bottomRegion = createBottomRegion();
 		this.topRegion = null;
 		
-		Main.gatesMap.put(this.lever, this);
-		Main.gatesMap.put(this.sign, this);
-		Main.gates.add(this);
-		Main.saveGates();
-		Bukkit.getPluginManager().registerEvents(this, Main.plugin);
+		CraftElytra.gatesMap.put(this.lever, this);
+		CraftElytra.gatesMap.put(this.sign, this);
+		CraftElytra.gates.add(this);
+		CraftElytra.saveGates();
+		Bukkit.getPluginManager().registerEvents(this, CraftElytra.plugin);
 	}
 	protected ElytraGate(ConfigurationSection dataSection){
 		this.gate_id = dataSection.getInt("gate_id");
+		this.owner = dataSection.getString("owner");
 		ElytraGate.next_id = Math.max(this.gate_id+1, ElytraGate.next_id);
 		this.sign = loadLocation(dataSection.getConfigurationSection("sign")).getBlock();
 		this.lever = loadLocation(dataSection.getConfigurationSection("lever")).getBlock();
@@ -65,25 +69,30 @@ public class ElytraGate implements Listener{
 		this.direction = BlockFace.valueOf(dataSection.getString("direction"));
 		this.elevation = dataSection.getInt("elevation");
 		this.powered = (dataSection.getInt("powered")==1);
-		WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
+		WorldGuardPlugin worldGuard = CraftElytra.worldGuardPlugin;
 		RegionManager regionManager = worldGuard.getRegionManager(this.pivot.getWorld());
 		this.bottomRegion = regionManager.getRegion(this.getBottomRegionName());
 		if(this.powered){
 			this.topRegion = regionManager.getRegion(this.getTopRegionName());
 		}
 		
-		Main.gatesMap.put(this.lever, this);
-		Main.gatesMap.put(this.sign, this);
-		Main.gates.add(this);
-		Bukkit.getPluginManager().registerEvents(this, Main.plugin);
-		int topLimit = -1;
-		if(this.powered) topLimit = 3;
-		if(!validateConstruction(this.pivot, this.direction, topLimit, null)){
+		if(CraftElytra.gatesMap.containsKey(this.lever)){
+			return;
+		}
+		CraftElytra.gatesMap.put(this.lever, this);
+		CraftElytra.gatesMap.put(this.sign, this);
+		CraftElytra.gates.add(this);
+		
+		this.updateSign();
+		
+		Bukkit.getPluginManager().registerEvents(this, CraftElytra.plugin);
+		if(!validateConstruction(Bukkit.getConsoleSender())){
 			this.delete();
 		}
 	}
 	protected void save(ConfigurationSection dataSection){
 		dataSection.set("gate_id", this.gate_id);
+		dataSection.set("owner", this.owner);
 		saveLocation(dataSection, sign.getLocation(), "sign");
 		saveLocation(dataSection, lever.getLocation(), "lever");
 		saveLocation(dataSection, pivot.getLocation(), "pivot");
@@ -105,12 +114,6 @@ public class ElytraGate implements Listener{
 	@SuppressWarnings("deprecation")
 	protected void elevate(boolean up){
 		if(this.powered==up) return;
-    	Sign sign = (Sign)this.sign.getState();
-    	sign.setLine(0, ChatColor.DARK_PURPLE+"Elytra Gate");
-    	String state = ChatColor.RED+"DEAKTIVIERT";
-    	if(up) state = ChatColor.GREEN+"AKTIVIERT";
-    	sign.setLine(1, state);
-    	sign.update();
     	int yOffset = elevation;
     	if(!up) {
     		yOffset *= -1;
@@ -121,11 +124,13 @@ public class ElytraGate implements Listener{
         int size_x = (int)gateMax.getX()-(int)gateMin.getX()+1;
         int size_y = (int)gateMax.getY()-(int)gateMin.getY()+1;
         int size_z = (int)gateMax.getZ()-(int)gateMin.getZ()+1;
+        Block fromBlock;
+        Block toBlock;
         for(int y = 0; y < size_y; y++){
         	for(int z = 0; z < size_z; z++){
         		for(int x = 0; x < size_x; x++){
-        			Block fromBlock = world.getBlockAt((int)gateMin.getX()+x, (int)gateMin.getY()+y, (int)gateMin.getZ()+z);
-        			Block toBlock = world.getBlockAt((int)gateMin.getX()+x, (int)gateMin.getY()+y+yOffset, (int)gateMin.getZ()+z);
+        			fromBlock = world.getBlockAt((int)gateMin.getX()+x, (int)gateMin.getY()+y, (int)gateMin.getZ()+z);
+        			toBlock = world.getBlockAt((int)gateMin.getX()+x, (int)gateMin.getY()+y+yOffset, (int)gateMin.getZ()+z);
         			toBlock.setTypeIdAndData(fromBlock.getTypeId(), fromBlock.getState().getData().getData(), true);
         			fromBlock.setType(Material.AIR);
         		}
@@ -140,6 +145,18 @@ public class ElytraGate implements Listener{
         	this.pivot.getWorld().playSound(this.pivot.getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1, 1);
         	this.deleteTopRegion();
         }
+		this.updateSign();
+		CraftElytra.saveGates();
+	}
+	private void updateSign(){
+    	Sign sign = (Sign)this.sign.getState();
+    	sign.setLine(0, ChatColor.DARK_PURPLE+"Elytra Gate");
+    	String state = ChatColor.RED+"DEAKTIVIERT";
+    	if(this.powered) state = ChatColor.GREEN+"AKTIVIERT";
+    	sign.setLine(1, state);
+    	sign.setLine(2, String.valueOf(this.elevation));
+    	sign.setLine(3, this.owner);
+    	sign.update();
 	}
 	@EventHandler(ignoreCancelled=true)
 	private void onBlockBreak(BlockBreakEvent event){
@@ -158,9 +175,7 @@ public class ElytraGate implements Listener{
 			}
 		}
 		if(this.bottomRegion.contains(block.getX(), block.getY(), block.getZ())){
-			int topLimit = -1;
-			if(this.powered) topLimit = 3;
-			if(!validateConstruction(this.pivot, this.direction, topLimit, event.getPlayer())){
+			if(!validateConstruction(event.getPlayer())){
 				event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstört.");
 				this.delete();
 			}
@@ -178,8 +193,7 @@ public class ElytraGate implements Listener{
 			}
 		}
 		if(this.bottomRegion.contains(block.getX(), block.getY(), block.getZ())){
-			int topLimit = -1;
-			if(!validateConstruction(this.pivot, this.direction, topLimit, event.getPlayer())){
+			if(!validateConstruction(event.getPlayer())){
 				event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstört.");
 				this.delete();
 			}
@@ -193,8 +207,9 @@ public class ElytraGate implements Listener{
 		ProtectedRegion region = event.getRegion();
 		if(region==null || this.topRegion==null) return;
 		if(region.getId().equals(this.topRegion.getId())){
-			Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
+			Bukkit.getScheduler().runTaskLater(CraftElytra.plugin, new Runnable(){
 				public void run(){
+		        	player.getWorld().playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 20, 1.1f);
 					player.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(10).setY(0));
 				}
 			}, 3L);
@@ -207,7 +222,7 @@ public class ElytraGate implements Listener{
 		return "elytra_gate_"+this.gate_id+"_top";
 	}
 	protected ProtectedCuboidRegion createBottomRegion(){
-		WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
+		WorldGuardPlugin worldGuard = CraftElytra.worldGuardPlugin;
 		if(worldGuard==null) throw new NullPointerException("WorldGuard not found!");
 		RegionManager regionManager = worldGuard.getRegionManager(this.pivot.getWorld());
 		ProtectedCuboidRegion result = new ProtectedCuboidRegion(this.getBottomRegionName(), this.getBottomMin(), this.getBottomMax());
@@ -219,13 +234,13 @@ public class ElytraGate implements Listener{
 		return result;
 	}
 	protected void deleteBottomRegion(){
-		WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
+		WorldGuardPlugin worldGuard = CraftElytra.worldGuardPlugin;
 		RegionManager regionManager = worldGuard.getRegionManager(this.pivot.getWorld());
 		regionManager.removeRegion(this.getBottomRegionName());
 		worldGuard.saveConfig();
 	}
 	protected ProtectedCuboidRegion createTopRegion(){
-		WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
+		WorldGuardPlugin worldGuard = CraftElytra.worldGuardPlugin;
 		RegionManager regionManager = worldGuard.getRegionManager(this.pivot.getWorld());
 		ProtectedCuboidRegion result = new ProtectedCuboidRegion(this.getTopRegionName(), this.getGateMin(), this.getGateMax());
 		result.setFlag(DefaultFlag.PASSTHROUGH, State.DENY);
@@ -234,7 +249,7 @@ public class ElytraGate implements Listener{
 		return result;
 	}
 	protected void deleteTopRegion(){
-		WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
+		WorldGuardPlugin worldGuard = CraftElytra.worldGuardPlugin;
 		RegionManager regionManager = worldGuard.getRegionManager(this.pivot.getWorld());
 		regionManager.removeRegion(this.getTopRegionName());
 		worldGuard.saveConfig();
@@ -285,8 +300,10 @@ public class ElytraGate implements Listener{
 	protected void delete(){
 		this.elevate(false);
 		this.deleteBottomRegion();
-		Main.gatesMap.remove(this.lever);
-		Main.gatesMap.remove(this.sign);
+		this.deleteTopRegion();
+		CraftElytra.gatesMap.remove(this.lever);
+		CraftElytra.gatesMap.remove(this.sign);
+		CraftElytra.gates.remove(this);
 		HandlerList.unregisterAll(this);
 		if(this.sign.getType()!=Material.WALL_SIGN) return;
 		Sign sign = (Sign)this.sign.getState();
@@ -295,6 +312,7 @@ public class ElytraGate implements Listener{
 		sign.setLine(2, "");
 		sign.setLine(3, "");
 		sign.update();
+		CraftElytra.saveGates();
 	}
 	protected static Location loadLocation(ConfigurationSection dataSection){
 		World world = Bukkit.getWorld(dataSection.getString("world"));
@@ -303,7 +321,14 @@ public class ElytraGate implements Listener{
 		int z = dataSection.getInt("z");
 		return new Location(world, x, y, z);
 	}
-    protected static boolean validateConstruction(Block centerBottom, BlockFace direction, int topLimit, Player player){
+	protected boolean validateConstruction(CommandSender responsible){
+		int topLimit = -1;
+		if(this.powered){
+			topLimit = 3;
+		}
+		return validateConstruction(this.pivot,this.direction, topLimit, responsible);
+	}
+    protected static boolean validateConstruction(Block centerBottom, BlockFace direction, int topLimit, CommandSender player){
     	if(centerBottom==null) return false;
     	Block northWest = new Location(centerBottom.getWorld(), centerBottom.getX()-4, centerBottom.getY(), centerBottom.getZ()-4).getBlock();
     	String schematicName;

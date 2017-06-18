@@ -1,5 +1,5 @@
-main: ch.swisssmp.craftelytra.Main
-version: 1.0
+main: ch.swisssmp.craftelytra.CraftElytra
+version: 2.1
 name: CraftElytra
 author: detig_iii
 description: Craft Elytra like any other item
@@ -20,4 +20,4 @@ commands:
   elytragate:
     usage: /elytragate
     permission: craftelytra.admin
-depend: [WorldGuard]
+depend: [WGRegionEvents,WebCore]

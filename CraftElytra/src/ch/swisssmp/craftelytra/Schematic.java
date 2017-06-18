@@ -11,9 +11,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.Vector;
 
@@ -41,7 +41,7 @@ public class Schematic {
 		}
 	}
 	private File getFile(){
-		return new File(Main.dataFolder, "schematics/"+_name+".yml");
+		return new File(CraftElytra.dataFolder, "schematics/"+_name+".yml");
 	}
 	public Schematic(Vector pos1, Vector pos2, String name){
 		_pos1 = new Vector(Math.min(pos1.getX(), pos2.getX()), Math.min(pos1.getY(), pos2.getY()), Math.min(pos1.getZ(), pos2.getZ()));
@@ -84,7 +84,7 @@ public class Schematic {
 		return compare(northWest, topLimit, schematicName, null);
 	}
 	@SuppressWarnings("deprecation")
-	public static boolean compare(Location northWest, int topLimit, String schematicName, Player player){
+	public static boolean compare(Location northWest, int topLimit, String schematicName, CommandSender responsible){
 		if(northWest==null) return false;
 		World world = northWest.getWorld();
 		Schematic schematic = new Schematic(schematicName);
@@ -111,16 +111,16 @@ public class Schematic {
 					Material actualMaterial = block.getType();
 					if(actualMaterial==Material.REDSTONE_LAMP_ON) actualMaterial = Material.REDSTONE_LAMP_OFF;
 					if(actualMaterial!=targetMaterial){
-						if(player!=null){
-							player.sendMessage(ChatColor.RED+"Block "+northWest.getX()+x+","+northWest.getY()+y+","+northWest.getZ()+z+" ist "+block.getType().toString()+", sollte aber "+targetMaterial.toString()+" sein.");
+						if(responsible!=null){
+							responsible.sendMessage(ChatColor.RED+"Block "+northWest.getX()+x+","+northWest.getY()+y+","+northWest.getZ()+z+" ist "+block.getType().toString()+", sollte aber "+targetMaterial.toString()+" sein.");
 						}
 						return false;
 					}
 					if(targetMaterial==Material.LEVER) continue;
 					if(targetMaterial==Material.SIGN) continue;
 					if(block.getState().getData().getData()!=b){
-						if(player!=null){
-							player.sendMessage(ChatColor.RED+"Block "+northWest.getX()+x+","+northWest.getY()+y+","+northWest.getZ()+z+" ist "+block.getType().toString()+":"+block.getState().getData().getData()+", sollte aber "+targetMaterial.toString()+":"+b+" sein.");
+						if(responsible!=null){
+							responsible.sendMessage(ChatColor.RED+"Block "+northWest.getX()+x+","+northWest.getY()+y+","+northWest.getZ()+z+" ist "+block.getType().toString()+":"+block.getState().getData().getData()+", sollte aber "+targetMaterial.toString()+":"+b+" sein.");
 						}
 						return false;
 					}
