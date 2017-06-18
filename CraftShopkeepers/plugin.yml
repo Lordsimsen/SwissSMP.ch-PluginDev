@@ -1,7 +1,9 @@
 main: ch.swisssmp.craftshopkeepers.CraftShopkeepers
 version: 1.1
 name: CraftShopkeepers
+author: detig_iii
+description: Crafte eigene Shopkeepers
 permissions:
   craftshopkeepers.craft:
-    description: Allows you to craft shopkeepers
+    description: Erlaubt das Crafting von Shopkeeper Eiern
     default: op
