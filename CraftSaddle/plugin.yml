@@ -1,5 +1,9 @@
-main: ch.swisssmp.craftsaddle.Main
-version: 1.1
+main: ch.swisssmp.craftsaddle.CraftSaddle
+version: 1.2
 name: CraftSaddle
 author: detig_iii
-description: Craft saddles that protect your horses!
+description: Crafte private Sattel zum Schutz deiner Pferde
+permissions:
+  craftsaddle.craft:
+    description: Erlaubt das Crafting von PrivateSaddles
+    default: op

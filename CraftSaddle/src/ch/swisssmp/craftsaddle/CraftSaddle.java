@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -30,15 +31,16 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin implements Listener{
-	public static Logger logger;
-	public static Server server;
-	public static PluginDescriptionFile pdfFile;
+public class CraftSaddle extends JavaPlugin implements Listener{
+	private Logger logger;
+	private Server server;
+	private PluginDescriptionFile pdfFile;
+	private NamespacedKey namespacedKey;
 	
-	public static ItemStack privateSaddle;
-	public static ItemMeta privateSaddleMeta;
+	private ItemStack privateSaddle;
+	private ItemMeta privateSaddleMeta;
 	
-	public static List<DamageCause> protectedFrom;
+	private List<DamageCause> protectedFrom;
 	
 	@Override
 	public void onEnable() {
@@ -49,6 +51,7 @@ public class Main extends JavaPlugin implements Listener{
 		server = getServer();
 		
 		server.getPluginManager().registerEvents(this, this);
+		namespacedKey = new NamespacedKey(this, "Sattel");
 		createRecipe();
 
 		protectedFrom = new ArrayList<DamageCause>();
@@ -73,7 +76,7 @@ public class Main extends JavaPlugin implements Listener{
 		privateSaddleMeta.addEnchant(Enchantment.DURABILITY, 1, false);
 		privateSaddleMeta.setLore(Arrays.asList("PRIVAT"));
 		privateSaddle.setItemMeta(privateSaddleMeta);
-		ShapedRecipe recipe = new ShapedRecipe(privateSaddle);
+		ShapedRecipe recipe = new ShapedRecipe(namespacedKey, privateSaddle);
 		recipe.shape(" n ","lsl"," i ");
 		recipe.setIngredient('n', Material.NAME_TAG);
 		recipe.setIngredient('l', Material.LEASH);
@@ -151,8 +154,9 @@ public class Main extends JavaPlugin implements Listener{
     	return (lore.get(1).equals(entity.getName()));
     }
 	
-    @EventHandler
+    @EventHandler(ignoreCancelled=true)
     public void prepareCraftItem(PrepareItemCraftEvent event) {
+    	if(event.getRecipe()==null) return;
     	ItemStack result = event.getRecipe().getResult();
     	if(isPrivateSaddle(result)){
             HumanEntity human = event.getView().getPlayer();
@@ -194,7 +198,7 @@ public class Main extends JavaPlugin implements Listener{
     		return;
     	DamageCause cause = event.getCause();
     	Horse horse = (Horse) event.getEntity();
-    	if(protectedFrom.contains(cause) && horse.getPassenger()==null){
+    	if(protectedFrom.contains(cause) && horse.getPassengers().size()<1){
     		event.setCancelled(true);
     	}
     	else return;
