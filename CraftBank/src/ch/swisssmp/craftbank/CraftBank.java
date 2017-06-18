@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -109,16 +108,17 @@ public class CraftBank extends JavaPlugin implements Listener{
         if(event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_BLOCK) {
         	return;
         }
+    	if(event.getAction()==Action.LEFT_CLICK_BLOCK && event.getItem()!=null) return;
         Block block = event.getClickedBlock();
         if(!isBanksign(block))
         	return;
         SwissSMPler player = SwissSMPler.get(event.getPlayer());
         Sign sign = (Sign) block.getState();
         String[] lines = sign.getLines();
-        if(lines[2].toLowerCase().equals("info")){	
+        if(lines[2].toLowerCase().equals("info")){
     		displayAccountInfo(player);
         }
-        else if(NumberUtils.isNumber(lines[2])){
+        else if(lines[2].matches("-?\\d+(\\.\\d+)?")){
     		if(!player.hasPermission("craftbank.use")){
     			player.sendActionBar(ChatColor.RED+"Keine Berechtigung.");
     			return;
