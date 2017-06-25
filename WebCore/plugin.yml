@@ -1,5 +1,5 @@
 main: ch.swisssmp.webcore.WebCore
-version: 1.0
+version: 2.1
 name: WebCore
 author: detig_iii
 description: Get resources from external source
@@ -9,8 +9,18 @@ permissions:
   webcore.admin:
     default: op
     description: Allows you to change settings ingame
+  servermanager.admin:
+    description: Allows you to use the admin commands
+    default: op
 commands:
   webcore:
     usage: /webcore [reload/debug]
     description: Change settings ingame
     permission: webcore.admin
+  servermanager:
+    description: Reloads the plugin
+    usage: |
+      /servermanager reload
+      /servermanager rename [name]
+    permission: servermanager.admin
+    aliases: [svm]

@@ -10,6 +10,7 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 
+import ch.swisssmp.server.ServerManager;
 import ch.swisssmp.utils.YamlConfiguration;
 
 public class DataSource {
@@ -18,20 +19,28 @@ public class DataSource {
 	
 	protected static String rootURL;
 	protected static String pluginToken;
+	protected static String htaccess = "";
+	
 	private static Random random = new Random();
 	
 	public static String getResponse(String relativeURL){
-		return getResponse(relativeURL, null);
+		return getResponse(relativeURL, null, RequestMethod.POST);
 	}
 	
 	public static String getResponse(String relativeURL, String[] params){
-		return getResponse(relativeURL, params, RequestMethod.GET);
+		return getResponse(relativeURL, params, RequestMethod.POST);
+	}
+	
+	public static String getResponse(String relativeURL, RequestMethod requestMethod){
+		return getResponse(relativeURL, null, requestMethod);
 	}
 	
 	public static String getResponse(String relativeURL, String[] params, RequestMethod method){
 		String resultString = "";
 		try{
-			String paramString = "token="+pluginToken+"&random="+random.nextInt(1000)+"&server="+URLEncoder.encode(WebCore.server_name,"utf-8");
+			String paramString = "token="+pluginToken+"&random="+random.nextInt(1000)
+					+"&server_id="+URLEncoder.encode(String.valueOf(ServerManager.getServerId()),"utf-8")
+					;
 			if(params!=null && params.length>0){
 				paramString+="&"+String.join("&", params);
 			}
@@ -86,6 +95,8 @@ public class DataSource {
 
 		//add request header
 		con.setRequestProperty("User-Agent", USER_AGENT);
+		if(!htaccess.isEmpty())
+			con.setRequestProperty("Authorization", "Basic "+htaccess);
 
 		int responseCode = con.getResponseCode();
 		WebCore.info("\nSending 'GET' request to URL : " + url);
@@ -117,7 +128,8 @@ public class DataSource {
 		//add reuqest header
 		con.setRequestMethod("POST");
 		con.setRequestProperty("User-Agent", USER_AGENT);
-		con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+		if(!htaccess.isEmpty())
+			con.setRequestProperty("Authorization", "Basic "+htaccess);
 
 		// Send post request
 		con.setDoOutput(true);
