@@ -15,25 +15,23 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import io.netty.util.internal.ThreadLocalRandom;
 import net.md_5.bungee.api.ChatColor;
 
-public class Main extends JavaPlugin implements Listener{
+public class SewersFishing extends JavaPlugin implements Listener{
 	public Logger logger;
 	public Server server;
 	public ThreadLocalRandom random;
 	public static String[] poisonedFishLore;
-	public static WorldGuardPlugin worldguard;
-	public static RegionContainer container;
 	
 	public void onEnable() {
 		random = ThreadLocalRandom.current();
@@ -43,9 +41,6 @@ public class Main extends JavaPlugin implements Listener{
 		
 		server = getServer();
 		
-		worldguard = getWorldGuard();
-		container = Main.worldguard.getRegionContainer();
-		
 		server.getPluginManager().registerEvents(this, this);
 		poisonedFishLore = new String[]{"Schlabbrig und giftig...","Gourmet vom feinsten!"};
 	}
@@ -53,31 +48,30 @@ public class Main extends JavaPlugin implements Listener{
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
-
-	private WorldGuardPlugin getWorldGuard() {
-	    Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
-	
-	    // WorldGuard may not be loaded
-	    if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-	        logger.info("WorldGuard benötigt!");
-	    }
-	
-	    return (WorldGuardPlugin) plugin;
-	}
 	
     @EventHandler
     public void onPlayerFish(PlayerFishEvent event) {
-		Player player = event.getPlayer();
     	Entity caught = event.getCaught();
-		if(!player.hasPermission("sewersfishing.fish") || !(caught instanceof Item)){
+		if(!(caught instanceof Item)){
 			return;
 		}
-		//At this point the fish must be poisoned
+		//check if there is a toxic region nearby
+		boolean toxicArea = false;
+		ApplicableRegionSet regions = WorldGuardPlugin.inst().getRegionManager(caught.getWorld()).getApplicableRegions(caught.getLocation());
+		for(ProtectedRegion region : regions){
+			if(region.getId().toLowerCase().contains("kanalisation")){
+				toxicArea = true;
+				break;
+			}
+		}
+		if(!toxicArea) return;
+		//check what the player caught
     	Item item = (Item) caught;
     	ItemStack itemstack = item.getItemStack();
     	ItemMeta itemmeta = itemstack.getItemMeta();
     	if(itemstack.getType() != Material.RAW_FISH)
     		return;
+		//At this point the fish must be poisoned
     	itemmeta.addEnchant(Enchantment.THORNS, 1, true);
     	itemmeta.setLore(Arrays.asList(poisonedFishLore));
     	itemstack.setItemMeta(itemmeta);
