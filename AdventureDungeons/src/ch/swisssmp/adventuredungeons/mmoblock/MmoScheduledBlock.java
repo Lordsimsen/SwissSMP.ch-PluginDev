@@ -4,11 +4,11 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.adventuredungeons.Main;
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoScheduledBlock implements Runnable{
 

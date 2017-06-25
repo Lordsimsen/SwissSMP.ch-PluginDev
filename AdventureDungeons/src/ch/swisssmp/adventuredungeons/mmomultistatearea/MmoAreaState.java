@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -17,6 +16,7 @@ import ch.swisssmp.adventuredungeons.mmoevent.MmoEventType;
 import ch.swisssmp.adventuredungeons.mmosound.MmoSound;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoAreaState {
 	public final int mmo_multistatearea_id;

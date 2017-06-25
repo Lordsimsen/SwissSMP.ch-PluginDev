@@ -31,7 +31,6 @@ import ch.swisssmp.adventuredungeons.mmoworld.MmoDungeon;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
 import ch.swisssmp.adventuredungeons.util.MmoDelayedThreadTask;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
 
 public class Main extends JavaPlugin{
 	private static Logger logger;
@@ -101,12 +100,7 @@ public class Main extends JavaPlugin{
 	    }
 		config = new YamlConfiguration();
 		loadYamls();
-		MmoResourceManager.rootURL = config.getString("webserver");
-		MmoResourceManager.pluginToken = config.getString("token");
 		debug = config.getBoolean("debug");
-		if(!MmoResourceManager.rootURL.endsWith("/")){
-			MmoResourceManager.rootURL+="/";
-		}
 
 		Runnable task = new MmoDelayedThreadTask(new Runnable(){
 			@Override

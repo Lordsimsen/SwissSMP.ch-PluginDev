@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -23,7 +21,9 @@ import ch.swisssmp.adventuredungeons.mmoentity.MmoEntityType;
 import ch.swisssmp.adventuredungeons.mmoentity.MmoMerchantAgent;
 import ch.swisssmp.adventuredungeons.mmoitem.MmoItemManager;
 import ch.swisssmp.adventuredungeons.mmosound.MmoSound;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 import net.minecraft.server.v1_12_R1.Entity;
 
 public class MmoShop implements Listener{
@@ -98,7 +98,7 @@ public class MmoShop implements Listener{
 	public static void loadShops() throws Exception{
 		shops = new HashMap<Integer, MmoShop>();
 		
-		YamlConfiguration mmoShopsConfiguration = MmoResourceManager.getYamlResponse("shops.php");
+		YamlConfiguration mmoShopsConfiguration = DataSource.getYamlResponse("shops.php");
 		for(String shopIDstring : mmoShopsConfiguration.getKeys(false)){
 			ConfigurationSection dataSection = mmoShopsConfiguration.getConfigurationSection(shopIDstring);
 			new MmoShop(dataSection);

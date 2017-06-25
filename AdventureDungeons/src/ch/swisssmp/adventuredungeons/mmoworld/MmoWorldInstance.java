@@ -10,7 +10,6 @@ import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -23,6 +22,7 @@ import ch.swisssmp.adventuredungeons.mmoentity.MmoEntitySaveData;
 import ch.swisssmp.adventuredungeons.mmomultistatearea.MmoMultiStateArea;
 import ch.swisssmp.adventuredungeons.util.MmoDelayedThreadTask;
 import ch.swisssmp.adventuredungeons.util.MmoFileUtil;
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoWorldInstance {
 	

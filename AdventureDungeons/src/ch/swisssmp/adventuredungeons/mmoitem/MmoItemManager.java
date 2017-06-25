@@ -3,10 +3,11 @@ package ch.swisssmp.adventuredungeons.mmoitem;
 import java.util.Random;
 
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoItemManager {
 	@SuppressWarnings("deprecation")

@@ -16,7 +16,7 @@ import ch.swisssmp.adventuredungeons.mmomultistatearea.MmoMultiStateArea;
 import ch.swisssmp.adventuredungeons.mmomultistatearea.MmoSchematicUtil;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoMultiStateCommand implements CommandExecutor{
 	@Override
@@ -88,7 +88,7 @@ public class MmoMultiStateCommand implements CommandExecutor{
 	    			location = player.getLocation();
 	    		}
 	    		
-	    		String response = MmoResourceManager.getResponse("multistateeditor.php", new String[]{
+	    		String response = DataSource.getResponse("multistateeditor.php", new String[]{
 	    			"multistatearea="+mmo_multistatearea_id,
 	    			"schematic="+schematicName,
 	    			"action="+action,

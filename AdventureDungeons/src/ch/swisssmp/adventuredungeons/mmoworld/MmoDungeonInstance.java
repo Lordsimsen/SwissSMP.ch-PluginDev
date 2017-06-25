@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -30,6 +29,7 @@ import ch.swisssmp.adventuredungeons.mmoevent.MmoEventType;
 import ch.swisssmp.adventuredungeons.mmomultistatearea.MmoAreaState;
 import ch.swisssmp.adventuredungeons.mmomultistatearea.MmoMultiStateArea;
 import ch.swisssmp.adventuredungeons.mmoplayer.MmoPlayer;
+import ch.swisssmp.utils.ConfigurationSection;
 import net.md_5.bungee.api.ChatColor;
 
 public class MmoDungeonInstance implements Listener{

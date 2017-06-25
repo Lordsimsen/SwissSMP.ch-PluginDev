@@ -1,7 +1,6 @@
 package ch.swisssmp.adventuredungeons.mmoworld;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,8 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -19,7 +16,9 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import ch.swisssmp.adventuredungeons.Main;
 import ch.swisssmp.adventuredungeons.util.MmoFileUtil;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoWorld{
 	private static HashMap<Integer, MmoWorld> worlds = new HashMap<Integer, MmoWorld>();
@@ -93,7 +92,7 @@ public class MmoWorld{
 			}
 		}
 		
-		YamlConfiguration mmoWorldsConfiguration = MmoResourceManager.getYamlResponse("worlds.php");
+		YamlConfiguration mmoWorldsConfiguration = DataSource.getYamlResponse("worlds.php");
 		for(String worldIDstring : mmoWorldsConfiguration.getKeys(false)){
 			ConfigurationSection dataSection = mmoWorldsConfiguration.getConfigurationSection(worldIDstring);
 			String worldName = dataSection.getString("mc_world");
@@ -112,11 +111,7 @@ public class MmoWorld{
 		for(MmoWorldInstance worldInstance : instances.values()){
 			worldInstance.save(yamlConfiguration.createSection(worldInstance.world.getName()));
 		}
-		try {
-			yamlConfiguration.save(worldMapFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		yamlConfiguration.save(worldMapFile);
 	}
 	public static void copyDirectory(File source, File target){
         ArrayList<String> ignore = new ArrayList<String>(Arrays.asList("uid.dat", "session.dat"));

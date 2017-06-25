@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 
 import ch.swisssmp.adventuredungeons.Main;
 import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoEvent {
 	public final MmoEventType event_type;

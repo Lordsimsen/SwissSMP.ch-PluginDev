@@ -10,8 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,6 +23,8 @@ import ch.swisssmp.adventuredungeons.mmoevent.MmoActionEvent;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoBlockChangeEvent;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
 
 public class MmoBlockScheduler implements Listener{
 	private final File blocksFile;
@@ -35,10 +35,16 @@ public class MmoBlockScheduler implements Listener{
 		this.blocksFile = new File(worldInstance.getDataFolder(), "blocks.yml");
 		this.world = worldInstance.world;
 		if(blocksFile.exists()){
-			YamlConfiguration blocksData = YamlConfiguration.loadConfiguration(blocksFile);
-			for(String key : blocksData.getKeys(false)){
-				ConfigurationSection dataSection = blocksData.getConfigurationSection(key);
-				MmoScheduledBlock.load(this, dataSection);
+			YamlConfiguration blocksData;
+			try {
+				blocksData = YamlConfiguration.loadConfiguration(blocksFile);
+				for(String key : blocksData.getKeys(false)){
+					ConfigurationSection dataSection = blocksData.getConfigurationSection(key);
+					MmoScheduledBlock.load(this, dataSection);
+				}
+			} catch (IOException e) {
+				Main.info("Block-Daten konnten nicht geladen werden.");
+				e.printStackTrace();
 			}
 		}
 		Bukkit.getPluginManager().registerEvents(this, Main.plugin);
@@ -80,10 +86,6 @@ public class MmoBlockScheduler implements Listener{
 			scheduledBlock.save(scheduledSection);
 			index++;
 		}
-		try {
-			blocksData.save(blocksFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		blocksData.save(blocksFile);
 	}
 }

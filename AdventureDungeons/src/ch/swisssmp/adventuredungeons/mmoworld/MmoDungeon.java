@@ -1,7 +1,6 @@
 package ch.swisssmp.adventuredungeons.mmoworld;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -12,8 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -26,7 +23,9 @@ import ch.swisssmp.adventuredungeons.mmoevent.MmoEvent;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoEventType;
 import ch.swisssmp.adventuredungeons.util.MmoDelayedThreadTask;
 import ch.swisssmp.adventuredungeons.util.MmoFileUtil;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 import net.md_5.bungee.api.ChatColor;
 
 public class MmoDungeon implements Listener{
@@ -295,7 +294,7 @@ public class MmoDungeon implements Listener{
 		}
 		dungeons = new HashMap<Integer, MmoDungeon>();
 		
-		YamlConfiguration mmoDungeonsConfiguration = MmoResourceManager.getYamlResponse("dungeons.php");
+		YamlConfiguration mmoDungeonsConfiguration = DataSource.getYamlResponse("dungeons.php");
 		for(String dungeonIDstring : mmoDungeonsConfiguration.getKeys(false)){
 			ConfigurationSection dataSection = mmoDungeonsConfiguration.getConfigurationSection(dungeonIDstring);
 			new MmoDungeon(dataSection);
@@ -318,10 +317,6 @@ public class MmoDungeon implements Listener{
 		for(MmoDungeonInstance dungeonInstance : instances.values()){
 			dungeonInstance.save(dungeon_instancesSection.createSection(dungeonInstance.getWorldName()));
 		}
-		try {
-			yamlConfiguration.save(dungeonInstancesFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		yamlConfiguration.save(dungeonInstancesFile);
 	}
 }

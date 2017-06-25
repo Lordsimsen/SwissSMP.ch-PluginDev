@@ -9,7 +9,6 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Dropper;
 import org.bukkit.block.Furnace;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,6 +26,8 @@ import ch.swisssmp.adventuredungeons.mmoitem.MmoLootInventory;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
 import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoEventListenerInventory extends MmoEventListener{
 	public MmoEventListenerInventory(JavaPlugin plugin) {
@@ -89,7 +90,7 @@ public class MmoEventListenerInventory extends MmoEventListener{
 			else{
 				Main.info("attempting to open new LootInventory");
 				MmoWorldInstance worldInstance = MmoWorld.getInstance(location);
-				YamlConfiguration yamlResponse = MmoResourceManager.getYamlResponse("treasure.php", new String[]{
+				YamlConfiguration yamlResponse = DataSource.getYamlResponse("treasure.php", new String[]{
 						"player="+event.getPlayer().getUniqueId().toString(),
 						"mc_enum="+MmoBlock.getMaterialString(location, true),
 						"action="+action,

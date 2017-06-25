@@ -3,14 +3,14 @@ package ch.swisssmp.adventuredungeons.mmomultistatearea;
 import java.util.HashMap;
 
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoMultiStateArea {
 	public final World world;
@@ -61,7 +61,7 @@ public class MmoMultiStateArea {
 		//initialize
 		worldInstance.transformations = new HashMap<Integer, MmoMultiStateArea>();
 		
-		YamlConfiguration yamlConfiguration = MmoResourceManager.getYamlResponse("multistateareas.php", new String[]{
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("multistateareas.php", new String[]{
 				"world="+worldInstance.system_name
 		});
 		for(String IDstring : yamlConfiguration.getKeys(false)){

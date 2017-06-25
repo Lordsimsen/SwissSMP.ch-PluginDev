@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -15,7 +13,9 @@ import ch.swisssmp.adventuredungeons.mmoevent.MmoEvent;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoEventType;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoRegion;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoCamp {
 	public final World world;
@@ -203,7 +203,7 @@ public class MmoCamp {
 			mmoRegion.registeredCamps.clear();
 		}
 
-		YamlConfiguration mmoCampsConfiguration = MmoResourceManager.getYamlResponse("camps.php", new String[]{
+		YamlConfiguration mmoCampsConfiguration = DataSource.getYamlResponse("camps.php", new String[]{
 				"world="+worldInstance.system_name,
 				"world_instance="+worldInstance.world.getName(),
 		});

@@ -6,7 +6,6 @@ import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -14,6 +13,7 @@ import org.bukkit.entity.Player;
 import ch.swisssmp.adventuredungeons.Main;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoEvent;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoEventType;
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoCampSpawnpoint {
 	public static HashMap<Integer, MmoCampSpawnpoint> spawnpoints;

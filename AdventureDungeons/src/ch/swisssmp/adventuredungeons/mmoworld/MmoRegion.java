@@ -8,8 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -20,7 +18,9 @@ import ch.swisssmp.adventuredungeons.mmocamp.MmoCamp;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoEvent;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoEventType;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoPlayerDeathEvent;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoRegion {
 	public final World world;
@@ -114,7 +114,7 @@ public class MmoRegion {
 		Main.info("Starting to load regions for world "+worldInstance.world.getName());
 		worldInstance.regions = new HashMap<Integer, MmoRegion>();
 		worldInstance.regionTriggers = new HashMap<String, MmoRegion>();
-		YamlConfiguration mmoRegionsConfiguration = MmoResourceManager.getYamlResponse("regions.php", new String[]{
+		YamlConfiguration mmoRegionsConfiguration = DataSource.getYamlResponse("regions.php", new String[]{
 				"world="+worldInstance.system_name
 		});
 		for(String regionIDstring : mmoRegionsConfiguration.getKeys(false)){

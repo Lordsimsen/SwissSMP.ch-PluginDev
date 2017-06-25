@@ -18,7 +18,7 @@ import ch.swisssmp.adventuredungeons.mmoblock.MmoBlock;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoRegion;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoRegionCommand implements CommandExecutor{
 	Player player;
@@ -109,7 +109,7 @@ public class MmoRegionCommand implements CommandExecutor{
 	    			if(MmoBlock.getMaterialString(block, mc_materialdata.contains(":")).equals(mc_materialdata)){
 	    				match_count++;
 	    				MmoWorldInstance worldInstance = MmoWorld.getInstance(block);
-			    		String response = MmoResourceManager.getResponse("treasureeditor.php", new String[]{"region="+region_id, "x="+x, "y="+y, "z="+z, "material="+mc_materialdata, "action="+action, "world="+worldInstance.system_name});
+			    		String response = DataSource.getResponse("treasureeditor.php", new String[]{"region="+region_id, "x="+x, "y="+y, "z="+z, "material="+mc_materialdata, "action="+action, "world="+worldInstance.system_name});
 			    		
 			    		if(response.equals("1")){
 			    			success_count++;

@@ -1,18 +1,12 @@
 package ch.swisssmp.adventuredungeons.util;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -23,77 +17,18 @@ import ch.swisssmp.adventuredungeons.Main;
 import ch.swisssmp.adventuredungeons.mmoitem.MmoItemManager;
 import ch.swisssmp.adventuredungeons.mmoitem.MmoLootInventory;
 import ch.swisssmp.adventuredungeons.mmoplayer.MmoPlayer;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 import net.md_5.bungee.api.ChatColor;
 
 public class MmoResourceManager {
 	
-	public static String rootURL;
-	public static String pluginToken;
-	private static Random random = new Random();
-	
-	public static String getResponse(String relativeURL){
-		return getResponse(relativeURL, null);
-	}
-	
-	public static String getResponse(String relativeURL, String[] params){
-		String resultString = "";
-		try{
-			String urlString = rootURL+relativeURL+"?token="+pluginToken+"&random="+random.nextInt(1000);
-			if(params!=null && params.length>0){
-				urlString+="&"+String.join("&", params);
-			}
-			Main.info("Connecting to: "+urlString);
-			URL url = new URL(urlString);
-			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-			String tempString = "";
-			while(null!=(tempString = br.readLine())){
-				resultString+= tempString;
-			}
-			if(resultString.isEmpty()){
-				Main.info("Returning empty result");
-				return "";
-			}
-			return resultString;
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			Main.info("Causing the error: "+resultString);
-			return "";
-		}
-	}
-	
-	public static YamlConfiguration getYamlResponse(String relativeURL){
-		return getYamlResponse(relativeURL, null);
-	}
-	
-	public static YamlConfiguration getYamlResponse(String relativeURL, String[] params){
-		String resultString = convertWebYamlString(getResponse(relativeURL, params));
-		if(resultString.isEmpty()){
-			Main.info("Returning empty result");
-			return new YamlConfiguration();
-		}
-		try{
-			Main.info("Result: "+resultString);
-			YamlConfiguration yamlConfiguration = new YamlConfiguration();
-			yamlConfiguration.loadFromString(resultString);
-			return yamlConfiguration;
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			Main.info("Causing the error: "+resultString);
-			return new YamlConfiguration();
-		}
-	}
-    private static String convertWebYamlString(String webYamlString){
-    	webYamlString = webYamlString.replace("<br>", "\r\n");
-    	webYamlString = webYamlString.replace("&nbsp;", " ");
-    	return webYamlString;
-    }
     public static void processYamlResponse(UUID player_uuid, String relativeURL){
     	processYamlResponse(player_uuid, relativeURL, null);
     }
 	public static void processYamlResponse(UUID player_uuid, String relativeURL, String[] params){
-    	YamlConfiguration serverResponse = getYamlResponse(relativeURL, params);
+    	YamlConfiguration serverResponse = DataSource.getYamlResponse(relativeURL, params);
     	processYamlData(player_uuid, serverResponse);
     }
 	public static void processYamlData(UUID player_uuid, YamlConfiguration yamlConfiguration){

@@ -1,9 +1,6 @@
 package ch.swisssmp.adventuredungeons.mmoplayer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.UUID;
@@ -19,7 +16,7 @@ import ch.swisssmp.adventuredungeons.mmoworld.MmoDungeon;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoDungeonInstance;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorld;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoWorldInstance;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.webcore.DataSource;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent.ChatSerializer;
 import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
@@ -64,21 +61,13 @@ public abstract class MmoPlayer{
 			public void run(){
 				if(player==null) return;
 				try {
-					String urlString;
 					MmoWorldInstance worldInstance = MmoWorld.getInstance(player);
 					String worldName = player.getWorld().getName();
 					if(worldInstance!=null) worldName = worldInstance.system_name;
-					urlString = MmoResourceManager.rootURL+"resourcepack.php?"
-							+ "player="+URLEncoder.encode(player.getUniqueId().toString(), "UTF-8")
-							+ "&token="+MmoResourceManager.pluginToken
-							+ "&world="+URLEncoder.encode(worldName, "utf-8");
-					URL url = new URL(urlString);
-					BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-					String strTemp = "";
-					String result = "";
-					while(null!=(strTemp = br.readLine())){
-						result+= strTemp;
-					}
+					String result = DataSource.getResponse("resourcepack.php", new String[]{
+							"player="+URLEncoder.encode(player.getUniqueId().toString(), "UTF-8"),
+							"world="+URLEncoder.encode(worldName, "utf-8")
+					});
 					if(!result.isEmpty()){
 						if(assignedResourcepacks.containsKey(player.getUniqueId())&&assignedResourcepacks.get(player.getUniqueId()).equals(result))
 							return;

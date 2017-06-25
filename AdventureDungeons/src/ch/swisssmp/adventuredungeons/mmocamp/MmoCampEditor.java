@@ -8,8 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -19,7 +17,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.adventuredungeons.Main;
-import ch.swisssmp.adventuredungeons.util.MmoResourceManager;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 
 public class MmoCampEditor implements Listener {
 	public static HashMap<Player, MmoCampEditor> editors = new HashMap<Player, MmoCampEditor>();
@@ -54,7 +54,7 @@ public class MmoCampEditor implements Listener {
 		String x = "x="+block.getX();
 		String y = "y="+block.getY();
 		String z = "z="+block.getZ();
-		YamlConfiguration response = MmoResourceManager.getYamlResponse("campeditor.php", new String[]{spawnpoint, x, y, z});
+		YamlConfiguration response = DataSource.getYamlResponse("campeditor.php", new String[]{spawnpoint, x, y, z});
 		ConfigurationSection spawnpoints = response.getConfigurationSection("spawnpoints");
 		if(spawnpoints==null){
 			player.sendMessage(ChatColor.RED+"Beim bearbeiten der Punkte ist ein Fehler aufgetreten.");

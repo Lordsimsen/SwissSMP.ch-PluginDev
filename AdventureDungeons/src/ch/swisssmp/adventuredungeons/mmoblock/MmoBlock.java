@@ -9,13 +9,13 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 
 import ch.swisssmp.adventuredungeons.Main;
 import ch.swisssmp.adventuredungeons.mmoevent.MmoBlockChangeEvent;
 import ch.swisssmp.adventuredungeons.mmoitem.MmoItemManager;
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoBlock {
 	public static HashMap<Material, Material> minedTypes = new HashMap<Material, Material>();

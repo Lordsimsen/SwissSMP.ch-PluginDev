@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
@@ -16,6 +15,7 @@ import org.bukkit.material.MaterialData;
 import ch.swisssmp.adventuredungeons.Main;
 import ch.swisssmp.adventuredungeons.mmoblock.MmoBlock;
 import ch.swisssmp.adventuredungeons.util.MmoLogicOperator;
+import ch.swisssmp.utils.ConfigurationSection;
 
 public class MmoMultiStateLogic implements Listener{
 
