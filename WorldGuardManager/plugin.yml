@@ -1,0 +1,16 @@
+main: ch.swisssmp.worldguardmanager.WorldGuardManager
+version: 1.0
+name: WorldGuardManager
+author: detig_iii
+description: Manage WorldGuard from the web interface
+depend: [WebCore,WorldGuard]
+permissions: 
+  worldguardmanager.admin:
+    default: op
+    description: Allows you to manage the plugin ingame
+commands:
+  worldguardmanager:
+    usage: / reload
+    description: Refresh the web info
+    permission: worldguardmanager.admin
+    alias: [wgm]
