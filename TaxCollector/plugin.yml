@@ -2,15 +2,15 @@ main: ch.swisssmp.taxcollector.TaxCollector
 version: 1.0
 name: TaxCollector
 author: detig_iii
-description: Provides core functionality for other plugins
+description: Regelt automatisch Opfergaben und andere Abgaben
 depend: [WebCore,SwissSMPUtils]
 permissions:
   taxcollector.admin:
-    description: Allows you to use admin commands
+    description: Erlaubt die Verwendung des Plugins
     default: op
 commands:
   tax:
-    description: Use the plugin
+    description: Steuert das Plugin ingame
     usage: |
       /tax reload
       /tax info [player]
