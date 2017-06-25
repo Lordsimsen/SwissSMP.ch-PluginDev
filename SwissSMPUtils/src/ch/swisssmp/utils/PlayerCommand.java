@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -86,6 +87,13 @@ public class PlayerCommand implements CommandExecutor{
 			recipient.sendMessage(ChatColor.DARK_GRAY+"["+ChatColor.RESET+senderName+ChatColor.RESET+ChatColor.DARK_GRAY+" >> "+ChatColor.GRAY+"ich"+ChatColor.DARK_GRAY+"] "+ChatColor.GOLD+text);
 			sender.sendMessage(ChatColor.DARK_GRAY+"["+ChatColor.GRAY+"ich"+ChatColor.DARK_GRAY+" >> "+ChatColor.RESET+recipient.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+"] "+ChatColor.GOLD+text);
 			break;
+		}
+		case "worlds":{
+			List<String> worldNames = new ArrayList<String>();
+			for(World world : Bukkit.getWorlds()){
+				worldNames.add(world.getName());
+			}
+			sender.sendMessage(String.join(", ", worldNames));
 		}
 		}
 		return true;

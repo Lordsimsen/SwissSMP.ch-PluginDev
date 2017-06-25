@@ -1,6 +1,8 @@
 package ch.swisssmp.utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 
@@ -25,6 +27,10 @@ public class YamlConfiguration extends ConfigurationSection{
 			e.printStackTrace();
 			return false;
 		}
+	}
+	public static YamlConfiguration loadConfiguration(File file) throws IOException{
+		String configurationString = new String(Files.readAllBytes(file.toPath()));
+		return (new YamlConfiguration(configurationString));
 	}
 	public void save(File file){
 		try {

@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.SwissSMPUtils
-version: 2.0
+version: 2.2
 name: SwissSMPUtils
 author: detig_iii
 description: Provides core functionality for other plugins
@@ -20,6 +20,9 @@ permissions:
   smp.commands.tell:
     description: Allows you to use the /tell command
     default: true
+  smp.commands.worlds:
+    description: Allows you to use the /worlds command
+    default: op
   smp.afk.auto:
     description: Automatically sets you to afk when you stand still on the same spot for two world auto saves
     default: true
@@ -47,3 +50,7 @@ commands:
     description: Sendet eine private Nachricht an einen Spieler
     usage: /tell [player] [message]
     permission: smp.commands.tell
+  worlds:
+    description: Listet alle aktuell geladenen Welten auf
+    usage: /worlds
+    permission: smp.commands.worlds

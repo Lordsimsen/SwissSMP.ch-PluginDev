@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,14 +19,11 @@ public class SwissSMPUtils extends JavaPlugin{
 	
 	protected static BukkitTask afkRoutine;
 	
-	private static NamespacedKey namespacedKey;
-	
 	@Override
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
-		namespacedKey = new NamespacedKey(SwissSMPUtils.plugin, "SwissSMP");
 		
 		listener = new EventListener();
 		PlayerCommand playerCommand = new PlayerCommand();
@@ -36,6 +32,7 @@ public class SwissSMPUtils extends JavaPlugin{
 		this.getCommand("afk").setExecutor(playerCommand);
 		this.getCommand("list").setExecutor(playerCommand);
 		this.getCommand("tell").setExecutor(playerCommand);
+		this.getCommand("worlds").setExecutor(playerCommand);
 		
 		checkAfk();
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
@@ -67,9 +64,5 @@ public class SwissSMPUtils extends JavaPlugin{
 			}
 			
 		}, 100L);
-	}
-	
-	public static NamespacedKey GetNamespacedKey(){
-		return namespacedKey;
 	}
 }

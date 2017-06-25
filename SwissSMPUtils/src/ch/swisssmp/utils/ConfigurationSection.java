@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -99,7 +100,7 @@ public class ConfigurationSection{
 	public ShapedRecipe getShapedRecipe(String arg0){
 		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
 		ItemStack resultStack = recipeSection.getItemStack("result");
-		ShapedRecipe result = new ShapedRecipe(SwissSMPUtils.GetNamespacedKey(), resultStack);
+		ShapedRecipe result = new ShapedRecipe(new NamespacedKey(SwissSMPUtils.plugin, resultStack.getItemMeta().getDisplayName()), resultStack);
 		List<String> shape = recipeSection.getStringList("shape");
 		String[] shapeArray = new String[shape.size()];
 		result.shape(shape.toArray(shapeArray));
@@ -114,7 +115,7 @@ public class ConfigurationSection{
 	public ShapelessRecipe getShapelessRecipe(String arg0){
 		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
 		ItemStack resultStack = recipeSection.getItemStack("result");
-		ShapelessRecipe result = new ShapelessRecipe(SwissSMPUtils.GetNamespacedKey(), resultStack);
+		ShapelessRecipe result = new ShapelessRecipe(new NamespacedKey(SwissSMPUtils.plugin, resultStack.getItemMeta().getDisplayName()), resultStack);
 		ConfigurationSection ingredientsSection = recipeSection.getConfigurationSection("ingredients");
 		for(String key : ingredientsSection.getKeys(false)){
 			ConfigurationSection ingredientSection = ingredientsSection.getConfigurationSection(key);
@@ -126,6 +127,7 @@ public class ConfigurationSection{
 	}
 	
 	public ConfigurationSection getConfigurationSection(String arg0) {
+		if(!configurationSection.contains(arg0)) return null;
 		return new ConfigurationSection(configurationSection.getConfigurationSection(arg0));
 	}
 
