@@ -1,5 +1,5 @@
 main: ch.swisssmp.permissionmanager.PermissionManager
-version: 1.0
+version: 1.1
 name: PermissionManager
 author: detig_iii
 description: Enable Permission Management from a Web Interface
