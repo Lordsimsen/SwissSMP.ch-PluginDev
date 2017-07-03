@@ -149,7 +149,11 @@ public class ElytraGate implements Listener{
 		CraftElytra.saveGates();
 	}
 	private void updateSign(){
-    	Sign sign = (Sign)this.sign.getState();
+    	if(!(this.sign.getState() instanceof Sign)){
+    		this.delete();
+    		return;
+    	}
+		Sign sign = (Sign)this.sign.getState();
     	sign.setLine(0, ChatColor.DARK_PURPLE+"Elytra Gate");
     	String state = ChatColor.RED+"DEAKTIVIERT";
     	if(this.powered) state = ChatColor.GREEN+"AKTIVIERT";
