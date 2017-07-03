@@ -1,0 +1,18 @@
+main: ch.swisssmp.auctionhouse.AuctionHouse
+version: 1.0
+name: AuctionHouse
+author: detig_iii
+description: Organisiert Auktionen und verteilt Luxusaddons
+depend: [WebCore]
+permissions:
+  auction.admin:
+    description: Erlaubt die Verwendung von Admin-Befehlen
+    default: op
+commands:
+  auction:
+    description: Verwaltet das Plugin
+    usage: |
+      /auction start - Startet eine neue Auktion
+      /auction end - Beendet aktuelle Auktion und verteilt Lizenzen
+      /auction cancel - Beendet aktuelle Auktion und rückerstattet Gebote
+    permission: auction.admin
