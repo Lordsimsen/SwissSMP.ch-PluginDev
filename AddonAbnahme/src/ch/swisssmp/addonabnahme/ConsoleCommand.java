@@ -18,7 +18,7 @@ import ch.swisssmp.webcore.DataSource;
 public class ConsoleCommand implements CommandExecutor{
 
 	@Override
-	public boolean onCommand(CommandSender command, Command sender, String label, String[] args) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(args==null) return false;
 		if(args.length<2) return false;
 		switch(args[0]){
@@ -41,10 +41,15 @@ public class ConsoleCommand implements CommandExecutor{
 			if(args.length<4){
 				return true;
 			}
-			World world = Bukkit.getWorlds().get(0);
 			int x = Integer.valueOf(args[1]);
 			int y = Integer.valueOf(args[2]);
 			int z = Integer.valueOf(args[3]);
+			String worldName = args[4];
+			World world = Bukkit.getWorld(worldName);
+			if(world==null){
+				sender.sendMessage("[AddonAbnahme] Konnte Addonschild nicht leeren, unbekannte Welt "+worldName+"!");
+				return false;
+			}
 			Block block = world.getBlockAt(x, y, z);
 			Material material = block.getType();
 			if(material != Material.SIGN_POST && material != Material.WALL_SIGN)

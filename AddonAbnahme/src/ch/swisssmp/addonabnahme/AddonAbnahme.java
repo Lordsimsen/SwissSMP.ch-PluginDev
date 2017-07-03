@@ -47,10 +47,6 @@ public class AddonAbnahme extends JavaPlugin implements Listener{
 	@EventHandler
 	public void onSignChange(SignChangeEvent event){
 		Player player = event.getPlayer();
-		if(player.getWorld()!=Bukkit.getWorlds().get(0)){
-			player.sendMessage(ChatColor.DARK_RED+"Addons können nur in "+Bukkit.getWorlds().get(0).getName()+" angemeldet werden.");
-			return;
-		}
 		String[] lines = event.getLines();
 		if((!lines[0].toLowerCase().equals("[addonabnahme]") && !lines[0].toLowerCase().equals("[addon]")) || !player.hasPermission("addonabnahme.request"))
 			return;
@@ -61,6 +57,7 @@ public class AddonAbnahme extends JavaPlugin implements Listener{
 					"player="+player.getUniqueId().toString(),
 					"city="+URLEncoder.encode(city_name, "utf-8"),
 					"addon="+URLEncoder.encode(addon_name, "utf-8"),
+					"world="+URLEncoder.encode(event.getBlock().getWorld().getName(), "utf-8"),
 					"x="+event.getBlock().getX(),
 					"y="+event.getBlock().getY(),
 					"z="+event.getBlock().getZ()
@@ -124,7 +121,7 @@ public class AddonAbnahme extends JavaPlugin implements Listener{
 				"x="+event.getBlock().getX(),
 				"y="+event.getBlock().getY(),
 				"z="+event.getBlock().getZ(),
-				"world="+event.getBlock().getWorld()
+				"world="+URLEncoder.encode(event.getBlock().getWorld().getName(), "utf-8")
 			});
 			if(yamlConfiguration==null){
 				return;
@@ -195,7 +192,12 @@ public class AddonAbnahme extends JavaPlugin implements Listener{
 	}
 	
 	protected static void editSign(ConfigurationSection dataSection){
-		World world = Bukkit.getWorlds().get(0);
+		String worldName = dataSection.getString("world");
+		World world = Bukkit.getWorld(worldName);
+		if(world==null){
+			logger.info("[AddonAbnahme] Konnte Schild nicht aktualisieren, Welt "+worldName+" unbekannt!");
+			return;
+		}
 		int x = dataSection.getInt("x");
 		int y = dataSection.getInt("y");
 		int z = dataSection.getInt("z");
