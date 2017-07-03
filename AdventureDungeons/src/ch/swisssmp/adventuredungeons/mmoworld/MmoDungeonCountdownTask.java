@@ -19,7 +19,7 @@ public class MmoDungeonCountdownTask implements Runnable{
 		dungeonInstance.countdownTask = null;
 		if(dungeonInstance.playersReady()){
 			if(this.countdown>0){
-				dungeonInstance.sendTitle(String.valueOf(this.countdown), 0, 0, 1);
+				dungeonInstance.sendTitle(String.valueOf(this.countdown));
 				Runnable countdownTask = new MmoDungeonCountdownTask(this.dungeonInstance, this.countdown-1);
 				dungeonInstance.countdownTask = Bukkit.getScheduler().runTaskLater(Main.plugin, countdownTask, 20);
 			}

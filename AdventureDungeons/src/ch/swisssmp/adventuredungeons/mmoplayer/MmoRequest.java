@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.adventuredungeons.Main;
+import ch.swisssmp.utils.SwissSMPler;
 
 public class MmoRequest {
 	private static String[] colors = new String[]{
@@ -43,7 +44,16 @@ public class MmoRequest {
 		options.put(label, command);
 	}
 	public void send(UUID player_uuid){
+	    this.task = Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
+			@Override
+			public void run() {
+				pendingRequests.remove(index);
+			}
+	    	
+	    }, 1200L);
 		this.recipient = player_uuid;
+		SwissSMPler swisssmpler = SwissSMPler.get(player_uuid);
+		if(swisssmpler==null) return;
 		ArrayList<String> choices = new ArrayList<String>();
 		int line_index = 0;
 		for(Entry<String, String> entry : options.entrySet()){
@@ -53,15 +63,8 @@ public class MmoRequest {
 				line_index = 0;
 		}
 	    String json_request = ("{'text':'','extra':["+String.join(",", choices)+"]}").replace("'", "\"");
-	    if(question!=null) MmoPlayer.sendMessage(player_uuid, question);
-	    MmoPlayer.sendRawMessage(player_uuid, json_request);
-	    this.task = Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
-			@Override
-			public void run() {
-				pendingRequests.remove(index);
-			}
-	    	
-	    }, 1200L);
+	    if(question!=null) swisssmpler.sendMessage(question);
+	    swisssmpler.sendRawMessage(json_request);
 	}
 	public void choose(Player player, String key){
 		Main.debug(player.getName()+" chose "+key);

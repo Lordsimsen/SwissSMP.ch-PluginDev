@@ -30,6 +30,7 @@ import ch.swisssmp.adventuredungeons.mmomultistatearea.MmoAreaState;
 import ch.swisssmp.adventuredungeons.mmomultistatearea.MmoMultiStateArea;
 import ch.swisssmp.adventuredungeons.mmoplayer.MmoPlayer;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.SwissSMPler;
 import net.md_5.bungee.api.ChatColor;
 
 public class MmoDungeonInstance implements Listener{
@@ -142,7 +143,7 @@ public class MmoDungeonInstance implements Listener{
 			}
 		}
 		MmoEvent.fire(mmoDungeon.events, MmoEventType.DUNGEON_START, null);
-		this.sendTitle(ChatColor.GREEN+"START!", mmoDungeon.name, 2, 3, 2);
+		this.sendTitle(ChatColor.GREEN+"START!", mmoDungeon.name);
 		for(String player_uuid : this.player_uuids){
 			Player player = Bukkit.getPlayer(UUID.fromString(player_uuid));
 			if(player!=null)
@@ -151,15 +152,17 @@ public class MmoDungeonInstance implements Listener{
 	}
 	protected void join(Player player){
 		UUID player_uuid = player.getUniqueId();
+		SwissSMPler swisssmpler = SwissSMPler.get(player);
 		MmoDungeon mmoDungeon = MmoDungeon.get(this);
 		if(this.player_uuids.size()>=mmoDungeon.maxPlayers){
-			MmoPlayer.sendMessage(player_uuid, ChatColor.RED+"Dieser Dungeon ist auf "+mmoDungeon.maxPlayers+" Spieler beschränkt.");
+			swisssmpler.sendMessage(ChatColor.RED+"Dieser Dungeon ist auf "+mmoDungeon.maxPlayers+" Spieler beschränkt.");
 			return;
 		}
 		if(!this.player_uuids.contains(player_uuid.toString())){
-			MmoPlayer.sendMessage(player_uuid, ChatColor.RED+mmoDungeon.name+ChatColor.YELLOW+" beigetreten.");
+			swisssmpler.sendMessage(ChatColor.RED+mmoDungeon.name+ChatColor.YELLOW+" beigetreten.");
 			for(String otherPlayer : this.player_uuids){
-				MmoPlayer.sendMessage(UUID.fromString(otherPlayer), ChatColor.YELLOW+player.getDisplayName()+ChatColor.YELLOW+" ist beigetreten.");
+				SwissSMPler othersmpler = SwissSMPler.get(UUID.fromString(otherPlayer));
+				if(othersmpler!=null) othersmpler.sendMessage(ChatColor.YELLOW+player.getDisplayName()+ChatColor.YELLOW+" ist beigetreten.");
 			}
 			this.player_uuids.add(player_uuid.toString());
 			Location bedspawn = player.getBedSpawnLocation();
@@ -193,10 +196,12 @@ public class MmoDungeonInstance implements Listener{
 		if(this.player_uuids.contains(player_uuid.toString())){
 			this.player_uuids.remove(player_uuid.toString());
 			MmoDungeon.playerMap.remove(player_uuid);
-			MmoPlayer.sendMessage(player_uuid, ChatColor.GRAY+mmoDungeon.name+" verlassen.");
+			SwissSMPler swisssmpler = SwissSMPler.get(player_uuid);
+			if(swisssmpler!=null) swisssmpler.sendMessage(ChatColor.GRAY+mmoDungeon.name+" verlassen.");
 			if(this.player_uuids.size()>0){
 				for(String otherPlayer : this.player_uuids){
-					MmoPlayer.sendMessage(UUID.fromString(otherPlayer), ChatColor.GRAY+player.getDisplayName()+" hat den Dungeon verlassen.");
+					SwissSMPler othersmpler = SwissSMPler.get(UUID.fromString(otherPlayer));
+					if(othersmpler!=null) othersmpler.sendMessage(ChatColor.GRAY+player.getDisplayName()+" hat den Dungeon verlassen.");
 				}
 			}
 			else{
@@ -250,13 +255,13 @@ public class MmoDungeonInstance implements Listener{
 			return false;
 		}
 	}
-	public void sendTitle(String title, int fadeIn, int stay, int fadeOut){
-		sendTitle(title, "", fadeIn, stay, fadeOut);
+	public void sendTitle(String title){
+		sendTitle(title, "");
 	}
-	public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut){
+	public void sendTitle(String title, String subtitle){
 		for(String player_uuid : player_uuids){
-			Player player = Bukkit.getPlayer(UUID.fromString(player_uuid));
-			MmoPlayer.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut);
+			SwissSMPler swisssmpler = SwissSMPler.get(UUID.fromString(player_uuid));
+			if(swisssmpler!=null)swisssmpler.sendTitle(title, subtitle);
 		}
 	}
 	public void addInvitedPlayer(UUID player_uuid){

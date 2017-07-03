@@ -16,8 +16,8 @@ import org.bukkit.scheduler.BukkitTask;
 import ch.swisssmp.adventuredungeons.Main;
 import ch.swisssmp.adventuredungeons.mmoitem.MmoItemManager;
 import ch.swisssmp.adventuredungeons.mmoitem.MmoLootInventory;
-import ch.swisssmp.adventuredungeons.mmoplayer.MmoPlayer;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import net.md_5.bungee.api.ChatColor;
@@ -48,7 +48,8 @@ public class MmoResourceManager {
 				String name = itemStack.getType().name();
 				if(itemStack.getItemMeta().hasDisplayName())
 					name = itemStack.getItemMeta().getDisplayName();
-				MmoPlayer.sendMessage(player, ChatColor.YELLOW+""+itemStack.getAmount()+" "+name+ChatColor.YELLOW+" erhalten!");
+				SwissSMPler swisssmpler = SwissSMPler.get(player_uuid);
+				if(swisssmpler!=null) swisssmpler.sendMessage(ChatColor.YELLOW+""+itemStack.getAmount()+" "+name+ChatColor.YELLOW+" erhalten!");
 			}
 		}
 		if(yamlConfiguration.contains("loot") && player!=null){

@@ -15,9 +15,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import ch.swisssmp.adventuredungeons.mmoplayer.MmoPlayer;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoDungeon;
 import ch.swisssmp.adventuredungeons.mmoworld.MmoDungeonInstance;
+import ch.swisssmp.utils.SwissSMPler;
 
 public class MmoDungeonCommand implements CommandExecutor{
     @Override
@@ -246,11 +246,12 @@ public class MmoDungeonCommand implements CommandExecutor{
 	    		MmoDungeonInstance dungeonInstance = MmoDungeon.getInstance(uuid);
 	    		if(dungeonInstance==null) return true;
 	    		if(dungeonInstance.running) return true;
+    			SwissSMPler swisssmpler = SwissSMPler.get(UUID.fromString(player_uuid));
 	    		if(dungeonInstance.toggleReady(player_uuid)){
-	    			MmoPlayer.sendMessage(UUID.fromString(player_uuid), "Du bist nun bereit.");
+	    			if(swisssmpler!=null) swisssmpler.sendMessage("Du bist nun bereit.");
 	    		}
 	    		else{
-	    			MmoPlayer.sendMessage(UUID.fromString(player_uuid), "Du bist nun nicht mehr bereit.");
+	    			if(swisssmpler!=null) swisssmpler.sendMessage("Du bist nun nicht mehr bereit.");
 	    		}
 	    		break;
 	    	}
