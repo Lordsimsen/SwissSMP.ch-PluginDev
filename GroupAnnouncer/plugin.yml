@@ -1,0 +1,39 @@
+main: ch.swisssmp.groupannouncer.GroupAnnouncer
+version: 1.0
+name: GroupAnnouncer
+author: detig_iii
+description: Gruppenorientiertes Benachrichtigungssystem
+
+permissions:
+  ga.gast:
+    description: Erhalte Nachrichten der Gruppe Gast
+    default: false
+  ga.spieler:
+    description: Erhalte Nachrichten der Gruppe Spieler
+    default: false
+  ga.stammi:
+    description: Erhalte Nachrichten der Gruppe Stammi
+    default: false
+  ga.mod:
+    description: Erhalte Nachrichten der Gruppe Mod
+    default: false
+  ga.ressortleiter:
+    description: Erhalte Nachrichten der Gruppe Ressortleiter
+    default: false
+  ga.admin:
+    description: Erhalte Nachrichten der Gruppe Admin
+    default: false
+  ga.legende:
+    description: Erhalte Nachrichten der Gruppe Legende
+    default: false
+  ga.announce:
+    description: Erlaubt die Verwendung des Announcers
+    default: op
+commands:
+  groupannouncer:
+    description: Ruft Funktionen des Plugins auf
+    usage: |
+      /ga announce [(-)Gruppen,] {Nachricht} - $ wird mit § ersetzt
+      /ga colors - Zeigt Farbcodes an
+    aliases: [ga,announcer]
+    permission: groupannouncer.admin
