@@ -1,0 +1,16 @@
+main: ch.swisssmp.event.RemoteEventListener
+version: 1.0
+name: RemoteEventListener
+author: detig_iii
+description: Führt Befehle vom Web-Interface bei ingame Events aus
+depend: [WebCore]
+softdepend: [AdventureDungeons,AreaTransformations,WGRegionEvents]
+permissions:
+  remoteeventlistener.admin:
+    description: Erlaubt Verwaltung des Plugins
+    default: op
+commands:
+  remoteeventlistener:
+    description: Verwaltet das Plugin
+    usage: /remoteeventlistener reload
+    permission: remoteeventlistener.admin
