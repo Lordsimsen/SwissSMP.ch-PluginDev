@@ -1,6 +1,6 @@
 name: RealMail
 description: Send mail to physical mailboxes without commands
-version: 0.3.3
+version: 0.3.5
 authors: [Ben Sergent V,detig_iii]
 
 main: com.challengercity.plugins.realmail.RealMail

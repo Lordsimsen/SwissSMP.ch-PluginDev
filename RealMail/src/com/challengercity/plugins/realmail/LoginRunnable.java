@@ -10,7 +10,7 @@ public final class LoginRunnable implements Runnable {
 
     @Override
     public void run() {
-       event.getPlayer().sendMessage(RealMail.prefix+"Du hast Post! Prüfe deinen Briefkasten.");
+       event.getPlayer().sendMessage(RealMail.prefix+"Du hast Post! PrÃ¼fe deinen Briefkasten.");
     }
     
 }

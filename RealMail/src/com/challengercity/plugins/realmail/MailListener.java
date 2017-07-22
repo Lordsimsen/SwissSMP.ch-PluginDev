@@ -51,21 +51,21 @@ public final class MailListener implements org.bukkit.event.Listener {
                 e.getPlayer().sendMessage(prefix+"Du hast deinen Coupon in einen Briefkasten umgewandelt.");
             }
             /* Cycle texture */
-            else if (is.getType() == Material.SKULL_ITEM && (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && is.getItemMeta().hasLore() && is.getItemMeta().getLore().get(1).contains("Schlage, um Farbe zu ändern")) {
+            else if (is.getType() == Material.SKULL_ITEM && (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && is.getItemMeta().hasLore() && is.getItemMeta().getLore().get(1).contains("Punch to change texture")) {
                 e.getPlayer().getInventory().removeItem(toBeRemoved);
                 if (is.getItemMeta().getLore().get(0).contains("Blue")) {
-                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"§rMailbox\",Lore:[\"§r§7White\",\"§r§7Schlage, um Farbe zu ändern\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdWhite+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureWhite+"\"}]}}}");
+                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"Â§rMailbox\",Lore:[\"Â§rÂ§7White\",\"Â§rÂ§7Punch to change texture\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdWhite+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureWhite+"\"}]}}}");
                 } else if (is.getItemMeta().getLore().get(0).contains("White")) {
-                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"§rMailbox\",Lore:[\"§r§7Red\",\"§r§7Schlage, um Farbe zu ändern\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdRed+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureRed+"\"}]}}}");
+                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"Â§rMailbox\",Lore:[\"Â§rÂ§7Red\",\"Â§rÂ§7Punch to change texture\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdRed+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureRed+"\"}]}}}");
                 } else if (is.getItemMeta().getLore().get(0).contains("Red")) {
-                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"§rMailbox\",Lore:[\"§r§7Green\",\"§r§7Schlage, um Farbe zu ändern\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdGreen+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureGreen+"\"}]}}}");
+                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"Â§rMailbox\",Lore:[\"Â§rÂ§7Green\",\"Â§rÂ§7Punch to change texture\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdGreen+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureGreen+"\"}]}}}");
                 } else if (is.getItemMeta().getLore().get(0).contains("Green")) {
-                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"§rMailbox\",Lore:[\"§r§7Blue\",\"§r§7Schlage, um Farbe zu ändern\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdBlue+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureBlue+"\"}]}}}");
+                    server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"Â§rMailbox\",Lore:[\"Â§rÂ§7Blue\",\"Â§rÂ§7Punch to change texture\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdBlue+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureBlue+"\"}]}}}");
                 }
-                e.getPlayer().sendMessage(prefix+"Du hast das Aussehen deines Briefkastens geändert.");
+                e.getPlayer().sendMessage(prefix+"Du hast das Aussehen deines Briefkastens geÃ¤ndert.");
             }
             /* Stationery Stuff */
-            else if (is.getType() == Material.WRITTEN_BOOK && is.hasItemMeta() && is.getItemMeta().hasLore() && is.getItemMeta().hasDisplayName() && (is.getItemMeta().getDisplayName().contains("§rLetter") || is.getItemMeta().getDisplayName().contains("§rPackage"))) {
+            else if (is.getType() == Material.WRITTEN_BOOK && is.hasItemMeta() && is.getItemMeta().hasLore() && is.getItemMeta().hasDisplayName() && (is.getItemMeta().getDisplayName().contains("Â§rLetter") || is.getItemMeta().getDisplayName().contains("Â§rPackage"))) {
                 if (e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.SKULL)) {
 
                     List<String> players = (List<String>) mailboxesConfig.getList("players", new LinkedList<String>());
@@ -135,22 +135,22 @@ public final class MailListener implements org.bukkit.event.Listener {
             
             BookMeta newBM = e.getNewBookMeta();
             if (e.getPreviousBookMeta().getDisplayName().contains("Package")) {
-                newBM.setDisplayName("§rPackage");
+                newBM.setDisplayName("Â§rPackage");
                 newBM.setLore(e.getPreviousBookMeta().getLore());
             } else {
-                newBM.setDisplayName("§rStationery");
-                newBM.setLore(Arrays.asList("Empfänger: Name als Titel","Versenden: Rechtsklick auf einen Briefkasten"));
+                newBM.setDisplayName("Â§rStationery");
+                newBM.setLore(Arrays.asList("EmpfÃ¤nger: Name als Titel","Versenden: Rechtsklick auf einen Briefkasten"));
             }
             e.setNewBookMeta(newBM);
             
             
             if (e.isSigning()) {
                 if (newBM.getDisplayName().contains("Stationary") || newBM.getDisplayName().contains("Stationery")) {
-                    newBM.setDisplayName("§rLetter");
+                    newBM.setDisplayName("Â§rLetter");
                 }
 
                 List<String> bookLore = newBM.getLore();
-                bookLore.add("§r§7To: "+newBM.getTitle());
+                bookLore.add("Â§rÂ§7To: "+newBM.getTitle());
                 newBM.setLore(bookLore);
 
                 if (newBM.getPageCount() >= 1) {
@@ -251,7 +251,7 @@ public final class MailListener implements org.bukkit.event.Listener {
                     if (current.getItemMeta().hasDisplayName()) {
                         if (current.getItemMeta().getDisplayName().contains("Stationary") || current.getItemMeta().getDisplayName().contains("Stationery") || current.getItemMeta().getDisplayName().contains("Package")) {
                             if (cursor != null && cursor.hasItemMeta() && cursor.getItemMeta().hasDisplayName() && cursor.getItemMeta().getDisplayName().contains("Package")) {
-                                e.getWhoClicked().sendMessage(prefix+"Du kannst kein Paket in ein Paket legen. Das gäbe einen Fehler in der Matrix!");
+                                e.getWhoClicked().sendMessage(prefix+"Du kannst kein Paket in ein Paket legen. Das gÃ¤be einen Fehler in der Matrix!");
                                 e.setResult(Event.Result.DENY);
                             } else {
                                 if (e.getWhoClicked().hasPermission("realmail.user.attach")) {
@@ -262,7 +262,7 @@ public final class MailListener implements org.bukkit.event.Listener {
                                         if (im.hasLore()) {
                                             for (String loreLine : im.getLore()) {
                                                 if (loreLine.contains("ID")) {
-                                                    code = loreLine.replace("§r§7ID: ", "");
+                                                    code = loreLine.replace("Â§rÂ§7ID: ", "");
                                                     attachments = (List<ItemStack>) RealMail.packagesConfig.getList(code, new LinkedList<ItemStack>());
                                                     break;
                                                 }
@@ -281,35 +281,35 @@ public final class MailListener implements org.bukkit.event.Listener {
                                                 }
                                                 
                                                 if (!hasDetachInstr) {
-                                                    lore.add("§r§7Rechtsklicke auf leeren Slot, um Items auszupacken.");
+                                                    lore.add("Â§rÂ§7Rechtsklicke auf leeren Slot, um Items auszupacken.");
                                                 }
                                                 
-                                                lore.add("§r§7ID: "+code);
+                                                lore.add("Â§rÂ§7ID: "+code);
                                                 im.setLore(lore);
                                             }
                                             attachments.add(cursor.clone());
                                             RealMail.packagesConfig.set(code, attachments);
                                             try {
                                             	RealMail.packagesConfig.save(RealMail.packagesFile);
-                                                e.getWhoClicked().sendMessage(prefix+ChatColor.WHITE+cursor.getType().name()+" x"+cursor.getAmount()+" angehängt.");
-                                                im.setDisplayName("§rPackage");
+                                                e.getWhoClicked().sendMessage(prefix+ChatColor.WHITE+cursor.getType().name()+" x"+cursor.getAmount()+" angehÃ¤ngt.");
+                                                im.setDisplayName("Â§rPackage");
                                                 current.setItemMeta(im);
                                                 e.setCursor(new ItemStack(Material.AIR));
                                                 //cursor.setType(Material.AIR);
                                                 //cursor.setAmount(0);
                                                 e.setResult(Event.Result.DENY);
                                             } catch (Exception ex) {
-                                                e.getWhoClicked().sendMessage(prefix+"Das Item konnte nicht angehängt werden.");
+                                                e.getWhoClicked().sendMessage(prefix+"Das Item konnte nicht angehÃ¤ngt werden.");
                                             }
                                         } else {
                                             e.getWhoClicked().sendMessage(prefix+("Maximale Anzahl Items im Anhang erreicht. ({0})").replaceAll("\\{0}", config.getInt("max_attachments", 4)+""));
                                             e.setResult(Event.Result.DENY);
                                         }
                                     } else {
-                                        e.getWhoClicked().sendMessage(prefix+("Anhänge können nicht im Creative-Modus gemacht werden."));
+                                        e.getWhoClicked().sendMessage(prefix+("AnhÃ¤nge kÃ¶nnen nicht im Creative-Modus gemacht werden."));
                                     }
                                 } else {
-                                    e.getWhoClicked().sendMessage(prefix+"Du kannst keine Items anhängen.");
+                                    e.getWhoClicked().sendMessage(prefix+"Du kannst keine Items anhÃ¤ngen.");
                                     e.setResult(Event.Result.DENY);
                                 }
                             }
@@ -326,7 +326,7 @@ public final class MailListener implements org.bukkit.event.Listener {
                 if (e.getCursor().hasItemMeta() && e.getCursor().getItemMeta().hasDisplayName() && e.getCursor().getItemMeta().getDisplayName().contains("Package") && e.getCursor().getItemMeta().hasLore()) {
                     for (String loreLine : e.getCursor().getItemMeta().getLore()) {
                         if (loreLine.contains("ID")) {
-                            String code = loreLine.replace("§r§7ID: ", "");
+                            String code = loreLine.replace("Â§rÂ§7ID: ", "");
                             if (packagesConfig.contains(code)) {
                                 
                                 List<ItemStack> attachments = (List<ItemStack>) packagesConfig.getList(code, new LinkedList<ItemStack>());
@@ -405,30 +405,30 @@ public final class MailListener implements org.bukkit.event.Listener {
     //<editor-fold defaultstate="collapsed" desc="Detect mailbox placing">
     @SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.NORMAL)
-    public void onBlockPlace(BlockPlaceEvent e) {
+    public void onBlockPlace(BlockPlaceEvent event) {
     	String prefix = RealMail.prefix;
         FileConfiguration mailboxesConfig = RealMail.mailboxesConfig;
         FileConfiguration config = RealMail.plugin.getConfig();
-        if (e.getItemInHand() != null) {
-            ItemStack is = e.getItemInHand();
+        if (event.getItemInHand() != null) {
+            ItemStack is = event.getItemInHand();
             
-            if (is.getType() == Material.SKULL_ITEM && is.getItemMeta().hasLore() && is.getItemMeta().getLore().size() >= 2 && is.getItemMeta().getLore().get(1).contains("Schlage, um Farbe zu ändern")) {
+            if (is.getType() == Material.SKULL_ITEM && is.getItemMeta().hasLore() && is.getItemMeta().getLore().size() >= 2 && is.getItemMeta().getLore().get(1).contains("Punch to change texture")) {
                 
-                List<Location> locations = (List<Location>) mailboxesConfig.getList(e.getPlayer().getUniqueId()+".mailboxes", new LinkedList<Location>());
-                locations.add(e.getBlock().getLocation());
-                mailboxesConfig.set(e.getPlayer().getUniqueId()+".mailboxes", locations);
+                List<Location> locations = (List<Location>) mailboxesConfig.getList(event.getPlayer().getUniqueId()+".mailboxes", new LinkedList<Location>());
+                locations.add(event.getBlock().getLocation());
+                mailboxesConfig.set(event.getPlayer().getUniqueId()+".mailboxes", locations);
                 
                 List<String> players = (List<String>) mailboxesConfig.getList("players", new LinkedList<String>());
-                if (!players.contains(e.getPlayer().getUniqueId().toString())) {
-                    players.add(e.getPlayer().getUniqueId().toString());
+                if (!players.contains(event.getPlayer().getUniqueId().toString())) {
+                    players.add(event.getPlayer().getUniqueId().toString());
                 }
                 mailboxesConfig.set("players", players);
                 
                 try {
                     mailboxesConfig.save(RealMail.mailboxesFile);
-                    e.getPlayer().sendMessage(prefix+"Briefkasten platziert.");
+                    event.getPlayer().sendMessage(prefix+"Briefkasten platziert.");
                 } catch (Exception ex) {
-                    e.getPlayer().sendMessage(prefix+"Der Briefkasten konnte nicht platziert werden.");
+                    event.getPlayer().sendMessage(prefix+"Der Briefkasten konnte nicht platziert werden.");
                     if (config.getBoolean("verbose_errors", false)) {
                         ex.printStackTrace();
                     }
@@ -460,7 +460,7 @@ public final class MailListener implements org.bukkit.event.Listener {
                         mailboxesConfig.save(RealMail.mailboxesFile);
                         e.setCancelled(true);
                         e.getBlock().setType(Material.AIR);
-                        server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"§rMailbox\",Lore:[\"§r§7Blue\",\"§r§7Schlage, um Farbe zu ändern\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdBlue+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureBlue+"\"}]}}}");
+                        server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"Â§rMailbox\",Lore:[\"Â§rÂ§7Blue\",\"Â§rÂ§7Punch to change texture\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdBlue+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureBlue+"\"}]}}}");
                     } catch (Exception ex) {
                         e.getPlayer().sendMessage(prefix+"Der Briefkasten konnte nicht entfernt werden.");
                         if (config.getBoolean("verbose_errors", false)) {
@@ -479,6 +479,7 @@ public final class MailListener implements org.bukkit.event.Listener {
     public void onCraft(CraftItemEvent e) {
     	String prefix = RealMail.prefix;
     	if(e.getRecipe()==null) return;
+    	if(e.getRecipe().getResult()==null) return;
         if (e.getRecipe().getResult().hasItemMeta() && e.getRecipe().getResult().getItemMeta().hasLore() && e.getRecipe().getResult().getItemMeta().getDisplayName().contains(RealMail.stationeryMeta.getDisplayName())) { // Stationery
             if (!e.getWhoClicked().hasPermission("realmail.user.craft.stationary")) {
                 e.getWhoClicked().sendMessage(prefix+"Du kannst noch kein Briefpapier herstellen.");

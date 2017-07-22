@@ -17,7 +17,7 @@ public final class LoginListener implements org.bukkit.event.Listener {
                     try {
                         Bukkit.getScheduler().runTaskLater(RealMail.plugin, new LoginRunnable(e), 20*10);
                     } catch (IllegalArgumentException ex) {
-                        e.getPlayer().sendMessage(RealMail.prefix+"Du hast Post! Prüfe deinen Briefkasten.");
+                        e.getPlayer().sendMessage(RealMail.prefix+"Du hast Post! PrÃ¼fe deinen Briefkasten.");
                     }
                 }
             }
