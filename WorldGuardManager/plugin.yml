@@ -13,4 +13,4 @@ commands:
     usage: / reload
     description: Refresh the web info
     permission: worldguardmanager.admin
-    alias: [wgm]
+    aliases: [wgm]
