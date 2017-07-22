@@ -76,12 +76,19 @@ public class AuctionHouse extends JavaPlugin{
 	
 	public static void bid(Player player, String addon_name, ItemStack itemStack){
 		try {
+			if(player==null) return;
+			if(addon_name==null) return;
+			if(itemStack==null) return;
+			if(itemStack.getAmount()<=0) return;
 			YamlConfiguration response = DataSource.getYamlResponse("auction/bid.php", new String[]{
 				"player="+player.getUniqueId(),
-				"addon="+URLEncoder.encode(addon_name, "utf-8")
+				"addon="+URLEncoder.encode(addon_name, "utf-8"),
+				"amount="+itemStack.getAmount()
 			});
 			if(response==null) return;
-			itemStack.setAmount(itemStack.getAmount()-1);
+			if(response.contains("transferred")){
+				itemStack.setAmount(itemStack.getAmount()-response.getInt("transferred"));
+			}
 			if(response.contains("message")){
 				player.sendMessage(response.getString("message"));
 			}

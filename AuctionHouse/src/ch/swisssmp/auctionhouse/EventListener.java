@@ -23,40 +23,45 @@ public class EventListener implements Listener{
 	private void onSignPlace(SignChangeEvent event){
 		Player player = event.getPlayer();
 		String[] lines = event.getLines();
-		if(lines[1].toLowerCase().equals("[auktion]")){
-			String addon = lines[2];
-			try {
-				YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("auction/sign.php", new String[]{
-						"player="+player.getUniqueId(),
-						"addon="+URLEncoder.encode(addon,"utf-8"),
-						"world="+URLEncoder.encode(player.getWorld().getName(), "utf-8"),
-						"x="+(int)Math.round(player.getLocation().getX()),
-						"y="+(int)Math.round(player.getLocation().getY()),
-						"z="+(int)Math.round(player.getLocation().getZ()),
-				});
-				if(yamlConfiguration==null) return;
-				if(yamlConfiguration.contains("message")){
-					player.sendMessage(yamlConfiguration.getString("message"));
-				}
-				if(yamlConfiguration.contains("lines")){
-					List<String> linesSection = yamlConfiguration.getStringList("lines");
-					for(int i = 0; i < linesSection.size() && i < 4; i++){
-						event.setLine(i,linesSection.get(i));
-					}
-				}
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		String addon;
+		if(lines[0].toLowerCase().equals("[auktion]")){
+			addon = lines[1];
+		}
+		else if(lines[1].toLowerCase().equals("[auktion]")){
+			addon = lines[2];
+		}
+		else return;
+		try {
+			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("auction/sign.php", new String[]{
+					"player="+player.getUniqueId(),
+					"addon="+URLEncoder.encode(addon,"utf-8"),
+					"world="+URLEncoder.encode(player.getWorld().getName(), "utf-8"),
+					"x="+(int)Math.round(player.getLocation().getX()),
+					"y="+(int)Math.round(player.getLocation().getY()),
+					"z="+(int)Math.round(player.getLocation().getZ()),
+			});
+			if(yamlConfiguration==null) return;
+			if(yamlConfiguration.contains("message")){
+				player.sendMessage(yamlConfiguration.getString("message"));
 			}
+			if(yamlConfiguration.contains("lines")){
+				List<String> linesSection = yamlConfiguration.getStringList("lines");
+				for(int i = 0; i < linesSection.size() && i < 4; i++){
+					event.setLine(i,linesSection.get(i));
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	@EventHandler(ignoreCancelled=true)
 	private void onSignInteract(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		Block block = event.getClickedBlock();
-		if(block.getType()!=Material.WALL_SIGN) return;
+		if(block.getType()!=Material.WALL_SIGN && block.getType()!=Material.SIGN_POST) return;
 		Sign sign = (Sign)block.getState();
-		if(!sign.getLine(1).equals("ง5[Auktion]")) return;
+		if(!sign.getLine(1).equals("ยง5[Auktion]")) return;
 		String addon = sign.getLine(2);
 		ItemStack itemStack = event.getItem();
 		if(itemStack!=null && itemStack.getType()==Material.DIAMOND){

@@ -1,5 +1,5 @@
 main: ch.swisssmp.auctionhouse.AuctionHouse
-version: 1.0
+version: 1.1
 name: AuctionHouse
 author: detig_iii
 description: Organisiert Auktionen und verteilt Luxusaddons
@@ -12,7 +12,8 @@ commands:
   auction:
     description: Verwaltet das Plugin
     usage: |
-      /auction start - Startet eine neue Auktion
+      /auction start (Enddatum dd.mm.YYYY) (Endzeit HH:ii:ss) - Startet eine neue Auktion
+      /auction starttimed [Startdatum dd.mm.YYYY] [Enddatum dd.mm.YYYY] (Startzeit HH:ii:ss) (Endzeit HH:ii:ss) - Startet eine neue Auktion zu einem bestimmten Zeitpunkt
       /auction end - Beendet aktuelle Auktion und verteilt Lizenzen
       /auction cancel - Beendet aktuelle Auktion und rückerstattet Gebote
     permission: auction.admin
