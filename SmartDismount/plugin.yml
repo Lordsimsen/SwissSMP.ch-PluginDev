@@ -1,0 +1,9 @@
+main: ch.swisssmp.smartdismount.SmartDismount
+version: 1.0
+name: SmartDismount
+author: detig_iii
+description: Verbessertes Aussteigen bei Minecarts etc.
+permissions:
+  smartdismount.bypass:
+    description: Schliesst einen Spieler vom Einfluss des Plugins aus
+    default: op
