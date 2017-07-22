@@ -1,0 +1,19 @@
+main: ch.swisssmp.resourcepack.ResourcepackManager
+version: 1.0
+name: ResourcepackManager
+author: detig_iii
+description: Organisiert Resourcepack-Zuweisungen
+depend: [WebCore]
+permissions:
+  resourcepack.admin:
+    description: Erlaubt die Verwendung von Admin-Befehlen
+    default: op
+commands:
+  resourcepack:
+    description: Verwaltet das Plugin
+    usage: |
+      /resourcepack reload (Spieler) - Aktualisiert Resourcepack eines oder aller Spieler (Name oder UUID)
+      /resourcepack set [Spieler] [Resourcepack-URL] - Setzt Resourcepack eines Spielers (Name oder UUID)
+      /resourcepack get [Spieler] - Zeigt das aktive Server-Resourcepack eines Spielers an (Name oder UUID)
+    permission: resourcepack.admin
+    aliases: [rp]
