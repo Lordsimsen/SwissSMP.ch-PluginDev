@@ -1,6 +1,8 @@
 package ch.swisssmp.taxcollector;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,17 +11,23 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
@@ -45,7 +53,7 @@ public class TaxCollector extends JavaPlugin implements Listener{
 	protected static File dataFolder;
 	protected static TaxCollector plugin;
 	protected static boolean debug;
-	protected static ArrayList<Chest> taxChests = new ArrayList<Chest>();
+	protected static HashMap<Integer,Chest> taxChests = new HashMap<Integer, Chest>();
 	
 	@Override
 	public void onEnable() {
@@ -66,6 +74,81 @@ public class TaxCollector extends JavaPlugin implements Listener{
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
+	protected static void collect(){
+		for(Integer city_id : taxChests.keySet()){
+			collect(city_id);
+		}
+	}
+	
+	protected static void collect(int city_id){
+		if(city_id==0){
+			return;
+		}
+		if(!taxChests.containsKey(city_id)){
+			return;
+		}
+		Chest chest = taxChests.get(city_id);
+		Chest adminChest = taxChests.get(0);
+		if(adminChest==null){
+			return;
+		}
+		
+		Inventory chestInventory = chest.getInventory();
+		Inventory adminInventory = adminChest.getInventory();
+		HashMap<Material, Integer> counters = new HashMap<Material, Integer>();
+		Material material;
+		int amount;
+		
+		for(ItemStack itemStack : chestInventory){
+			if(itemStack==null) continue;
+			adminInventory.addItem(itemStack);
+			material = itemStack.getType();
+			amount = itemStack.getAmount();
+			if(material==Material.IRON_BLOCK){
+				material = Material.IRON_INGOT;
+				amount*=9;
+			}
+			else if(material==Material.GOLD_BLOCK){
+				material = Material.GOLD_INGOT;
+				amount*=9;
+			}
+			else if(material==Material.DIAMOND_BLOCK){
+				material = Material.DIAMOND;
+				amount*=9;
+			}
+			if(counters.containsKey(material)){
+				amount+=counters.get(material);
+				counters.remove(material);
+			}
+			counters.put(material, amount);
+		}
+		logger.info("Clearing chest at "+chest.getX()+","+chest.getY()+","+chest.getZ());
+		chest.getBlockInventory().clear();
+		BlockFace[] neighbourFaces = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+		Block neighbourBlock;
+		for(BlockFace neighbourFace : neighbourFaces){
+			neighbourBlock = chest.getBlock().getRelative(neighbourFace);
+			if(neighbourBlock==null || neighbourBlock.getType()!=chest.getType()) continue;
+			Chest neighbourChest = (Chest) neighbourBlock.getState();
+			logger.info("Clearing neighbour at "+neighbourChest.getX()+","+neighbourChest.getY()+","+neighbourChest.getZ());
+			neighbourChest.getBlockInventory().clear();
+			break;
+		}
+		String[] args = new String[1+counters.size()];
+		try {
+			args[0] = "city_id="+URLEncoder.encode(String.valueOf(city_id), "utf-8");
+			int index = 1;
+			for(Entry<Material,Integer> entry : counters.entrySet()){
+				args[index] = "items["+entry.getKey().toString()+"]="+entry.getValue();
+				index++;
+			}
+			DataSource.getResponse("taxes/pay.php", args);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerJoin(PlayerJoinEvent event){
 		Bukkit.getScheduler().runTaskLater(this,  new Runnable(){
@@ -78,81 +161,100 @@ public class TaxCollector extends JavaPlugin implements Listener{
 	}
 	
 	@EventHandler(ignoreCancelled=true)
+	private void onBlockBreak(BlockBreakEvent event){
+		Block block = event.getBlock();
+		if(block.getType()!=Material.CHEST && block.getType()!=Material.TRAPPED_CHEST) return;
+		Chest chest = (Chest)block.getState();
+		if(chest.getCustomName()==null) return;
+		if(!chest.getCustomName().equals("§dAkroma Kiste"))
+			return;
+		event.setCancelled(true);
+		event.getPlayer().sendMessage("[§5AkromaTempel§r] §cDie Opfergabentruhe ist heilig!");
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	private void onBlockExplode(BlockExplodeEvent event){
+		for(Chest chest : taxChests.values()){
+			event.blockList().remove(chest.getBlock());
+		}
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	private void onBlockExplode(EntityExplodeEvent event){
+		for(Chest chest : taxChests.values()){
+			event.blockList().remove(chest.getBlock());
+		}
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	private void onItemMove(InventoryMoveItemEvent event){
+		if(event.getSource()==null) return;
+		InventoryHolder holder = event.getSource().getHolder();
+		if(!(holder instanceof Chest)) return;
+		Chest chest = (Chest)holder;
+		if(chest==null) return;
+		if(chest.getCustomName()==null) return;
+		if(!chest.getCustomName().equals("§dAkroma Kiste"))
+			return;
+		if(event.getInitiator().getHolder() instanceof Player) return;
+		event.setCancelled(true);
+	}
+	
+	@EventHandler(ignoreCancelled=true)
 	private void onInventoryOpen(InventoryOpenEvent event){
 		Inventory inventory = event.getInventory();
 		InventoryHolder inventoryHolder = inventory.getHolder();
-		if(!(inventoryHolder instanceof Chest)) 
+		Chest chest;
+		if(inventoryHolder instanceof Chest){
+			chest = (Chest) inventoryHolder;
+		}
+		else if(inventoryHolder instanceof DoubleChest){
+			chest = (Chest)((DoubleChest)inventoryHolder).getLeftSide();
+		}
+		else{
 			return;
-		Chest chest = (Chest) inventoryHolder;
-		if(!taxChests.contains(chest))
+		}
+		
+		if(chest.getCustomName()==null){
 			return;
-		chest.setCustomName("§dAkroma Kiste");
+		}
+		if(!chest.getCustomName().equals("§dAkroma Kiste")){
+			return;
+		}
 		HumanEntity humanEntity = event.getPlayer();
-		if(!(humanEntity instanceof Player)) 
-			return;
-		((Player)humanEntity).playSound(humanEntity.getLocation(), Sound.ENTITY_LIGHTNING_THUNDER, 5f, 1f);
-	}
-	
-	@SuppressWarnings("deprecation")
-	@EventHandler(ignoreCancelled=true)
-	private void onItemMove(InventoryClickEvent event){
-		InventoryView inventoryView = event.getView();
-		Inventory bottomInventory = inventoryView.getBottomInventory();
-		Inventory topInventory = inventoryView.getTopInventory();
-		if(event.getClickedInventory()!=bottomInventory) return;
-		if(event.getCurrentItem()==null) return;
-		if(event.getCurrentItem().getType()==Material.AIR) return;
-		InventoryHolder targetHolder = topInventory.getHolder();
-		if(!(targetHolder instanceof Chest)) 
-			return;
-		Chest chest = (Chest) targetHolder;
-		if(!taxChests.contains(chest)) 
-			return;
-		InventoryHolder bottomHolder = bottomInventory.getHolder();
-		if(!(bottomHolder instanceof Player)){
+		if(!(humanEntity instanceof Player)){
 			return;
 		}
-		Player player = (Player) bottomHolder;
-		ItemStack itemStack = event.getCurrentItem();
-		if(itemStack.getItemMeta().hasLore()) return;
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("taxes/transfer.php", new String[]{
-			"player="+player.getUniqueId().toString(),
-			"mc_enum="+itemStack.getType().toString(),
-			"mc_id="+itemStack.getData().getData(),
-			"amount="+itemStack.getAmount()
-		});
-		if(yamlConfiguration.getInt("allow")==0){
-			event.setCancelled(true);
-		}
-		if(yamlConfiguration.contains("remaining")){
-			itemStack.setAmount(yamlConfiguration.getInt("remaining"));
-		}
-		if(yamlConfiguration.contains("sound")){
-			player.playSound(player.getLocation(), yamlConfiguration.getString("sound"), 5f, 1f);
-		}
-		if(yamlConfiguration.contains("message")){
-			for(String line : yamlConfiguration.getStringList("message")){
-				player.sendMessage(line);
+		YamlConfiguration response;
+		try {
+			response = DataSource.getYamlResponse("taxes/info.php", new String[]{
+					"player="+event.getPlayer().getUniqueId(),
+					"flags[0]=raw",
+					"flags[1]=chest",
+					"block[world]="+URLEncoder.encode(chest.getWorld().getName(), "utf-8"),
+					"block[x]="+chest.getX(),
+					"block[y]="+chest.getY(),
+					"block[z]="+chest.getZ()
+					});
+			if(response.contains("data")){
+				TaxListener taxListener = new TaxListener((Player)humanEntity, response.getConfigurationSection("data"));
+				taxListener.openInventory();
+				event.setCancelled(true);
 			}
-		}
-		if(yamlConfiguration.contains("commands")){
-			for(String line : yamlConfiguration.getStringList("commands")){
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), line);
+			else if(response.contains("message")){
+				humanEntity.sendMessage(response.getString("message"));
+				event.setCancelled(true);
 			}
+			else if(response.contains("access")){
+				if(!response.getString("access").equals("granted")){
+					humanEntity.sendMessage(response.getString("access"));
+					event.setCancelled(true);
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-	}
-	
-	@EventHandler(ignoreCancelled=true)
-	private void onInventoryClose(InventoryCloseEvent event){
-		Inventory inventory = event.getInventory();
-		InventoryHolder inventoryHolder = inventory.getHolder();
-		if(!(inventoryHolder instanceof Chest)) return;
-		Chest chest = (Chest) inventoryHolder;
-		if(!taxChests.contains(chest)) return;
-		HumanEntity player = event.getPlayer();
-		inform_player(new String[]{
-				"player="+player.getUniqueId().toString()	
-			}, player);
 	}
 	
 	//player_uuid can also be the player name
@@ -171,6 +273,7 @@ public class TaxCollector extends JavaPlugin implements Listener{
 		if(!yamlConfiguration.contains("chests"))return;
 		ConfigurationSection chestsSection = yamlConfiguration.getConfigurationSection("chests");
 		for(String key : chestsSection.getKeys(false)){
+			Integer city_id = chestsSection.getInt(key+".city_id");
 			Location location = chestsSection.getLocation(key);
 			if(location==null){
 				continue;
@@ -179,97 +282,19 @@ public class TaxCollector extends JavaPlugin implements Listener{
 			if(block.getType()!=Material.CHEST && block.getType()!=Material.TRAPPED_CHEST){
 				continue;
 			}
-			taxChests.add((Chest)block.getState());
+			Chest chest = (Chest)block.getState();
+			chest.setCustomName("§dAkroma Kiste");
+			
+			BlockFace[] neighbourFaces = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+			Block neighbourBlock;
+			for(BlockFace neighbourFace : neighbourFaces){
+				neighbourBlock = block.getRelative(neighbourFace);
+				if(neighbourBlock==null || neighbourBlock.getType()!=block.getType()) continue;
+				Chest neighbourChest = (Chest) neighbourBlock.getState();
+				neighbourChest.setCustomName("§dAkroma Kiste");
+			}
+			taxChests.put(city_id, (Chest)block.getState());
 		}
-		WebCore.info("Successfully loaded tax chests");
+		WebCore.info("[TaxCollector] Successfully loaded tax chests");
 	}
-	
-	/*public static void collect(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("taxes/pending.php");
-		if(yamlConfiguration==null) return;
-		for(String key : yamlConfiguration.getKeys(false)){
-			ConfigurationSection taxSection = yamlConfiguration.getConfigurationSection(key);
-			int city_id = taxSection.getInt("city_id");
-			int tax_id = taxSection.getInt("tax_id");
-			HashMap<Material, Integer> resources = new HashMap<Material, Integer>();
-			ConfigurationSection resourcesSection = taxSection.getConfigurationSection("resources");
-			for(String resourceKey : resourcesSection.getKeys(false)){
-				ConfigurationSection resourceSection = resourcesSection.getConfigurationSection(resourceKey);
-				Material material = resourceSection.getMaterial("material");
-				int amount = resourceSection.getInt("amount");
-				resources.put(material, amount);
-			}
-			Location chestLocation = taxSection.getLocation("chest");
-			if(chestLocation==null){
-				continue;
-			}
-			Block block = chestLocation.getBlock();
-			BlockState blockState = block.getState();
-			if(blockState instanceof Chest){
-				Inventory inventory = ((Chest)blockState).getInventory();
-				for(ItemStack itemStack : inventory){
-					if(itemStack==null) continue;
-					if(resources.containsKey(itemStack.getType())){
-						int required = resources.get(itemStack.getType());
-						int take = Math.min(required, itemStack.getAmount());
-						itemStack.setAmount(itemStack.getAmount()-take);
-						resources.put(itemStack.getType(), required-take);
-						Bukkit.getLogger().info("Removed "+take+" "+itemStack.getType().toString()+" from "+block.getX()+","+block.getY()+","+block.getZ()+" for the tax collection in city_"+city_id+".");
-					}
-				}
-			}
-			else{
-				continue;
-			}
-			List<String> arguments = new ArrayList<String>();
-			arguments.add("city_id="+city_id);
-			arguments.add("tax_id="+tax_id);
-			for(Entry<Material,Integer> entry : resources.entrySet()){
-				arguments.add("resources["+entry.getKey().toString()+"]="+entry.getValue());
-			}
-			String[] argumentsArray = new String[arguments.size()];
-			DataSource.getResponse("taxes/update.php", arguments.toArray(argumentsArray));
-		}
-	}
-	
-	public static void info(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("taxes/chests.php");
-		if(yamlConfiguration==null) return;
-		for(String key : yamlConfiguration.getKeys(false)){
-			ConfigurationSection taxSection = yamlConfiguration.getConfigurationSection(key);
-			int addon_id = taxSection.getInt("addon_id");
-			HashMap<String, Integer> resources = new HashMap<String, Integer>();
-			Location chestLocation = taxSection.getLocation("chest");
-			if(chestLocation==null){
-				continue;
-			}
-			Block block = chestLocation.getBlock();
-			BlockState blockState = block.getState();
-			if(blockState instanceof Chest){
-				Inventory inventory = ((Chest)blockState).getInventory();
-				for(ItemStack itemStack : inventory){
-					if(itemStack==null) continue;
-					@SuppressWarnings("deprecation")
-					String displayName = itemStack.getType().toString()+"-"+itemStack.getData().getData();
-					int amount = itemStack.getAmount();
-					if(!resources.containsKey(displayName)){
-						resources.put(displayName, amount);
-					}
-					else{
-						resources.put(displayName, resources.get(displayName)+amount);
-					}
-				}
-			}
-			else{
-				continue;
-			}
-			List<String> arguments = new ArrayList<String>();
-			arguments.add("addon="+addon_id);
-			for(Entry<String,Integer> entry : resources.entrySet()){
-				arguments.add("resources["+entry.getKey()+"]="+entry.getValue());
-			}
-			String[] argumentsArray = new String[arguments.size()];
-			DataSource.getResponse("taxes/info.php", arguments.toArray(argumentsArray));
-		}
-	}*/
 }

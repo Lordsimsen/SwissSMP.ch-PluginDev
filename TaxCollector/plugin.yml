@@ -1,5 +1,5 @@
 main: ch.swisssmp.taxcollector.TaxCollector
-version: 1.0
+version: 1.4
 name: TaxCollector
 author: detig_iii
 description: Regelt automatisch Opfergaben und andere Abgaben
@@ -12,8 +12,9 @@ commands:
   tax:
     description: Steuert das Plugin ingame
     usage: |
-      /tax reload
-      /tax info [player]
+      /tax collect (city_id) - Abgaben einsammeln
+      /tax reload - Kisten aktualisieren
+      /tax info [player] - Abgaben eines Spielers anzeigen
     permission: taxcollector.admin
   abgaben:
     description: Zeigt deine verbleibenden Abgaben an

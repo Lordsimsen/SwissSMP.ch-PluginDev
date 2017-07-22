@@ -12,7 +12,7 @@ public class PlayerCommand implements CommandExecutor{
 		if(sender instanceof Player){
 			Player player = (Player) sender;
 			TaxCollector.inform_player(new String[]{
-					"player="+player.getUniqueId().toString()	
+					"player="+player.getUniqueId().toString()
 			}, player);
 		}
 		else{
