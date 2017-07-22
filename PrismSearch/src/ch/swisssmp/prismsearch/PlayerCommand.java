@@ -13,7 +13,7 @@ public class PlayerCommand implements CommandExecutor{
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(!(sender instanceof Player)) return true;
 		Player player = (Player) sender;
-		Search search = Main.searches.get(player.getUniqueId());
+		Search search = PrismSearch.searches.get(player.getUniqueId());
 		if(args==null) args = new String[0];
 		if(search==null){
 			search = new Search(player);

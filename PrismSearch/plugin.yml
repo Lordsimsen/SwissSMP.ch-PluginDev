@@ -1,11 +1,11 @@
-main: ch.swisssmp.prismsearch.Main
-version: 1.0
+main: ch.swisssmp.prismsearch.PrismSearch
+version: 1.1
 name: PrismSearch
 author: detig_iii
-description: Useful tools for searching the prism db
+description: Werkzeug zur Ingame Suche in der Prism DB
 permissions:
   prismsearch.admin:
-    description: Allows you to operate the race
+    description: Erlaubt die Verwendung des Plugins
     default: op
 commands:
   search:

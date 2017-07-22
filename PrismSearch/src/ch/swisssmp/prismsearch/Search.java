@@ -5,8 +5,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -14,6 +12,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 
 public class Search implements Listener{
 	protected final UUID player_uuid;
@@ -26,11 +28,11 @@ public class Search implements Listener{
 	
 	protected Search(Player player){
 		this.player_uuid = player.getUniqueId();
-		Main.searches.put(this.player_uuid, this);
-		Bukkit.getPluginManager().registerEvents(this, Main.plugin);
+		PrismSearch.searches.put(this.player_uuid, this);
+		Bukkit.getPluginManager().registerEvents(this, PrismSearch.plugin);
 	}
 	protected void finish(){
-		Main.searches.remove(this.player_uuid);
+		PrismSearch.searches.remove(this.player_uuid);
 		HandlerList.unregisterAll(this);
 	}
 	private String[] getArguments(Block block){
@@ -58,7 +60,7 @@ public class Search implements Listener{
 		else return;
 		event.setCancelled(true);
 		this.lastBlock = block;
-		this.lastQuery = Main.getYamlResponse("prism/search.php", getArguments(block));
+		this.lastQuery = DataSource.getYamlResponse("prism/search.php", getArguments(block));
 		this.page = 1;
 		ConfigurationSection metaSection = lastQuery.getConfigurationSection("meta");
 		if(metaSection==null){
