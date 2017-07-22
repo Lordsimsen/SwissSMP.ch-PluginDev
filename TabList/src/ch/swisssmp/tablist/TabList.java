@@ -1,6 +1,8 @@
 package ch.swisssmp.tablist;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -83,34 +85,41 @@ public class TabList extends JavaPlugin implements Listener{
 	}
 	
 	public static void configurePlayer(Player player){
-		if(player==null) return;
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("tablist/info.php", new String[]{
-			"player="+player.getUniqueId().toString()	
-		});
-		ConfigurationSection headerSection = yamlConfiguration.getConfigurationSection("header");
-		String header = getChatString(headerSection);
-		ConfigurationSection footerSection = yamlConfiguration.getConfigurationSection("footer");
-		String footer = getChatString(footerSection);
-		ConfigurationSection userSection = yamlConfiguration.getConfigurationSection("user");
-		String user;
-		String fullDisplayName;
-		if(yamlConfiguration.getInt("rank")>1){
-			user = getChatString(userSection);
-			fullDisplayName = user+ChatColor.RESET;
+		try {
+			if(player==null) return;
+			YamlConfiguration yamlConfiguration;
+				yamlConfiguration = DataSource.getYamlResponse("tablist/info.php", new String[]{
+					"player="+player.getUniqueId().toString(),
+					"name="+URLEncoder.encode(player.getName(), "utf-8")
+				});
+			ConfigurationSection headerSection = yamlConfiguration.getConfigurationSection("header");
+			String header = getChatString(headerSection);
+			ConfigurationSection footerSection = yamlConfiguration.getConfigurationSection("footer");
+			String footer = getChatString(footerSection);
+			ConfigurationSection userSection = yamlConfiguration.getConfigurationSection("user");
+			String user;
+			String fullDisplayName;
+			if(yamlConfiguration.getInt("rank")>1){
+				user = getChatString(userSection);
+				fullDisplayName = user+ChatColor.RESET;
+			}
+			else{
+				user = userSection.getString("text");
+				ChatColor color = ChatColor.valueOf(userSection.getString("color"));
+				fullDisplayName = color+"[Gast]"+ChatColor.WHITE+" "+user+ChatColor.RESET;
+			}
+			if(debug){
+				Bukkit.getLogger().info("Header: "+header);
+				Bukkit.getLogger().info("Footer: "+footer);
+				Bukkit.getLogger().info("Spielername: "+user);
+			}
+			player.setDisplayName(fullDisplayName);
+			player.setPlayerListName(fullDisplayName);
+			setHeaderFooter(player, header, footer);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		else{
-			user = userSection.getString("text");
-			ChatColor color = ChatColor.valueOf(userSection.getString("color"));
-			fullDisplayName = color+"[Gast]"+ChatColor.WHITE+" "+user+ChatColor.RESET;
-		}
-		if(debug){
-			Bukkit.getLogger().info("Header: "+header);
-			Bukkit.getLogger().info("Footer: "+footer);
-			Bukkit.getLogger().info("Spielername: "+user);
-		}
-		player.setDisplayName(fullDisplayName);
-		player.setPlayerListName(fullDisplayName);
-		setHeaderFooter(player, header, footer);
 	}
 	
 	private static String getChatString(ConfigurationSection dataSection){
