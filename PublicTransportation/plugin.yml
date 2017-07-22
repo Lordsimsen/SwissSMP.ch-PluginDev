@@ -1,0 +1,15 @@
+main: ch.swisssmp.transportation.PublicTransportation
+version: 1.0
+name: PublicTransportation
+author: detig_iii
+description: Schnellere Minecarts auf öffentlichen Schienennetzen
+depend: [WebCore,WorldGuard]
+permissions:
+  transportation.admin:
+    description: Erlaubt die Verwaltung des Plugins
+    default: op
+commands:
+  transportation:
+    description: Verwaltet das Plugin
+    usage: /transportation reload
+    permission: transportation.admin
