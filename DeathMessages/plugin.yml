@@ -1,0 +1,6 @@
+main: ch.swisssmp.deathmessages.DeathMessages
+version: 1.0
+name: DeathMessages
+author: detig_iii
+description: Ersetzt Todesnachrichten
+depend: [WebCore]
