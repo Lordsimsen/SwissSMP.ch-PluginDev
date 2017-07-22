@@ -15,8 +15,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
@@ -97,26 +95,31 @@ public class ConfigurationSection{
 		return configurationSection.getColor(arg0);
 	}
 	
-	public ShapedRecipe getShapedRecipe(String arg0){
-		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
-		ItemStack resultStack = recipeSection.getItemStack("result");
+	public ShapedRecipe getShapedRecipe(String arg0, ItemStack resultStack){
+		return this.getConfigurationSection(arg0).getShapedRecipe(resultStack);
+	}
+	
+	public ShapedRecipe getShapedRecipe(ItemStack resultStack){
 		ShapedRecipe result = new ShapedRecipe(new NamespacedKey(SwissSMPUtils.plugin, resultStack.getItemMeta().getDisplayName()), resultStack);
-		List<String> shape = recipeSection.getStringList("shape");
+		List<String> shape = this.getStringList("shape");
 		String[] shapeArray = new String[shape.size()];
 		result.shape(shape.toArray(shapeArray));
-		ConfigurationSection ingredientsSection = recipeSection.getConfigurationSection("ingredients");
+		ConfigurationSection ingredientsSection = this.getConfigurationSection("ingredients");
 		for(String key : ingredientsSection.getKeys(false)){
 			MaterialData material = ingredientsSection.getMaterialData(key);
 			result.setIngredient(key.toCharArray()[0], material);
 		}
 		return result;
 	}
+	
+	public ShapelessRecipe getShapelessRecipe(String arg0, ItemStack resultStack){
+		return this.getConfigurationSection(arg0).getShapelessRecipe(resultStack);
+		
+	}
 
-	public ShapelessRecipe getShapelessRecipe(String arg0){
-		ConfigurationSection recipeSection = this.getConfigurationSection(arg0);
-		ItemStack resultStack = recipeSection.getItemStack("result");
+	public ShapelessRecipe getShapelessRecipe(ItemStack resultStack){
 		ShapelessRecipe result = new ShapelessRecipe(new NamespacedKey(SwissSMPUtils.plugin, resultStack.getItemMeta().getDisplayName()), resultStack);
-		ConfigurationSection ingredientsSection = recipeSection.getConfigurationSection("ingredients");
+		ConfigurationSection ingredientsSection = this.getConfigurationSection("ingredients");
 		for(String key : ingredientsSection.getKeys(false)){
 			ConfigurationSection ingredientSection = ingredientsSection.getConfigurationSection(key);
 			int count = ingredientSection.getInt("count");
@@ -166,84 +169,16 @@ public class ConfigurationSection{
 		return configurationSection.getIntegerList(arg0);
 	}
 
-	
-	public ItemStack getItemStack(String arg0) {
-		ConfigurationSection configurationSection = this.getConfigurationSection(arg0);
-		MaterialData material = configurationSection.getMaterialData("material");
-		int amount = configurationSection.getInt("amount");
-		@SuppressWarnings("deprecation")
-		ItemStack result = new ItemStack(material.getItemType(), amount, material.getData());
-		if(configurationSection.contains("durability")){
-			result.setDurability((short) configurationSection.getInt("durability"));
-		}
-		ItemMeta itemMeta = result.getItemMeta();
-		if(configurationSection.contains("name")){
-			String name = configurationSection.getString("name");
-			itemMeta.setDisplayName(name);
-		}
-		if(configurationSection.contains("lore")){
-			List<String> lore = configurationSection.getStringList("lore");
-			itemMeta.setLore(lore);
-		}
-		if(configurationSection.contains("unbreakable")){
-			itemMeta.setUnbreakable(configurationSection.getInt("unbreakable")==1);
-		}
-		if(configurationSection.contains("enchantments")){
-			ConfigurationSection enchantmentsSection = configurationSection.getConfigurationSection("enchantments");
-			for(String key : enchantmentsSection.getKeys(false)){
-				ConfigurationSection enchantmentSection = enchantmentsSection.getConfigurationSection(key);
-				String enchantmentName = enchantmentSection.getString("enchantment");
-				try{
-					Enchantment enchantment = Enchantment.getByName(enchantmentName);
-					int level = enchantmentSection.getInt("level");
-					itemMeta.addEnchant(enchantment, level, true);
-				}
-				catch(Exception e){
-					WebCore.debug("Unkown enchantment "+enchantmentName);
-				}
-			}
-		}
-		if(configurationSection.contains("flags")){
-			ConfigurationSection flagsSection = configurationSection.getConfigurationSection("flags");
-			for(String flag : flagsSection.getKeys(false)){
-				try{
-					itemMeta.addItemFlags(ItemFlag.valueOf(flag));
-				}
-				catch(Exception e){
-					WebCore.debug("Unkown item flag "+flag);
-				}
-			}
-		}
-		if(configurationSection.contains("potion") && itemMeta instanceof PotionMeta){
-			ConfigurationSection potionSection = configurationSection.getConfigurationSection("potion");
-			PotionMeta potionMeta = (PotionMeta) itemMeta;
-			PotionData base = potionSection.getPotionData("base");
-			if(base!=null){
-				potionMeta.setBasePotionData(base);
-			}
-			if(potionSection.contains("color")){
-				Color color = potionSection.getColor("color");
-				potionMeta.setColor(color);
-			}
-			if(potionSection.contains("custom")){
-				ConfigurationSection customsSection = potionSection.getConfigurationSection("custom");
-				for(String key : customsSection.getKeys(false)){
-					PotionEffect potionEffect = customsSection.getPotionEffect(key);
-					potionMeta.addCustomEffect(potionEffect, true);
-				}
-			}
-		}
-		result.setItemMeta(itemMeta);
-		return result;
-	}
-
 	public PotionData getPotionData(String arg0){
-		ConfigurationSection potionSection = this.getConfigurationSection(arg0);
-		String typeName = potionSection.getString("type");
+		return this.getConfigurationSection(arg0).getPotionData();
+	}
+	
+	public PotionData getPotionData(){
+		String typeName = this.getString("type");
 		try{
 			PotionType type = PotionType.valueOf(typeName);
-			boolean extended = potionSection.getInt("extended")==1;
-			boolean upgraded = potionSection.getInt("upgraded")==1;
+			boolean extended = this.getInt("extended")==1;
+			boolean upgraded = this.getInt("upgraded")==1;
 			return new PotionData(type, extended, upgraded);
 		}
 		catch(Exception e){
@@ -253,15 +188,18 @@ public class ConfigurationSection{
 	}
 	
 	public PotionEffect getPotionEffect(String arg0){
-		ConfigurationSection potionSection = this.getConfigurationSection(arg0);
-		String typeName = potionSection.getString("type");
+		return this.getConfigurationSection(arg0).getPotionEffect();
+	}
+	
+	public PotionEffect getPotionEffect(){
+		String typeName = this.getString("type");
 		try{
 			PotionEffectType type = PotionEffectType.getByName(typeName);
-			int duration = potionSection.getInt("duration");
-			int amplifier = potionSection.getInt("amplifier");
-			boolean ambient = potionSection.getInt("ambient")==1;
-			boolean particles = potionSection.getInt("particles")==1;
-			Color color = potionSection.getColor("color");
+			int duration = this.getInt("duration");
+			int amplifier = this.getInt("amplifier");
+			boolean ambient = this.getInt("ambient")==1;
+			boolean particles = this.getInt("particles")==1;
+			Color color = this.getColor("color");
 			return new PotionEffect(type, duration, amplifier, ambient, particles, color);
 		}
 		catch(Exception e){
@@ -280,12 +218,23 @@ public class ConfigurationSection{
 	}
 	
 	public Location getLocation(String arg0){
-		ConfigurationSection configurationSection = this.getConfigurationSection(arg0);
-		String worldName = configurationSection.getString("world");
-		double x = configurationSection.getDouble("x");
-		double y = configurationSection.getDouble("y");
-		double z = configurationSection.getDouble("z");
+		return this.getConfigurationSection(arg0).getLocation();
+	}
+	
+	public Location getLocation(String arg0, World world){
+		return this.getConfigurationSection(arg0).getLocation(world);
+	}
+	
+	public Location getLocation(){
+		String worldName = this.getString("world");
 		World world = Bukkit.getWorld(worldName);
+		return this.getLocation(world);
+	}
+	
+	public Location getLocation(World world){
+		double x = this.getDouble("x");
+		double y = this.getDouble("y");
+		double z = this.getDouble("z");
 		if(world==null) return null;
 		return new Location(world, x, y, z);
 	}
@@ -327,15 +276,44 @@ public class ConfigurationSection{
 	}
 	
 	public RandomizedLocation getRandomizedLocation(String arg0){
-		ConfigurationSection configurationSection = this.getConfigurationSection(arg0);
-		String worldName = configurationSection.getString("world");
-		double x = configurationSection.getDouble("x");
-		double y = configurationSection.getDouble("y");
-		double z = configurationSection.getDouble("z");
-		double range = configurationSection.getDouble("range");
+		return this.getConfigurationSection(arg0).getRandomizedLocation();
+	}
+	
+	public RandomizedLocation getRandomizedLocation(){
+		String worldName = this.getString("world");
+		double x = this.getDouble("x");
+		double y = this.getDouble("y");
+		double z = this.getDouble("z");
+		double range = this.getDouble("range");
 		World world = Bukkit.getWorld(worldName);
-		if(world==null) return null;
-		return new RandomizedLocation(new Location(world, x, y, z), range);
+		return new RandomizedLocation(world, x, y, z, range);
+	}
+	
+	public Enchantment getEnchantment(String arg0){
+		return Enchantment.getByName(this.getString(arg0));
+	}
+	
+	public EnchantmentData getEnchantmentData(String arg0){
+		return this.getConfigurationSection(arg0).getEnchantmentData();
+	}
+	
+	public EnchantmentData getEnchantmentData(){
+		Enchantment enchantment = this.getEnchantment("enchantment");
+		if(enchantment==null) return null;
+		int level = this.getInt("level");
+		boolean ignoreLevelRestriction = this.getBoolean("ignore_level_restriction");
+		return new EnchantmentData(enchantment, level, ignoreLevelRestriction);
+	}
+	
+	public ItemFlag getItemFlag(String arg0){
+		try{
+			ItemFlag result = ItemFlag.valueOf(this.getString(arg0));
+			return result;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	
@@ -358,12 +336,22 @@ public class ConfigurationSection{
 		return configurationSection.getValues(arg0);
 	}
 
-	
 	public Vector getVector(String arg0) {
-		return configurationSection.getVector(arg0);
+		return this.getConfigurationSection(arg0).getVector();
+	}
+	
+	public Vector getVector(){
+		return new Vector(this.getDouble("x"), this.getDouble("y"), this.getDouble("z"));
 	}
 
+	public VectorKey getVectorKey(String arg0) {
+		return new VectorKey(this.getConfigurationSection(arg0).getVector());
+	}
 	
+	public VectorKey getVectorKey(){
+		return new VectorKey(new Vector(this.getDouble("x"), this.getDouble("y"), this.getDouble("z")));
+	}
+
 	public void set(String arg0, Object arg1) {
 		configurationSection.set(arg0, arg1);
 	}

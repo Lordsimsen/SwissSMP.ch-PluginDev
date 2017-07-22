@@ -10,7 +10,9 @@ public class YamlConfiguration extends ConfigurationSection{
 	public YamlConfiguration(String from){
 		org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new org.bukkit.configuration.file.YamlConfiguration();
 		try {
-			yamlConfiguration.loadFromString(from);
+			if(!from.isEmpty()){
+				yamlConfiguration.loadFromString(from);
+			}
 		} catch (InvalidConfigurationException e) {
 			e.printStackTrace();
 		}

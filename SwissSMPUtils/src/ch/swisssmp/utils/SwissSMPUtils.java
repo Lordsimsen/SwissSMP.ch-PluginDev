@@ -1,6 +1,8 @@
 package ch.swisssmp.utils;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -17,6 +19,8 @@ public class SwissSMPUtils extends JavaPlugin{
 	protected static EventListener listener;
 	protected static boolean debug;
 	
+	protected static HashMap<UUID,UUID> replyMap = new HashMap<UUID,UUID>();
+	
 	protected static BukkitTask afkRoutine;
 	
 	@Override
@@ -31,10 +35,10 @@ public class SwissSMPUtils extends JavaPlugin{
 		this.getCommand("seen").setExecutor(playerCommand);
 		this.getCommand("afk").setExecutor(playerCommand);
 		this.getCommand("list").setExecutor(playerCommand);
-		this.getCommand("tell").setExecutor(playerCommand);
 		this.getCommand("worlds").setExecutor(playerCommand);
+		this.getCommand("hauptstadt").setExecutor(playerCommand);
 		
-		checkAfk();
+		//checkAfk();
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
@@ -55,7 +59,7 @@ public class SwissSMPUtils extends JavaPlugin{
 		}
 	}
 	
-	private void checkAfk(){
+	/*private void checkAfk(){
 		SwissSMPler.checkAllAfk(false);
 		afkRoutine = Bukkit.getScheduler().runTaskLater(this, new Runnable(){
 			@Override
@@ -64,5 +68,5 @@ public class SwissSMPUtils extends JavaPlugin{
 			}
 			
 		}, 100L);
-	}
+	}*/
 }

@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -82,10 +83,51 @@ public class PlayerCommand implements CommandExecutor{
 				senderName = ((Player)sender).getDisplayName();
 			}
 			Player recipient = Bukkit.getPlayer(args[0]);
+			if(recipient==null){
+				sender.sendMessage("Spieler "+args[0]+" nicht gefunden.");
+				return true;
+			}
 			String[] textParts = Arrays.copyOfRange(args, 1, args.length);
 			String text = String.join(" ", Arrays.asList(textParts));
 			recipient.sendMessage(ChatColor.DARK_GRAY+"["+ChatColor.RESET+senderName+ChatColor.RESET+ChatColor.DARK_GRAY+" >> "+ChatColor.GRAY+"ich"+ChatColor.DARK_GRAY+"] "+ChatColor.GOLD+text);
 			sender.sendMessage(ChatColor.DARK_GRAY+"["+ChatColor.GRAY+"ich"+ChatColor.DARK_GRAY+" >> "+ChatColor.RESET+recipient.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+"] "+ChatColor.GOLD+text);
+			if(sender instanceof Player){
+				UUID senderUUID = ((Player)sender).getUniqueId();
+				SwissSMPUtils.replyMap.remove(senderUUID);
+				SwissSMPUtils.replyMap.put(recipient.getUniqueId(), senderUUID);
+				SwissSMPUtils.replyMap.remove(recipient.getUniqueId());
+				SwissSMPUtils.replyMap.put(senderUUID, recipient.getUniqueId());
+			}
+			break;
+		}
+		case "r":{
+			if(!(sender instanceof Player)){
+				sender.sendMessage("Can only be used by a player");
+				return true;
+			}
+			if(args==null || args.length<1) return false;
+			Player senderPlayer = (Player) sender;
+			UUID recipient = SwissSMPUtils.replyMap.get(senderPlayer.getUniqueId());
+			if(recipient==null){
+				sender.sendMessage(ChatColor.RED+"Du hast niemanden, dem du antworten kannst.");
+				return true;
+			}
+			Player recipientPlayer = Bukkit.getPlayer(recipient);
+			if(recipientPlayer==null){
+				sender.sendMessage("Dein Gesprächspartner ist nicht mehr online.");
+				return true;
+			}
+			String senderName = senderPlayer.getDisplayName();
+			String[] textParts = args;
+			String text = String.join(" ", Arrays.asList(textParts));
+			recipientPlayer.sendMessage(ChatColor.DARK_GRAY+"["+ChatColor.RESET+senderName+ChatColor.RESET+ChatColor.DARK_GRAY+" >> "+ChatColor.GRAY+"ich"+ChatColor.DARK_GRAY+"] "+ChatColor.GOLD+text);
+			sender.sendMessage(ChatColor.DARK_GRAY+"["+ChatColor.GRAY+"ich"+ChatColor.DARK_GRAY+" >> "+ChatColor.RESET+recipientPlayer.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+"] "+ChatColor.GOLD+text);
+			if(sender instanceof Player){
+				SwissSMPUtils.replyMap.remove(recipient);
+				SwissSMPUtils.replyMap.put(recipient, senderPlayer.getUniqueId());
+				SwissSMPUtils.replyMap.remove(senderPlayer.getUniqueId());
+				SwissSMPUtils.replyMap.put(senderPlayer.getUniqueId(), recipient);
+			}
 			break;
 		}
 		case "worlds":{
@@ -94,6 +136,29 @@ public class PlayerCommand implements CommandExecutor{
 				worldNames.add(world.getName());
 			}
 			sender.sendMessage(String.join(", ", worldNames));
+			break;
+		}
+		case "hauptstadt":{
+			if(!(sender instanceof Player)){
+				sender.sendMessage("Can only be used from within the game");
+				return false;
+			}
+			Player player = (Player) sender;
+			ArrayList<String> parameters = new ArrayList<String>();
+			String[] parametersArray;
+			if(args.length>0){
+				try {
+					parameters.add("maincity="+URLEncoder.encode(args[0], "utf-8"));
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			parameters.add("player="+player.getUniqueId());
+			parametersArray = new String[parameters.size()];
+			String message = DataSource.getResponse("players/cityswap.php", parameters.toArray(parametersArray));
+			sender.sendMessage(message);
+			break;
 		}
 		}
 		return true;

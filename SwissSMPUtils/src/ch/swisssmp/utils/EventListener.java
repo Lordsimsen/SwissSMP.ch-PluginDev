@@ -9,7 +9,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.world.WorldSaveEvent;
 
 import ch.swisssmp.webcore.DataSource;
 
@@ -39,10 +38,5 @@ public class EventListener implements Listener{
 	private void onPlayerInteract(PlayerInteractEvent event){
 		SwissSMPler player = SwissSMPler.get(event.getPlayer());
 		player.setAfk(false);
-	}
-	@EventHandler(ignoreCancelled=true)
-	private void onWorldSave(WorldSaveEvent event){
-		if(event.getWorld()!=Bukkit.getWorlds().get(0)) return;
-		SwissSMPler.checkAllAfk(true);
 	}
 }

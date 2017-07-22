@@ -12,6 +12,8 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+
+import net.minecraft.server.v1_12_R1.ChatMessageType;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
@@ -135,11 +137,20 @@ public class SwissSMPler {
 		}
     }
     
+    public void sendRawMessage(String message){
+    	if(!player.isOnline())return;
+        CraftPlayer craftplayer = (CraftPlayer) player;
+        PlayerConnection connection = craftplayer.getHandle().playerConnection;
+        IChatBaseComponent rawJSON = ChatSerializer.a(message.replace("'", "\""));
+        PacketPlayOutChat packet = new PacketPlayOutChat(rawJSON);
+        connection.sendPacket(packet);
+    } 
+    
     public void sendActionBar(String message){
     	if(player==null || message==null) return;
         CraftPlayer craftPlayer = (CraftPlayer) player;
         IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \"" + message + "\"}");
-        PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc);
+        PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc, ChatMessageType.GAME_INFO);
         ((CraftPlayer) craftPlayer).getHandle().playerConnection.sendPacket(ppoc);
     }
     
@@ -155,7 +166,7 @@ public class SwissSMPler {
         connection.sendPacket(subtitlePacket);
     }
     
-    protected static void checkAllAfk(boolean setAfk){
+    /*protected static void checkAllAfk(boolean setAfk){
 		for(Player player : Bukkit.getOnlinePlayers()){
 			if(SwissSMPler.last_vectors.containsKey(player.getUniqueId())){
 				Vector last = SwissSMPler.last_vectors.get(player.getUniqueId());
@@ -166,5 +177,5 @@ public class SwissSMPler {
 			}
 			SwissSMPler.last_vectors.put(player.getUniqueId(), player.getLocation().toVector());
 		}
-    }
+    }*/
 }
