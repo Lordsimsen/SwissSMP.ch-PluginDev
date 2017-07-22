@@ -1,5 +1,8 @@
 .metadata
 bin/
+elixr-master/
+fanciful-master/
+Prism-Bukkit-master/
 tmp/
 *.tmp
 *.bak
