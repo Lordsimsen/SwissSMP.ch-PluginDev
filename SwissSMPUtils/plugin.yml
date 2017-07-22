@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.SwissSMPUtils
-version: 2.2
+version: 3.1
 name: SwissSMPUtils
 author: detig_iii
 description: Provides core functionality for other plugins
@@ -23,6 +23,9 @@ permissions:
   smp.commands.worlds:
     description: Allows you to use the /worlds command
     default: op
+  smp.commands.hauptstadt:
+    description: Erlaubt die Verwendung von /hauptstadt
+    default: op
   smp.afk.auto:
     description: Automatically sets you to afk when you stand still on the same spot for two world auto saves
     default: true
@@ -31,7 +34,7 @@ permissions:
     default: true
 commands:
   balance:
-    description: Displays your balance
+    description: Zeigt deine Eventpunkte an
     usage: /balance
     permission: smp.commands.balance
   seen:
@@ -46,11 +49,11 @@ commands:
     description: Lists all currently online players
     usage: /list
     permission: smp.commands.list
-  tell:
-    description: Sendet eine private Nachricht an einen Spieler
-    usage: /tell [player] [message]
-    permission: smp.commands.tell
   worlds:
     description: Listet alle aktuell geladenen Welten auf
     usage: /worlds
     permission: smp.commands.worlds
+  hauptstadt:
+    description: Zeigt und ändert deine Hauptstadt (für Doppelbürger)
+    usage: /hauptstadt (Stadtname) - Bsp. /hauptstadt Spawnstadt
+    permission: smp.commands.hauptstadt
