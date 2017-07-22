@@ -1,0 +1,17 @@
+main: ch.swisssmp.customitems.CustomItems
+version: 1.1
+name: CustomItems
+author: detig_iii
+description: Konfigurierbare Items
+depend: [WebCore]
+permissions: 
+  customitems.admin:
+    default: op
+    description: Erlaubt die Steuerung des Plugins
+commands:
+  customitems:
+    usage: |
+      /customitems inspect
+      /customitems summon
+    description: Steuert CustomItems
+    permission: customitems.admin
