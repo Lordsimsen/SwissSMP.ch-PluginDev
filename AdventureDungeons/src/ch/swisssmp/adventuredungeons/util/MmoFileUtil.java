@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import ch.swisssmp.adventuredungeons.Main;
+import ch.swisssmp.adventuredungeons.AdventureDungeons;
 
 public class MmoFileUtil {
 	public static boolean deleteRecursive(File path) {
@@ -59,7 +59,7 @@ public class MmoFileUtil {
 	            }
 	        }
 	    } catch (IOException e) {
-	    	if(Main.debug){
+	    	if(AdventureDungeons.debug){
 		    	e.printStackTrace();
 	    	}
 	    }

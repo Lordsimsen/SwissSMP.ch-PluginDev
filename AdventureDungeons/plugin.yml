@@ -1,53 +1,55 @@
-main: ch.swisssmp.adventuredungeons.Main
-version: 1.2
+main: ch.swisssmp.adventuredungeons.AdventureDungeons
+version: 2.0
 name: AdventureDungeons
 author: detig_iii
-description: Play Dungeons in minecraft without Mods!
+description: Dungeons in Minecraft ohne Mods
 depend: [WorldGuard,WebCore]
 load: startup
 permissions: 
-  craftmmo.admin:
+  dungeons.admin:
     default: op
-    description: Allows you to manage Adventure Dungeons
+    description: Erlaubt die Verwaltung von AdventureDungeons
 commands:
-  CraftMMO:
-    description: use general commands of the CraftMMO plugin
-    aliases: [mmo]
-    permission: craftmmo.admin
+  AdventureDungeons:
+    description: Generelle Verwaltung von AdventureDungeons
+    aliases: [mmo,dungeons]
+    permission: dungeons.admin
   MmoShop:
-    description: manage MmoShops
+    description: Verwaltet MmoShops
     usage: /MmoShop [action] [arguments]
     aliases: [mmoshop]
-    permission: craftmmo.admin
+    permission: dungeons.admin
   MmoWorld:
-    description: manage MmoWorlds
+    description: Verwaltet MmoWorlds
     usage: /MmoWorld [action] [arguments]
     aliases: [mmoworld]
-    permission: craftmmo.admin
-  MmoCamp:
-    description: manage MmoCamps
-    usage: /MmoCamp [action] [arguments]
-    aliases: [mmocamp]
-    permission: craftmmo.admin
+    permission: dungeons.admin
+  camp:
+    description: Verwaltet MmoCamps
+    usage: |
+      /camp reload - Lädt Camps neu
+      /camp spawnpoints [Camp-ID] - Initiiert oder beendet Spawnpoint-Editor
+      /camp trigger [Camp-ID] (Welt) - Löst ein Camp aus
+      /camp clear [Camp-ID] (Welt) - Leert ein Camp
+    permission: dungeons.admin
   rename:
-    description: rename your currently held item
+    description: Gib dem Item in deiner Hand einen neuen Namen
     usage: /rename [name]
-    permission: craftmmo.admin
-  MmoRegion:
-    description: manage MmoRegions
-    usage: /MmoRegion [action] [arguments]
-    aliases: [mmoregion]
-    permission: craftmmo.admin
-  MmoDungeon:
-    description: manage MmoDungeons
-    usage: /MmoDungeon [action] [arguments]
+    permission: dungeons.admin
+  dungeon:
+    description: Verwaltet MmoDungeons
+    usage: |
+      /dungeon reload (all)
+      /dungeon join [dungeon_id] (Spieler)
+      /dungeon leave
+      /dungeon list
+      /dungeon edit [dungeon_id]
+      /dungeon endedit
+      /dungeon warp [dungeon_id]
+      /dungeon players
+      /dungeon respawn_index [instance_worldName] [respawnIndex]
     aliases: [mmodungeon]
-    permission: craftmmo.admin
-  MmoMultiState:
-    description: manage MmoMultiStates
-    usage: /MmoMultiState [action] [arguments]
-    aliases: [mmomultistate, multistate]
-    permission: craftmmo.admin
+    permission: dungeons.admin
   join:
     description: Betrete eine Dungeon Instanz eines anderen Spielers
     usage: /join [Spieler]

@@ -13,9 +13,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
-import ch.swisssmp.adventuredungeons.Main;
-import ch.swisssmp.adventuredungeons.mmoitem.MmoItemManager;
-import ch.swisssmp.adventuredungeons.mmoitem.MmoLootInventory;
+import ch.swisssmp.adventuredungeons.AdventureDungeons;
+import ch.swisssmp.adventuredungeons.item.MmoItemManager;
+import ch.swisssmp.adventuredungeons.item.LootInventory;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -77,8 +77,8 @@ public class MmoResourceManager {
 			items = loot.toArray(items);
 			Inventory inventory = Bukkit.createInventory(null, InventoryType.valueOf(type), inventory_name);
 			inventory.setStorageContents(items);
-			MmoLootInventory lootInventory = MmoLootInventory.create(player, action, global, location.getBlock(), inventory);
-			BukkitTask task = Bukkit.getScheduler().runTaskLater(Main.plugin, lootInventory, reset_time*20);
+			LootInventory lootInventory = LootInventory.create(player, action, global, location.getBlock(), inventory);
+			BukkitTask task = Bukkit.getScheduler().runTaskLater(AdventureDungeons.plugin, lootInventory, reset_time*20);
 			lootInventory.task_id = task.getTaskId();
 			player.openInventory(lootInventory.inventory);
 		}
