@@ -1,15 +1,22 @@
 main: ch.swisssmp.spawnmanager.SpawnManager
-version: 1.0
+version: 1.2
 name: SpawnManager
 author: detig_iii
-description: Manages the bed spawn location of players
+description: Verwaltet Player Spawns
 depend: [SwissSMPUtils, WebCore]
 permissions:
   spawnmanager.spawn:
-    description: Allows you to teleport to the spawn
+    description: Erlaubt die Verwendung des Spawn Befehls
+    default: op
+  spawnmanager.admin:
+    description: Erlaubt das Setzen von Respawn-Punkten in Akroma-Tempeln
     default: op
 commands:
+  settemplespawn:
+    description: Setzt den Respawn-Punkt in einem Akromatempel
+    usage: /settemplespawn [Stadt]
+    permission: spawnmanager.admin
   spawn:
-    description: Teleport to the world spawn
+    description: Teleportiert dich in die Spawnstadt
     usage: /spawn
     permission: spawnmanager.spawn
