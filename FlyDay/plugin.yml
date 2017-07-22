@@ -1,8 +1,20 @@
-main: ch.swisssmp.flyday.Main
-version: 1.0
+main: ch.swisssmp.flyday.FlyDay
+version: 1.1
 name: FlyDay
 author: detig_iii
-description: Enable and disable FlyDay
+description: Vergibt an FlyDays automatisch Flug-Rechte
+permissions:
+  flyday.admin:
+    description: Erlaubt die Steuerung von FlyDay
+    default: op
+  flyday.bypass:
+    description: Schliesst einen Spieler vom Einfluss des Plugins aus
+    default: op
 commands:
   FlyDay:
     description: Enable and disable the flyday
+    permission: flyday.admin
+    usage: |
+      /flyday reload - Synchronisiert Flugrechte mit dem Web-Interface
+      /flyday on [Welt,..] - Aktiviert Flugrechte in den angegebenen Welten
+      /flyday off - Deaktiviert Flugrechte
