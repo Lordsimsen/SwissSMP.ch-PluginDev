@@ -1,0 +1,21 @@
+main: ch.swisssmp.transformations.AreaTransformations
+version: 1.0
+name: AreaTransformations
+author: detig_iii
+description: Transformierbare Zonen (grosse Tore, Zugbrücken etc.)
+depend: [WorldEdit,WebCore]
+permissions: 
+  transformations.admin:
+    default: op
+    description: Erlaubt die Verwaltung des Plugins
+commands:
+  transformation:
+    description: Verwaltet Transformationen
+    usage: |
+      /transformation reload
+      /transformation list
+      /transformation register [Transformations-ID] [Zustand]
+      /transformation unregister [Transformations-ID] [Zustand]
+      /transformation trigger [Transformations-ID] [Zustand] (Player)
+    aliases: [multistate]
+    permission: transformations.admin
