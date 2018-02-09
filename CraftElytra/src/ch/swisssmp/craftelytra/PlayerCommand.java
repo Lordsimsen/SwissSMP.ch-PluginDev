@@ -29,7 +29,7 @@ public class PlayerCommand implements CommandExecutor{
 			selection = localSession.getClipboard();
 		} catch (EmptyClipboardException e) {
 			// TODO Auto-generated catch block
-			sender.sendMessage("Deine Auswahl ist leer. Wähle zuerst mit WorldEdit einen Bereich aus.");
+			sender.sendMessage("Deine Auswahl ist leer. WÃ¤hle zuerst mit WorldEdit einen Bereich aus.");
 			return true;
 		}
         Vector min = selection.getClipboard().getMinimumPoint();

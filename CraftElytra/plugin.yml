@@ -1,23 +1,24 @@
 main: ch.swisssmp.craftelytra.CraftElytra
-version: 2.2
+version: 2.5
 name: CraftElytra
 author: detig_iii
-description: Craft Elytra like any other item
+description: Crafte Elytra wie andere Items
 permissions:
   craftelytra.admin:
-    description: Override the template to validate new gates
+    description: Bestimme das Template für Elytra Gates
     default: op
   craftelytra.elytragate.use:
-    description: Get a boost when flying through elytra gates
+    description: Erhalte einen Boost beim Durchfliegen von Elytra Gates
     default: true
   craftelytra.elytragate.build:
-    description: Build Elytra Gates
+    description: Ermöglicht Errichten von Elytra Gates
     default: op
   craftelytra.craft:
-    description: Craft Elytra
+    description: Ermöglicht Crafting von Elytra
     default: op
 commands:
   elytragate:
     usage: /elytragate
     permission: craftelytra.admin
-depend: [WGRegionEvents,WebCore]
+depend: [WorldGuard,WGRegionEvents,WebCore]
+load: startup

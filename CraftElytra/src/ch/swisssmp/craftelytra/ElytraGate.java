@@ -1,5 +1,7 @@
 package ch.swisssmp.craftelytra;
 
+import java.util.Random;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -41,7 +43,9 @@ public class ElytraGate implements Listener{
 	protected ProtectedRegion bottomRegion;
 	protected ProtectedRegion topRegion = null;
 	
-	protected ElytraGate(Block sign, Block pivot, BlockFace direction, int elevation, Player owner){
+	private Random random = new Random();
+	
+	protected ElytraGate(World world, Block sign, Block pivot, BlockFace direction, int elevation, Player owner){
 		this.gate_id = ElytraGate.next_id;
 		this.owner = owner.getName();
 		ElytraGate.next_id++;
@@ -55,22 +59,22 @@ public class ElytraGate implements Listener{
 		
 		CraftElytra.gatesMap.put(this.lever, this);
 		CraftElytra.gatesMap.put(this.sign, this);
-		CraftElytra.gates.add(this);
-		CraftElytra.saveGates();
+		CraftElytra.gates.put(this,world);
+		CraftElytra.saveGates(this.pivot.getWorld());
 		Bukkit.getPluginManager().registerEvents(this, CraftElytra.plugin);
 	}
-	protected ElytraGate(ConfigurationSection dataSection){
+	protected ElytraGate(World world, ConfigurationSection dataSection){
 		this.gate_id = dataSection.getInt("gate_id");
 		this.owner = dataSection.getString("owner");
 		ElytraGate.next_id = Math.max(this.gate_id+1, ElytraGate.next_id);
-		this.sign = loadLocation(dataSection.getConfigurationSection("sign")).getBlock();
-		this.lever = loadLocation(dataSection.getConfigurationSection("lever")).getBlock();
-		this.pivot = loadLocation(dataSection.getConfigurationSection("pivot")).getBlock();
+		this.sign = loadLocation(world, dataSection.getConfigurationSection("sign")).getBlock();
+		this.lever = loadLocation(world, dataSection.getConfigurationSection("lever")).getBlock();
+		this.pivot = loadLocation(world, dataSection.getConfigurationSection("pivot")).getBlock();
 		this.direction = BlockFace.valueOf(dataSection.getString("direction"));
 		this.elevation = dataSection.getInt("elevation");
 		this.powered = (dataSection.getInt("powered")==1);
 		WorldGuardPlugin worldGuard = CraftElytra.worldGuardPlugin;
-		RegionManager regionManager = worldGuard.getRegionManager(this.pivot.getWorld());
+		RegionManager regionManager = worldGuard.getRegionManager(world);
 		this.bottomRegion = regionManager.getRegion(this.getBottomRegionName());
 		if(this.powered){
 			this.topRegion = regionManager.getRegion(this.getTopRegionName());
@@ -81,7 +85,7 @@ public class ElytraGate implements Listener{
 		}
 		CraftElytra.gatesMap.put(this.lever, this);
 		CraftElytra.gatesMap.put(this.sign, this);
-		CraftElytra.gates.add(this);
+		CraftElytra.gates.put(this,world);
 		
 		this.updateSign();
 		
@@ -106,7 +110,6 @@ public class ElytraGate implements Listener{
 	}
 	protected static void saveLocation(ConfigurationSection dataSection, Location location, String name){
 		ConfigurationSection locationSection = dataSection.createSection(name);
-		locationSection.set("world", location.getWorld().getName());
 		locationSection.set("x", (int)location.getX());
 		locationSection.set("y", (int)location.getY());
 		locationSection.set("z", (int)location.getZ());
@@ -146,7 +149,7 @@ public class ElytraGate implements Listener{
         	this.deleteTopRegion();
         }
 		this.updateSign();
-		CraftElytra.saveGates();
+		CraftElytra.saveGates(this.pivot.getWorld());
 	}
 	private void updateSign(){
     	if(!(this.sign.getState() instanceof Sign)){
@@ -166,7 +169,7 @@ public class ElytraGate implements Listener{
 	private void onBlockBreak(BlockBreakEvent event){
 		Block block = event.getBlock();
 		if(block.getLocation().equals(this.sign.getLocation())){
-			event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstört.");
+			event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstÃ¶rt.");
 			this.delete();
 			return;
 		}
@@ -180,7 +183,7 @@ public class ElytraGate implements Listener{
 		}
 		if(this.bottomRegion.contains(block.getX(), block.getY(), block.getZ())){
 			if(!validateConstruction(event.getPlayer())){
-				event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstört.");
+				event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstÃ¶rt.");
 				this.delete();
 			}
 		}
@@ -198,7 +201,7 @@ public class ElytraGate implements Listener{
 		}
 		if(this.bottomRegion.contains(block.getX(), block.getY(), block.getZ())){
 			if(!validateConstruction(event.getPlayer())){
-				event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstört.");
+				event.getPlayer().sendMessage(ChatColor.RED+"Elytra Gate zerstÃ¶rt.");
 				this.delete();
 			}
 		}
@@ -213,8 +216,8 @@ public class ElytraGate implements Listener{
 		if(region.getId().equals(this.topRegion.getId())){
 			Bukkit.getScheduler().runTaskLater(CraftElytra.plugin, new Runnable(){
 				public void run(){
-		        	player.getWorld().playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 20, 1.1f);
-					player.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(10).setY(0));
+		        	player.playSound(player.getLocation(), "14", 500, 0.95f+random.nextFloat()*0.1f);
+					player.setVelocity(player.getVelocity().normalize().multiply(10).setY(0));
 				}
 			}, 3L);
 		}
@@ -316,10 +319,9 @@ public class ElytraGate implements Listener{
 		sign.setLine(2, "");
 		sign.setLine(3, "");
 		sign.update();
-		CraftElytra.saveGates();
+		CraftElytra.saveGates(this.pivot.getWorld());
 	}
-	protected static Location loadLocation(ConfigurationSection dataSection){
-		World world = Bukkit.getWorld(dataSection.getString("world"));
+	protected static Location loadLocation(World world, ConfigurationSection dataSection){
 		int x = dataSection.getInt("x");
 		int y = dataSection.getInt("y");
 		int z = dataSection.getInt("z");

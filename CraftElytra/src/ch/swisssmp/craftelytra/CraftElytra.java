@@ -2,8 +2,8 @@ package ch.swisssmp.craftelytra;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -26,6 +27,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.material.Lever;
@@ -45,11 +48,10 @@ public class CraftElytra extends JavaPlugin implements Listener{
 	private ShapedRecipe elytraRecipe;
 	protected NamespacedKey namespacedKey;
 	protected static JavaPlugin plugin;
-	protected static File gatesFile;
 	protected static File dataFolder;
 	protected static WorldEditPlugin worldEditPlugin;
 	protected static WorldGuardPlugin worldGuardPlugin;
-	protected static ArrayList<ElytraGate> gates = new ArrayList<ElytraGate>();
+	protected static HashMap<ElytraGate,World> gates = new HashMap<ElytraGate,World>();
 	protected static HashMap<Block, ElytraGate> gatesMap = new HashMap<Block,ElytraGate>();
 	
 	public void onEnable() {
@@ -79,12 +81,9 @@ public class CraftElytra extends JavaPlugin implements Listener{
 		else{
 			new NullPointerException("WorldGuard missing");
 		}
-		gatesFile = new File(dataFolder, "gates.yml");
-		loadGates();
 		
 	}
 	public void onDisable() {
-		CraftElytra.saveGates();
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 		HandlerList.unregisterAll(plugin);
@@ -125,7 +124,7 @@ public class CraftElytra extends JavaPlugin implements Listener{
     	ElytraGate elytraGate = gatesMap.get(block);
     	if(elytraGate==null) return;
     	if(!event.getPlayer().hasPermission("craftelytra.elytragate.build")){
-    		event.getPlayer().sendMessage(ChatColor.RED+"Du hast keine Berechtigung für dieses Elytra Gate.");
+    		event.getPlayer().sendMessage(ChatColor.RED+"Du hast keine Berechtigung fÃ¼r dieses Elytra Gate.");
     		event.setCancelled(true);
     		return;
     	}
@@ -134,6 +133,20 @@ public class CraftElytra extends JavaPlugin implements Listener{
         	elytraGate.elevate(((Lever)block.getState().getData()).isPowered());
     	}
     	}, 1L);
+    }
+    @EventHandler(ignoreCancelled=true)
+    private void onWorldLoad(WorldLoadEvent event){
+    	Bukkit.getScheduler().runTaskLater(CraftElytra.plugin, new Runnable(){
+    		public void run(){
+    			CraftElytra.loadGates(event.getWorld());
+    		}
+    	}, 1L);
+    }
+    @EventHandler
+    private void onWorldUnload(WorldUnloadEvent event){
+    	World world = event.getWorld();
+    	CraftElytra.saveGates(world);
+    	gates.entrySet().removeIf(entry -> entry.getValue()==world);
     }
     @EventHandler(ignoreCancelled=true)
     private void onSignPlace(SignChangeEvent event){
@@ -171,7 +184,7 @@ public class CraftElytra extends JavaPlugin implements Listener{
     	}
     	//can a gate be built on this height?
     	if(block.getLocation().getY()>200){
-    		event.getPlayer().sendMessage(ChatColor.RED+"Auf dieser Höhe können keine Elytra Gates eingerichtet werden.");
+    		event.getPlayer().sendMessage(ChatColor.RED+"Auf dieser Hï¿½he kÃ¶nnen keine Elytra Gates eingerichtet werden.");
     		return;
     	}
     	//is there already another gate at this location?
@@ -190,31 +203,46 @@ public class CraftElytra extends JavaPlugin implements Listener{
         	event.setLine(2, String.valueOf(elevation));
         	event.setLine(3, player.getName());
         	//create a new gate
-    		new ElytraGate(block, centerBottom, direction, elevation, player);
+    		new ElytraGate(block.getWorld(), block, centerBottom, direction, elevation, player);
     	}
     	else{
-    		player.sendMessage(ChatColor.RED+"Bitte die Konstruktion prüfen.");
+    		player.sendMessage(ChatColor.RED+"Bitte die Konstruktion prÃ¼fen.");
     	}
     }
-    protected static void saveGates(){
+    protected static void saveGates(World world){
+    	Bukkit.getLogger().info("[CraftElytra] Saving gates for world '"+world.getName()+"'");
     	YamlConfiguration yamlConfiguration = new YamlConfiguration();
     	int index = 0;
-    	for(ElytraGate elytraGate : gates){
+    	for(Entry<ElytraGate,World> entry : gates.entrySet()){
+    		if(entry.getValue()!=world)continue;
+    		Bukkit.getLogger().info("[CraftElytra] Saving gate "+entry.getKey().gate_id+"!");
     		ConfigurationSection gateSection = yamlConfiguration.createSection("gate_"+index);
-    		elytraGate.save(gateSection);
+    		entry.getKey().save(gateSection);
     		index++;
     	}
     	try {
+    		File worldFolder = new File(dataFolder,world.getName());
+    		if(!worldFolder.exists()) worldFolder.mkdirs();
+    		File gatesFile = new File(dataFolder, world.getName()+"/gates.yml");
 			yamlConfiguration.save(gatesFile);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
-    private static void loadGates(){
+    private static void loadGates(World world){
+    	Bukkit.getLogger().info("[CraftElytra] Loading gates for world '"+world.getName()+"'");
+		File gatesFile = new File(dataFolder, world.getName()+"/gates.yml");
     	YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(gatesFile);
+    	ConfigurationSection dataSection;
     	for(String key : yamlConfiguration.getKeys(false)){
-    		new ElytraGate(yamlConfiguration.getConfigurationSection(key));
+    		Bukkit.getLogger().info("[CraftElytra] Loading gate section '"+key+"'!");
+    		dataSection = yamlConfiguration.getConfigurationSection(key);
+    		if(!dataSection.contains("gate_id")){
+    			Bukkit.getLogger().info("[CraftElytra] Invalid gate section at '"+key+"'!");
+    			continue;
+    		}
+    		new ElytraGate(world, dataSection);
     	}
     }
 }
