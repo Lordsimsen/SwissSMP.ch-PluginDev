@@ -21,8 +21,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.gson.JsonObject;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import ch.swisssmp.webcore.DataSource;
 import io.netty.buffer.ByteBuf;
@@ -37,9 +35,6 @@ public class TabList extends JavaPlugin implements Listener{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
 	protected static TabList plugin;
-	
-	public static WorldGuardPlugin worldGuardPlugin;
-	public static WorldEditPlugin worldEditPlugin;
 	
 	protected static boolean debug = false;
 	
