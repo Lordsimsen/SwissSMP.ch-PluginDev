@@ -1,0 +1,14 @@
+main: ch.swisssmp.chatmanager.ChatManager
+version: 1.2
+name: ChatNotifier
+author: detig_iii
+description: Chat-Protokoll, Audiosignale bei Schlüsselwörtern und Chat-Modul im Web-Interface
+permissions:
+  chatnotifier.personalalert:
+    description: Sendet Audiosignale bei Schlüsselwörtern
+    default: op
+commands:
+  chat:
+    description: Sendet eine Chat Nachricht
+    default: op
+    usage: /chat [Absender] [Nachricht]
