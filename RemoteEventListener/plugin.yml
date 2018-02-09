@@ -1,5 +1,5 @@
 main: ch.swisssmp.event.RemoteEventListener
-version: 1.0
+version: 1.4
 name: RemoteEventListener
 author: detig_iii
 description: Führt Befehle vom Web-Interface bei ingame Events aus
@@ -12,5 +12,8 @@ permissions:
 commands:
   remoteeventlistener:
     description: Verwaltet das Plugin
-    usage: /remoteeventlistener reload
+    usage: |
+      /remoteeventlistener reload
+      /remoteeventlistener debug
+      /remoteeventlistener list
     permission: remoteeventlistener.admin
