@@ -1,0 +1,18 @@
+main: ch.swisssmp.playerstatues.PlayerStatues
+version: 1.0
+name: PlayerStatues
+author: detig_iii
+description: Verwaltet statische Spieler Figuren
+depend: [WebCore]
+permissions:
+  playerstatues.admin:
+    description: Erlaubt die verwaltung von Figuren
+    default: op
+commands:
+  statue:
+    description: Setzt oder entfernt eine Figur
+    usage: |
+      /statue create [Spieler] (Name=Spielername) - Spieler ist die Spielervorlage, Name ist der angezeigte Name und standardmässig der Name der Spielervorlage der Figur
+      /statue update [Name] (Radius=5) - Ändert eine Figur mit dem entsprechenden Namen (Erst nach neu einloggen wirksam)
+      /statue remove [Name] (Radius=5) - Entfernt eine Figur mit dem entsprechenden Namen (Erst nach neu einloggen wirksam)
+    permission: spawnmanager.admin
