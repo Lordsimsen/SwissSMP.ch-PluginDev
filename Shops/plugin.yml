@@ -1,0 +1,27 @@
+main: ch.swisssmp.shops.ShopManager
+version: 1.1
+name: Shops
+author: detig_iii
+description: Konfigurierbare Villager Shops
+load: startup
+depend: [WebCore,WorldGuard]
+permissions: 
+  shop.admin:
+    default: op
+    description: Erlaubt die Steuerung des Plugins
+  shop.craft:
+    default: op
+    description: Erlaubt das Craften von Shops
+  shop.create:
+    default: op
+    description: Erlaubt das Erstellen und Verwalten von Shops
+commands:
+  shop:
+    usage: |
+      /shop reload - Lädt alle Einstellungen neu
+      /shop reload shops - Aktualisiert alle Shops
+      /shop reload marketplaces - Aktualisiert alle Marktplätze
+      /shop reload agents - Aktualisiert alle Händler
+      /shop create - Erstellt einen Shop an deiner Position
+    description: Diverse Admin-Befehle
+    permission: shop.admin
