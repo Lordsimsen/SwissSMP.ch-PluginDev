@@ -1,0 +1,71 @@
+name: CPCameraStudioReborn
+main: eu.crushedpixel.camerastudio.CameraStudio
+authors: [CrushredPixel, chrismin13, detig_iii]
+version: 1.4.4
+
+commands:
+  cam:
+    description: Hauptbefehl für CPCameraStudio
+    usage: /<command> <subcommand> [args]
+    permission: camerastudio
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam p:
+    description: Fügt deine aktuelle Position zum Pfad hinzu.
+    usage: /cam p
+    permission: camerastudio.point
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam r:
+    description: Entfernt einen bestimmten Punkt aus dem Pfad. Wenn (Punkt) nicht definiert ist, wird der letzte entfernt.
+    usage: /cam (Punkt)
+    permission: camerastudio.remove
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam list:
+    description: Zeigt alle aktuell gesetzten Punkte an.
+    usage: /cam list
+    permission: camerastudio.list
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam reset:
+    description: Entfernt alle gesetzten Punkte.
+    usage: /cam reset
+    permission: camerastudio.reset
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam goto:
+    description: Teleportiert dich zu einem Punkt auf der Kamerafahrt.
+    usage: /cam goto [Punkt]
+    permission: camerastudio.goto
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam start:
+    description: Startet die Kamerafahrt mit der angegebenen Zeit in Sekunden
+    usage: /cam start [Zeit]
+    permission: camerastudio.start
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam stop:
+    description: Stoppt die Kamerafahrt sofort.
+    usage: /<command>
+    permission: camerastudio.stop
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+  cam reload:
+    description: Reloads the configuration files.
+    usage: /<command>
+    permission: camerastudio.reload
+    permission-message: You don't have permission to execute this command!
+  cam help:
+    description: Displays the help page for CPCameraStudio.
+    usage: /<command>
+    permission: camerastudio.help
+    permission-message: You don't have permission to execute this command!
+  cam save:
+    description: Saves the paths you currently have.
+    usage: /<command> [Name]
+    permission: camerastudio.save
+    permission-message: You don't have permission to execute this command!
+  cam load: 
+    description: Loads a path from a file.
+    usage: /<command>
+    permission: camerastudio.load
+    permission-message: You don't have permission to execute this command!
+  cam preview:
+    description: Makes a preview of the path.
+    usage: /<command>
+    permission: camerastudio.preview
+    permission-message: You don't have permission to execute this command!
