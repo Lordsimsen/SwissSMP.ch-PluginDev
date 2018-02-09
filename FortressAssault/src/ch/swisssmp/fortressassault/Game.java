@@ -11,44 +11,34 @@ import java.util.UUID;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.Vector;
+import org.bukkit.scoreboard.Team.Option;
+import org.bukkit.scoreboard.Team.OptionStatus;
 
-import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+
+import ch.swisssmp.utils.SwissSMPler;
 
 import org.bukkit.ChatColor;
 
@@ -56,8 +46,6 @@ import org.bukkit.ChatColor;
 public class Game implements Listener{
 	protected final Random random = new Random();
 	
-	private static final HashMap<UUID, Integer> players = new HashMap<UUID, Integer>();
-	protected static final HashMap<UUID, FortressTeam> teamMap = new HashMap<UUID, FortressTeam>();
 	protected final Scoreboard scoreboard;
 	protected final Objective objective;
 	
@@ -67,255 +55,39 @@ public class Game implements Listener{
 	private BukkitTask endBuildPhaseTask = null;
 	private long endBuildPhaseTaskStartTime = 0;
 	
+	private EventListener eventListener;
+	
 	public Game(){
 		if(getInstance()!=null){
 			deleteInstance();
 		}
-		this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-		this.objective = scoreboard.registerNewObjective("dummy", "Punkte");
-		this.objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
-		Bukkit.getPluginManager().registerEvents(this, Main.plugin);
+		this.scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+		for(Objective objective : scoreboard.getObjectives()) objective.unregister();
+		this.objective = scoreboard.registerNewObjective(FortressAssault.scoreSymbol, "dummy");
+		this.objective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		Bukkit.getPluginManager().registerEvents(this, FortressAssault.plugin);
         createInstance();
         for(FortressTeam team : FortressTeam.teams.values()){
         	team.reset();
         	team.registerTeam(this);
         }
+        this.eventListener = new EventListener(this);
+        Bukkit.getPluginManager().registerEvents(this.eventListener, FortressAssault.plugin);
 	}
-	@EventHandler(ignoreCancelled=true)
-	private void onItemDrop(PlayerDropItemEvent event){
-		if(event.getPlayer().getGameMode()==GameMode.CREATIVE) return;
-		if(event.getItemDrop().getItemStack().getType()==Main.crystalMaterial) event.setCancelled(true);
-	}
-	@EventHandler(ignoreCancelled=true)
-	private void onRegionEnter(RegionEnterEvent event){
-		ProtectedRegion region = event.getRegion();
-		String regionName = region.getId();
-		Player player = event.getPlayer();
-		if(player.getGameMode()==GameMode.CREATIVE) return;
-		if(regionName.contains("team")&&regionName.contains("_")){
-			//first leave the old team if there was any
-			if(this.gameState==GameState.PREGAME){
-				FortressTeam oldTeam = teamMap.get(player.getUniqueId());
-				if(oldTeam!=null)oldTeam.leave(player.getUniqueId());
-			}
-			
-			String team_id = regionName.split("_")[1];
-			//special section for spectators
-			if(team_id.equals("spectate")){
-				player.setFallDistance(0);
-				player.teleport(getPoint(getInstance(), "spectate"));
-				return;
-			}
-			//do nothing if the player just wants to leave the team
-			else if(team_id.equals("neutral")){
-				
-				player.teleport(getPoint(getLobby(), "lobby"));
-				return;
-			}
-			else if(team_id.equals("info")){
-				sendGameState(player);
-				for(FortressTeam team : FortressTeam.teams.values()){
-					player.sendMessage("- "+team.color+team.name+ChatColor.RESET+": "+team.player_uuids.size()+" Mitspieler");
-				}
-				return;
-			}
-			//join the new team
-			else if(this.gameState==GameState.PREGAME || this.gameState==GameState.FINISHED){
-				FortressTeam fortressTeam = FortressTeam.get(Integer.parseInt(team_id));
-				if(fortressTeam==null) fortressTeam = new FortressTeam(Main.getYamlResponse("fortress_assault/team.php", new String[]{
-						"team="+team_id
-				}).getConfigurationSection(team_id));
-				fortressTeam.registerTeam(this);
-				fortressTeam.join(player);
-				return;
-			}
-		}
-		else if(regionName.contains("class")&&regionName.contains("_")){
-			int class_id = Integer.valueOf(regionName.split("_")[1]);
-			PlayerClass playerClass = PlayerClass.get(class_id);
-			if(playerClass==null) {
-				players.remove(player.getUniqueId());
-			}
-			else {
-				players.put(player.getUniqueId(), playerClass.class_id);
-				Main.sendActionBar(player, "Du bist nun "+ChatColor.AQUA+playerClass.name+ChatColor.RESET+"!");
-			}
-			PlayerClass.setItems(player, playerClass, gameState);
-		}
-	}
-	@EventHandler
-	private void onPlayerInteractBlock(PlayerInteractEvent event){
-		if(event.getAction()!=Action.LEFT_CLICK_BLOCK && event.getAction()!=Action.RIGHT_CLICK_BLOCK){
-			return;
-		}
-		Block block = event.getClickedBlock();
-		switch(this.gameState){
-		case BUILD:
-		{
-			if(event.getHand()!=EquipmentSlot.HAND){
-				return;
-			}
-			FortressTeam team = FortressTeam.get(block);
-			if(block.getType()==Main.crystalMaterial){
-				if(team.leader.equals(event.getPlayer().getUniqueId())){
-					if(event.getAction()==Action.LEFT_CLICK_BLOCK){
-						block.setType(Material.AIR);
-						block.getWorld().playEffect(block.getLocation(), Effect.TILE_BREAK, Main.crystalMaterial.getId());
-						event.getPlayer().getInventory().addItem(new ItemStack(Main.crystalMaterial, 1));
-						team.setReady(false);
-						team.crystal = null;
-					}
-					else if(event.getAction()==Action.RIGHT_CLICK_BLOCK){
-						team.toggleReady();
-					}
-				}
-				else{
-					if(event.getAction()==Action.LEFT_CLICK_BLOCK){
-						Main.sendActionBar(event.getPlayer(), ChatColor.RED+"Nur der Team-Leader kann den Kristall verschieben!");
-					}
-					else if(event.getAction()==Action.RIGHT_CLICK_BLOCK){
-						Main.sendActionBar(event.getPlayer(), ChatColor.RED+"Nur der Team-Leader kann die Bauphase beenden.");
-					}
-				}
-				event.setCancelled(true);
-			}
-			else if(event.getAction()==Action.LEFT_CLICK_BLOCK){
-				if(block.getType()!=Material.SMOOTH_BRICK){
-					//Main.sendActionBar(event.getPlayer(), ChatColor.RED+"Du kannst nur Steinziegel abbauen.");
-					return;
-				}
-				else{
-					block.breakNaturally();
-					event.setCancelled(true);
-				}
-			}
-			break;
-		}
-		case FIGHT:
-		{
-			FortressTeam owningTeam = FortressTeam.get(block);
-			if(owningTeam!=null){
-				if(owningTeam.player_uuids.contains(event.getPlayer().getUniqueId())){
-					//defuse
-					owningTeam.setFused(false, event.getPlayer());
-				}
-				else{
-					//fuse
-					owningTeam.setFused(true, event.getPlayer());
-				}
-			}
-			else{
-				if(block.getType()==Material.DOUBLE_PLANT)
-					event.setCancelled(false);
-				else if(block.getType()==Material.LONG_GRASS){
-					event.setCancelled(false);
-				}
-			}
-			break;
-		}
-		default:
-			return;
-		}
-	}
-	@EventHandler(ignoreCancelled=true)
-	private void onBlockPlace(BlockPlaceEvent event){
-		Block block = event.getBlock();
-		if(block.getType()!=Main.crystalMaterial) return;
-		event.setCancelled(true);
-		Player player = event.getPlayer();
-		FortressTeam fortressTeam = teamMap.get(player.getUniqueId());
-		if(fortressTeam!=null){
-			if(fortressTeam.leader.equals(player.getUniqueId())){
-				WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
-				RegionManager regionManager = worldGuard.getRegionManager(getInstance());
-				ProtectedRegion region = regionManager.getRegion("base_"+fortressTeam.team_id);
-				if(region.contains(block.getX(), block.getY(), block.getZ())){
-					fortressTeam.crystal = block;
-					event.setCancelled(false);
-				}
-				else{
-					Main.sendActionBar(player, ChatColor.RED+"Platziere den Kristall in deiner Basis.");
-				}
-			}
-		}
-	}
-	@EventHandler(ignoreCancelled=true)
-	private void onPlayerDeath(PlayerDeathEvent event){
-		Player player = event.getEntity();
-		FortressTeam team = teamMap.get(player.getUniqueId());
-		if(this.gameState==GameState.BUILD && team!=null){
-			Vector vector = team.getSpawn();
-			player.setBedSpawnLocation(new Location(getInstance(), vector.getX(), vector.getY(), vector.getZ()), true);
-			return;
-		}
-		if(this.gameState!=GameState.FIGHT){
-			event.getEntity().setBedSpawnLocation(getPoint(getLobby(), "lobby"), true);
-			return;
-		}
-		EntityType killerType = player.getLastDamageCause().getEntityType();
-		if(killerType == EntityType.PLAYER){
-			Player killer = event.getEntity().getKiller();
-			this.addScore(killer, Main.config.getInt("scores.player_kill"), player.getName()+" getötet");
-		}
-		event.setKeepInventory(true);
+	
+	protected boolean isBlockInteractionAllowed(UUID player_uuid, Block block){
+		RegionManager regionManager = FortressAssault.worldGuardPlugin.getRegionManager(block.getWorld());
+		int team_id;
 		
-		if(team==null){
-			player.setBedSpawnLocation(getPoint(getLobby(), "lobby"), true);
-		}
-		else{
-			Vector vector = team.getSpawn();
-			player.setBedSpawnLocation(new Location(getInstance(), vector.getX(), vector.getY(), vector.getZ()), true);
-			player.setGameMode(GameMode.SPECTATOR);
-			Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
-				public void run(){
-					player.setGameMode(GameMode.SURVIVAL);
+		for(ProtectedRegion protectedRegion : regionManager.getApplicableRegions(block.getLocation())){
+			if(protectedRegion.getId().contains("base_")){
+				team_id = Integer.parseInt(protectedRegion.getId().split("_")[1]);
+				if(FortressTeam.get(team_id).player_uuids.contains(player_uuid)){
+					return true;
 				}
-			}, Main.config.getInt("death_timeout")*20L);
+			}
 		}
-	}
-	@EventHandler(ignoreCancelled=true)
-	private void onBlockBreak(BlockBreakEvent event){
-		if(event.getPlayer().getGameMode()==GameMode.CREATIVE){
-			return;
-		}
-		if(event.getBlock().getType()!=Material.SMOOTH_BRICK) event.setCancelled(true);
-	}
-	@EventHandler(ignoreCancelled=true)
-	private void onPlayerLogin(PlayerJoinEvent event){
-		Player player = event.getPlayer();
-		FortressTeam team = teamMap.get(player.getUniqueId());
-		ChatColor playerNameColor;
-		if(team==null){
-			playerNameColor = ChatColor.WHITE;
-			player.sendMessage(ChatColor.DARK_AQUA+"Willkommen in Fortress Assault!");
-		}
-		else{
-			playerNameColor = team.color;
-		}
-		event.setJoinMessage(ChatColor.GREEN+"+ "+ChatColor.RESET+"["+playerNameColor+player.getDisplayName()+ChatColor.RESET+"]");
-		updatePlayer(player);
-	}
-	@EventHandler
-	private void onPlayerQuit(PlayerQuitEvent event){
-		Player player = event.getPlayer();
-		FortressTeam team = teamMap.get(player.getUniqueId());
-		ChatColor playerNameColor;
-		if(team==null){
-			playerNameColor = ChatColor.WHITE;
-			player.sendMessage(ChatColor.DARK_AQUA+"Willkommen in Fortress Assault!");
-		}
-		else{
-			playerNameColor = team.color;
-		}
-		event.setQuitMessage(ChatColor.RED+"- "+ChatColor.RESET+"["+playerNameColor+player.getDisplayName()+ChatColor.RESET+"]");
-		if(team==null) return;
-		if(this.gameState==GameState.BUILD||this.gameState==GameState.FIGHT){
-			return;
-		}
-		else{
-			team.leave(player.getUniqueId());
-		}
-		
+		return false;
 	}
 	protected void setBuildphase(){
 		this.advance(GameState.BUILD);
@@ -329,10 +101,13 @@ public class Game implements Listener{
 			for(UUID player_uuid : winner.player_uuids){
 				Player player = Bukkit.getPlayer(player_uuid);
 				if(player==null) continue;
-				Main.sendTitle(player, "SIEG!", this.getMvpInfo(), 1, 5, 1);
+				SwissSMPler.get(player).sendTitle("SIEG!", this.getMvpInfo());
 			}
 		}
-		Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
+		for(FortressTeam team : FortressTeam.teams.values()){
+			team.purgeDisconnected();
+		}
+		Bukkit.getScheduler().runTaskLater(FortressAssault.plugin, new Runnable(){
 			public void run(){
 				advance(GameState.FINISHED);
 			}
@@ -340,6 +115,10 @@ public class Game implements Listener{
 	}
 	private void advance(GameState newState){
 		if(this.gameState==newState) return;
+		for(Player player : Bukkit.getOnlinePlayers()){
+			for (PotionEffect effect : player.getActivePotionEffects())
+		        player.removePotionEffect(effect.getType());
+		}
 		if(this.endBuildPhaseWarningTask!=null)
 			this.endBuildPhaseWarningTask.cancel();
 		if(this.endBuildPhaseTask!=null)
@@ -353,7 +132,7 @@ public class Game implements Listener{
 			HashMap<FortressTeam, UUID> kickPlayers = new HashMap<FortressTeam, UUID>();
 			for(FortressTeam team : FortressTeam.teams.values()){
 				for(UUID player_uuid : team.player_uuids){
-					if(!players.containsKey(player_uuid)){
+					if(!FortressAssault.players.containsKey(player_uuid)){
 						Player player = Bukkit.getPlayer(player_uuid);
 						if(player==null) kickPlayers.put(team, player_uuid);
 						else guiltyPlayers.add(player.getDisplayName());
@@ -364,7 +143,7 @@ public class Game implements Listener{
 				entry.getKey().leave(entry.getValue());
 			}
 			if(!guiltyPlayers.isEmpty()){
-				Bukkit.broadcastMessage(ChatColor.DARK_AQUA+"Folgende Spieler müssen noch eine Klasse aussuchen:");
+				Bukkit.broadcastMessage(ChatColor.DARK_AQUA+"Folgende Spieler mÃ¼ssen noch eine Klasse aussuchen:");
 				for(String playerName : guiltyPlayers){
 					Bukkit.broadcastMessage("- "+playerName);
 				}
@@ -373,37 +152,50 @@ public class Game implements Listener{
 		}
 		this.gameState = newState;
 
-		for(UUID player_uuid : players.keySet()){
-			updatePlayer(Bukkit.getPlayer(player_uuid));
+		Player player;
+		for(UUID player_uuid : FortressAssault.players.keySet()){
+			player = Bukkit.getPlayer(player_uuid);
+			if(player==null) continue;
+			player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+			updatePlayer(player);
+			updateInventory(player);
 		}
 		if(this.gameState==GameState.BUILD){
 			for(FortressTeam team : FortressTeam.teams.values()){
-				team.leader = team.player_uuids.get(0);
-				Player player = Bukkit.getPlayer(team.leader);
+				team.purgeDisconnected();
+				team.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
+				if(team.player_uuids.size()>0){
+					team.leader = team.player_uuids.get(0);
+				}
+				else{
+					this.setFinished(null);
+					return;
+				}
+				player = Bukkit.getPlayer(team.leader);
 				if(player==null) continue;
-				player.getInventory().addItem(new ItemStack(Main.crystalMaterial, 1));
+				player.getInventory().addItem(new ItemStack(FortressAssault.crystalMaterial, 1));
 				player.sendMessage(ChatColor.GREEN+"Du bist Team-Leader!");
-				player.sendMessage(ChatColor.GOLD+"Platziere den Kristall an einem geschützten Ort.");
+				player.sendMessage(ChatColor.GOLD+"Platziere den Kristall an einem geschÃ¼tzten Ort.");
 				player.sendMessage(ChatColor.YELLOW+"Rechtsklicke auf den Kristall, sobald dein Team fertig gebaut hat, um die Bauphase zu beenden.");
 				for(UUID player_uuid : team.player_uuids){
 					Player teamMember = Bukkit.getPlayer(player_uuid);
 					if(teamMember==null) continue;
 					teamMember.setFallDistance(0);
-					teamMember.setBedSpawnLocation(getPoint(getInstance(), "spectate"), true);
+					teamMember.setBedSpawnLocation(FortressAssault.getPoint(getInstance(), "spectate"), true);
 					teamMember.teleport(new Location(getInstance(), team.spawn.getX(), team.spawn.getY(), team.spawn.getZ()));
 				}
 			}
 
-			this.endBuildPhaseWarningTask = Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
+			this.endBuildPhaseWarningTask = Bukkit.getScheduler().runTaskLater(FortressAssault.plugin, new Runnable(){
 				public void run(){
-					for(UUID player_uuid : players.keySet()){
+					for(UUID player_uuid : FortressAssault.players.keySet()){
 						Player player = Bukkit.getPlayer(player_uuid);
-						if(player!=null) Main.sendTitle(player, "", ChatColor.DARK_PURPLE+"Noch 60 Sekunden!", 1, 3, 1);
+						if(player!=null) SwissSMPler.get(player).sendTitle("", ChatColor.DARK_PURPLE+"Noch 60 Sekunden!");
 					}
 					endBuildPhaseWarningTask = null;
 				}
-			}, (Math.max((Main.config.getInt("buildphase")-1)*60*20, 1)));
-			this.endBuildPhaseTask = Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
+			}, (Math.max((FortressAssault.config.getInt("buildphase")-1)*60*20, 1)));
+			this.endBuildPhaseTask = Bukkit.getScheduler().runTaskLater(FortressAssault.plugin, new Runnable(){
 				public void run(){
 					ArrayList<FortressTeam> readyTeams = new ArrayList<FortressTeam>();
 					for(FortressTeam team : FortressTeam.teams.values()){
@@ -423,39 +215,49 @@ public class Game implements Listener{
 					}
 					endBuildPhaseTask = null;
 				}
-			}, (Math.max((Main.config.getInt("buildphase"))*60*20, 1)));
+			}, (Math.max((FortressAssault.config.getInt("buildphase"))*60*20, 1)));
 			endBuildPhaseTaskStartTime = System.currentTimeMillis();
 		}
 		else if(this.gameState==GameState.FIGHT){
+			for(FortressTeam team : FortressTeam.teams.values()){
+				team.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
+			}
 			World world = getInstance();
-				for(Entity entity : world.getEntities()){
-					if(entity instanceof Item){
-						entity.remove();
-					}
+			for(Entity entity : world.getEntities()){
+				if(entity instanceof Item){
+					entity.remove();
 				}
+			}
+			RegionManager regionManager = FortressAssault.worldGuardPlugin.getRegionManager(this.getInstance());
+			regionManager.removeRegion("blockade");
 		}
 		else if(this.gameState==GameState.FINISHED){
+			for(FortressTeam team : FortressTeam.teams.values()){
+				team.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
+			}
 			deleteInstance();
-			Game game = this;
-			Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable(){
+			Bukkit.getScheduler().runTaskLater(FortressAssault.plugin, new Runnable(){
 				public void run(){
-					HandlerList.unregisterAll(game);
-					Main.game = new Game();
+					HandlerList.unregisterAll(eventListener);
+					FortressAssault.game = new Game();
 				}
 			}, 40);
 		}
 	}
-	private void updatePlayer(Player player){
+	protected void updatePlayer(Player player){
 		if(player==null) return;
-		FortressTeam fortressTeam = teamMap.get(player.getUniqueId());
+		FortressTeam fortressTeam = FortressAssault.teamMap.get(player.getUniqueId());
+		FortressAssault.updateTabList(player, fortressTeam);
 		switch(this.gameState){
 		case PREGAME:
-			player.teleport(getPoint(getLobby(), "lobby"));
+			player.teleport(FortressAssault.getPoint(FortressAssault.getLobby(), "lobby"));
 			player.setGameMode(GameMode.ADVENTURE);
+			this.scoreboard.resetScores(player.getName());
 			break;
 		case BUILD:
 			if(fortressTeam==null){
-				player.teleport(getPoint(getInstance(), "spectate"));
+				player.teleport(FortressAssault.getPoint(getInstance(), "spectate"));
+				this.scoreboard.resetScores(player.getName());
 				break;
 			}
 			else{
@@ -469,46 +271,50 @@ public class Game implements Listener{
 			break;
 		case FIGHT:
 			if(fortressTeam==null){
-				player.teleport(getPoint(getInstance(), "spectate"));
+				player.teleport(FortressAssault.getPoint(getInstance(), "spectate"));
+				this.scoreboard.resetScores(player.getName());
 				break;
 			}
-			player.setGameMode(GameMode.SURVIVAL);
-			break;
-		case FINISHED:
-			player.teleport(getPoint(getLobby(), "lobby"));
 			player.setGameMode(GameMode.ADVENTURE);
 			break;
+		case FINISHED:
+			player.teleport(FortressAssault.getPoint(FortressAssault.getLobby(), "lobby"));
+			player.setGameMode(GameMode.ADVENTURE);
+			this.scoreboard.resetScores(player.getName());
+			break;
 		}
+		sendGameState(player);
+	}
+	protected void updateInventory(Player player){
 		PlayerClass playerClass;
-		if(players.containsKey(player.getUniqueId())){
-			playerClass = PlayerClass.get(players.get(player.getUniqueId()));
+		if(FortressAssault.players.containsKey(player.getUniqueId())){
+			playerClass = PlayerClass.get(FortressAssault.players.get(player.getUniqueId()));
 		}
 		else{
 			playerClass = null;
 		}
 		PlayerClass.setItems(player, playerClass, this.gameState);
-		sendGameState(player);
 	}
 	protected boolean isFinished(){
 		return this.gameState==GameState.FINISHED;
 	}
 	protected void sendGameState(Player player){
-		FortressTeam team = teamMap.get(player.getUniqueId());
+		FortressTeam team = FortressAssault.teamMap.get(player.getUniqueId());
 		switch(this.gameState){
 		case PREGAME:
-			player.sendMessage(ChatColor.DARK_AQUA+"Momentan läuft keine Partie.");
+			player.sendMessage(ChatColor.DARK_AQUA+"Momentan lÃ¤uft keine Partie.");
 			if(team==null) player.sendMessage(ChatColor.GOLD+"Du kannst einem Team beitreten.");
 			break;
 		case BUILD:
 			if(team!=null){
 				if(!team.isReady()){
-					Main.sendTitle(player, "Aufbau", ChatColor.GOLD+"Baue eine Burg", 1, 3, 1);
-					int remaining = Main.config.getInt("buildphase");
+					SwissSMPler.get(player).sendTitle("Aufbau", ChatColor.GOLD+"Baue eine Burg");
+					int remaining = FortressAssault.config.getInt("buildphase");
 					if(this.endBuildPhaseTask!=null){
 						long remainingMillis = System.currentTimeMillis()-endBuildPhaseTaskStartTime;
 						remaining = remaining-Math.round(remainingMillis/1000/60);
 					}
-					player.sendMessage(ChatColor.DARK_PURPLE+String.valueOf(remaining)+" Minuten verbleiben für den Bau einer Burg.");
+					player.sendMessage(ChatColor.DARK_PURPLE+String.valueOf(remaining)+" Minuten verbleiben fÃ¼r den Bau einer Burg.");
 				}
 				else{
 					player.sendMessage(ChatColor.GREEN+"Dein Team ist bereit. Bitte warten...");
@@ -522,8 +328,8 @@ public class Game implements Listener{
 		case FIGHT:
 			player.sendMessage(ChatColor.DARK_AQUA+"Das Spiel befindet sich in der Kampfphase.");
 			if(team!=null){
-				Main.sendTitle(player, "Belagerung", ChatColor.GOLD+"Zerstöre den feindlichen Kristall!", 1, 3, 1);
-				player.sendMessage(ChatColor.GOLD+"Zerstöre den feindlichen Kristall, bevor sie euren vernichten!");
+				SwissSMPler.get(player).sendTitle("Belagerung", ChatColor.GOLD+"ZerstÃ¶re den feindlichen Kristall!");
+				player.sendMessage(ChatColor.GOLD+"ZerstÃ¶re den feindlichen Kristall, bevor sie euren vernichten!");
 			}
 			else{
 				player.sendMessage(ChatColor.GRAY+"Bitte warte, bis die Partie vorbei ist.");
@@ -534,34 +340,19 @@ public class Game implements Listener{
 			break;
 		}
 	}
-	private Location getPoint(World world, String name){
-		ConfigurationSection dataSection = Main.config.getConfigurationSection(name);
-		Vector vector = getVector(dataSection);
-		return new Location(world, vector.getX(), vector.getY(), vector.getZ());
-	}
-	private Vector getVector(ConfigurationSection dataSection){
-		double x = dataSection.getDouble("x");
-		double y = dataSection.getDouble("y");
-		double z = dataSection.getDouble("z");
-		double random = dataSection.getDouble("random");
-		return new Vector(getRandomValue(x, random), y+0.5, getRandomValue(z, random));
-	}
-	private double getRandomValue(double base, double random){
-		return base-random+2*this.random.nextDouble()*random*2;
-	}
 	protected GameState getGameState(){
 		return this.gameState;
 	}
 	protected String getMvpInfo(){
 		String mvp = bestPlayer();
 		Integer score = objective.getScore(mvp).getScore();
-		return ChatColor.YELLOW+"MVP: "+mvp+" ("+score+" Punkte)";
+		return ChatColor.YELLOW+"MVP: "+mvp+ChatColor.RESET+ChatColor.YELLOW+" ("+score+FortressAssault.scoreSymbol+ChatColor.YELLOW+")";
 	}
 	protected void addScore(Player player, int score, String reason){
 		if(player==null) return;
 		Score s = objective.getScore(player);
 		s.setScore(s.getScore()+score);
-		Main.sendActionBar(player, ChatColor.GREEN+"+"+score+ChatColor.RESET+" "+reason);
+		SwissSMPler.get(player).sendActionBar(ChatColor.GREEN+"+"+score+FortressAssault.scoreSymbol+" "+reason);
 		player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 50, random.nextFloat()/0.2f+0.5f+score/1000f);
 	}
 	protected String bestPlayer() {
@@ -623,7 +414,7 @@ public class Game implements Listener{
 			return false;
 		}
 		world.save();
-		Location leavePoint = getLobby().getSpawnLocation();
+		Location leavePoint = FortressAssault.getLobby().getSpawnLocation();
 		File source = new File(Bukkit.getWorldContainer(), template_name);
 		if(source.exists() && source.isDirectory()){
 			File target = this.getTemplateDirectory();
@@ -636,7 +427,7 @@ public class Game implements Listener{
 					copyDirectory(source, target);
 					delete(Bukkit.getWorld(template_name), leavePoint, false);
 				}};
-			Bukkit.getScheduler().runTaskLater(Main.plugin, task, 20L);
+			Bukkit.getScheduler().runTaskLater(FortressAssault.plugin, task, 20L);
 			return true;
 		}
 		else return false;
@@ -664,10 +455,10 @@ public class Game implements Listener{
 				}
 			}
 		};
-		Bukkit.getScheduler().runTaskLater(Main.plugin, runnable, delay);
+		Bukkit.getScheduler().runTaskLater(FortressAssault.plugin, runnable, delay);
 	}
 	private void deleteInstance(){
-		delete(Bukkit.getWorld("FortressAssaultArena"), getLobby().getSpawnLocation(), true);
+		delete(Bukkit.getWorld("FortressAssaultArena"), FortressAssault.getLobby().getSpawnLocation(), true);
 	}
 	private boolean delete(World world, Location leavePoint, boolean deleteConfiguration){
 		if(world==null) return true;
@@ -680,7 +471,7 @@ public class Game implements Listener{
         if(Bukkit.getServer().unloadWorld(world, !deleteConfiguration)){
 			File path = new File(Bukkit.getWorldContainer(), worldName);
 	    	deleteFiles(path);
-			WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
+			WorldGuardPlugin worldGuard = FortressAssault.worldGuardPlugin;
 	    	if(deleteConfiguration){
 				File regionConfiguration = new File(worldGuard.getDataFolder(), "worlds/"+worldName);
 				FileUtil.deleteRecursive(regionConfiguration);
@@ -699,25 +490,23 @@ public class Game implements Listener{
 		world.setGameRuleValue("doFireTick", "true");
 		world.setGameRuleValue("keepInventory", "true");
 		world.setGameRuleValue("showDeathMessages", "false");
+		world.setGameRuleValue("announceAdvancements", "false");
 	}
 	private File getTemplateDirectory(){
-		return new File(Main.dataFolder, "template/FortressAssaultTemplate");
+		return new File(FortressAssault.dataFolder, "template/FortressAssaultTemplate");
 	}
 	private File getWorldDirectory(){
 		return new File(Bukkit.getWorldContainer(), "FortressAssaultArena");
 	}
 	public File getWorldguardDirectory(String name){
-		WorldGuardPlugin worldGuard = Main.worldGuardPlugin;
+		WorldGuardPlugin worldGuard = FortressAssault.worldGuardPlugin;
 		return new File(worldGuard.getDataFolder(), "worlds/FortressAssault"+name);
 	}
-	protected static World getLobby(){
-		return Bukkit.getWorld("FortressAssault");
-	}
-	private World getInstance(){
+	protected World getInstance(){
 		return Bukkit.getWorld("FortressAssaultArena");
 	}
 	private static void copyDirectory(File source, File target){
-        ArrayList<String> ignore = new ArrayList<String>(Arrays.asList("uid.dat", "session.dat"));
+        ArrayList<String> ignore = new ArrayList<String>(Arrays.asList("uid.dat", "session.lock"));
 		FileUtil.copyDirectory(source, target, ignore);
 	}
 	//static stuff
@@ -727,6 +516,6 @@ public class Game implements Listener{
 				FileUtil.deleteRecursive(path);
 			}
 		};
-		Bukkit.getScheduler().runTaskLater(Main.plugin, task, 20);
+		Bukkit.getScheduler().runTaskLater(FortressAssault.plugin, task, 20);
 	}
 }

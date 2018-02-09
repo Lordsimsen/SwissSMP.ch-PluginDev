@@ -52,7 +52,7 @@ public class FileUtil {
 	            }
 	        }
 	    } catch (IOException e) {
-	    	if(Main.debug){
+	    	if(FortressAssault.debug){
 		    	e.printStackTrace();
 	    	}
 	    }

@@ -23,19 +23,19 @@ public class PlayerCommand implements CommandExecutor{
 			switch(args[0]){
 				case "reset":
 				{
-					if(!Main.game.isFinished()){
-						Main.game.setFinished(null);
+					if(!FortressAssault.game.isFinished()){
+						FortressAssault.game.setFinished(null);
 					}
 				}
 				case "advance":{
-					if(Main.game.getGameState()==GameState.PREGAME){
-						Main.game.setBuildphase();
+					if(FortressAssault.game.getGameState()==GameState.PREGAME){
+						FortressAssault.game.setBuildphase();
 					}
-					else if(Main.game.getGameState()==GameState.BUILD){
-						Main.game.setFightphase();
+					else if(FortressAssault.game.getGameState()==GameState.BUILD){
+						FortressAssault.game.setFightphase();
 					}
-					else if(Main.game.getGameState()==GameState.FIGHT){
-						Main.game.setFinished(null);
+					else if(FortressAssault.game.getGameState()==GameState.FIGHT){
+						FortressAssault.game.setFinished(null);
 					}
 					else{
 						sender.sendMessage("Die Partie ist bereits vorbei. Neues Spiel starten mit /fa reset");
@@ -45,7 +45,7 @@ public class PlayerCommand implements CommandExecutor{
 				}
 				case "reload":{
 					try {
-						Main.loadYamls();
+						FortressAssault.loadYamls();
 						PlayerClass.loadClasses();
 						sender.sendMessage("Konfiguration neu geladen.");
 					} catch (Exception e) {
@@ -55,8 +55,8 @@ public class PlayerCommand implements CommandExecutor{
 					break;
 				}
 				case "debug":{
-					Main.debug = !Main.debug;
-					if(Main.debug){
+					FortressAssault.debug = !FortressAssault.debug;
+					if(FortressAssault.debug){
 						sender.sendMessage("Debug Modus eingeschaltet.");
 					}
 					else{
@@ -67,12 +67,12 @@ public class PlayerCommand implements CommandExecutor{
 				case "edit":{
 					if(!(sender instanceof Player)) return false;
 					Player player = (Player)sender;
-					World template = Main.game.editTemplate();
+					World template = FortressAssault.game.editTemplate();
 					player.teleport(template.getSpawnLocation());
 					break;
 				}
 				case "endedit":{
-					Main.game.saveTemplate();
+					FortressAssault.game.saveTemplate();
 					break;
 				}
 				default:

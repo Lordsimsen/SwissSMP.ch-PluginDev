@@ -1,5 +1,5 @@
-main: ch.swisssmp.fortressassault.Main
-version: 1.0
+main: ch.swisssmp.fortressassault.FortressAssault
+version: 2.0
 name: FortressAssault
 author: detig_iii
 description: Play the minigame Fortress Assault
@@ -11,7 +11,7 @@ permissions:
 commands:
   fortress:
     description: use general commands of the FortressAssault plugin
-    usage: /fortress [reset/advance/edit/reload/debug]
+    usage: /fortress [reset/advance/edit/endedit/reload/debug]
     aliases: [fa]
     permission: fortressassault.admin
   sign:
