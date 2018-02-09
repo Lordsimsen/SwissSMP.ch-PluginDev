@@ -1,0 +1,18 @@
+main: ch.swisssmp.utils.EventPoints
+version: 1.0
+name: EventPoints
+author: detig_iii
+description: Verwaltet Eventpunkte
+depend: [WebCore]
+permissions: 
+  eventpoints.admin:
+    default: op
+    description: Erlaubt die Steuerung des Plugins
+commands:
+  eventpoints:
+    usage: |
+      /eventpoints give [Spieler] [Menge]
+      /eventpoints take [Spieler] [Menge]
+    description: Verwaltet Eventpunkte
+    aliases: [ep,eventpoint]
+    permission: eventpoints.admin
