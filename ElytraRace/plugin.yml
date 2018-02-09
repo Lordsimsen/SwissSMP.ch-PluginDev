@@ -1,17 +1,24 @@
-main: ch.swisssmp.elytrarace.Main
-version: 1.0
+main: ch.swisssmp.elytrarace.ElytraRace
+version: 2.1
 name: ElytraRace
 author: detig_iii
-description: Make racing tracks for Elytra!
+description: Veranstalte Elytra Rennen!
 permissions:
   elytrarace.admin:
-    description: Allows you to operate the race
-    default: false
+    description: Erlaubt Steuerung des Plugins
+    default: op
 commands:
+  strecken:
+    description: Verwaltet Strecken
+    usage: |
+      /strecken aktualisieren
+      /strecken auflisten
+    aliases: [courses]
+    permission: elytrarace.admin
   spielen:
     description: Dem Rennen als Spieler beitreten
-    usage: /spielen
-    aliases: [play]
+    usage: /spielen (Spieler)
+    aliases: [play,join,beitreten,mitmachen,go]
   zuschauen:
     description: Dem Rennen als Zuschauer beiwohnen
     usage: /zuschauen
@@ -20,8 +27,20 @@ commands:
     description: Zeigt dir eine Rangliste an
     usage: /rangliste
     aliases: [rank,ranking,highscore,highscores]
+  verlassen:
+    description: Zurück zum Hub
+    usage: /verlassen
+    aliases: [quit,leave,exit]
+  wettkampf:
+    description: Verwaltet Wettkämpfe
+    usage: |
+        /wettkampf erstellen [name] [course,]
+        /wettkampf starten
+        /wettkampf laden [contest_id]
+    aliases: [contest]
+    permission: elytrarace.admin
   reset:
     description: Setzt alle Punkte auf 0 und beendet alle Rennen
     usage: /reset
     permission: elytrarace.admin
-depend: [WorldGuard]
+depend: [WorldGuard,CPCameraStudioReborn]

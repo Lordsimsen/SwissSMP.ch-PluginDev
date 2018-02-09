@@ -1,7 +1,6 @@
 package ch.swisssmp.elytrarace;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
@@ -13,6 +12,7 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -20,84 +20,163 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.util.Vector;
 
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
+
 public class PlayerRace {
 	protected final UUID player_uuid;
+	protected final int course_id;
+	protected final int contest_id;
+	protected int checkpointCount;
 	protected long startTime = 0;
 	protected long finishTime = 0;
+	protected long actionBarDisabledUntil = 0;
 	protected HashMap<String, Long> bestTimes = null;
 	protected final HashMap<String, Long> passedCheckpoints = new HashMap<String, Long>();
 	protected boolean running = false;
 	protected final Random random = new Random();
 	
-	protected PlayerRace(Player player){
+	private String currentSoundtrack = null;
+	
+	protected PlayerRace(int course_id, int contest_id, Player player){
 		this.player_uuid = player.getUniqueId();
-		Main.races.put(player.getUniqueId(), this);
+		this.course_id = course_id;
+		this.contest_id = contest_id;
+		this.loadBestTimes();
+		ElytraRace.races.put(player.getUniqueId(), this);
+	}
+	private void loadBestTimes(){
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("elytra_race/best_times.php", new String[]{
+			"player="+player_uuid.toString(),
+			"contest="+contest_id,
+			"course="+course_id
+		});
+		bestTimes = new HashMap<String,Long>();
+		if(yamlConfiguration==null || !yamlConfiguration.contains("times")) return;
+		else{
+			ConfigurationSection timesSection = yamlConfiguration.getConfigurationSection("times");
+			for(String key : timesSection.getKeys(false)){
+				bestTimes.put(key, timesSection.getLong(key));
+			}
+		}
 	}
 	protected void start(){
+		this.checkpointCount = RaceCourse.get(this.course_id).getCheckpointCount();
 		this.running = true;
 		this.startTime = System.currentTimeMillis();
 		this.passedCheckpoints.clear();
-		Main.sendActionBar(Bukkit.getPlayer(player_uuid), "GO!");
+		Player player = Bukkit.getPlayer(player_uuid);
+		if(player==null) return;
+		SwissSMPler.get(player).sendActionBar(ElytraRace.getContestName());
+		actionBarDisabledUntil=System.currentTimeMillis()+3000;
+		if(currentSoundtrack!=null){
+			player.stopSound(currentSoundtrack);
+		}
+		RaceCourse raceCourse = RaceCourse.get(this.course_id);
+		if(raceCourse==null)return;
+		player.stopSound(raceCourse.getSoundtrack());
+		this.currentSoundtrack = raceCourse.getSoundtrack();
+		player.playSound(player.getLocation(), raceCourse.getSoundtrack(), SoundCategory.RECORDS, 2000f, 1f);
 	}
 	protected void cancel(){
 		this.running = false;
 		this.passedCheckpoints.clear();
+		Player player = Bukkit.getPlayer(this.player_uuid);
+		if(player!=null){
+			if(currentSoundtrack!=null){
+				player.stopSound(this.currentSoundtrack);
+				this.currentSoundtrack = null;
+			}
+			player.setVelocity(new Vector(0, 0, 0));
+			player.setFallDistance(0);
+			player.teleport(player.getWorld().getSpawnLocation().add(0,0.5,0));
+		}
 	}
 	protected void finish(){
 		if(!this.running) return;
 		this.running = false;
 		Player player = Bukkit.getPlayer(player_uuid);
 		if(player==null) return;
-		player.setVelocity(new Vector(0, 0, 0));
-		if(this.passedCheckpoints.size()<18){
-			Main.sendTitle(player, ChatColor.WHITE+"UNGÜLTIG!",ChatColor.RED+"Nicht alle Checkpoints passiert!", 1, 3, 1);
-			return;
+		if(currentSoundtrack!=null){
+			player.stopSound(this.currentSoundtrack);
+			this.currentSoundtrack = null;
 		}
+		player.setVelocity(new Vector(0, 0, 0));
 		this.finishTime = System.currentTimeMillis();
 		long totalTime = this.finishTime-this.startTime;
+		String[] checkpointStrings = new String[passedCheckpoints.size()];
+		String[] checkpointKeys = new String[passedCheckpoints.size()];
+		passedCheckpoints.keySet().toArray(checkpointKeys);
+		boolean validRace = this.passedCheckpoints.size()>=this.checkpointCount;
+		for(int i = 0; i < passedCheckpoints.size(); i++){
+			checkpointStrings[i] = "checkpoints["+checkpointKeys[i]+"]="+passedCheckpoints.get(checkpointKeys[i]);
+		}
+		String checkpointsData = String.join("&", checkpointStrings);
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("elytra_race/record.php", new String[]{
+				"player="+player_uuid.toString(),
+				"contest="+this.contest_id,
+				"course="+this.course_id,
+				"time="+totalTime,
+				"valid="+(validRace ? "true" : "false"),
+				checkpointsData
+			});
+		if(!validRace){
+			SwissSMPler.get(player).sendTitle(ChatColor.WHITE+"UNGÃœLTIG!",ChatColor.RED+"Nicht alle Checkpoints passiert!");
+			return;
+		}
+		if(yamlConfiguration==null) return;
+		boolean isContestHighscore = yamlConfiguration.getBoolean("is_contest_highscore");
+		boolean isCourseHighscore = yamlConfiguration.getBoolean("is_course_highscore");
+		boolean isPersonalHighscore = yamlConfiguration.getBoolean("is_personal_highscore");
+		if(yamlConfiguration.contains("sound")){
+			player.playSound(player.getLocation(), yamlConfiguration.getString("sound"), SoundCategory.RECORDS, 500f,1f);
+		}
 		String bigText;
 		String smallText;
-		boolean newHighscore = true;
-		if(Main.highscores.containsKey(player_uuid)){
-			if(totalTime>=Main.highscores.get(player_uuid)){
-				newHighscore = false;
-			}
-		}
-		if(newHighscore){
-			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BASS, 100f, 0.7f);
-			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 100f, 0.9f);
-			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 100f, 1.05f);
+		if(isCourseHighscore || isContestHighscore || isPersonalHighscore){
 			firework(player, 4);
-			Main.highscores.put(player.getUniqueId(), totalTime);
-			this.bestTimes = new HashMap<String, Long>();
-			for(Entry<String, Long> entry : passedCheckpoints.entrySet()){
-				this.bestTimes.put(entry.getKey(), entry.getValue());
-			}
-			bigText = "REKORD!";
+			bigText = "GLÃœCKWUNSCH!";
 			smallText = ChatColor.GREEN+formatTime(totalTime);
 			player.playEffect(EntityEffect.FIREWORK_EXPLODE);
-			player.sendMessage(ChatColor.GREEN+"Neuer persönlicher Rekord! "+formatTime(totalTime));
+			if(isCourseHighscore){
+				player.sendMessage("[ElytraRace] "+ChatColor.LIGHT_PURPLE+"Neuer Streckenrekord! "+formatTime(totalTime));
+				for(Player other : player.getWorld().getPlayers()){
+					if(other==player) continue;
+					other.sendMessage("[ElytraRace] "+player.getDisplayName()+ChatColor.RESET+ChatColor.LIGHT_PURPLE+" hat mit "+ChatColor.YELLOW+formatTime(totalTime)+ChatColor.LIGHT_PURPLE+" den Streckenrekord geschlagen!");
+				}
+			}
+			else if(isContestHighscore){
+				player.sendMessage("[ElytraRace] "+ChatColor.GREEN+"Neue Bestzeit! "+formatTime(totalTime));
+				for(Player other : player.getWorld().getPlayers()){
+					if(other==player) continue;
+					other.sendMessage("[ElytraRace] "+player.getDisplayName()+ChatColor.RESET+ChatColor.YELLOW+" hat mit "+formatTime(totalTime)+" die neue Bestzeit im Wettkampf!");
+				}
+			}
+			if(isPersonalHighscore)
+				player.sendMessage(ChatColor.GREEN+"Neue persÃ¶nliche Bestzeit! "+formatTime(totalTime));
 		}
 		else{
-			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BASS, 100f, 0.7f);
-			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 100f, 0.85f);
-			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 100f, 1.05f);
 			bigText = "ZIEL!";
 			smallText = ChatColor.WHITE+formatTime(totalTime);
 			player.playEffect(EntityEffect.VILLAGER_ANGRY);
 		}
-		Main.sendTitle(player, bigText, smallText, 1, 5, 1);
+		SwissSMPler.get(player).sendTitle(bigText, smallText);
+		this.loadBestTimes();
 	}
 	protected void passCheckpoint(String checkpoint){
 		if(this.passedCheckpoints.containsKey(checkpoint)) return;
 		long currentTime = System.currentTimeMillis()-this.startTime;
 		this.passedCheckpoints.put(checkpoint, currentTime);
 		boolean newRecord = true;
+		boolean newTime = true;
 		String messageStart;
 		long displayTime = currentTime;
 		Player player = Bukkit.getPlayer(this.player_uuid);
 		if(bestTimes!=null){
 			if(bestTimes.containsKey(checkpoint)){
+				newTime = false;
 				displayTime = currentTime - bestTimes.get(checkpoint);
 				if(displayTime>0){
 					newRecord = false;
@@ -105,20 +184,25 @@ public class PlayerRace {
 			}
 		}
 		if(newRecord){
-			if(bestTimes!=null){
+			if(!newTime){
 				messageStart = ChatColor.GREEN+"-";
-				player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 100f, random.nextFloat()*0.1f+1.1f);
+				if(player!=null)
+					player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 100f, random.nextFloat()*0.1f+1.1f);
 			}
 			else{
 				messageStart = ChatColor.GRAY+"";
-				player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 100f, random.nextFloat()*0.1f+0.95f);
+				if(player!=null)
+					player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 100f, random.nextFloat()*0.1f+0.95f);
 			}
 		}
 		else{
-			player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 100f, random.nextFloat()*0.1f+0.8f);
+			if(player!=null)
+				player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 100f, random.nextFloat()*0.1f+0.8f);
 			messageStart = ChatColor.RED+"+";
 		}
-		Main.sendActionBar(player, messageStart+formatTime(displayTime));
+		if(player!=null && actionBarDisabledUntil<System.currentTimeMillis()){
+			SwissSMPler.get(player).sendActionBar(messageStart+formatTime(displayTime));
+		}
 	}
 	private void firework(Player player, int recursion){
 		World world = player.getWorld();
@@ -153,7 +237,7 @@ public class PlayerRace {
 					firework(player, recursion-1);
 				}
 			};
-			Bukkit.getScheduler().runTaskLater(Main.plugin, runnable, 5L);
+			Bukkit.getScheduler().runTaskLater(ElytraRace.plugin, runnable, 5L);
 		}
 	}
 	protected static String formatTime(long time){
