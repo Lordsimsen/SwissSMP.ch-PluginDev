@@ -1,0 +1,17 @@
+main: ch.swisssmp.world.WorldManager
+version: 1.2
+name: WorldManager
+author: detig_iii
+description: Lädt und verwaltet Welten
+depend: [WebCore]
+permissions:
+  worldmanager.admin:
+    description: Erlaubt die Verwaltung des Plugins
+    default: op
+commands:
+  worldmanager:
+    description: Verwaltet das Plugin
+    usage: |
+      /worldmanager reload - Lädt und deaktiviert Welten gemäss Web-Interface
+      /worldmanager load [Welt] - Lädt eine Welt
+      /worldmanager unload [Welt] (Speichern=True) - Deaktiviert eine Welt, Speichern kann True oder False
