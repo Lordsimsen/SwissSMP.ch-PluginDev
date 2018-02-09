@@ -9,10 +9,13 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,6 +51,26 @@ public class SpawnManager extends JavaPlugin implements Listener{
 		HandlerList.unregisterAll((JavaPlugin)this);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+	
+	@EventHandler
+	private void onPlayerJoin(PlayerJoinEvent event){
+		String worldName = DataSource.getResponse("players/last_world.php", new String[]{
+			"player="+event.getPlayer().getUniqueId()	
+		});
+		if(worldName==null || worldName.isEmpty()) return;
+		World world = Bukkit.getWorld(worldName);
+		if(world==null){
+			event.getPlayer().teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+		}
+	}
+	
+	@EventHandler
+	private void onPlayerChangedWorld(PlayerChangedWorldEvent event){
+		DataSource.getResponse("players/world_change.php", new String[]{
+			"player="+event.getPlayer().getUniqueId(),
+			"world="+event.getPlayer().getWorld().getName()
+		});
 	}
 	
 	@EventHandler(ignoreCancelled=true)
