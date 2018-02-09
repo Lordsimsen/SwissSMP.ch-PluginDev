@@ -1,0 +1,13 @@
+main: ch.swisssmp.advancement.AdvancementLoader
+version: 1.0
+name: AdvancementLoader
+author: detig_iii
+description: Kopiert Advancements von Hauptwelt zu anderen geladenen Welten, damit diese korrekt gelesen werden
+permissions:
+  advancementloader.admin:
+    description: Erlaubt die Verwaltung des Plugins
+    default: op
+commands:
+  reload_advancements:
+    description: Verteilt Advancements aus Hauptwelt auf alle anderen geladenen Welten und lädt sie im Anschluss neu
+    usage: /reload_advancements
