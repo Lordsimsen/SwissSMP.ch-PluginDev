@@ -14,14 +14,21 @@ public class KnightsArena {
 	private static HashMap<String,KnightsArena> loadedArenas = new HashMap<String,KnightsArena>();
 	private final String name;
 	private final Location posOne;
+	private final Location center;
 	private final Location posTwo;
 	private Tournament tournament;
+	private final String beginSound;
+	private final String callSound;
+	private final String endSound;
 	
-	public KnightsArena(String name, Location posOne, Location posTwo){
+	private KnightsArena(String name, Location posOne, Location center, Location posTwo, String beginSound, String callSound, String endSound){
 		this.name = name;
 		this.posOne = posOne;
+		this.center = center;
 		this.posTwo = posTwo;
-		loadedArenas.put(this.name.toLowerCase(), this);
+		this.beginSound = beginSound;
+		this.callSound = callSound;
+		this.endSound = endSound;
 	}
 	
 	public String getName(){
@@ -34,6 +41,18 @@ public class KnightsArena {
 	
 	public Location getPosTwo(){
 		return this.posTwo;
+	}
+	
+	public void playBeginSound(){
+		this.center.getWorld().playSound(center, this.beginSound, 50, 1);
+	}
+	
+	public void playCallSound(){
+		this.center.getWorld().playSound(center, this.callSound, 50, 1);
+	}
+	
+	public void playEndSound(){
+		this.center.getWorld().playSound(center, this.endSound, 50, 1);
 	}
 	
 	protected void runTournament(Tournament tournament){
@@ -52,8 +71,16 @@ public class KnightsArena {
 			if(yamlConfiguration.contains("arena")){
 				ConfigurationSection arenaSection = yamlConfiguration.getConfigurationSection("arena");
 				Location posOne = arenaSection.getLocation("pos_1");
+				Location center = arenaSection.getLocation("center");
 				Location posTwo = arenaSection.getLocation("pos_2");
-				if(posOne!=null && posTwo!=null) return new KnightsArena(name, posOne, posTwo);
+				String beginSound = arenaSection.getString("begin_sound");
+				String callSound = arenaSection.getString("call_sound");
+				String endSound = arenaSection.getString("end_sound");
+				if(posOne!=null && center!=null && posTwo!=null){
+					KnightsArena result = new KnightsArena(name, posOne, center, posTwo, beginSound, callSound, endSound);
+					KnightsArena.loadedArenas.put(name.toLowerCase(), result);
+					return result;
+				}
 			}
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
@@ -64,8 +91,8 @@ public class KnightsArena {
 	
 	public static KnightsArena get(String name){
 		if(loadedArenas.containsKey(name.toLowerCase()))
-			return loadedArenas.get(name);
+			return loadedArenas.get(name.toLowerCase());
 		else
-			return load(name);
+			return KnightsArena.load(name.toLowerCase());
 	}
 }

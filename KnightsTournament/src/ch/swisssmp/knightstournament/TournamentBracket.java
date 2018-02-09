@@ -13,28 +13,24 @@ public class TournamentBracket {
 	}
 	
 	private void generateDuels(){
-		TournamentParticipant playerOne = null;
-		int remainingCount = 0;
-		int outCount = 0;
-		for(int i = 0; i < participants.length; i++){
-			if(participants[i].isOut())
-				outCount++;
-			else
-				remainingCount++;
-		}
-		if(remainingCount==1) return;
-		String duelName = "Duell";
-		if(remainingCount==2 && outCount>=4) duelName = "Finale";
-		else if(remainingCount==4 && outCount>=4) duelName = "Halbfinale";
-		else if(remainingCount==8 && outCount>=8) duelName = "Viertelfinale";
+		List<TournamentParticipant> remainingList = new ArrayList<TournamentParticipant>();
 		for(int i = 0; i < participants.length; i++){
 			if(participants[i].isOut()) continue;
-			if(playerOne==null){
-				playerOne = participants[i];
-				continue;
-			}
-			duels.add(new Duel(this.tournament, duelName, playerOne, participants[i]));
-			playerOne = null;
+			remainingList.add(participants[i]);
+		}
+		TournamentParticipant[] remaining = remainingList.toArray(new TournamentParticipant[remainingList.size()]);
+		if(remaining.length<2) return;
+		String duelName = "Duell";
+		if(remaining.length==2 && participants.length>4) duelName = "Finale";
+		else if(remaining.length==4 && participants.length>4) duelName = "Halbfinale";
+		else if(remaining.length==8 && participants.length>8) duelName = "Viertelfinale";
+		int half = remaining.length/2;
+		TournamentParticipant playerOne;
+		TournamentParticipant playerTwo;
+		for(int i = 0; i < remaining.length/2; i++){
+			playerOne = remaining[i];
+			playerTwo = remaining[i+half];
+			duels.add(new Duel(this.tournament, duelName, playerOne, playerTwo));
 		}
 	}
 	

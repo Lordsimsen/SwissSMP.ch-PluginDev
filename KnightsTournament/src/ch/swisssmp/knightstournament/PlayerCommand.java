@@ -16,15 +16,14 @@ public class PlayerCommand implements CommandExecutor {
 				sender.sendMessage("Can only be used from within the game.");
 				return true;
 			}
-			if(args.length<3) return false;
+			if(args.length<2) return false;
 			Player player = (Player) sender;
 			KnightsArena arena = KnightsArena.get(args[1]);
-			int maxParticipants = Integer.parseInt(args[2]);
 			if(arena==null){
 				sender.sendMessage(KnightsTournament.prefix+" Arena "+args[1]+" nicht gefunden.");
 				return true;
 			}
-			Tournament.initialize(arena, player, maxParticipants);
+			Tournament.initialize(arena, player);
 			break;
 		}
 		case "begin":{

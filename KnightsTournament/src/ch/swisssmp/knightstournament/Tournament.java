@@ -1,6 +1,8 @@
 package ch.swisssmp.knightstournament;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -18,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
 import ch.swisssmp.utils.RandomizedLocation;
 import ch.swisssmp.utils.SwissSMPler;
@@ -26,35 +29,42 @@ public class Tournament implements Listener{
 	private static HashMap<UUID,Tournament> tournaments = new HashMap<UUID,Tournament>();
 	private final KnightsArena arena;
 	private SwissSMPler master;
-	private final TournamentParticipant[] participants;
+	private final List<Player> registeredPlayers = new ArrayList<Player>();
+	private TournamentParticipant[] participants;
 	private TournamentBracket bracket;
 	
 	protected Duel runningDuel = null;
 	
-	private Tournament(KnightsArena arena, Player master, int maxParticipants){
+	private Tournament(KnightsArena arena, Player master){
 		this.arena = arena;
 		this.master = SwissSMPler.get(master);
-		this.participants = new TournamentParticipant[maxParticipants];
 		Bukkit.getPluginManager().registerEvents(this, KnightsTournament.plugin);
 		tournaments.put(master.getUniqueId(), this);
 		this.arena.runTournament(this);
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "broadcast In kürze startet ein §cRitterspiel!");
 	}
 	
-	public static Tournament initialize(KnightsArena arena, Player master, int maxParticipants){
-		if((maxParticipants&(maxParticipants-1))!=0){
-			master.sendMessage(KnightsTournament.prefix+" Ungültige Teilnehmerzahl "+maxParticipants+". Zahl muss Zweierpotenz sein.");
-			return null;
-		}
+	public static Tournament initialize(KnightsArena arena, Player master){
 		if(arena.getTournament()!=null){
 			master.sendMessage(KnightsTournament.prefix+" In dieser Arena läuft bereits ein Turnier.");
 			return null;
 		}
-		return new Tournament(arena, master, maxParticipants);
+		return new Tournament(arena, master);
 	}
 	
 	public SwissSMPler getMaster(){
 		return this.master;
+	}
+	
+	@EventHandler
+	private void onEntityDismount(EntityDismountEvent event){
+		Entity entity = event.getEntity();
+		if(!(entity instanceof Player)) return;
+		Player player = (Player) entity;
+		if(!this.registeredPlayers.contains(player)) return;
+		if(this.runningDuel==null) return;
+		if(this.runningDuel.isParticipating(player) && !this.runningDuel.isDecided())
+			this.runningDuel.win(this.runningDuel.getOpponent(player), this.runningDuel.getParticipant(player));
 	}
 	
 	@EventHandler
@@ -70,15 +80,10 @@ public class Tournament implements Listener{
 	private void onPlayerQuit(PlayerQuitEvent event){
 		if(this.runningDuel!=null){
 			if(runningDuel.isParticipating(event.getPlayer())){
-				runningDuel.finish(runningDuel.getOpponent(event.getPlayer()));
+				runningDuel.finish(runningDuel.getOpponent(event.getPlayer()), runningDuel.getParticipant(event.getPlayer()));
 			}
 		}
-		for(int i = 0; i < participants.length; i++){
-			if(participants[i].getPlayer()==event.getPlayer()){
-				this.leave(event.getPlayer());
-				return;
-			}
-		}
+		this.registeredPlayers.remove(event.getPlayer());
 	}
 	
 	public void announce(String title, String subtitle){
@@ -97,61 +102,77 @@ public class Tournament implements Listener{
 		}
 	}
 	
+	
 	public void join(Player player){
 		if(player==null) return;
-		Entity vehicle = player.getVehicle();
 		SwissSMPler swissSMPler = SwissSMPler.get(player);
-		if(vehicle==null || !(vehicle instanceof Horse)){
-			swissSMPler.sendActionBar("Du brauchst ein Pferd.");
+		if(this.registeredPlayers.contains(player)){
+			swissSMPler.sendActionBar("§cBereits angemeldet.");
 			return;
 		}
-		Horse horse = (Horse) vehicle;
-		for(int i = 0; i < participants.length; i++){
-			if(participants[i]==null) continue;
-			if(participants[i].getPlayer()==player){
-				return;
-			}
+		Entity vehicle = player.getVehicle();
+		if(vehicle==null || !(vehicle instanceof Horse)){
+			swissSMPler.sendActionBar("§cDu brauchst ein Pferd.");
+			return;
 		}
-		for(int i = 0; i < participants.length; i++){
-			if(participants[i]==null){
-				participants[i] = new TournamentParticipant(player, horse);
-				swissSMPler.sendActionBar("§aZum Ritterturnier angemeldet.");
-				if(this.participantCountInfo()==this.participants.length){
-					this.start();
-					//this.master.sendMessage(KnightsTournament.prefix+" Alle Turnierplätze belegt. Starte das Turnier mit '/knightstournament begin'.");
-				};
-				return;
-			}
+		if(this.participants!=null){
+			swissSMPler.sendActionBar("§cTurnier bereits gestartet.");
+			return;
 		}
-		swissSMPler.sendActionBar("Bereits "+participants.length+"/"+participants.length+" Spieler angemeldet.");
-	}
-	
-	private int participantCountInfo(){
-		int count = 0;
-		for(int i = 0; i < this.participants.length; i++){
-			if(participants[i]==null) continue;
-			count++;
-		}
-		master.sendActionBar("§E"+count+"/"+this.participants.length+" Teilnehmer");
-		return count;
+		this.registeredPlayers.add(player);
+		swissSMPler.sendActionBar("§aZum Turnier angemeldet.");
+
+		master.sendActionBar("§E"+this.registeredPlayers.size()+" Teilnehmer");
 	}
 	
 	public void leave(Player player){
 		if(player==null) return;
-		for(int i = 0; i < participants.length; i++){
-			if(participants[i]==null) continue;
-			if(participants[i].getPlayer()==player){
-				participants[i] = null;
-				SwissSMPler swissSMPler = SwissSMPler.get(player);
-				swissSMPler.sendActionBar("§ERitterturnier verlassen.");
-				return;
-			}
-		}
+		if(!this.registeredPlayers.contains(player)) return;
+		this.registeredPlayers.remove(player);
+		SwissSMPler swissSMPler = SwissSMPler.get(player);
+		swissSMPler.sendActionBar("§ERitterturnier verlassen.");
+
+		master.sendActionBar("§E"+this.registeredPlayers.size()+" Teilnehmer");
 	}
 	
-	public void start(){
+	private boolean prepareTournament(){
+		int participantsCount = this.registeredPlayers.size();
+		if(this.registeredPlayers.size()<2){
+			this.master.sendActionBar("§cNicht genügend Teilnehmer.");
+			return false;
+		}
+		int power = participantsCount == 0 ? 0 : 32 - Integer.numberOfLeadingZeros(participantsCount - 1);
+		int maxParticipants = (int)Math.pow(2, power);
+		this.master.sendMessage("[§4Ritterspiele§r] Initiiere Turnier mit "+maxParticipants+" Plätzen.");
+		participants = new TournamentParticipant[maxParticipants];
+		Player player;
+		for(int i = 0; i < participants.length; i++){
+			if(i<this.registeredPlayers.size()){
+				player = this.registeredPlayers.get(i);
+			}
+			else{
+				player = null;
+			}
+			participants[i] = new TournamentParticipant(player);
+		}
+		return true;
+	}
+	
+	public boolean start(){
+		if(!this.prepareTournament()) return false;
 		this.bracket = new TournamentBracket(this, this.participants);
-		this.bracket.getNextDuel().prepare();
+		Duel firstDuel = this.bracket.getNextDuel();
+		Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
+			public void run(){
+				firstDuel.prepare();
+			}
+		}, 200L);
+		this.announce("Turnier startet", this.registeredPlayers.size()+" Teilnehmer");
+		this.arena.playBeginSound();
+		for(Player player : this.registeredPlayers){
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement grant "+player.getName()+" only swisssmp:events/knights_tournament/participate_in_tournament");
+		}
+		return true;
 	}
 	
 	public void proceed(TournamentParticipant lastWinner){
@@ -159,15 +180,22 @@ public class Tournament implements Listener{
 		if(this.runningDuel!=null) this.runningDuel.prepare();
 		else{
 			if(lastWinner!=null){
-				this.announce(lastWinner.getPlayer().getDisplayName(), "hat das Turnier gewonnen!");
-				RandomizedLocation fireworksLocation = new RandomizedLocation(lastWinner.getPlayer().getLocation(), 5f);
-				for(int i = 0; i < 10; i++){
-					Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
-						public void run(){
-							spawnFirework(fireworksLocation);
-							
-						}
-					}, i*5L);
+				Player player = Bukkit.getPlayer(lastWinner.getPlayerUUID());
+				if(player!=null){
+					this.arena.playEndSound();
+					this.announce(player.getDisplayName(), "hat das Turnier gewonnen!");
+					if(this.registeredPlayers.size()>=8){
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement grant "+player.getName()+" only swisssmp:events/knights_tournament/win_tournament");
+					}
+					RandomizedLocation fireworksLocation = new RandomizedLocation(player.getLocation(), 5f);
+					for(int i = 0; i < 10; i++){
+						Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
+							public void run(){
+								spawnFirework(fireworksLocation);
+								
+							}
+						}, i*5L);
+					}
 				}
 			}
 			Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
@@ -179,7 +207,7 @@ public class Tournament implements Listener{
 	}
 	
 	private void spawnFirework(RandomizedLocation location){
-		Firework firework = (Firework) location.getLocation().getWorld().spawnEntity(location.getLocation(), EntityType.FIREWORK);
+		Firework firework = (Firework) location.getLocation().add(0, 10, 0).getWorld().spawnEntity(location.getLocation(), EntityType.FIREWORK);
 		FireworkMeta fireworkMeta = firework.getFireworkMeta();
         //Our random generator
         Random random = new Random();   
@@ -213,9 +241,10 @@ public class Tournament implements Listener{
 	
 	public void finish(){
 		if(this.runningDuel!=null){
-			this.runningDuel.finish(null);
+			this.runningDuel.finish(null, null);
 		}
 		this.announce("", "Turnier beendet.");
+		this.broadcast("[§4Ritterspiele§r] §ETurnier beendet. Danke für deine Teilnahme!");
 		tournaments.remove(this.master.getUniqueId());
 		this.arena.runTournament(null);
 	}

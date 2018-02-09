@@ -28,6 +28,7 @@ public class EventListener implements Listener {
 		ItemStack result = event.getInventory().getResult();
 		if(result==null) return;
 		if(!result.hasItemMeta()) return;
+		if(!result.getItemMeta().hasDisplayName()) return;
 		if(!result.getItemMeta().getDisplayName().equals("§bTurnierlanze")) return;
 		if(!(event.getView().getPlayer() instanceof Player)) return;
 		Player player = (Player) event.getView().getPlayer();
@@ -85,14 +86,31 @@ public class EventListener implements Listener {
 		}
 		Tournament tournament = arena.getTournament();
 		if(tournament==null){
-			SwissSMPler.get(event.getPlayer()).sendActionBar("§cKein laufendes Turnier.");
-			return;
+			if(sign.getLine(2).equals("Turnier öffnen")){
+				if(event.getPlayer().hasPermission("knightstournament.host")){
+					Tournament.initialize(arena, event.getPlayer());
+				}
+				else{
+					SwissSMPler.get(event.getPlayer()).sendActionBar("§cKeine Berechtigung.");
+				}
+			}
+			else{
+				SwissSMPler.get(event.getPlayer()).sendActionBar("§cKein laufendes Turnier.");
+				return;
+			}
 		}
 		if(sign.getLine(2).equals("Teilnehmen") && event.getPlayer().hasPermission("knightstournament.participate")){
 			tournament.join(event.getPlayer());
 		}
 		else if(sign.getLine(2).equals("Verlassen")){
 			tournament.leave(event.getPlayer());
+		}
+		else if(sign.getLine(2).equals("Turnier starten")){
+			if(tournament.getMaster().getUniqueId()!=event.getPlayer().getUniqueId()){
+				SwissSMPler.get(event.getPlayer()).sendActionBar("§cKeine Berechtigung.");
+				return;
+			}
+			tournament.start();
 		}
 	}
 }

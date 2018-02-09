@@ -2,26 +2,38 @@ package ch.swisssmp.knightstournament;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.utils.SwissSMPler;
 
 public class TournamentParticipant {
-	private final Player player;
-	private final Horse horse;
+	private UUID player_uuid;
 	private final List<TournamentParticipant> wonAgainst = new ArrayList<TournamentParticipant>();
 	private TournamentParticipant lostAgainst = null;
-	public TournamentParticipant(Player player, Horse horse){
-		this.player = player;
-		this.horse = horse;
+	public TournamentParticipant(Player player){
+		if(player!=null)
+			this.player_uuid = player.getUniqueId();
+		else
+			this.player_uuid = null;
 	}
-	public Player getPlayer(){
-		return this.player;
+	public UUID getPlayerUUID(){
+		return this.player_uuid;
+	}
+	public void setPlayerUUID(UUID player_uuid){
+		this.player_uuid = player_uuid;
 	}
 	public Horse getHorse(){
-		return this.horse;
+		Player player = Bukkit.getPlayer(this.player_uuid);
+		if(player==null) return null;
+		Entity vehicle = player.getVehicle();
+		if(vehicle==null) return null;
+		else if(!(vehicle instanceof Horse)) return null;
+		else return (Horse) vehicle;
 	}
 	public void addWonAgainst(TournamentParticipant loser){
 		this.wonAgainst.add(loser);
@@ -32,18 +44,22 @@ public class TournamentParticipant {
 	public void setLostAgainst(TournamentParticipant winner){
 		this.lostAgainst = winner;
 	}
+	public TournamentParticipant getLostAgainst(){
+		return this.lostAgainst;
+	}
 	public boolean isOut(){
 		return this.lostAgainst!=null;
 	}
 	public void sendMessage(String message){
-		this.player.sendMessage(message);
+		Player player = Bukkit.getPlayer(this.player_uuid);
+		if(player!=null) player.sendMessage(message);
 	}
 	public void sendTitle(String title, String subtitle){
-		if(this.player==null) return;
-		SwissSMPler.get(this.player).sendTitle(title, subtitle);
+		Player player = Bukkit.getPlayer(this.player_uuid);
+		if(player!=null) SwissSMPler.get(player).sendTitle(title, subtitle);
 	}
-	public void sendActionbar(String message){
-		if(this.player==null) return;
-		SwissSMPler.get(this.player).sendActionBar(message);
+	public void sendActionBar(String message){
+		Player player = Bukkit.getPlayer(this.player_uuid);
+		if(player!=null) SwissSMPler.get(player).sendActionBar(message);
 	}
 }

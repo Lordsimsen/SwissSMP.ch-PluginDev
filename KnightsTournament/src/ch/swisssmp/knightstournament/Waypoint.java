@@ -40,7 +40,7 @@ public class Waypoint extends BukkitRunnable{
 		else{
 			ItemStack mainHand = this.player.getInventory().getItemInMainHand();
 			ItemStack offHand = this.player.getInventory().getItemInOffHand();
-			if(!mainHand.hasItemMeta() || !mainHand.getItemMeta().hasDisplayName() || !mainHand.getItemMeta().getDisplayName().equals("§bTurnierlanze")){
+			if(!mainHand.hasItemMeta() || !mainHand.getItemMeta().hasDisplayName() || (!mainHand.getItemMeta().getDisplayName().equals("§bTurnierlanze")&&!mainHand.getItemMeta().getDisplayName().equals("§6Siegerlanze"))){
 				swissSMPler.sendActionBar("§bTurnierlanze§r ausrüsten");
 				return;
 			}
