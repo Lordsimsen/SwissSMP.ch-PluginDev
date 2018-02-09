@@ -3,7 +3,6 @@ package ch.swisssmp.taxcollector;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -45,9 +44,9 @@ public class ConsoleCommand implements CommandExecutor{
 			break;
 		}
 		case "chests":{
-			for(Entry<Integer,Chest>taxChest:TaxCollector.taxChests.entrySet()){
-				Chest chest = taxChest.getValue();
-				sender.sendMessage("city_"+taxChest.getKey()+": "+chest.getWorld().getName()+"-"+chest.getX()+","+chest.getY()+","+chest.getZ());
+			for(Entry<Integer,TaxChest>taxChest:TaxCollector.taxChests.entrySet()){
+				TaxChest chest = taxChest.getValue();
+				sender.sendMessage("city_"+taxChest.getKey()+": "+chest.getWorldName()+"-"+chest.getX()+","+chest.getY()+","+chest.getZ());
 			}
 			break;
 		}

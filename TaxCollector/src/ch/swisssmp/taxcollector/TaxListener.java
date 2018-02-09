@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -111,19 +110,18 @@ public class TaxListener implements Listener{
 		if(remaining_glowstones<0)player.getWorld().dropItem(player.getLocation(), new ItemStack(Material.GLOWSTONE, -remaining_glowstones));
 		if(remaining_quartz<0)player.getWorld().dropItem(player.getLocation(), new ItemStack(Material.QUARTZ_BLOCK, -remaining_quartz));
 		
-		Chest adminChest = TaxCollector.taxChests.get(0);
+		TaxChest adminChest = TaxCollector.taxChests.get(0);
 		if(adminChest!=null){
-			Inventory adminInventory = adminChest.getInventory();
 			if(transferred_iron_ingots>0)
-				adminInventory.addItem(new ItemStack(Material.IRON_INGOT, transferred_iron_ingots));
+				adminChest.addItem(new ItemStack(Material.IRON_INGOT, transferred_iron_ingots));
 			if(transferred_gold_ingots>0)
-				adminInventory.addItem(new ItemStack(Material.GOLD_INGOT, transferred_gold_ingots));
+				adminChest.addItem(new ItemStack(Material.GOLD_INGOT, transferred_gold_ingots));
 			if(transferred_diamonds>0)
-				adminInventory.addItem(new ItemStack(Material.DIAMOND, transferred_diamonds));
+				adminChest.addItem(new ItemStack(Material.DIAMOND, transferred_diamonds));
 			if(transferred_glowstones>0)
-				adminInventory.addItem(new ItemStack(Material.GLOWSTONE, transferred_glowstones));
+				adminChest.addItem(new ItemStack(Material.GLOWSTONE, transferred_glowstones));
 			if(transferred_quartz>0)
-				adminInventory.addItem(new ItemStack(Material.QUARTZ_BLOCK, transferred_quartz));
+				adminChest.addItem(new ItemStack(Material.QUARTZ_BLOCK, transferred_quartz));
 		}
 		
 		YamlConfiguration response = DataSource.getYamlResponse("taxes/pay.php", new String[]{

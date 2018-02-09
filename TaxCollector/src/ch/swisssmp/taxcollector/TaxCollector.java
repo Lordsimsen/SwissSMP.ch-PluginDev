@@ -53,7 +53,7 @@ public class TaxCollector extends JavaPlugin implements Listener{
 	protected static File dataFolder;
 	protected static TaxCollector plugin;
 	protected static boolean debug;
-	protected static HashMap<Integer,Chest> taxChests = new HashMap<Integer, Chest>();
+	protected static HashMap<Integer,TaxChest> taxChests = new HashMap<Integer, TaxChest>();
 	
 	@Override
 	public void onEnable() {
@@ -85,23 +85,28 @@ public class TaxCollector extends JavaPlugin implements Listener{
 			return;
 		}
 		if(!taxChests.containsKey(city_id)){
+			Bukkit.getLogger().info("[TaxCollector] Stadt "+city_id+" nicht gefunden.");
 			return;
 		}
-		Chest chest = taxChests.get(city_id);
-		Chest adminChest = taxChests.get(0);
+		TaxChest chest = taxChests.get(city_id);
+		TaxChest adminChest = taxChests.get(0);
 		if(adminChest==null){
+			Bukkit.getLogger().info("[TaxCollector] Admin-Chest fehlt.");
 			return;
 		}
 		
-		Inventory chestInventory = chest.getInventory();
-		Inventory adminInventory = adminChest.getInventory();
+		ItemStack[] offering = chest.removeContents();
+		
+		Bukkit.getLogger().info("[TaxCollector] Found "+offering.length+" fucking ItemStacks in fucking "+city_id);
+		
 		HashMap<Material, Integer> counters = new HashMap<Material, Integer>();
 		Material material;
 		int amount;
 		
-		for(ItemStack itemStack : chestInventory){
+		for(ItemStack itemStack : offering){
 			if(itemStack==null) continue;
-			adminInventory.addItem(itemStack);
+			Bukkit.getLogger().info("[TaxCollector] "+itemStack.getAmount()+" "+itemStack.getType().toString());
+			adminChest.addItem(itemStack);
 			material = itemStack.getType();
 			amount = itemStack.getAmount();
 			if(material==Material.IRON_BLOCK){
@@ -122,18 +127,7 @@ public class TaxCollector extends JavaPlugin implements Listener{
 			}
 			counters.put(material, amount);
 		}
-		logger.info("Clearing chest at "+chest.getX()+","+chest.getY()+","+chest.getZ());
-		chest.getBlockInventory().clear();
-		BlockFace[] neighbourFaces = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
-		Block neighbourBlock;
-		for(BlockFace neighbourFace : neighbourFaces){
-			neighbourBlock = chest.getBlock().getRelative(neighbourFace);
-			if(neighbourBlock==null || neighbourBlock.getType()!=chest.getType()) continue;
-			Chest neighbourChest = (Chest) neighbourBlock.getState();
-			logger.info("Clearing neighbour at "+neighbourChest.getX()+","+neighbourChest.getY()+","+neighbourChest.getZ());
-			neighbourChest.getBlockInventory().clear();
-			break;
-		}
+		
 		String[] args = new String[1+counters.size()];
 		try {
 			args[0] = "city_id="+URLEncoder.encode(String.valueOf(city_id), "utf-8");
@@ -166,22 +160,22 @@ public class TaxCollector extends JavaPlugin implements Listener{
 		if(block.getType()!=Material.CHEST && block.getType()!=Material.TRAPPED_CHEST) return;
 		Chest chest = (Chest)block.getState();
 		if(chest.getCustomName()==null) return;
-		if(!chest.getCustomName().equals("§dAkroma Kiste"))
+		if(!chest.getCustomName().equals("ï¿½dAkroma Kiste"))
 			return;
 		event.setCancelled(true);
-		event.getPlayer().sendMessage("[§5AkromaTempel§r] §cDie Opfergabentruhe ist heilig!");
+		event.getPlayer().sendMessage("[Â§5AkromaTempelÂ§r] Â§cDie Opfergabentruhe ist heilig!");
 	}
 	
 	@EventHandler(ignoreCancelled=true)
 	private void onBlockExplode(BlockExplodeEvent event){
-		for(Chest chest : taxChests.values()){
+		for(TaxChest chest : taxChests.values()){
 			event.blockList().remove(chest.getBlock());
 		}
 	}
 	
 	@EventHandler(ignoreCancelled=true)
 	private void onBlockExplode(EntityExplodeEvent event){
-		for(Chest chest : taxChests.values()){
+		for(TaxChest chest : taxChests.values()){
 			event.blockList().remove(chest.getBlock());
 		}
 	}
@@ -194,7 +188,7 @@ public class TaxCollector extends JavaPlugin implements Listener{
 		Chest chest = (Chest)holder;
 		if(chest==null) return;
 		if(chest.getCustomName()==null) return;
-		if(!chest.getCustomName().equals("§dAkroma Kiste"))
+		if(!chest.getCustomName().equals("Â§dAkroma Kiste"))
 			return;
 		if(event.getInitiator().getHolder() instanceof Player) return;
 		event.setCancelled(true);
@@ -218,7 +212,7 @@ public class TaxCollector extends JavaPlugin implements Listener{
 		if(chest.getCustomName()==null){
 			return;
 		}
-		if(!chest.getCustomName().equals("§dAkroma Kiste")){
+		if(!chest.getCustomName().equals("Â§dAkroma Kiste")){
 			return;
 		}
 		HumanEntity humanEntity = event.getPlayer();
@@ -273,27 +267,26 @@ public class TaxCollector extends JavaPlugin implements Listener{
 		if(!yamlConfiguration.contains("chests"))return;
 		ConfigurationSection chestsSection = yamlConfiguration.getConfigurationSection("chests");
 		for(String key : chestsSection.getKeys(false)){
-			Integer city_id = chestsSection.getInt(key+".city_id");
-			Location location = chestsSection.getLocation(key);
-			if(location==null){
-				continue;
-			}
-			Block block = location.getBlock();
-			if(block.getType()!=Material.CHEST && block.getType()!=Material.TRAPPED_CHEST){
-				continue;
-			}
-			Chest chest = (Chest)block.getState();
-			chest.setCustomName("§dAkroma Kiste");
+			ConfigurationSection taxChestSection = chestsSection.getConfigurationSection(key);
+			Integer city_id = taxChestSection.getInt("city_id");
+			String world = taxChestSection.getString("world");
+			int x = taxChestSection.getInt("x");
+			int y = taxChestSection.getInt("y");
+			int z = taxChestSection.getInt("z");
+			TaxChest taxChest = new TaxChest(city_id, world, x, y, z);
+			Chest chest = taxChest.getChest();
+			if(chest==null) continue;
+			chest.setCustomName("Â§dAkroma Kiste");
 			
 			BlockFace[] neighbourFaces = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 			Block neighbourBlock;
 			for(BlockFace neighbourFace : neighbourFaces){
-				neighbourBlock = block.getRelative(neighbourFace);
-				if(neighbourBlock==null || neighbourBlock.getType()!=block.getType()) continue;
+				neighbourBlock = chest.getBlock().getRelative(neighbourFace);
+				if(neighbourBlock==null || neighbourBlock.getType()!=chest.getBlock().getType()) continue;
 				Chest neighbourChest = (Chest) neighbourBlock.getState();
-				neighbourChest.setCustomName("§dAkroma Kiste");
+				neighbourChest.setCustomName("Â§dAkroma Kiste");
 			}
-			taxChests.put(city_id, (Chest)block.getState());
+			taxChests.put(city_id, taxChest);
 		}
 		WebCore.info("[TaxCollector] Successfully loaded tax chests");
 	}

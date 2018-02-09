@@ -1,5 +1,5 @@
 main: ch.swisssmp.taxcollector.TaxCollector
-version: 1.4
+version: 1.6
 name: TaxCollector
 author: detig_iii
 description: Regelt automatisch Opfergaben und andere Abgaben
