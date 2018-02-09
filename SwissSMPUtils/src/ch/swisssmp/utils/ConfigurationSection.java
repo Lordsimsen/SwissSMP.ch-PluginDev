@@ -3,6 +3,7 @@ package ch.swisssmp.utils;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -134,16 +135,15 @@ public class ConfigurationSection{
 		return new ConfigurationSection(configurationSection.getConfigurationSection(arg0));
 	}
 
-	
 	public double getDouble(String arg0) {
-		return configurationSection.getDouble(arg0);
+		if(this.isConfigurationSection(arg0)){
+			org.bukkit.configuration.ConfigurationSection dataSection = configurationSection.getConfigurationSection(arg0);
+			return ThreadLocalRandom.current().nextDouble(dataSection.getDouble("min"),dataSection.getDouble("max"));
+		}
+		else{
+			return configurationSection.getDouble(arg0);
+		}
 	}
-
-	
-	public double getDouble(String arg0, double arg1) {
-		return configurationSection.getDouble(arg0,arg1);
-	}
-
 	
 	public List<Double> getDoubleList(String arg0) {
 		return configurationSection.getDoubleList(arg0);
@@ -154,16 +154,15 @@ public class ConfigurationSection{
 		return configurationSection.getFloatList(arg0);
 	}
 
-	
 	public int getInt(String arg0) {
-		return configurationSection.getInt(arg0);
+		if(this.isConfigurationSection(arg0)){
+			org.bukkit.configuration.ConfigurationSection dataSection = configurationSection.getConfigurationSection(arg0);
+			return ThreadLocalRandom.current().nextInt(dataSection.getInt("min"),dataSection.getInt("max")+1);
+		}
+		else{
+			return configurationSection.getInt(arg0);
+		}
 	}
-
-	
-	public int getInt(String arg0, int arg1) {
-		return configurationSection.getInt(arg0, arg1);
-	}
-
 	
 	public List<Integer> getIntegerList(String arg0) {
 		return configurationSection.getIntegerList(arg0);
@@ -232,15 +231,23 @@ public class ConfigurationSection{
 	}
 	
 	public Location getLocation(World world){
+		if(world==null) return null;
 		double x = this.getDouble("x");
 		double y = this.getDouble("y");
 		double z = this.getDouble("z");
-		if(world==null) return null;
-		return new Location(world, x, y, z);
+		float yaw = (float)this.getDouble("yaw");
+		float pitch = (float)this.getDouble("pitch");
+		return new Location(world, x, y, z, yaw, pitch);
 	}
-	
+
 	public long getLong(String arg0) {
-		return configurationSection.getLong(arg0);
+		if(this.isConfigurationSection(arg0)){
+			org.bukkit.configuration.ConfigurationSection dataSection = configurationSection.getConfigurationSection(arg0);
+			return ThreadLocalRandom.current().nextLong(dataSection.getLong("min"),dataSection.getLong("max")+1);
+		}
+		else{
+			return configurationSection.getLong(arg0);
+		}
 	}
 
 	
@@ -284,13 +291,19 @@ public class ConfigurationSection{
 		double x = this.getDouble("x");
 		double y = this.getDouble("y");
 		double z = this.getDouble("z");
+		float pitch = (float)this.getDouble("pitch");
+		float yaw = (float)this.getDouble("yaw");
 		double range = this.getDouble("range");
 		World world = Bukkit.getWorld(worldName);
-		return new RandomizedLocation(world, x, y, z, range);
+		return new RandomizedLocation(world, x, y, z, yaw, pitch, range);
 	}
 	
 	public Enchantment getEnchantment(String arg0){
-		return Enchantment.getByName(this.getString(arg0));
+		String enchantString = this.getString(arg0);
+		if(enchantString.equals("ANY")){
+			return Enchantment.values()[ThreadLocalRandom.current().nextInt(Enchantment.values().length)];
+		}
+		return Enchantment.getByName(enchantString);
 	}
 	
 	public EnchantmentData getEnchantmentData(String arg0){
@@ -302,6 +315,7 @@ public class ConfigurationSection{
 		if(enchantment==null) return null;
 		int level = this.getInt("level");
 		boolean ignoreLevelRestriction = this.getBoolean("ignore_level_restriction");
+		if(!ignoreLevelRestriction) level = Math.min(level, enchantment.getMaxLevel());
 		return new EnchantmentData(enchantment, level, ignoreLevelRestriction);
 	}
 	
@@ -356,4 +370,8 @@ public class ConfigurationSection{
 		configurationSection.set(arg0, arg1);
 	}
 
+	public boolean isConfigurationSection(String arg0){
+		if(!this.contains(arg0)) return false;
+		return this.configurationSection.get(arg0) instanceof org.bukkit.configuration.ConfigurationSection;
+	}
 }

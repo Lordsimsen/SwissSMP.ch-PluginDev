@@ -12,6 +12,8 @@ public class RandomizedLocation {
 	private final double x;
 	private final double y;
 	private final double z;
+	private final float yaw;
+	private final float pitch;
 	private final double range;
 	
 	public RandomizedLocation(Location location, double range){
@@ -20,14 +22,22 @@ public class RandomizedLocation {
 		this.x = location.getX();
 		this.y = location.getY();
 		this.z = location.getZ();
+		this.yaw = location.getYaw();
+		this.pitch = location.getPitch();
 		this.range = range;
 	}
-	
+
 	public RandomizedLocation(World world, double x, double y, double z, double range){
+		this(world,x,y,z,0.5f,0,range);
+	}
+	
+	public RandomizedLocation(World world, double x, double y, double z, float yaw, float pitch, double range){
 		this.world = world;
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.yaw = yaw;
+		this.pitch = pitch;
 		this.range = range;
 	}
 	
@@ -119,7 +129,7 @@ public class RandomizedLocation {
 		if(randomized_x){
 			vector.setX(randomizeValue(vector.getX(), range));
 		}
-		return new Location(world, vector.getX(), vector.getY(), vector.getZ());
+		return new Location(world, vector.getX(), vector.getY(), vector.getZ(), this.yaw, this.pitch);
 	}
 	
 	private double randomizeValue(double value, double range){
