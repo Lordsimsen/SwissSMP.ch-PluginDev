@@ -4,18 +4,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+import ch.swisssmp.adventuredungeons.camp.Camp;
+
 public class CampTriggerEvent extends CampEvent implements Cancellable{
     private static final HandlerList handlers = new HandlerList();
-    private final Player player;
     private boolean cancelled = false;
 
-	public CampTriggerEvent(int dungeon_id, int instance_id, int camp_id, Player player) {
-		super(dungeon_id, instance_id, camp_id);
-		this.player = player;
-	}
-	
-	public Player getPlayer(){
-		return this.player;
+	public CampTriggerEvent(Camp camp, Player player) {
+		super(camp, player);
 	}
 
 	@Override
@@ -33,4 +29,7 @@ public class CampTriggerEvent extends CampEvent implements Cancellable{
 		this.cancelled = arg0;
 	}
 
+	public static HandlerList getHandlerList(){
+		return handlers;
+	}
 }

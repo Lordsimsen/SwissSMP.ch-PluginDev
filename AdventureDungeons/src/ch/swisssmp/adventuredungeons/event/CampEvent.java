@@ -1,21 +1,40 @@
 package ch.swisssmp.adventuredungeons.event;
 
-import ch.swisssmp.adventuredungeons.world.Instancable;
+import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 
-public abstract class CampEvent extends DungeonEvent implements Instancable{
-	private final int camp_id;
-	private final int instance_id;
+import ch.swisssmp.adventuredungeons.camp.Camp;
+
+public abstract class CampEvent extends DungeonEvent{
+    private static final HandlerList handlers = new HandlerList();
+    private final Player player;
+	private final Camp camp;
 	
-	public CampEvent(int dungeon_id, int instance_id, int camp_id){
-		super(dungeon_id);
-		this.instance_id = instance_id;
-		this.camp_id = camp_id;
+	public CampEvent(Camp camp, Player player){
+		super(camp.getDungeonInstance());
+		this.camp = camp;
+		this.player = player;
+	}
+	
+	public Player getPlayer(){
+		return this.player;
 	}
 	public int getInstanceId(){
-		return this.instance_id;
+		return this.camp.getDungeonInstance().getInstanceId();
+	}
+	public Camp getCamp(){
+		return this.camp;
 	}
 	public int getCampId(){
-		return this.camp_id;
+		return this.camp.getCampId();
 	}
-	
+
+	@Override
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	public static HandlerList getHandlerList(){
+		return handlers;
+	}
 }

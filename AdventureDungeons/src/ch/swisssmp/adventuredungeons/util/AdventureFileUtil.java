@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
 
-public class MmoFileUtil {
+public class AdventureFileUtil {
 	public static boolean deleteRecursive(File path) {
       if(path.exists()) {
           File files[] = path.listFiles();

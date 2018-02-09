@@ -14,6 +14,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
@@ -42,6 +43,7 @@ public class CampEditor implements Listener {
 		this.spawnpoints = spawnpoints;
 		Bukkit.getPluginManager().registerEvents(this, AdventureDungeons.plugin);
 		editors.put(this.player, this);
+		player.sendMessage(ChatColor.DARK_AQUA+"Editor für Camp "+this.getName()+" gestartet.");
 	}
 	
 	public static CampEditor initiate(Player player, int camp_id){
@@ -49,13 +51,14 @@ public class CampEditor implements Listener {
 				"camp="+camp_id,
 				"action=initiate"
 			});
-			if(yamlConfiguration==null){
+			if(yamlConfiguration==null || !yamlConfiguration.contains("name")){
 				player.sendMessage("[AdventureDungeons]"+ChatColor.RED+" Konnte Editor nicht starten, diese Camp-ID ist ungültig.");
 				return null;
 			}
 			String name = yamlConfiguration.getString("name");
 			if(!yamlConfiguration.contains("dungeon_id")){
 				player.sendMessage("AdventureDungeons]"+ChatColor.RED+" Zuerst im Web-Interface einen Dungeon für das Camp auswählen.");
+				return null;
 			}
 			int dungeon_id = yamlConfiguration.getInt("dungeon_id");
 			Dungeon dungeon = Dungeon.get(dungeon_id);
@@ -74,7 +77,7 @@ public class CampEditor implements Listener {
 					vectorKey = spawnpointsSection.getVectorKey(key);
 					vector = vectorKey.getVector();
 					block = world.getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
-					if(block.getType()==Material.AIR){
+					if(block.getType()==Material.AIR || block.getType()==Material.GOLD_BLOCK){
 						spawnpoints.add(vectorKey);
 						block.setType(Material.GOLD_BLOCK);
 					}
@@ -113,7 +116,7 @@ public class CampEditor implements Listener {
 				"y="+event.getBlock().getY(),
 				"z="+event.getBlock().getZ()
 		});
-		((SwissSMPler)event.getPlayer()).sendActionBar("Spawnpunkt entfernt. ("+spawnpoints.size()+" verbleiben)");
+		SwissSMPler.get(event.getPlayer()).sendActionBar("Spawnpunkt entfernt. ("+spawnpoints.size()+" verbleiben)");
 	}
 	
 	@EventHandler(ignoreCancelled=true)
@@ -129,7 +132,14 @@ public class CampEditor implements Listener {
 				"z="+event.getBlock().getZ()
 		});
 		this.spawnpoints.add(new VectorKey(block.getLocation().toVector()));
-		((SwissSMPler)event.getPlayer()).sendActionBar("Spawnpunkt hinzugefügt. ("+spawnpoints.size()+" total)");
+		SwissSMPler.get(event.getPlayer()).sendActionBar("Spawnpunkt hinzugefügt. ("+spawnpoints.size()+" total)");
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	private void onPlayerChangedWorld(PlayerChangedWorldEvent event){
+		if(event.getFrom()==this.world && event.getPlayer().getWorld()!=this.world){
+			this.quit();
+		}
 	}
 	
 	@EventHandler
@@ -147,6 +157,7 @@ public class CampEditor implements Listener {
 		}
 		editors.remove(this.player);
 		HandlerList.unregisterAll(this);
+		player.sendMessage(ChatColor.DARK_AQUA+"Editor für Camp "+this.getName()+" beendet.");
 	}
 	
 	public static CampEditor get(Player player){

@@ -23,20 +23,14 @@ public class AdventureDungeonsCommand implements CommandExecutor{
     		return true;
     	}
     	if(args.length==0){
-    		displayHelp();
-    		return true;
+    		return false;
     	}
     	switch(label){
     	case "AdventureDungeons":
     	case "mmo":
 	    	switch(args[0]){
 		    	case "help":
-		    		displayHelp();
-		    		break;
-		    	case "reload":
-		    		AdventureDungeons.loadYamls();
-		    		player.sendMessage("[AdventureDungeons] Konfiguration neu geladen.");
-					break;
+		    		return false;
 		    	case "debug":
 		    		AdventureDungeons.debug = !AdventureDungeons.debug;
 		    		if(AdventureDungeons.debug){
@@ -60,11 +54,4 @@ public class AdventureDungeonsCommand implements CommandExecutor{
     	}
 		return true;
 	}
-    public void displayHelp(){
-    	player.sendMessage("CraftMMO Version "+AdventureDungeons.pdfFile.getVersion()+" Befehle:");
-    	player.sendMessage("/CraftMMO = /mmo");
-    	player.sendMessage("-----");
-    	player.sendMessage("/mmo help - Zeigt diese Hilfe an");
-    	player.sendMessage("/mmo reload - L�dt die Konfigurationen neu");
-    }
 }

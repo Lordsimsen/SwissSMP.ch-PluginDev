@@ -2,24 +2,21 @@ package ch.swisssmp.adventuredungeons.event;
 
 import org.bukkit.event.HandlerList;
 
-import ch.swisssmp.adventuredungeons.world.Instancable;
+import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 
-public class DungeonEndEvent extends DungeonEvent implements Instancable{
+public class DungeonEndEvent extends DungeonEvent{
     private static final HandlerList handlers = new HandlerList();
-    private final int instance_id;
     
-	public DungeonEndEvent(int dungeon_id, int instance_id) {
-		super(dungeon_id);
-		this.instance_id = instance_id;
-	}
-	
-	public int getInstanceId(){
-		return this.instance_id;
+	public DungeonEndEvent(DungeonInstance dungeonInstance) {
+		super(dungeonInstance);
 	}
 
 	@Override
 	public HandlerList getHandlers() {
 		return handlers;
 	}
-	
+
+	public static HandlerList getHandlerList(){
+		return handlers;
+	}
 }

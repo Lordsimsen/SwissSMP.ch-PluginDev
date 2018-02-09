@@ -42,12 +42,12 @@ public class PlayerCommand implements CommandExecutor{
 				sender.sendMessage(otherPlayerName+" ist momentan nicht in einem Dungeon.");
 				return true;
 			}
-			if(targetInstance.running){
+			if(targetInstance.isRunning()){
 				sender.sendMessage(ChatColor.RED+"Diese Instanz wurde bereits gestartet und kann nicht mehr betreten werden.");
 				break;
 			}
 			Player player = (Player) sender;
-			if(targetInstance.player_uuids.contains(player.getUniqueId())){
+			if(targetInstance.getPlayers().contains(player.getUniqueId().toString())){
 				sender.sendMessage(ChatColor.YELLOW+"Du bist bereits in dieser Instanz.");
 				break;
 			}
@@ -56,18 +56,29 @@ public class PlayerCommand implements CommandExecutor{
 				sender.sendMessage(ChatColor.YELLOW+"Ein Mitglied dieser Instanz kann dich mit '/invite "+player.getName()+"' einladen.");
 				break;
 			}
-			Dungeon mmoDungeon = Dungeon.get(targetInstance.dungeon_id);
+			Dungeon dungeon = Dungeon.get(targetInstance.getDungeonId());
 			int maxDistance = 50;
-			Location entryLocation = mmoDungeon.lobby_leave.getLocation();
+			Location entryLocation = dungeon.lobby_leave.getLocation();
 			if(player.getLocation().getWorld()!=entryLocation.getWorld()){
-				player.sendMessage(ChatColor.RED+"Du bist nicht in der N�he des Dungeon-Eingangs.");
+				player.sendMessage(ChatColor.RED+"Du bist nicht in der Nähe des Dungeon-Eingangs.");
 				break;
 			}
 			if(player.getLocation().distance(entryLocation)>maxDistance){
-				player.sendMessage(ChatColor.RED+"Du bist nicht in der N�he des Dungeon-Eingangs.");
+				player.sendMessage(ChatColor.RED+"Du bist nicht in der Nähe des Dungeon-Eingangs.");
 				break;
 			}
-			mmoDungeon.join(player.getUniqueId(), targetInstance);
+			dungeon.join(player.getUniqueId(), targetInstance, targetInstance.getDifficulty());
+			break;
+		}
+		case "quit":
+		case "exit":
+		case "verlassen":
+		case "leave":{
+			if(!(sender instanceof Player)) return true;
+			Player player = (Player) sender;
+			DungeonInstance dungeonInstance = Dungeon.getInstance(player);
+			if(dungeonInstance==null) return true;
+			dungeonInstance.leave(player.getUniqueId());
 			break;
 		}
 		case "refuse":{
@@ -92,8 +103,8 @@ public class PlayerCommand implements CommandExecutor{
 			if(playerDungeon==null || dungeonInstance==null){
 				return true;
 			}
-			if(dungeonInstance.running){
-				sender.sendMessage(ChatColor.RED+"Die Instanz wurde bereits gestartet und es k�nnen keine neuen Spieler eingeladen werden.");
+			if(dungeonInstance.isRunning()){
+				sender.sendMessage(ChatColor.RED+"Die Instanz wurde bereits gestartet und es können keine neuen Spieler eingeladen werden.");
 				break;
 			}
 			String otherPlayerName = args[0];

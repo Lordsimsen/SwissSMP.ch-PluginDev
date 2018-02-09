@@ -1,11 +1,9 @@
 package ch.swisssmp.adventuredungeons.block;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -13,35 +11,16 @@ import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.event.MmoBlockChangeEvent;
-import ch.swisssmp.adventuredungeons.item.MmoItemManager;
+import ch.swisssmp.adventuredungeons.item.AdventureItemManager;
 import ch.swisssmp.utils.ConfigurationSection;
 
-public class MmoBlock {
-	public static HashMap<Material, Material> minedTypes = new HashMap<Material, Material>();
-	
-	public static void initialize(){
-		minedTypes.put(Material.COAL_ORE, Material.STONE);
-		minedTypes.put(Material.IRON_ORE, Material.STONE);
-		minedTypes.put(Material.GOLD_ORE, Material.STONE);
-		minedTypes.put(Material.LAPIS_ORE, Material.STONE);
-		minedTypes.put(Material.DIAMOND_ORE, Material.STONE);
-		minedTypes.put(Material.REDSTONE_ORE, Material.STONE);
-		minedTypes.put(Material.EMERALD_ORE, Material.STONE);
-		minedTypes.put(Material.FLOWER_POT, Material.AIR);
-		minedTypes.put(Material.RED_ROSE, Material.AIR);
-		minedTypes.put(Material.YELLOW_FLOWER, Material.AIR);
-	}
-	
+public class AdventureBlockUtil {	
 	@SuppressWarnings("deprecation")
 	public static void set(Block block, MaterialData targetData, UUID player_uuid){
-		MmoBlockChangeEvent event = new MmoBlockChangeEvent(block, targetData, player_uuid);
-		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) return;
 		byte data = targetData.getData();
 		if(block.getState().getData() instanceof Directional){
 			Directional directional = (Directional) block.getState().getData();
-			data = MmoBlock.getBlockFaceData(directional.getFacing());
+			data = AdventureBlockUtil.getBlockFaceData(directional.getFacing());
 		}
 		block.setTypeIdAndData(targetData.getItemTypeId(), data, false);
 		AdventureDungeons.info("Block updated at "+block.getX()+", "+block.getY()+", "+block.getZ()+" in world "+block.getWorld().getName());
@@ -62,7 +41,7 @@ public class MmoBlock {
 	public static String getMaterialString(Block block, boolean matchData){
 		if(block==null)
 			return "";
-		return MmoItemManager.getMaterialString(block.getType(), block.getData(), matchData);
+		return AdventureItemManager.getMaterialString(block.getType(), block.getData(), matchData);
 	}
 	public static String getMaterialString(MaterialData materialData){
 		return getMaterialString(materialData, false);
@@ -71,19 +50,7 @@ public class MmoBlock {
 	public static String getMaterialString(MaterialData materialData, boolean matchData){
 		if(materialData==null)
 			return "";
-		return MmoItemManager.getMaterialString(materialData.getItemType(), materialData.getData(), matchData);
-	}
-	
-	public static MaterialData getMinedType(MaterialData mined){
-		Material material = minedTypes.get(mined.getItemType());
-		MaterialData materialData;
-		if(material==null){
-			materialData = new MaterialData(Material.AIR);
-		}
-		else{
-			materialData = new MaterialData(material);
-		}
-		return materialData;
+		return AdventureItemManager.getMaterialString(materialData.getItemType(), materialData.getData(), matchData);
 	}
 	
 	public static Block get(ConfigurationSection dataSection, World world){
@@ -115,7 +82,7 @@ public class MmoBlock {
 		return get(dataSection).getLocation();
 	}
 	public static MaterialData getMaterialData(String materialString){
-		return MmoItemManager.getMaterialData(materialString);
+		return AdventureItemManager.getMaterialData(materialString);
 	}
 
 	public static String asHash(Block block){

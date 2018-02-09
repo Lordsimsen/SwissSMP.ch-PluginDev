@@ -4,31 +4,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
-import ch.swisssmp.adventuredungeons.world.Instancable;
+import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 
-public class DungeonJoinEvent extends DungeonEvent implements Cancellable,Instancable{
+public class DungeonJoinEvent extends DungeonEvent implements Cancellable{
     private static final HandlerList handlers = new HandlerList();
-    private final int instance_id;
     private final Player player;
     private boolean cancelled = false;
     
-	public DungeonJoinEvent(int dungeon_id, Player player, int instance_id) {
-		super(dungeon_id);
-		this.instance_id = instance_id;
+	public DungeonJoinEvent(DungeonInstance dungeonInstance, Player player) {
+		super(dungeonInstance);
 		this.player = player;
-	}
-	
-	public int getInstanceId(){
-		return this.instance_id;
 	}
 	
 	public Player getPlayer(){
 		return this.player;
-	}
-
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
 	}
 
 	@Override
@@ -40,6 +29,15 @@ public class DungeonJoinEvent extends DungeonEvent implements Cancellable,Instan
 	public void setCancelled(boolean arg0) {
 		this.cancelled = arg0;
 		
+	}
+
+	@Override
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+	
+	public static HandlerList getHandlerList(){
+		return handlers;
 	}
 	
 }

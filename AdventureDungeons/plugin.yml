@@ -1,5 +1,5 @@
 main: ch.swisssmp.adventuredungeons.AdventureDungeons
-version: 2.0
+version: 3.0
 name: AdventureDungeons
 author: detig_iii
 description: Dungeons in Minecraft ohne Mods
@@ -14,23 +14,13 @@ commands:
     description: Generelle Verwaltung von AdventureDungeons
     aliases: [mmo,dungeons]
     permission: dungeons.admin
-  MmoShop:
-    description: Verwaltet MmoShops
-    usage: /MmoShop [action] [arguments]
-    aliases: [mmoshop]
-    permission: dungeons.admin
-  MmoWorld:
-    description: Verwaltet MmoWorlds
-    usage: /MmoWorld [action] [arguments]
-    aliases: [mmoworld]
-    permission: dungeons.admin
   camp:
     description: Verwaltet MmoCamps
     usage: |
       /camp reload - Lädt Camps neu
       /camp spawnpoints [Camp-ID] - Initiiert oder beendet Spawnpoint-Editor
-      /camp trigger [Camp-ID] (Welt) - Löst ein Camp aus
-      /camp clear [Camp-ID] (Welt) - Leert ein Camp
+      /camp trigger [Camp-ID] (Instanz-ID) - Löst ein Camp aus
+      /camp clear [Camp-ID] (Instanz-ID) - Leert ein Camp
     permission: dungeons.admin
   rename:
     description: Gib dem Item in deiner Hand einen neuen Namen
@@ -39,20 +29,25 @@ commands:
   dungeon:
     description: Verwaltet MmoDungeons
     usage: |
-      /dungeon reload (all)
-      /dungeon join [dungeon_id] (Spieler)
+      /dungeon reload
+      /dungeon join [Dungeon-ID] [Schwierigkeit] (Spieler)
       /dungeon leave
       /dungeon list
-      /dungeon edit [dungeon_id]
+      /dungeon edit [Dungeon-ID]
       /dungeon endedit
-      /dungeon warp [dungeon_id]
+      /dungeon warp [Dungeon-ID]
       /dungeon players
-      /dungeon respawn_index [instance_worldName] [respawnIndex]
+      /dungeon respawn_index [Welt] [Respawn-Index]
+      /dungeon play_sound [Instanz-ID] [Sound-ID]
     aliases: [mmodungeon]
     permission: dungeons.admin
   join:
     description: Betrete eine Dungeon Instanz eines anderen Spielers
     usage: /join [Spieler]
+  leave:
+    description: Verlasse eine Dungeon Instanz
+    usage: /leave
+    aliases: [quit,exit,verlassen]
   refuse:
     description: Lehne eine Anfrage eines Spielers ab
     usage: /refuse [Spieler]
