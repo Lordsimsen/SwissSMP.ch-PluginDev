@@ -1,8 +1,6 @@
 package ch.swisssmp.resourcepack;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -12,9 +10,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
-
 public class ResourcepackManager extends JavaPlugin{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
@@ -22,6 +17,8 @@ public class ResourcepackManager extends JavaPlugin{
 	protected static ResourcepackManager plugin;
 	
 	protected static HashMap<Player,String> playerMap = new HashMap<Player,String>();
+	
+	private ResourcepackUpdater resourcepackUpdater;
 	
 	@Override
 	public void onEnable() {
@@ -35,6 +32,13 @@ public class ResourcepackManager extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		
+		if(Bukkit.getPluginManager().getPlugin("AdventureDungeons")!=null){
+			this.resourcepackUpdater = new AdventureResourcepackUpdater();
+		}
+		else{
+			this.resourcepackUpdater = new VanillaResourcepackUpdater();
+		}
 	}
 	
 	public static void setResourcepack(Player player, String resourcepack){
@@ -59,19 +63,7 @@ public class ResourcepackManager extends JavaPlugin{
 	}
 	
 	public static void updateResourcepack(Player player){
-		if(player==null) return;
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("resourcepack/get.php", new String[]{
-					"player="+URLEncoder.encode(player.getUniqueId().toString(), "UTF-8"),
-					"world="+URLEncoder.encode(player.getWorld().getName(), "utf-8")
-			});
-			if(yamlConfiguration!=null && yamlConfiguration.contains("resourcepack")){
-				String resourcepack = yamlConfiguration.getString("resourcepack");
-				ResourcepackManager.setResourcepack(player, resourcepack);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		plugin.resourcepackUpdater.updateResourcepack(player);
 	}
 
 	@Override

@@ -32,6 +32,7 @@ public class EventListener implements Listener{
 			event.getPlayer().setInvulnerable(true);
 		}
 		else if(event.getStatus()==Status.DECLINED){
+			event.getPlayer().setInvulnerable(false);
 			ResourcepackManager.playerMap.remove(event.getPlayer());
 			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("resourcepack/declined.php", new String[]{
 				"player="+event.getPlayer().getUniqueId()	

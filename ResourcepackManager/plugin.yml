@@ -1,8 +1,9 @@
 main: ch.swisssmp.resourcepack.ResourcepackManager
-version: 1.0
+version: 1.3
 name: ResourcepackManager
 author: detig_iii
 description: Organisiert Resourcepack-Zuweisungen
+softdepend: [AdventureDungeons]
 depend: [WebCore]
 permissions:
   resourcepack.admin:
