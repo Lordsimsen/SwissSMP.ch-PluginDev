@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import ch.swisssmp.commandscheduler.CommandScheduler;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import net.md_5.bungee.api.ChatColor;
 
 public class PlayerCommand implements CommandExecutor{
 
@@ -25,6 +26,34 @@ public class PlayerCommand implements CommandExecutor{
 			case "permission":
 			{
 				switch(args[0]){
+				case "check":{
+					if(args.length<3) return false;
+					String playerName = args[1];
+					String permission = args[2];
+					Player player = Bukkit.getPlayer(playerName);
+					if(player==null){
+						sender.sendMessage("[PermissionManager] "+playerName+" nicht gefunden.");
+						return true;
+					}
+					boolean hasPermission = player.hasPermission(permission);
+					if(hasPermission){
+						sender.sendMessage("[PermissionManager] "+player.getDisplayName()+ChatColor.RESET+ChatColor.GREEN+" hat die Berechtigung '"+permission+"'.");
+					}
+					else{
+						sender.sendMessage("[PermissionManager] "+player.getDisplayName()+ChatColor.RESET+ChatColor.RED+" hat die Berechtigung '"+permission+"' nicht.");
+					}
+					break;
+				}
+				case "debug":{
+					PermissionManager.debug = !PermissionManager.debug;
+					if(PermissionManager.debug){
+						sender.sendMessage("[PermissionManager] Der Debug-Modus ist nun aktiviert.");
+					}
+					else{
+						sender.sendMessage("[PermissionManager] Der Debug-Modus ist nun deaktiviert.");
+					}
+					break;
+				}
 					case "reload":{
 						if(args.length>1){
 							Player player = Bukkit.getPlayer(args[1]);

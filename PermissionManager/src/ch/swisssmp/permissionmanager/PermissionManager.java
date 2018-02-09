@@ -30,6 +30,8 @@ public class PermissionManager extends JavaPlugin implements Listener{
 	protected static PermissionManager plugin;
 	protected CommandListener pexCommandListener;
 	
+	protected static boolean debug = false;
+	
 	@Override
 	public void onEnable() {
 		plugin = this;
@@ -107,7 +109,7 @@ public class PermissionManager extends JavaPlugin implements Listener{
 					boolean value = permissionSection.getBoolean("value");
 					Permission permission = Bukkit.getPluginManager().getPermission(permissionString);
 					if(permission==null){
-						Bukkit.getLogger().info(permissionString+" isn't a registered permission.");
+						if(debug) Bukkit.getLogger().info(permissionString+" isn't a registered permission.");
 						permission = new Permission(permissionString);
 					}
 					permissionAttachment.setPermission(permission, value);
