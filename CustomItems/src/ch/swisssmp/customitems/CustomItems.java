@@ -1,8 +1,10 @@
 package ch.swisssmp.customitems;
 
 import java.io.File;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemFlag;
@@ -10,6 +12,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.EnchantmentData;
+import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
 public class CustomItems extends JavaPlugin{
@@ -24,8 +28,8 @@ public class CustomItems extends JavaPlugin{
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
 		
-		//PlayerCommand playerCommand = new PlayerCommand();
-		//this.getCommand("customitems").setExecutor(playerCommand);
+		PlayerCommand playerCommand = new PlayerCommand();
+		this.getCommand("customitems").setExecutor(playerCommand);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
@@ -37,9 +41,23 @@ public class CustomItems extends JavaPlugin{
 		});
 	}
 	
+	public static CustomItemBuilder getCustomItemBuilder(String custom_enum, int amount){
+		return CustomItems.getCustomItemBuilder("items/material_builder.php", new String[]{
+				"enum="+custom_enum,
+				"amount="+amount
+		});
+	}
+	
 	public static CustomItemBuilder getCustomItemBuilder(int item_id){
 		return CustomItems.getCustomItemBuilder("items/item_builder.php", new String[]{
 				"item="+item_id
+		});
+	}
+	
+	public static CustomItemBuilder getCustomItemBuilder(int item_id, int amount){
+		return CustomItems.getCustomItemBuilder("items/item_builder.php", new String[]{
+				"item="+item_id,
+				"amount="+amount
 		});
 	}
 	
@@ -49,6 +67,18 @@ public class CustomItems extends JavaPlugin{
 	
 	public static CustomItemBuilder getCustomItemBuilder(ConfigurationSection dataSection){
 		if(dataSection==null) return null;
+		if(dataSection.contains("item_id") && !dataSection.contains("signature")){
+			YamlConfiguration baseSection = DataSource.getYamlResponse("items/item_builder.php", new String[]{
+					"item="+dataSection.getInt("item_id")
+			});
+			if(baseSection!=null){
+				for(String key : baseSection.getKeys(false)){
+					if(!dataSection.contains(key)){
+						dataSection.set(key, baseSection.get(key));
+					}
+				}
+			}
+		}
 		CustomItemBuilder customItemBuilder = new CustomItemBuilder();
 		for(String key : dataSection.getKeys(false)){
 			switch(key.toLowerCase()){
@@ -58,7 +88,8 @@ public class CustomItems extends JavaPlugin{
 			}
 			case "material":{
 				Material material = dataSection.getMaterial("material");
-				if(material!=null) customItemBuilder.setMaterial(material);
+				if(material==null) Bukkit.getLogger().info("[CustomItems] Material "+dataSection.getString("material")+" ist ungültig.");
+				else customItemBuilder.setMaterial(material);
 				break;
 			}
 			case "amount":{
@@ -69,14 +100,33 @@ public class CustomItems extends JavaPlugin{
 				customItemBuilder.setDurability((short)dataSection.getInt("durability"));
 				break;
 			}
+			case "custom_durability":{
+				customItemBuilder.setCustomDurability(dataSection.getInt("custom_durability"));
+				break;
+			}
+			case "max_custom_durability":{
+				customItemBuilder.setMaxCustomDurability(dataSection.getInt("max_custom_durability"));
+				break;
+			}
 			case "enchantment":{
 				customItemBuilder.addEnchantment(dataSection.getEnchantmentData("enchantment"));
 				break;
 			}
 			case "enchantments":{
 				ConfigurationSection enchantmentsSection = dataSection.getConfigurationSection("enchantments");
+				ConfigurationSection enchantmentSection;
+				EnchantmentData enchantmentData;
 				for(String enchantmentKey : enchantmentsSection.getKeys(false)){
-					customItemBuilder.addEnchantment(enchantmentsSection.getEnchantmentData(enchantmentKey));
+					enchantmentSection = enchantmentsSection.getConfigurationSection(enchantmentKey);
+					if(enchantmentSection.contains("probability")){
+						if(ThreadLocalRandom.current().nextDouble()>enchantmentSection.getDouble("probability")) continue;
+					}
+					enchantmentData = enchantmentSection.getEnchantmentData();
+					if(enchantmentData==null){
+						Bukkit.getLogger().info("[CustomItems] Enchantment '"+enchantmentsSection.getConfigurationSection(enchantmentKey).getString("enchantment")+"' ist ungültig.");
+						continue;
+					}
+					customItemBuilder.addEnchantment(enchantmentData);
 				}
 				break;
 			}
@@ -111,6 +161,7 @@ public class CustomItems extends JavaPlugin{
 				break;
 			}
 			case "item_id":{
+				if(dataSection.contains("use_item_id") && !dataSection.getBoolean("use_item_id")) continue;
 				customItemBuilder.setItemId(dataSection.getInt("item_id"));
 				break;
 			}
@@ -142,11 +193,28 @@ public class CustomItems extends JavaPlugin{
 				customItemBuilder.setCustomPotionColor(dataSection.getInt("custom_potion_color"));
 				break;
 			}
+			case "skull_owner":{
+				customItemBuilder.setSkullOwner(dataSection.getString("skull_owner"));
+				break;
+			}
+			//these properties do not matter to the generation of the item builder
+			case "use_item_id":
+				//sets whether the item_id should be included in the items NMS tags (is checked when the item_id is set)
+			case "signature":
+				//if not declared but item_id is included the item builder will fetch linked data from the web-interface
+			case "probability":{
+				//probability can be used outside to add a chance of generating an item at all
+				break;
+			}
 			default:{
 				logger.info("[CustomItems] Unkown item property '"+key+"'");
 				break;
 			}
 			}
+		}
+		if(customItemBuilder.getMaterial()==null){
+			Bukkit.getLogger().info("[CustomItems] ItemBuilder konnte nicht abgeschlossen werden, da kein Material angegeben wurde.");
+			return null;
 		}
 		return customItemBuilder;
 	}

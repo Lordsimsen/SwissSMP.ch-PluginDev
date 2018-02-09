@@ -9,10 +9,13 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import ch.swisssmp.utils.EnchantmentData;
-
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.DataSource;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 
@@ -29,12 +32,15 @@ public class CustomItemBuilder {
 	private ArrayList<ItemFlag> itemFlags = new ArrayList<ItemFlag>();
 	private List<String> lore = new ArrayList<String>();
 	private boolean unbreakable = false;
+	private String skullOwner = "";
 	
 	//nms stuff
 	private boolean useNMS = false;
 	
 	private String customEnum = "";
 	private int item_id = 0;
+	private int maxCustomDurability = 0;
+	private int customDurability = 0;
 	
 	private double attackDamage = -1;
 	private double attackSpeed = -1f;
@@ -58,6 +64,13 @@ public class CustomItemBuilder {
 	}
 	public void setDurability(short durability){
 		this.durability = durability;
+	}
+	public void setMaxCustomDurability(int maxCustomDurability){
+		this.useNMS = true;
+		this.maxCustomDurability = maxCustomDurability;
+	}
+	public void setCustomDurability(int customDurability){
+		this.customDurability = customDurability;
 	}
 	public void addEnchantments(List<EnchantmentData> enchantments){
 		this.enchantments.addAll(enchantments);
@@ -88,11 +101,22 @@ public class CustomItemBuilder {
 	public void setUnbreakable(boolean unbreakable){
 		this.unbreakable = unbreakable;
 	}
+	public void setSkullOwner(String owner){
+		this.skullOwner = owner;
+	}
 	public void setCustomEnum(String customEnum){
 		this.useNMS = true;
 		this.customEnum = customEnum;
 		if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 			this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
+		}
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("items/material_builder.php", new String[]{
+				"enum="+this.customEnum
+		});
+		if(yamlConfiguration!=null){
+			Material material = yamlConfiguration.getMaterial("material");
+			if(material!=null) this.setMaterial(material);
+			this.setDurability((short)yamlConfiguration.getInt("durability"));
 		}
 		this.unbreakable = true;
 	}
@@ -128,17 +152,41 @@ public class CustomItemBuilder {
 		this.useNMS = true;
 		this.customPotionColor = customPotionColor;
 	}
+	/**
+	 * To check validity
+	 * @return
+	 */
+	public Material getMaterial(){
+		return this.material;
+	}
 	private ItemMeta buildItemMeta(ItemStack itemStack){
 		ItemMeta itemMeta = itemStack.getItemMeta();
-		for(EnchantmentData enchantmentData : this.enchantments){
-			if(itemMeta.hasConflictingEnchant(enchantmentData.getEnchantment())){
-				Bukkit.getLogger().info("[CustomItems] Couldn't apply "+enchantmentData.getEnchantment()+" because of conflicting enchantment.");
-				continue;
+		if(itemMeta instanceof EnchantmentStorageMeta){
+			EnchantmentStorageMeta enchantmentStorageMeta = (EnchantmentStorageMeta) itemMeta;
+			for(EnchantmentData enchantmentData : this.enchantments){
+				if(enchantmentStorageMeta.hasStoredEnchant(enchantmentData.getEnchantment())){
+					enchantmentStorageMeta.removeStoredEnchant(enchantmentData.getEnchantment());
+				}
+				enchantmentStorageMeta.addStoredEnchant(enchantmentData.getEnchantment(), enchantmentData.getLevel(), enchantmentData.getIgnoreLevelRestriction());
 			}
-			if(itemMeta.hasEnchant(enchantmentData.getEnchantment())){
-				itemMeta.removeEnchant(enchantmentData.getEnchantment());
+		}
+		else{
+			for(EnchantmentData enchantmentData : this.enchantments){
+				if(itemMeta.hasConflictingEnchant(enchantmentData.getEnchantment())){
+					continue;
+				}
+				if(itemMeta.hasEnchant(enchantmentData.getEnchantment())){
+					itemMeta.removeEnchant(enchantmentData.getEnchantment());
+				}
+				Bukkit.getLogger().info("[CustomItems] Füge Enchantment "+enchantmentData.getEnchantment().getName()+" hinzu.");
+				itemMeta.addEnchant(enchantmentData.getEnchantment(), enchantmentData.getLevel(), enchantmentData.getIgnoreLevelRestriction());
 			}
-			itemMeta.addEnchant(enchantmentData.getEnchantment(), enchantmentData.getLevel(), enchantmentData.getIgnoreLevelRestriction());
+		}
+		if(itemMeta instanceof SkullMeta){
+			SkullMeta skullMeta = (SkullMeta) itemMeta;
+			if(!this.skullOwner.isEmpty()){
+				skullMeta.setOwner(this.skullOwner);
+			}
 		}
 		for(ItemFlag itemFlag : this.itemFlags){
 			if(itemMeta.hasItemFlag(itemFlag)) continue;
@@ -200,6 +248,10 @@ public class CustomItemBuilder {
 		return modifiers;
 	}
 	public ItemStack build(){
+		if(material==null){
+			Bukkit.getLogger().info("[CustomItems] ItemStack konnte nicht kreiiert werden, da kein Material angegeben wurde.");
+			return null;
+		}
 		ItemStack result = new ItemStack(material);
 		result.setAmount(amount);
 		result.setDurability(durability);
@@ -221,6 +273,15 @@ public class CustomItemBuilder {
 			if(this.item_id>0){
 				nbtTags.setInt("item_id", item_id);
 			}
+			if(this.maxCustomDurability>0){
+				nbtTags.setInt("maxCustomDurability", this.maxCustomDurability);
+				if(!nbtTags.hasKey("customDurability")){
+					nbtTags.setInt("customDurability", this.customDurability);
+				}
+				else if(nbtTags.getInt("customDurability")>this.maxCustomDurability){
+					nbtTags.setInt("customDurability", this.maxCustomDurability);
+				}
+			}
 			if(this.customPotionColor>0){
 				nbtTags.setInt("CustomPotionColor", this.customPotionColor);
 			}
@@ -231,8 +292,6 @@ public class CustomItemBuilder {
 			craftItemStack.setTag(nbtTags);
 			itemStack.setItemMeta(CraftItemStack.getItemMeta(craftItemStack));
 		}
-		if(itemStack.hasItemMeta()){
-			itemStack.setItemMeta(buildItemMeta(itemStack));
-		}
+		itemStack.setItemMeta(buildItemMeta(itemStack));
 	}
 }
