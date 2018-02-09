@@ -3,6 +3,22 @@ package ch.swisssmp.craftbank;
 import ch.swisssmp.utils.SwissSMPler;
 
 public class ExperienceManager {
+    // Give or take EXP
+	public static int changePlayerExp(SwissSMPler player, int exp){
+	    // Get player's current exp
+	    int currentExp = getExperience(player);
+	   
+	    // Reset player's current exp to 0
+	    player.setExp(0);
+	    player.setLevel(0);
+	   
+	    // Give the player their exp back, with the difference
+	    int newExp = currentExp + exp;
+	    player.giveExp(newExp);
+	   
+	    // Return the player's new exp amount
+	    return newExp;
+	}
 	public static int getExperience(SwissSMPler player){
 		int level = player.getLevel();
 		float levelProgress = player.getExp();
@@ -22,11 +38,11 @@ public class ExperienceManager {
 		}
 	}
 	private static int getExperienceForLevel(int level){
-		if(level<=16){
+		if(level<=15){
 			return 2*level+7;
 		}
-		else if(level<=31){
-			return 5*level-39;//its actually 38
+		else if(level<=30){
+			return 5*level-38;//its actually 38
 		}
 		else{
 			return 9*level-158;//its actually 158
