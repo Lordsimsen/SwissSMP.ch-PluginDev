@@ -1,5 +1,5 @@
 main: ch.swisssmp.commandscheduler.CommandScheduler
-version: 1.0
+version: 1.1
 name: CommandScheduler
 author: detig_iii
 description: Execute commands from remote source

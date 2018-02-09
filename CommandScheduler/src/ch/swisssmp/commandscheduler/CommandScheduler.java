@@ -71,9 +71,8 @@ public class CommandScheduler extends JavaPlugin{
 		}
 		for(String key : yamlConfiguration.getKeys(false)){
 			ConfigurationSection commandSection = yamlConfiguration.getConfigurationSection(key);
-			String command = commandSection.getString("command");
+			String commandLine = commandSection.getString("command");
 			String sender = commandSection.getString("sender");
-			String label = commandSection.getString("label");
 			List<String> argsList = commandSection.getStringList("args");
 			String[] args;
 			if(argsList==null){
@@ -93,10 +92,10 @@ public class CommandScheduler extends JavaPlugin{
 				commandSender = player;
 			}
 			try{
-				Bukkit.getPluginCommand(command).execute(commandSender, label, args);
+				Bukkit.dispatchCommand(commandSender, commandLine);
 			}
 			catch(Exception e){
-				Bukkit.getLogger().info("Error executing command "+command+" for "+sender+" with args "+String.join(", ", argsList));
+				Bukkit.getLogger().info("Error executing command '"+commandLine+"' for "+sender);
 				e.printStackTrace();
 			}
 		}
