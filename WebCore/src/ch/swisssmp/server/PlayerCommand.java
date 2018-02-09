@@ -15,8 +15,9 @@ public class PlayerCommand implements CommandExecutor{
 		}
 		switch(args[0]){
 		case "reload":{
-			ServerManager.UpdatePluginInfos();
-			sender.sendMessage("[ServerManager] Plugin Infos aktualisiert.");
+			ServerManager.getInstance().updatePluginInfos();
+			ServerManager.getInstance().reload();
+			sender.sendMessage("[ServerManager] Server aktualisiert.");
 			break;
 		}
 		case "rename":{
@@ -28,7 +29,7 @@ public class PlayerCommand implements CommandExecutor{
 				nameParts.add(args[i]);
 			}
 			String name = String.join(" ", nameParts);
-			ServerManager.Rename(name);
+			ServerManager.getInstance().rename(name);
 			sender.sendMessage("[ServerManager] Der Server heisst nun '"+name+"'.");
 			break;
 		}

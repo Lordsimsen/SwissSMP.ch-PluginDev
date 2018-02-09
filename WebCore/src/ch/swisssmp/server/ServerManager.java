@@ -8,24 +8,70 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.RequestMethod;
 import ch.swisssmp.webcore.WebCore;
 
-public class ServerManager{
+public class ServerManager implements Listener{
+	private static ServerManager instance;
+	
+	private JavaPlugin plugin;
+	
 	private static int server_id = -1;
 	private static String server_name;
 	
-	public static void UpdatePluginInfos(){
+	private String motd;
+	private String greeting;
+	
+	public ServerManager(JavaPlugin plugin){
+		if(instance!=null)
+		{
+			HandlerList.unregisterAll(instance);
+		}
+		instance = this;
+		this.plugin = plugin;
+		Bukkit.getPluginManager().registerEvents(this, this.plugin);
+		Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable(){
+			@Override
+			public void run(){
+				updatePluginInfos();
+			}
+		}, 0l);
+	}
+	
+	@EventHandler
+	private void onServerPing(ServerListPingEvent event){
+		if(motd==null || motd.isEmpty()) return;
+		event.setMotd(motd);
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	private void onPlayerJoin(PlayerJoinEvent event){
+		if(greeting==null || greeting.isEmpty()) return;
+		Player player = event.getPlayer();
+		player.sendMessage(greeting);
+		player.performCommand("list");
+	}
+	
+	public void updatePluginInfos(){
 			String encoding = "UTF-8";
 			reload();
 			try{
-				String response = DataSource.getResponse("server/server_info.php", new String[]{
+				String response = DataSource.getResponse("server/set_info.php", new String[]{
 						"server_version="+URLEncoder.encode(Bukkit.getBukkitVersion(),encoding),
 						"server_ip="+URLEncoder.encode(Bukkit.getIp()+":"+Bukkit.getPort(),encoding),
 				});
@@ -114,26 +160,26 @@ public class ServerManager{
 			}
 	}
 	
-	public static int getServerId(){
+	public int getServerId(){
 		return server_id;
 	}
 	
-	public static String getServerName(){
+	public String getServerName(){
 		return server_name;
 	}
 	
-	public static void Rename(String name){
+	public void rename(String name){
 		server_name = name;
 		WebCore.getInstance().saveConfig();
 		try {
-			DataSource.getResponse("server/server_info.php", new String[]{
+			DataSource.getResponse("server/set_info.php", new String[]{
 					"server_name="+URLEncoder.encode(server_name, "UTF-8")
 			});
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
-    public static void reload() {
+    public void reload() {
         try {
         	int old_server_id = server_id;
     		server_id = WebCore.getInstance().getConfigServerId();
@@ -144,5 +190,18 @@ public class ServerManager{
         } catch (Exception e) {
             e.printStackTrace();
         }
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("server/get_info.php", new String[]{
+				"server="+server_id
+		});
+		if(yamlConfiguration==null||!yamlConfiguration.contains("server")) return;
+		ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection("server");
+		Bukkit.getLogger().info(Bukkit.getBukkitVersion());
+		String version = Bukkit.getBukkitVersion();
+		motd = dataSection.getString("motd").replace("{newline}", "\n").replace("{version}", version);
+		greeting = dataSection.getString("greeting");
+    }
+    
+    public static ServerManager getInstance(){
+    	return instance;
     }
 }

@@ -39,7 +39,7 @@ public class DataSource {
 		String resultString = "";
 		try{
 			String paramString = "token="+pluginToken+"&random="+random.nextInt(1000)
-					+"&server_id="+URLEncoder.encode(String.valueOf(ServerManager.getServerId()),"utf-8")
+					+"&server_id="+URLEncoder.encode(String.valueOf(ServerManager.getInstance().getServerId()),"utf-8")
 					;
 			if(params!=null && params.length>0){
 				paramString+="&"+String.join("&", params);

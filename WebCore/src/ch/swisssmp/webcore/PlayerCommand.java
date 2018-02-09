@@ -13,7 +13,7 @@ public class PlayerCommand implements CommandExecutor {
 		if(args.length<1) return false;
 		switch(args[0]){
 		case "reload":
-			WebCore.loadYamls();
+			WebCore.plugin.loadYamls();
 			sender.sendMessage(ChatColor.DARK_GRAY+"Konfiguration neu geladen.");
 			break;
 		case "debug":

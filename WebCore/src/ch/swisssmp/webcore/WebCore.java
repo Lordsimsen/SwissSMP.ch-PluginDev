@@ -8,8 +8,8 @@ import java.io.OutputStream;
 import java.util.Base64;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,12 +25,15 @@ public class WebCore extends JavaPlugin{
 	protected static WebCore plugin;
 	protected static boolean debug;
 	
+	private ServerManager serverManager;
+	
 	@Override
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		this.serverManager = new ServerManager(this);
 		
 		this.getCommand("webcore").setExecutor(new ch.swisssmp.webcore.PlayerCommand());
 		this.getCommand("servermanager").setExecutor(new ch.swisssmp.server.PlayerCommand());
@@ -45,17 +48,12 @@ public class WebCore extends JavaPlugin{
 		config = new YamlConfiguration();
 		loadYamls();
 		
-		Bukkit.getScheduler().runTaskLater(this, new Runnable(){
-			@Override
-			public void run(){
-				ServerManager.UpdatePluginInfos();
-			}
-		}, 0l);
 	}
 
 	@Override
 	public void onDisable() {
 		PluginDescriptionFile pdfFile = getDescription();
+		HandlerList.unregisterAll(this);
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
     private void firstRun() throws Exception {
@@ -78,7 +76,7 @@ public class WebCore extends JavaPlugin{
             e.printStackTrace();
         }
     }
-    public static void loadYamls() {
+    public void loadYamls() {
         try {
         	config.load(configFile);
     		DataSource.rootURL = config.getString("webserver");
@@ -95,7 +93,7 @@ public class WebCore extends JavaPlugin{
     			}
     		}
     		debug = config.getBoolean("debug");
-    		ServerManager.reload();
+    		this.serverManager.reload();
     		if(!DataSource.rootURL.endsWith("/")){
     			DataSource.rootURL+="/";
     		}

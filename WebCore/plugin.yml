@@ -1,5 +1,5 @@
 main: ch.swisssmp.webcore.WebCore
-version: 2.1
+version: 2.3
 name: WebCore
 author: detig_iii
 description: Get resources from external source
