@@ -1,5 +1,5 @@
 main: ch.swisssmp.transformations.AreaTransformations
-version: 1.0
+version: 1.1
 name: AreaTransformations
 author: detig_iii
 description: Transformierbare Zonen (grosse Tore, Zugbrücken etc.)
@@ -16,6 +16,6 @@ commands:
       /transformation list
       /transformation register [Transformations-ID] [Zustand]
       /transformation unregister [Transformations-ID] [Zustand]
-      /transformation trigger [Transformations-ID] [Zustand] (Player)
+      /transformation trigger [Welt] [Transformations-ID] [Zustand] (Player)
     aliases: [multistate]
     permission: transformations.admin

@@ -1,5 +1,6 @@
 package ch.swisssmp.transformations;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -9,12 +10,14 @@ public abstract class TransformationEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final TransformationArea area;
     private final AreaState newState;
+    private final World world;
     private final Player player;
     private boolean cancelled = false;
     
-    TransformationEvent(TransformationArea area, AreaState newState, Player player){
+    TransformationEvent(TransformationArea area, AreaState newState, World world, Player player){
     	this.area = area;
     	this.newState = newState;
+    	this.world = world;
     	this.player = player;
     }
     
@@ -24,6 +27,10 @@ public abstract class TransformationEvent extends Event implements Cancellable {
     
     public AreaState getNewState(){
     	return this.newState;
+    }
+    
+    public World getWorld(){
+    	return this.world;
     }
     
     public Player getPlayer(){
@@ -42,6 +49,10 @@ public abstract class TransformationEvent extends Event implements Cancellable {
 
 	@Override
 	public HandlerList getHandlers() {
+		return handlers;
+	}
+	
+	public static HandlerList getHandlerList(){
 		return handlers;
 	}
 

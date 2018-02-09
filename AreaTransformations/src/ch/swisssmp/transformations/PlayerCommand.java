@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,19 +26,30 @@ public class PlayerCommand implements CommandExecutor{
     	switch(args[0]){
 	    	case "reload":
 				try {
-					TransformationArea.loadTransformations();
+					for(TransformationWorld transformationWorld : TransformationWorld.getWorlds()){
+						transformationWorld.loadTransformations();
+					}
 		    		sender.sendMessage("[AreaTransformations] Transformations-Konfiguration neu geladen.");
 				} catch (Exception e) {
 					sender.sendMessage("[AreaTransformations] Fehler beim laden der Daten! Mehr Details in der Konsole...");
 					e.printStackTrace();
 				}
 				break;
-	    	case "list":
-		    		for(TransformationArea area : TransformationArea.getAll()){
-		    			for(AreaState schematic : area.schematics.values())
-		    				sender.sendMessage("("+area.worldName+") ["+area.transformation_id+"] "+area.name+": "+schematic.schematicName);
+	    	case "list":{
+	    		int count = 0;
+				for(TransformationWorld transformationWorld : TransformationWorld.getWorlds()){
+		    		for(TransformationArea area : transformationWorld.getTransformations()){
+		    			for(AreaState schematic : area.getSchematics()){
+		    				count++;
+		    				sender.sendMessage("("+area.getWorld().getName()+") ["+area.getTransformationId()+"] "+area.getName()+": "+schematic.getSchematicName());
+		    			}
 		    		}
+				}
+				if(count==0){
+	    			sender.sendMessage("[AreaTransformations] Aktuell sind keine Transformationen geladen.");
+				}
 	    		break;
+	    	}
 	    	case "register":
 	    	case "unregister":{
 	    		Player player;
@@ -105,11 +117,11 @@ public class PlayerCommand implements CommandExecutor{
 	    	}
 	    	case "trigger":
 	    		Player player = null;
-	    		if(args.length<3){
-	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformations-ID und Zustand angeben");
+	    		if(args.length<4){
+	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Welt, Transformations-ID und Zustand angeben");
 	    			break;
 	    		}
-	    		if(args.length>3){
+	    		if(args.length>4){
 	    			String playerString = args[3];
 	    			player = Bukkit.getPlayer(playerString);
 	    			if(player==null) player = Bukkit.getPlayer(UUID.fromString(playerString));
@@ -117,37 +129,43 @@ public class PlayerCommand implements CommandExecutor{
 	    				sender.sendMessage("[AreaTransformations] Spieler "+playerString+" nicht gefunden, Prozess wird ohne Spieler-Referenz weitergeführt.");
 	    			}
 	    		}
-	    		if(!StringUtils.isNumeric(args[1])){
+	    		World world = Bukkit.getWorld(args[1]);
+	    		if(world==null){
+	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Welt "+args[0]+" nicht gefunden.");
+	    			return true;
+	    		}
+	    		TransformationWorld transformationWorld = TransformationWorld.get(world);
+	    		if(!StringUtils.isNumeric(args[2])){
 	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformations-ID muss eine gültige ID aus dem Web-Interface sein.");
 	    			return true;
 	    		}
-	    		int transformation_id = Integer.parseInt(args[1]);
-	    		String schematicName = args[2];
+	    		int transformation_id = Integer.parseInt(args[2]);
+	    		String schematicName = args[3];
 	    		
-	    		TransformationArea area = TransformationArea.get(transformation_id);
+	    		TransformationArea area = transformationWorld.getTransformation(transformation_id);
 	    		if(area==null){
 	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformationsgruppe nicht gefunden.");
 	    			break;
 	    		}
-	    		AreaState areaState = area.schematics.get(schematicName);
+	    		AreaState areaState = area.getSchematic(schematicName);
 	    		if(areaState==null){
 	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformation nicht gefunden.");
 	    			break;
 	    		}
 	    		if(player==null){
 	    			if(areaState.trigger()){
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+areaState.schematicName+" ausgelöst.");
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+areaState.getSchematicName()+" ausgelöst.");
 	    			}
 	    			else{
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+areaState.schematicName+" konnte nicht ausgelöst werden.");
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+areaState.getSchematicName()+" konnte nicht ausgelöst werden.");
 	    			}
 	    		}
 	    		else{
 	    			if(areaState.trigger(player)){
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+areaState.schematicName+" ausgelöst.");
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+areaState.getSchematicName()+" ausgelöst.");
 	    			}
 		    		else{
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+areaState.schematicName+" konnte nicht ausgelöst werden.");
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+areaState.getSchematicName()+" konnte nicht ausgelöst werden.");
 		    		}
 	    		}
 	    		break;

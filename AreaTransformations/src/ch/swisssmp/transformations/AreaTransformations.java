@@ -3,6 +3,7 @@ package ch.swisssmp.transformations;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -35,7 +36,12 @@ public class AreaTransformations extends JavaPlugin implements Listener{
 			new NullPointerException("WorldEdit missing");
 		}
 		
-		TransformationArea.loadTransformations();
+		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+		
+		for(World world : Bukkit.getWorlds()){
+			TransformationWorld transformationWorld = TransformationWorld.loadWorld(world);
+			transformationWorld.loadTransformations();
+		}
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}

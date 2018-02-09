@@ -5,11 +5,14 @@ import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.material.MaterialData;
+import org.bukkit.material.PressureSensor;
+import org.bukkit.material.Redstone;
 import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -20,9 +23,9 @@ public class TransformationLogic implements Listener{
 	public final AreaState areaState;
 	public final LogicOperator operator;
 	public final HashMap<VectorKey, Integer> valueMap = new HashMap<VectorKey, Integer>();
-	public final String worldName;
+	public final World world;
 	
-	public TransformationLogic(AreaState areaState, ConfigurationSection dataSection, String worldName){
+	public TransformationLogic(AreaState areaState, ConfigurationSection dataSection, World world){
 		this.areaState = areaState;
 		this.operator = LogicOperator.valueOf(dataSection.getString("operator"));
 		ConfigurationSection blocksSection = dataSection.getConfigurationSection("blocks");
@@ -32,7 +35,7 @@ public class TransformationLogic implements Listener{
 			int b = blockSection.getInt("value");
 			valueMap.put(new VectorKey(vector), b);
 		}
-		this.worldName = worldName;
+		this.world = world;
 		Bukkit.getPluginManager().registerEvents(this, AreaTransformations.plugin);
 	}
 	
@@ -45,9 +48,9 @@ public class TransformationLogic implements Listener{
 	
 	@EventHandler(ignoreCancelled=true)
 	private void onBlockInteract(BlockRedstoneEvent event){
-		AreaTransformations.info("[AreaTransformations] BlockInteractEvent!");
-		if(!event.getBlock().getWorld().getName().equals(this.worldName)) return;
-		AreaTransformations.info("[AreaTransformations] Block ist in gleicher Welt wie TransformationLogic!");
+		//AreaTransformations.info("[AreaTransformations] BlockInteractEvent!");
+		if(event.getBlock().getWorld()!=this.world) return;
+		//AreaTransformations.info("[AreaTransformations] Block ist in gleicher Welt wie TransformationLogic!");
 		Location location = event.getBlock().getLocation();
 		VectorKey vectorKey = new VectorKey(location.toVector());
 		if(!valueMap.containsKey(vectorKey)){
@@ -57,7 +60,7 @@ public class TransformationLogic implements Listener{
 		int newCurrent = event.getNewCurrent();
 		int targetCurrent = valueMap.get(vectorKey);
 		if(apply(location, newCurrent==targetCurrent)){
-			AreaTransformations.info("[AreaTransformations] Transformation triggered ("+this.areaState.schematicName+")");
+			AreaTransformations.info("[AreaTransformations] Transformation triggered ("+this.areaState.getSchematicName()+")");
 		}
 	}
 	
@@ -71,8 +74,10 @@ public class TransformationLogic implements Listener{
 					else continue;
 				};
 				Integer current = getCurrent(exclude.getWorld().getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ()));
-				if(current!=entry.getValue()) 
+				if(current!=entry.getValue()){
+					AreaTransformations.info("[AreaTransformations] "+entry.getKey().toString()+" ist "+current+" vs "+entry.getValue());
 					return false;
+				}
 			}
 			return true;
 		case NAND:
@@ -85,6 +90,9 @@ public class TransformationLogic implements Listener{
 				Integer current = getCurrent(exclude.getWorld().getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ()));
 				if(current!=entry.getValue()){
 					return true;
+				}
+				else{
+					AreaTransformations.info("[AreaTransformations] "+entry.getKey().toString()+" ist "+current+" vs "+entry.getValue());
 				}
 			}
 			return false;
@@ -99,6 +107,9 @@ public class TransformationLogic implements Listener{
 				if(current==entry.getValue()){
 					return true;
 				}
+				else{
+					AreaTransformations.info("[AreaTransformations] "+entry.getKey().toString()+" ist "+current+" vs "+entry.getValue());
+				}
 			}
 			return false;
 		case NOR:
@@ -110,6 +121,7 @@ public class TransformationLogic implements Listener{
 				};
 				Integer current = getCurrent(exclude.getWorld().getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ()));
 				if(current==entry.getValue()){
+					AreaTransformations.info("[AreaTransformations] "+entry.getKey().toString()+" ist "+current+" vs "+entry.getValue());
 					return false;
 				}
 			}
@@ -168,6 +180,14 @@ public class TransformationLogic implements Listener{
 	@SuppressWarnings("deprecation")
 	public Integer getCurrent(Block block){
 		MaterialData data = block.getState().getData();
+		if(data instanceof Redstone){
+			if(((Redstone)data).isPowered()) return 15;
+			return 0;
+		}
+		else if(data instanceof PressureSensor){
+			if(((PressureSensor)data).isPressed()) return 15;
+			return 0;
+		}
 		return (int) data.getData();
 	}
 }

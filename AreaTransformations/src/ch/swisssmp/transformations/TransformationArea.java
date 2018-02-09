@@ -2,40 +2,29 @@ package ch.swisssmp.transformations;
 
 import java.util.HashMap;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 
 import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
 
 public class TransformationArea {
-	private static HashMap<Integer,TransformationArea> transformations = new HashMap<Integer,TransformationArea>();
-	public final String worldName;
-	public final int transformation_id;
-	public final String name;
-	protected String lastSchematic = "";
-	public final HashMap<String, AreaState> schematics = new HashMap<String, AreaState>();
+	private final TransformationWorld transformationWorld;
+	private final int transformation_id;
+	private final String name;
+	private String lastSchematic = "";
+	private final HashMap<String, AreaState> schematics = new HashMap<String, AreaState>();
 	
-	public TransformationArea(ConfigurationSection dataSection){
-		this.worldName = dataSection.getString("world");
+	public TransformationArea(TransformationWorld transformationWorld, ConfigurationSection dataSection){
+		this.transformationWorld = transformationWorld;
 		this.transformation_id = dataSection.getInt("transformation_id");
 		this.name = dataSection.getString("name");
 		ConfigurationSection schematicsSection = dataSection.getConfigurationSection("schematics");
 		for(String key : schematicsSection.getKeys(false)){
 			ConfigurationSection schematicSection = schematicsSection.getConfigurationSection(key);
 			AreaState areaState = new AreaState(this, schematicSection);
-			String schematicName = areaState.schematicName;
+			String schematicName = areaState.getSchematicName();
 			schematics.put(schematicName, areaState);
 		}
-	}
-	
-	public static boolean set(int transformation_id, int state, Player player){
-		TransformationArea area = transformations.get(transformation_id);
-		if(area==null) return false;
-		return area.set(state, player);
 	}
 	
 	public boolean set(int state, Player player){
@@ -45,39 +34,35 @@ public class TransformationArea {
 		return areaState.trigger(player);
 	}
 	
+	public void setLastSchematic(String lastSchematic){
+		this.lastSchematic = lastSchematic;
+	}
+	
+	public TransformationWorld getTransformationWorld(){
+		return this.transformationWorld;
+	}
+	
+	public int getTransformationId(){
+		return this.transformation_id;
+	}
+	
+	public String getName(){
+		return this.name;
+	}
+	
+	public String getLastSchematic(){
+		return this.lastSchematic;
+	}
+	
+	public AreaState getSchematic(String schematicName){
+		return this.schematics.get(schematicName);
+	}
+	
+	public AreaState[] getSchematics(){
+		return this.schematics.values().toArray(new AreaState[this.schematics.size()]);
+	}
+	
 	public World getWorld(){
-		return Bukkit.getWorld(this.worldName);
-	}
-	
-	public static void loadTransformations(){
-		//cleanup duty
-		for(TransformationArea oldArea : transformations.values()){
-			for(AreaState oldState : oldArea.schematics.values()){
-				for(TransformationLogic oldLogic : oldState.logicGates){
-					HandlerList.unregisterAll(oldLogic);
-				}
-			}
-		}
-		transformations.clear();
-		//initialize
-		
-		try{
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php");
-			for(String IDstring : yamlConfiguration.getKeys(false)){
-				ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection(IDstring);
-				transformations.put(dataSection.getInt("transformation_id"), new TransformationArea(dataSection));
-			}
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-	
-	protected static TransformationArea[] getAll(){
-		return transformations.values().toArray(new TransformationArea[transformations.size()]);
-	}
-	
-	public static TransformationArea get(int area_id){
-		return transformations.get(area_id);
+		return this.transformationWorld.getWorld();
 	}
 }
