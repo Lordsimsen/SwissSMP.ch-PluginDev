@@ -1,0 +1,18 @@
+main: ch.swisssmp.server.ServerManager
+version: 1.1
+name: ServerManager
+author: detig_iii
+description: Displays server info on the web interface
+depend: [WebCore]
+permissions:
+  smpserver.admin:
+    description: Allows you to use the admin commands
+    default: op
+commands:
+  servermanager:
+    description: Reloads the plugin
+    usage: |
+      /servermanager reload
+      /servermanager rename [name]
+    permission: smpserver.admin
+    aliases: [svm,server]
