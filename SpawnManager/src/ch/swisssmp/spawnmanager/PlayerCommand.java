@@ -25,10 +25,8 @@ public class PlayerCommand implements CommandExecutor{
 		case "spawn":{
 			try {
 				YamlConfiguration yamlConfiguration;
-				yamlConfiguration = DataSource.getYamlResponse("players/spawn.php", new String[]{
-						"player="+player.getUniqueId().toString(),
-						"world="+URLEncoder.encode(player.getWorld().getName(), "utf-8"),
-						"flag=worldspawn"
+				yamlConfiguration = DataSource.getYamlResponse("spawn/world_spawn.php", new String[]{
+						"world="+URLEncoder.encode(player.getWorld().getName(), "utf-8")
 				});
 				if(yamlConfiguration==null) return true;
 				Location location = yamlConfiguration.getLocation("spawnpoint");
@@ -46,12 +44,14 @@ public class PlayerCommand implements CommandExecutor{
 			World world = player.getWorld();
 			Location location = player.getLocation();
 			try{
-				String response = DataSource.getResponse("addons/set_temple_spawn.php", new String[]{
+				String response = DataSource.getResponse("spawn/set_temple_spawn.php", new String[]{
 					"city="+URLEncoder.encode(args[0], "utf-8"),
 					"world="+URLEncoder.encode(world.getName(), "utf-8"),
 					"x="+(int)Math.round(location.getX()),
 					"y="+(int)Math.round(location.getY()),
 					"z="+(int)Math.round(location.getZ()),
+					"pitch="+location.getPitch(),
+					"yaw="+location.getYaw()
 				});
 				player.sendMessage(response);
 			} catch (UnsupportedEncodingException e) {

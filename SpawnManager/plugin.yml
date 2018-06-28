@@ -1,5 +1,5 @@
 main: ch.swisssmp.spawnmanager.SpawnManager
-version: 1.3
+version: 1.4
 name: SpawnManager
 author: detig_iii
 description: Verwaltet Player Spawns
