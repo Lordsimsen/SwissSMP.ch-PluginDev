@@ -1,0 +1,15 @@
+main: ch.swisssmp.streets.Streets
+version: 1.0
+name: Streets
+author: detig_iii
+description: Erhöht Reisegeschwindigkeit in spezifischen Zonen
+depend: [WebCore]
+permissions:
+  streets.admin:
+    description: Erlaubt die Verwaltung des Plugins
+    default: op
+commands:
+  streets:
+    description: Verwaltet das Plugin
+    usage: |
+      /streets reload - Lädt Strassen neu
