@@ -115,6 +115,10 @@ public class PlayerCommand implements CommandExecutor{
 			}
 			int maxDistance = 50;
 			Location entryLocation = playerDungeon.lobby_leave.getLocation();
+			if(entryLocation==null){
+				player.sendMessage(ChatColor.RED+"Ein Fehler ist aufgetreten. Konnte nicht überprüfen, ob "+otherPlayer.getDisplayName()+ChatColor.RESET+" in der Nähe des Eingangs ist.");
+				return true;
+			}
 			if(otherPlayer.getLocation().getWorld()!=entryLocation.getWorld()){
 				player.sendMessage(ChatColor.RED+otherPlayer.getDisplayName()+ChatColor.RED+" ist nicht in "+entryLocation.getWorld().getName()+".");
 				break;

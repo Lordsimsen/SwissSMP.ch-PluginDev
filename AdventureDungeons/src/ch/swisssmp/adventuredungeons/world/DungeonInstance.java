@@ -145,6 +145,10 @@ public class DungeonInstance{
 			player.setGameMode(GameMode.SURVIVAL);
 			if(dungeon.lobby_leave!=null){
 				Location teleport_target = dungeon.getLeavePoint();
+				if(teleport_target==null){
+					teleport_target = Bukkit.getWorlds().get(0).getSpawnLocation();
+					Bukkit.getLogger().info("[AdventureDungeons] Dungeon "+dungeon.getDungeonId()+" returned an invalid leave point!");
+				}
 				player.teleport(teleport_target);
 			}
 		}
@@ -159,7 +163,11 @@ public class DungeonInstance{
 				}
 			}
 			else{
-				this.delete(true);
+				Bukkit.getScheduler().runTaskLater(AdventureDungeons.plugin, new Runnable(){
+					public void run(){
+						delete(true);
+					}
+				}, 20L);
 				return;
 			}
 		}
@@ -351,12 +359,6 @@ public class DungeonInstance{
 		}
 	}
 	public void delete(boolean graceful){
-		Bukkit.getPluginManager().callEvent(new DungeonEndEvent(this));
-		Dungeon dungeon = Dungeon.get(this.dungeon_id);
-		World world = this.getWorld();
-		for(Player player : world.getPlayers()){
-			leave(player.getUniqueId());
-		}
 		List<LootInventory> allInventories = new ArrayList<LootInventory>();
 		for(List<LootInventory> inventories : this.inventories.values()){
 			for(LootInventory inventory : inventories.toArray(new LootInventory[inventories.size()])){
@@ -366,12 +368,18 @@ public class DungeonInstance{
 		for(LootInventory inventory : allInventories){
 			inventory.close();
 		}
+		Bukkit.getPluginManager().callEvent(new DungeonEndEvent(this));
+		Dungeon dungeon = Dungeon.get(this.dungeon_id);
+		World world = this.getWorld();
+		Location location = dungeon.getLeavePoint();
+		if(location==null){
+			Bukkit.getLogger().info("LeavePoint is null! Falling back to global Spawnpoint");
+			location = Bukkit.getWorlds().get(0).getSpawnLocation();
+		}
+		for(Player player : world.getPlayers()){
+			player.teleport(location);
+		}
 		try{
-			Location location = dungeon.getLeavePoint();
-			if(location==null){
-				Bukkit.getLogger().info("LeavePoint is null! Falling back to global Spawnpoint");
-				location = Bukkit.getWorlds().get(0).getSpawnLocation();
-			}
 			if(graceful) AdventureWorldUtil.deleteWorld(this.world, location, true);
 		}
 		catch(Exception e){
