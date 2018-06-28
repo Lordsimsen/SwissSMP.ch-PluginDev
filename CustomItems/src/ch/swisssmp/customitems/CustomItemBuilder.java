@@ -16,6 +16,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import ch.swisssmp.utils.EnchantmentData;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import net.minecraft.server.v1_12_R1.NBTBase;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 
@@ -23,7 +24,7 @@ public class CustomItemBuilder {
 	//itemStack
 	private Material material;
 	private int amount;
-	private short durability;
+	private short durability = 0;
 	
 	//itemMeta
 	private String displayName = "";
@@ -64,6 +65,12 @@ public class CustomItemBuilder {
 	}
 	public void setDurability(short durability){
 		this.durability = durability;
+		if(!this.customEnum.isEmpty() && this.durability!=0){
+			this.unbreakable = true;
+			if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
+				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
+			}
+		}
 	}
 	public void setMaxCustomDurability(int maxCustomDurability){
 		this.useNMS = true;
@@ -107,9 +114,6 @@ public class CustomItemBuilder {
 	public void setCustomEnum(String customEnum){
 		this.useNMS = true;
 		this.customEnum = customEnum;
-		if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
-			this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
-		}
 		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("items/material_builder.php", new String[]{
 				"enum="+this.customEnum
 		});
@@ -118,11 +122,20 @@ public class CustomItemBuilder {
 			if(material!=null) this.setMaterial(material);
 			this.setDurability((short)yamlConfiguration.getInt("durability"));
 		}
-		this.unbreakable = true;
+		if(this.durability!=0 && !this.customEnum.isEmpty()){
+			this.unbreakable = true;
+			if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
+				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
+			}
+		}
 	}
 	public void setItemId(int item_id){
 		this.useNMS = true;
 		this.item_id = item_id;
+		this.unbreakable = true;
+		if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
+			this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
+		}
 	}
 	public void setAttackDamage(double attackDamage){
 		this.useNMS = true;
@@ -201,7 +214,9 @@ public class CustomItemBuilder {
 		if(this.lore.size()>0){
 			itemMeta.setLore(lore);
 		}
-		itemMeta.setUnbreakable(this.unbreakable);
+		if(this.unbreakable!=itemMeta.isUnbreakable()){
+			itemMeta.setUnbreakable(this.unbreakable);
+		}
 		return itemMeta;
 	}
 	private NBTTagCompound buildNBTAttributeBase(String name){
@@ -254,7 +269,7 @@ public class CustomItemBuilder {
 		}
 		ItemStack result = new ItemStack(material);
 		result.setAmount(amount);
-		result.setDurability(durability);
+		if(this.durability!=0) result.setDurability(durability);
 		this.update(result);
 		return result;
 	}
@@ -288,9 +303,14 @@ public class CustomItemBuilder {
 			if(this.colorMap>0){
 				nbtTags.setInt("ColorMap", this.colorMap);
 			}
-			nbtTags.set("AttributeModifiers", buildAttributeModifiers());
-			craftItemStack.setTag(nbtTags);
-			itemStack.setItemMeta(CraftItemStack.getItemMeta(craftItemStack));
+			NBTBase attributeModifiers = this.buildAttributeModifiers();
+			if(!attributeModifiers.isEmpty()){
+				nbtTags.set("AttributeModifiers", attributeModifiers);
+			}
+			if(!nbtTags.isEmpty()){
+				craftItemStack.setTag(nbtTags);
+				itemStack.setItemMeta(CraftItemStack.getItemMeta(craftItemStack));
+			}
 		}
 		itemStack.setItemMeta(buildItemMeta(itemStack));
 	}

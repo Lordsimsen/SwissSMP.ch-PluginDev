@@ -4,8 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class PlayerCommand implements CommandExecutor {
 
@@ -51,7 +55,34 @@ public class PlayerCommand implements CommandExecutor {
 			break;
 		}
 		case "inspect":{
-			sender.sendMessage("Noch nicht implementiert.");
+			if(!(sender instanceof Player)){
+				sender.sendMessage("[CustomItems] Kann nur ingame verwendet werden.");
+				return true;
+			}
+			Player player = (Player) sender;
+			ItemStack itemStack = player.getInventory().getItemInMainHand();
+			if(itemStack==null) itemStack = player.getInventory().getItemInOffHand();
+			if(itemStack==null) return true;
+			ItemMeta itemMeta = itemStack.getItemMeta();
+			String name;
+			if(itemMeta!=null){
+				name = itemMeta.getDisplayName();
+				if(name==null) name = itemMeta.getLocalizedName();
+			}
+			else{
+				name = itemStack.getType().name();
+			}
+			sender.sendMessage("[CustomItems] Analysiere "+name);
+			net.minecraft.server.v1_12_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
+			if(craftItemStack.hasTag()){
+				NBTTagCompound nbtTags = craftItemStack.getTag();
+				for(String tag : nbtTags.c()){
+					sender.sendMessage("- "+tag);
+				}
+			}
+			else{
+				sender.sendMessage("Keine NBT Daten gefunden.");
+			}
 			break;
 		}
 		default:

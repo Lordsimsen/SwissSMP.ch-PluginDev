@@ -6,8 +6,17 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.FurnaceInventory;
+import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantInventory;
+import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,6 +24,7 @@ import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.EnchantmentData;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class CustomItems extends JavaPlugin{
 	protected static Logger logger;
@@ -30,9 +40,18 @@ public class CustomItems extends JavaPlugin{
 		
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("customitems").setExecutor(playerCommand);
+		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
+	}
+	
+	public static String getCustomEnum(ItemStack itemStack){
+		if(itemStack==null)return null;
+		net.minecraft.server.v1_12_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
+		if(!craftItemStack.hasTag()) return null;
+		NBTTagCompound nbtTags = craftItemStack.getTag();
+		return nbtTags.getString("customEnum");
 	}
 	
 	public static CustomItemBuilder getCustomItemBuilder(String custom_enum){
@@ -218,7 +237,63 @@ public class CustomItems extends JavaPlugin{
 		}
 		return customItemBuilder;
 	}
+
 	
+	public static boolean checkIngredients(ShapedRecipe recipe, CraftingInventory inventory){
+		//String ingredientCustomEnum;
+		ItemStack itemStack;
+		ItemStack ingredient;
+		ItemStack[] matrix = inventory.getMatrix();
+		for(int x = 0; x < 3; x++){
+			for(int y = 0; y < 3; y++){
+				itemStack = matrix[x+y*3];
+				if(itemStack==null) continue;
+				ingredient = recipe.getIngredientMap().get(recipe.getShape()[y].charAt(x));
+				if(ingredient==null) return false;
+				if(!itemStack.isSimilar(ingredient)) return false;
+			}
+		}
+		return true;
+	}
+	
+	public static boolean checkIngredients(ShapelessRecipe recipe, CraftingInventory inventory){
+		outer:
+		for(ItemStack ingredient : recipe.getIngredientList()){
+			for(ItemStack itemStack : inventory.getMatrix()){
+				if(itemStack==null)continue;
+				if(itemStack.isSimilar(ingredient)){
+					continue outer;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	public static boolean checkIngredients(FurnaceRecipe recipe, FurnaceInventory inventory){
+		ItemStack ingredient = recipe.getInput();
+		for(ItemStack itemStack : inventory){
+			if(itemStack==null)continue;
+			if(itemStack.isSimilar(ingredient)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean checkIngredients(MerchantRecipe recipe, MerchantInventory inventory){
+		outer:
+		for(ItemStack ingredient : recipe.getIngredients()){
+			for(ItemStack itemStack : inventory){
+				if(itemStack==null)continue;
+				if(itemStack.isSimilar(ingredient)){
+					continue outer;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	public void onDisable() {
