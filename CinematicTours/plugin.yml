@@ -1,0 +1,10 @@
+main: ch.swisssmp.cinematictours.CinematicTours
+version: 1.0
+name: CinematicTours
+author: detig_iii
+description: Zeige den Spielern Kamerafahrten
+depend: [SwissSMPUtils,CPCameraStudioReborn]
+permissions: 
+  cinematictours.admin:
+    default: op
+    description: Erlaubt Platzierung von Tour Schildern
