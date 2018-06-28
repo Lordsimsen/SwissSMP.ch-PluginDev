@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -14,6 +15,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+
+import com.mysql.jdbc.StringUtils;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -26,18 +29,15 @@ public class CamCommand implements CommandExecutor {
 	final static int previewTime = CameraStudio.instance.getConfig().getInt("preview-time");
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (!(sender instanceof Player)) {
-			sender.sendMessage("Kann nur ingame ausgeführt werden.");
-			return true;
-		}
-		final Player player = (Player) sender;
+		Player player = null;
+		if(sender instanceof Player) player = (Player) sender;
 		if (args.length == 0) {
-			player.sendMessage(
+			sender.sendMessage(
 					prefix + ChatColor.RED + "Type " + ChatColor.WHITE + "/cam help" + ChatColor.RED + " for details");
 			return true;
 		}
 
-		if (!CameraStudio.instance.getConfig().getStringList("allowed-gamemodes")
+		if (player!=null && !CameraStudio.instance.getConfig().getStringList("allowed-gamemodes")
 				.contains(player.getGameMode().toString()) && !player.hasPermission("camerastudio.override-gamemode")) {
 			player.sendMessage(prefix + ChatColor.RED + "Du kannst diesen Befehl nicht in diesem GameMode verwenden.");
 			return true;
@@ -54,6 +54,10 @@ public class CamCommand implements CommandExecutor {
 
 		switch(subcmd.toLowerCase()){
 		case "p":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.point")){
 				return true;
 			}
@@ -105,6 +109,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "r":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.remove")){
 				return true;
 			}
@@ -146,6 +154,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "list":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.list")){
 				return true;
 			}
@@ -165,6 +177,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "reset":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.reset")){
 				return true;
 			}
@@ -175,6 +191,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "reload":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.admin")){
 				return true;
 			}
@@ -183,6 +203,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "goto":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.goto")){
 				return true;
 			}
@@ -214,6 +238,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "stop":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.stop")){
 				return true;
 			}
@@ -222,6 +250,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "help":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.help")){
 				return true;
 			}
@@ -241,7 +273,35 @@ public class CamCommand implements CommandExecutor {
 			}
 			return true;
 		}
+		case "sequence":{
+			if(args.length<1) return false;
+			Player currentPlayer;
+			if(args.length<2) currentPlayer = player;
+			else currentPlayer = Bukkit.getPlayer(args[1]);
+			if(currentPlayer==null){
+				sender.sendMessage("[CamStudio] Spieler "+args[1]+" nicht gefunden.");
+				return true;
+			}
+			String sequence_key = args[0];
+			CameraPathSequence cameraPathSequence;
+			if(StringUtils.isStrictlyNumeric(sequence_key)){
+				cameraPathSequence = CameraPathSequence.load(Integer.parseInt(sequence_key));
+			}
+			else{
+				cameraPathSequence = CameraPathSequence.load(sequence_key);
+			}
+			if(cameraPathSequence==null){
+				Bukkit.getLogger().info("[CamStudio] Sequence "+sequence_key+" not found.");
+				return true;
+			}
+			cameraPathSequence.runSequence(currentPlayer, null);
+			return true;
+		}
 		case "start":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.start")){
 				return true;
 			}
@@ -275,6 +335,10 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 		case "save":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.save")){
 				return true;
 			}
@@ -313,6 +377,10 @@ public class CamCommand implements CommandExecutor {
 			}
 		}
 		case "load":{
+			if(player==null){
+				sender.sendMessage("Befehl kann nur ingame verwendet werden.");
+				return true;
+			}
 			if(!player.hasPermission("camerastudio.load")){
 				return true;
 			}
