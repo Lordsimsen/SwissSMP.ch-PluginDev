@@ -1,0 +1,40 @@
+main: ch.swisssmp.towercontrol.TowerControl
+version: 1.0
+name: TowerControl
+author: detig_iii
+description: Veranstalte Tower Control Events!
+permissions:
+  towercontrol.admin:
+    description: Erlaubt Steuerung des Plugins
+    default: op
+commands:
+  karte:
+    description: Verwaltet Karten
+    usage: |
+      /karte aktiviere [Karten-ID]
+      /karte bearbeiten
+      /karte aktualisieren
+      /karte auflisten
+      /karte items
+    aliases: [karten,map,maps]
+    permission: towercontrol.admin
+  spiel:
+    description: Verwaltet eine Partie
+    usage: |
+      /spiel starten
+      /spiel beenden
+      /spiel debug
+    aliases: [game]
+    permission: towercontrol.admin
+  transformation:
+    description: Verwaltet Zustände
+    usage: |
+      Hinweis: [Transformations-Enum] ersetzen mit Enum (z.B. SNIPER_TURM)
+      /transformation aktualisieren
+      /transformation auflisten
+      /transformation erstellen [Transformations-Enum] [Zustand]
+      /transformation entfernen [Transformations-Enum] [Zustand]
+      /transformation setzen [Transformations-Enum] [Zustand] (Player)
+    aliases: [transformationen,multistate]
+    permission: towercontrol.admin
+depend: [WebCore,WorldEdit,WorldGuard,WGRegionEvents,CustomItems]
