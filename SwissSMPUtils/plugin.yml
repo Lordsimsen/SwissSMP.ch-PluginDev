@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.SwissSMPUtils
-version: 3.4
+version: 3.6.2
 name: SwissSMPUtils
 author: detig_iii
 description: Provides core functionality for other plugins

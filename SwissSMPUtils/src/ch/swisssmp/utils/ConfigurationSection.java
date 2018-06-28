@@ -5,12 +5,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -364,6 +366,18 @@ public class ConfigurationSection{
 	
 	public VectorKey getVectorKey(){
 		return new VectorKey(new Vector(this.getDouble("x"), this.getDouble("y"), this.getDouble("z")));
+	}
+	
+	public ItemStack getItemStack(String arg0){
+		org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
+		try {
+			yamlConfiguration.loadFromString(new String(Base64.decodeBase64(this.getString(arg0))));
+			return yamlConfiguration.getItemStack("item");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public void set(String arg0, Object arg1) {

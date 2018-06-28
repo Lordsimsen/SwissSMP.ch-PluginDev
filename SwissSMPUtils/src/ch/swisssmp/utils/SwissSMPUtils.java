@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -49,5 +51,13 @@ public class SwissSMPUtils extends JavaPlugin{
 		for(Player player : Bukkit.getOnlinePlayers()){
 			player.sendMessage(message);
 		}
+	}
+	
+	public static String encodeItemStack(ItemStack itemStack){
+		if(itemStack==null) return null;
+		org.bukkit.configuration.file.YamlConfiguration yamlConfiguration;
+		yamlConfiguration = new org.bukkit.configuration.file.YamlConfiguration();
+		yamlConfiguration.set("item", itemStack);
+		return Base64.encodeBase64URLSafeString(yamlConfiguration.saveToString().getBytes());
 	}
 }

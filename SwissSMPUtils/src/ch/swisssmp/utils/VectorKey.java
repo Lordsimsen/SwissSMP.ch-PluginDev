@@ -27,4 +27,10 @@ public class VectorKey{
 	public int hashCode(){
 		return this.hashCode;
 	}
+	
+	@Override
+	public String toString(){
+		return "VectorKey("+vector.getX()+","+vector.getY()+","+vector.getZ()+")";
+		
+	}
 }
