@@ -29,6 +29,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.VectorKey;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
@@ -69,23 +70,17 @@ class Shop {
 		this.owner_name = dataSection.getString("owner_name");
 		this.owner_uuid = UUID.fromString(dataSection.getString("owner_uuid"));
 		this.profession = Profession.valueOf(dataSection.getString("profession"));
-		List<String> trades = dataSection.getStringList("trades");
-		if(trades!=null){
-			for(String tradeData : trades){
-				org.bukkit.configuration.file.YamlConfiguration tradeConfiguration = new org.bukkit.configuration.file.YamlConfiguration();
-				try{
-					tradeConfiguration.loadFromString(new String(java.util.Base64.getDecoder().decode(tradeData)));
-				}
-				catch(Exception e){
-					e.printStackTrace();
-					continue;
-				}
+		ConfigurationSection tradesSection = dataSection.getConfigurationSection("trades");
+		if(tradesSection!=null){
+			ConfigurationSection tradeSection;
+			for(String key : tradesSection.getKeys(false)){
+				tradeSection = tradesSection.getConfigurationSection(key);
 				ItemStack price_1 = null;
 				ItemStack price_2 = null;
 				ItemStack result = null;
-				if(tradeConfiguration.contains("price_1")) price_1 = tradeConfiguration.getItemStack("price_1");
-				if(tradeConfiguration.contains("price_2")) price_2 = tradeConfiguration.getItemStack("price_2");
-				if(tradeConfiguration.contains("result")) result = tradeConfiguration.getItemStack("result");
+				if(tradeSection.contains("price_1")) price_1 = tradeSection.getItemStack("price_1");
+				if(tradeSection.contains("price_2")) price_2 = tradeSection.getItemStack("price_2");
+				if(tradeSection.contains("result")) result = tradeSection.getItemStack("result");
 				if(price_1!=null && result!=null){
 					MerchantRecipe trade = new MerchantRecipe(result, Integer.MAX_VALUE);
 					List<ItemStack> price = new ArrayList<ItemStack>();
@@ -388,48 +383,23 @@ class Shop {
 		this.recipes = recipes;
 		try{
 			List<String> arguments = new ArrayList<String>();
-			org.bukkit.configuration.file.YamlConfiguration yamlConfiguration;
 			for(int i = 0; i < this.recipes.size(); i++){
 				MerchantRecipe recipe = this.recipes.get(i);
 				List<ItemStack> ingredients = recipe.getIngredients();
 				ItemStack result = recipe.getResult();
 				ItemStack price_1 = ingredients.get(0);
 				ItemStack price_2 = (ingredients.size()>1)?ingredients.get(1):null;
-				yamlConfiguration = new org.bukkit.configuration.file.YamlConfiguration();
-				yamlConfiguration.set("result", result);
-				yamlConfiguration.set("price_1", price_1);
-				if(price_2!=null){
-					yamlConfiguration.set("price_2", price_2);
+				String resultString = SwissSMPUtils.encodeItemStack(result);
+				String price1String = SwissSMPUtils.encodeItemStack(price_1);
+				String price2String = SwissSMPUtils.encodeItemStack(price_2);
+				if(resultString!=null){
+					arguments.add("trades["+i+"][result]="+resultString);
 				}
-				arguments.add("trades["+i+"]="+URLEncoder.encode(yamlConfiguration.saveToString(), "utf-8"));
-				arguments.add("trades_display["+i+"][result][material]="+result.getType());
-				arguments.add("trades_display["+i+"][result][durability]="+result.getDurability());
-				arguments.add("trades_display["+i+"][result][amount]="+result.getAmount());
-				if(result.hasItemMeta()){
-					ItemMeta itemMeta = result.getItemMeta();
-					if(itemMeta.hasDisplayName()){
-						arguments.add("trades_display["+i+"][result][name]="+URLEncoder.encode(itemMeta.getDisplayName(), "utf-8"));
-					}
+				if(price1String!=null){
+					arguments.add("trades["+i+"][price_1]="+price1String);
 				}
-				arguments.add("trades_display["+i+"][price_1][material]="+price_1.getType());
-				arguments.add("trades_display["+i+"][price_1][durability]="+price_1.getDurability());
-				arguments.add("trades_display["+i+"][price_1][amount]="+price_1.getAmount());
-				if(price_1.hasItemMeta()){
-					ItemMeta itemMeta = price_1.getItemMeta();
-					if(itemMeta.hasDisplayName()){
-						arguments.add("trades_display["+i+"][price_1][name]="+URLEncoder.encode(itemMeta.getDisplayName(), "utf-8"));
-					}
-				}
-				if(price_2!=null){
-					arguments.add("trades_display["+i+"][price_2][material]="+price_2.getType());
-					arguments.add("trades_display["+i+"][price_2][durability]="+price_2.getDurability());
-					arguments.add("trades_display["+i+"][price_2][amount]="+price_2.getAmount());
-					if(price_2.hasItemMeta()){
-						ItemMeta itemMeta = price_2.getItemMeta();
-						if(itemMeta.hasDisplayName()){
-							arguments.add("trades_display["+i+"][price_2][name]="+URLEncoder.encode(itemMeta.getDisplayName(), "utf-8"));
-						}
-					}
+				if(price2String!=null){
+					arguments.add("trades["+i+"][price_2]="+price2String);
 				}
 			}
 			DataSource.getResponse("shop/trades.php", new String[]{
