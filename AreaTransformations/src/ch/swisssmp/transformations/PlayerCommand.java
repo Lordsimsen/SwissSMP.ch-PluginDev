@@ -41,7 +41,7 @@ public class PlayerCommand implements CommandExecutor{
 		    		for(TransformationArea area : transformationWorld.getTransformations()){
 		    			for(AreaState schematic : area.getSchematics()){
 		    				count++;
-		    				sender.sendMessage("("+area.getWorld().getName()+") ["+area.getTransformationId()+"] "+area.getName()+": "+schematic.getSchematicName());
+		    				sender.sendMessage("("+area.getWorld().getName()+") ["+area.getTransformationEnum()+"] "+area.getName()+": "+schematic.getSchematicName());
 		    			}
 		    		}
 				}
@@ -135,14 +135,15 @@ public class PlayerCommand implements CommandExecutor{
 	    			return true;
 	    		}
 	    		TransformationWorld transformationWorld = TransformationWorld.get(world);
-	    		if(!StringUtils.isNumeric(args[2])){
-	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformations-ID muss eine gültige ID aus dem Web-Interface sein.");
-	    			return true;
-	    		}
-	    		int transformation_id = Integer.parseInt(args[2]);
 	    		String schematicName = args[3];
-	    		
-	    		TransformationArea area = transformationWorld.getTransformation(transformation_id);
+	    		TransformationArea area;
+	    		if(StringUtils.isNumeric(args[2])){
+		    		int transformation_id = Integer.parseInt(args[2]);
+		    		area = transformationWorld.getTransformation(transformation_id);
+	    		}
+	    		else{
+	    			area = transformationWorld.getTransformation(args[2]);
+	    		}
 	    		if(area==null){
 	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformationsgruppe nicht gefunden.");
 	    			break;

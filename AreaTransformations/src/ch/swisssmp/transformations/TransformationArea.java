@@ -10,6 +10,7 @@ import ch.swisssmp.utils.ConfigurationSection;
 public class TransformationArea {
 	private final TransformationWorld transformationWorld;
 	private final int transformation_id;
+	private final String transformation_enum;
 	private final String name;
 	private String lastSchematic = "";
 	private final HashMap<String, AreaState> schematics = new HashMap<String, AreaState>();
@@ -17,6 +18,7 @@ public class TransformationArea {
 	public TransformationArea(TransformationWorld transformationWorld, ConfigurationSection dataSection){
 		this.transformationWorld = transformationWorld;
 		this.transformation_id = dataSection.getInt("transformation_id");
+		this.transformation_enum = dataSection.getString("enum");
 		this.name = dataSection.getString("name");
 		ConfigurationSection schematicsSection = dataSection.getConfigurationSection("schematics");
 		for(String key : schematicsSection.getKeys(false)){
@@ -48,6 +50,10 @@ public class TransformationArea {
 	
 	public String getName(){
 		return this.name;
+	}
+	
+	public String getTransformationEnum(){
+		return this.transformation_enum;
 	}
 	
 	public String getLastSchematic(){

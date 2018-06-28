@@ -13,14 +13,15 @@ import ch.swisssmp.webcore.DataSource;
 public class TransformationWorld{
 	private static HashMap<World,TransformationWorld> worlds = new HashMap<World,TransformationWorld>();
 	private HashMap<Integer,TransformationArea> transformations = new HashMap<Integer,TransformationArea>();
+	private HashMap<String,TransformationArea> transformationEnumMap = new HashMap<String,TransformationArea>();
 	
 	private final World world;
-	private String key;
+	private String world_name;
 	private boolean initialized = false;
 	
 	private TransformationWorld(World world){
 		this.world = world;
-		this.key = world.getName();
+		this.world_name = world.getName();
 		worlds.put(this.world, this);
 	}
 	
@@ -35,21 +36,27 @@ public class TransformationWorld{
 	}
 	
 	public void loadTransformations(){
-		this.loadTransformations(this.key);
+		this.loadTransformations(this.world_name);
 	}
 	
-	public void loadTransformations(String key){
+	public void loadTransformations(String world){
 		//cleanup duty
 		this.unloadTransformations();
 		//initialize
 		try{
-			this.key = key;
+			this.world_name = world;
 			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
-					"world="+key
+					"world="+world
 			});
-			for(String IDstring : yamlConfiguration.getKeys(false)){
-				ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection(IDstring);
-				transformations.put(dataSection.getInt("transformation_id"), new TransformationArea(this, dataSection));
+			if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;
+			ConfigurationSection transformationsSection = yamlConfiguration.getConfigurationSection("transformations");
+			ConfigurationSection transformationSection;
+			TransformationArea transformationArea;
+			for(String key : transformationsSection.getKeys(false)){
+				transformationSection = transformationsSection.getConfigurationSection(key);
+				transformationArea = new TransformationArea(this, transformationSection);
+				transformations.put(transformationArea.getTransformationId(), transformationArea);
+				transformationEnumMap.put(transformationArea.getTransformationEnum(), transformationArea);
 			}
 		}
 		catch(Exception e){
@@ -66,6 +73,7 @@ public class TransformationWorld{
 			}
 		}
 		transformations.clear();
+		transformationEnumMap.clear();
 	}
 	
 	public boolean setTransformation(int transformation_id, int state, Player player){
@@ -79,6 +87,13 @@ public class TransformationWorld{
 			this.loadTransformations();
 		}
 		return transformations.get(transformation_id);
+	}
+	
+	public TransformationArea getTransformation(String transformation_enum){
+		if(!this.initialized){
+			this.loadTransformations();
+		}
+		return transformationEnumMap.get(transformation_enum.toUpperCase());
 	}
 	
 	protected TransformationArea[] getTransformations(){
