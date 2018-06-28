@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -75,7 +74,6 @@ public class EventListener implements Listener {
 		if(block.getType()!=Material.WALL_SIGN && block.getType()!=Material.SIGN_POST) return;
 		Sign sign = (Sign)block.getState();
 		if(!sign.getLine(0).equals("§4Ritterspiele")){
-			Bukkit.getLogger().info("Kein Ritterspiel-Schild");
 			return;
 		}
 		String arenaName = sign.getLine(1);
