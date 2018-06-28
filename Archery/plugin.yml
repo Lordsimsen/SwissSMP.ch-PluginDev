@@ -1,0 +1,10 @@
+main: ch.swisssmp.archery.Archery
+version: 1.0
+name: Archery
+author: detig_iii
+description: Erlaubt Crafting von neuen Pfeilsorten und Köchern, zeigt Pfeilschaden auf Dummy-Figuren
+depend: [WebCore,CustomItems]
+permissions:
+  archery.craft:
+    description: Erlaubt Crafting von Pfeilen und Köcher
+    default: op
