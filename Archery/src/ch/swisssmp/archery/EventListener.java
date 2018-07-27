@@ -86,6 +86,7 @@ public class EventListener implements Listener{
 				mainhand.getType()!=Material.TIPPED_ARROW && offhand.getType()!=Material.TIPPED_ARROW
 				)){
 			arrowStack = ItemManager.getFirstArrowStack(playerInventory);
+			//if(arrowStack==null) Bukkit.getLogger().info("[Archery] Could not find an Arrow Stack in Inventory.");
 		}
 		else{
 			if(mainhand.getType()==Material.ARROW || mainhand.getType() == Material.TIPPED_ARROW){
@@ -96,6 +97,7 @@ public class EventListener implements Listener{
 			}
 			else{
 				//should not happen, it would mean that no arrow stack was found (maybe in creative?)
+				//Bukkit.getLogger().info("[Archery] Could not find an Arrow Stack in Hands.");
 				return;
 			}
 		}

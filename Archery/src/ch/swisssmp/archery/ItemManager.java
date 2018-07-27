@@ -44,9 +44,13 @@ public class ItemManager {
 	
 	public static ItemStack getFirstArrowStack(Inventory inventory){
 		int slot;
-		slot = Math.min(inventory.first(Material.ARROW),inventory.first(Material.TIPPED_ARROW));
-		if(slot>=0) return inventory.getItem(slot);
-		return null;
+		int arrowSlot = inventory.first(Material.ARROW);
+		int tippedArrowSlot = inventory.first(Material.TIPPED_ARROW);
+		if(arrowSlot>=0 && tippedArrowSlot>=0) slot = Math.min(arrowSlot, tippedArrowSlot);
+		else if(arrowSlot>=0) slot = arrowSlot;
+		else if(tippedArrowSlot>=0) slot = tippedArrowSlot;
+		else return null;
+		return inventory.getItem(slot);
 	}
 	
 	public static ItemStack getQuiver(Inventory inventory){
