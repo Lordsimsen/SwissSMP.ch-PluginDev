@@ -1,0 +1,20 @@
+main: ch.swisssmp.dungeongenerator.DungeonGeneratorPlugin
+version: 1.0
+name: DungeonGenerator
+author: detig_iii
+description: Generiert prozedurale Dungeons aufgrund von gitterbasierten Teilstücken
+depend: [WebCore,WorldEdit]
+permissions:
+  generator.admin:
+    description: Erlaubt Verwendung des Plugins
+commands:
+  generator:
+    description: Steuert den Generator
+    usage: |
+      /generator info - Zeigt Informationen über den Generator an
+      /generator erstelle [Name] (XZ=16) (Y=16) - Erstellt einen neuen Generator mit den angegebenen Teilgrössen
+      /generator bearbeite [Name] [Variabel:Wert...] - Ändert Einstellungen am Generator (Verfügbar: Name, GrösseX, GrösseZ)
+      /generator hierhin [Name] (x) (y) (z) - Setzt den Ausgangspunkt vom Vorlagengitter zu deiner Position
+      /generator aktualisiere [Name] - Aktualisiert Daten
+      /generator generiere [Name] (Grösse=100) (Seed=Random) - Generiert einen Dungeon
+    permission: generator.admin
