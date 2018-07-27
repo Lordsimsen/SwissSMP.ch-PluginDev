@@ -1,8 +1,6 @@
 package ch.swisssmp.world;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -16,6 +14,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -64,78 +63,68 @@ public class WorldManager extends JavaPlugin{
 	protected World loadWorld(String worldName){
 		Bukkit.getLogger().info("[WorldManager] Lade Welt "+worldName);
 		YamlConfiguration yamlConfiguration;
-		try {
-			yamlConfiguration = DataSource.getYamlResponse("world/load.php", new String[]{
-					"world="+URLEncoder.encode(worldName, "utf-8")
-			});
-			if(yamlConfiguration==null || !yamlConfiguration.contains("world")) return null;
-			ConfigurationSection worldSection = yamlConfiguration.getConfigurationSection("world");
-			WorldBorder worldBorder = null;
-			if(worldSection.contains("world_border")){
-				if(this.worldBorders.containsKey(worldName)) this.worldBorders.remove(worldName);
-				worldBorder = WorldBorder.create(worldSection.getConfigurationSection("world_border"));
-				this.worldBorders.put(worldName, worldBorder);
-			}
-			World existing = Bukkit.getWorld(worldName);
-			if(existing!=null){
-				if(worldBorder!=null && !worldBorder.doWrap()){
-					existing.getWorldBorder().setCenter(worldBorder.getCenterX(), worldBorder.getCenterZ());
-					existing.getWorldBorder().setSize(worldBorder.getRadius()*2);
-					existing.getWorldBorder().setWarningDistance(worldBorder.getMargin());
-				}
-				else if(worldBorder!=null && worldBorder.doWrap()){
-					existing.getWorldBorder().reset();
-				}
-				return existing;
-			}
-			File mainWorldAdvancementsFile = new File(Bukkit.getWorldContainer(), Bukkit.getWorlds().get(0).getName()+"/data/advancements");
-			File worldAdvancementsFile = new File(Bukkit.getWorldContainer(), worldName+"/data/advancements");
-			if(worldAdvancementsFile.exists()){
-				WorldFileUtil.deleteRecursive(worldAdvancementsFile);
-			}
-			WorldFileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
-			WorldCreator creator = new WorldCreator(worldName);
-			creator.environment(Environment.valueOf(worldSection.getString("environment")));
-			creator.generateStructures(worldSection.getBoolean("generate_structures"));
-			creator.seed(worldSection.getLong("seed"));
-			creator.type(WorldType.valueOf(worldSection.getString("world_type")));
-			World result = Bukkit.createWorld(creator);
-			if(result==null) return null;
-			if(yamlConfiguration.contains("gamerules")){
-				ConfigurationSection gamerulesSection = yamlConfiguration.getConfigurationSection("gamerules");
-				for(String gamerule : gamerulesSection.getKeys(false)){
-					if(!result.setGameRuleValue(gamerule, gamerulesSection.getString(gamerule))){
-						Bukkit.getLogger().info("[WorldManager] Gamerule "+gamerule+" für Welt "+worldName+" konnte nicht auf "+gamerulesSection.getString(gamerule)+" gesetzt werden.");
-					}
-				}
-			}
-			result.setSpawnLocation(yamlConfiguration.getInt("spawn_x"), yamlConfiguration.getInt("spawn_y"), yamlConfiguration.getInt("spawn_z"));
+		yamlConfiguration = DataSource.getYamlResponse("world/load.php", new String[]{
+				"world="+URLEncoder.encode(worldName)
+		});
+		if(yamlConfiguration==null || !yamlConfiguration.contains("world")) return null;
+		ConfigurationSection worldSection = yamlConfiguration.getConfigurationSection("world");
+		WorldBorder worldBorder = null;
+		if(worldSection.contains("world_border")){
+			if(this.worldBorders.containsKey(worldName)) this.worldBorders.remove(worldName);
+			worldBorder = WorldBorder.create(worldSection.getConfigurationSection("world_border"));
+			this.worldBorders.put(worldName, worldBorder);
+		}
+		World existing = Bukkit.getWorld(worldName);
+		if(existing!=null){
 			if(worldBorder!=null && !worldBorder.doWrap()){
-				result.getWorldBorder().setCenter(worldBorder.getCenterX(), worldBorder.getCenterZ());
-				result.getWorldBorder().setSize(worldBorder.getRadius());
-				result.getWorldBorder().setWarningDistance(worldBorder.getMargin());
+				existing.getWorldBorder().setCenter(worldBorder.getCenterX(), worldBorder.getCenterZ());
+				existing.getWorldBorder().setSize(worldBorder.getRadius()*2);
+				existing.getWorldBorder().setWarningDistance(worldBorder.getMargin());
 			}
 			else if(worldBorder!=null && worldBorder.doWrap()){
-				result.getWorldBorder().reset();
+				existing.getWorldBorder().reset();
 			}
-			return result;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			return existing;
 		}
+		File mainWorldAdvancementsFile = new File(Bukkit.getWorldContainer(), Bukkit.getWorlds().get(0).getName()+"/data/advancements");
+		File worldAdvancementsFile = new File(Bukkit.getWorldContainer(), worldName+"/data/advancements");
+		if(worldAdvancementsFile.exists()){
+			WorldFileUtil.deleteRecursive(worldAdvancementsFile);
+		}
+		WorldFileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
+		WorldCreator creator = new WorldCreator(worldName);
+		creator.environment(Environment.valueOf(worldSection.getString("environment")));
+		creator.generateStructures(worldSection.getBoolean("generate_structures"));
+		creator.seed(worldSection.getLong("seed"));
+		creator.type(WorldType.valueOf(worldSection.getString("world_type")));
+		World result = Bukkit.createWorld(creator);
+		if(result==null) return null;
+		if(yamlConfiguration.contains("gamerules")){
+			ConfigurationSection gamerulesSection = yamlConfiguration.getConfigurationSection("gamerules");
+			for(String gamerule : gamerulesSection.getKeys(false)){
+				if(!result.setGameRuleValue(gamerule, gamerulesSection.getString(gamerule))){
+					Bukkit.getLogger().info("[WorldManager] Gamerule "+gamerule+" für Welt "+worldName+" konnte nicht auf "+gamerulesSection.getString(gamerule)+" gesetzt werden.");
+				}
+			}
+		}
+		result.setSpawnLocation(yamlConfiguration.getInt("spawn_x"), yamlConfiguration.getInt("spawn_y"), yamlConfiguration.getInt("spawn_z"));
+		if(worldBorder!=null && !worldBorder.doWrap()){
+			result.getWorldBorder().setCenter(worldBorder.getCenterX(), worldBorder.getCenterZ());
+			result.getWorldBorder().setSize(worldBorder.getRadius());
+			result.getWorldBorder().setWarningDistance(worldBorder.getMargin());
+		}
+		else if(worldBorder!=null && worldBorder.doWrap()){
+			result.getWorldBorder().reset();
+		}
+		return result;
 	}
 	
 	protected boolean unloadWorld(String worldName, boolean save){
 		Bukkit.getLogger().info("[WorldManager] Deaktiviere Welt "+worldName);
 		if(Bukkit.unloadWorld(worldName, save)){
-			try {
-				DataSource.getResponse("world/unload.php", new String[]{
-						"world="+URLEncoder.encode(worldName, "utf-8")
-				});
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			DataSource.getResponse("world/unload.php", new String[]{
+					"world="+URLEncoder.encode(worldName)
+			});
 			return true;
 		}
 		else return false;

@@ -1,8 +1,5 @@
 package ch.swisssmp.towercontrol;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -30,6 +27,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -103,23 +101,18 @@ public class EventListener implements Listener{
 			Block block = event.getClickedBlock();
 			Location loc = event.getPlayer().getLocation();
 			YamlConfiguration yamlConfiguration;
-			try {
-				yamlConfiguration = DataSource.getYamlResponse("towercontrol/editor.php", new String[]{
-					"arena="+arena.getArenaId(),
-					"block_x="+block.getX(),
-					"block_y="+block.getY(),
-					"block_z="+block.getZ(),
-					"x="+loc.getX(),
-					"y="+loc.getY(),
-					"z="+loc.getZ(),
-					"yaw="+loc.getYaw(),
-					"pitch="+loc.getPitch(),
-					"action="+URLEncoder.encode(action.toLowerCase().replace(' ', '_'), "utf-8")
-				});
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-				return;
-			}
+			yamlConfiguration = DataSource.getYamlResponse("towercontrol/editor.php", new String[]{
+				"arena="+arena.getArenaId(),
+				"block_x="+block.getX(),
+				"block_y="+block.getY(),
+				"block_z="+block.getZ(),
+				"x="+loc.getX(),
+				"y="+loc.getY(),
+				"z="+loc.getZ(),
+				"yaw="+loc.getYaw(),
+				"pitch="+loc.getPitch(),
+				"action="+URLEncoder.encode(action.toLowerCase().replace(' ', '_'))
+			});
 			if(yamlConfiguration==null){
 				return;
 			}

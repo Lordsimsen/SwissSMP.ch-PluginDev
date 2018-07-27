@@ -1,6 +1,5 @@
 package ch.swisssmp.towercontrol;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +20,7 @@ import org.bukkit.util.Vector;
 
 import ch.swisssmp.towercontrol.transformations.TransformationArea;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.VectorKey;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
@@ -325,22 +325,17 @@ public class Arena {
 	
 	public void loadTransformations(){
 		this.transformationAreas.clear();
-		try{
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
-					"world="+URLEncoder.encode(this.world.getName(), "utf-8")
-			});
-			if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;
-			ConfigurationSection transformationsSection = yamlConfiguration.getConfigurationSection("transformations");
-			ConfigurationSection transformationSection;
-			TransformationArea transformationArea;
-			for(String key : transformationsSection.getKeys(false)){
-				transformationSection = transformationsSection.getConfigurationSection(key);
-				transformationArea = new TransformationArea(this.world, transformationSection);
-				transformationAreas.put(transformationArea.getTransformationEnum(), transformationArea);
-			}
-		}
-		catch(Exception e){
-			e.printStackTrace();
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
+				"world="+URLEncoder.encode(this.world.getName())
+		});
+		if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;
+		ConfigurationSection transformationsSection = yamlConfiguration.getConfigurationSection("transformations");
+		ConfigurationSection transformationSection;
+		TransformationArea transformationArea;
+		for(String key : transformationsSection.getKeys(false)){
+			transformationSection = transformationsSection.getConfigurationSection(key);
+			transformationArea = new TransformationArea(this.world, transformationSection);
+			transformationAreas.put(transformationArea.getTransformationEnum(), transformationArea);
 		}
 	}
 	

@@ -1,7 +1,6 @@
 package ch.swisssmp.worldguardmanager;
 
 import java.io.File;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.RequestMethod;
 
@@ -48,8 +48,6 @@ public class WorldGuardManager extends JavaPlugin{
 	}
 	
 	public void UpdateWorldGuardInfos(){
-			String encoding = "UTF-8";
-
 			List<String> informations;
 			
 			List<World> worlds = Bukkit.getWorlds();
@@ -66,41 +64,35 @@ public class WorldGuardManager extends JavaPlugin{
 			String[] infoArray;
 			
 			for(World world : worlds){
-				try{
-					worldName = URLEncoder.encode(world.getName(), encoding);
-					if(worldName.contains("instance")) continue;
-					informations = new ArrayList<String>();
-					informations.add("world="+worldName);
-					regionManager = WorldGuardPlugin.inst().getRegionManager(world);
-					regions = regionManager.getRegions();
-					for(Entry<String,ProtectedRegion> regionEntry : regions.entrySet()){
-						regionName = URLEncoder.encode(regionEntry.getKey(), encoding);
-						region = regionEntry.getValue();
-						informations.add("regions["+regionName+"][id]="+URLEncoder.encode(region.getId(), encoding));
-						informations.add("regions["+regionName+"][priority]="+URLEncoder.encode(String.valueOf(region.getPriority()), encoding));
-						informations.add("regions["+regionName+"][type]="+URLEncoder.encode(region.getType().toString(), encoding));
-						informations.add("regions["+regionName+"][minimum]="+URLEncoder.encode(region.getMinimumPoint().toString(), encoding));
-						informations.add("regions["+regionName+"][maximum]="+URLEncoder.encode(region.getMaximumPoint().toString(), encoding));
-						if(region.getParent()!=null){
-							informations.add("regions["+regionName+"][parent]="+URLEncoder.encode(region.getParent().getId(), encoding));
-						}
-						for(Entry<Flag<?>, Object> flagEntry : region.getFlags().entrySet()){
-							flag = flagEntry.getKey();
-							flagValue = flagEntry.getValue();
-							informations.add("regions["+regionName+"][flags]["+flag.getName()+"][value]="+URLEncoder.encode(String.valueOf(flagValue),encoding));
-							informations.add("regions["+regionName+"][flags]["+flag.getName()+"][inherited]="+URLEncoder.encode(String.valueOf(flag.implicitlySetWithMembership()),encoding));
-						}
+				worldName = URLEncoder.encode(world.getName());
+				if(worldName.contains("instance")) continue;
+				informations = new ArrayList<String>();
+				informations.add("world="+worldName);
+				regionManager = WorldGuardPlugin.inst().getRegionManager(world);
+				regions = regionManager.getRegions();
+				for(Entry<String,ProtectedRegion> regionEntry : regions.entrySet()){
+					regionName = URLEncoder.encode(regionEntry.getKey());
+					region = regionEntry.getValue();
+					informations.add("regions["+regionName+"][id]="+URLEncoder.encode(region.getId()));
+					informations.add("regions["+regionName+"][priority]="+URLEncoder.encode(String.valueOf(region.getPriority())));
+					informations.add("regions["+regionName+"][type]="+URLEncoder.encode(region.getType().toString()));
+					informations.add("regions["+regionName+"][minimum]="+URLEncoder.encode(region.getMinimumPoint().toString()));
+					informations.add("regions["+regionName+"][maximum]="+URLEncoder.encode(region.getMaximumPoint().toString()));
+					if(region.getParent()!=null){
+						informations.add("regions["+regionName+"][parent]="+URLEncoder.encode(region.getParent().getId()));
 					}
-					
-					infoArray = new String[informations.size()];
-					
-					DataSource.getResponse("world/region_info.php", informations.toArray(infoArray), RequestMethod.POST);
-					logger.info("Region info for "+worldName+" updated.");
+					for(Entry<Flag<?>, Object> flagEntry : region.getFlags().entrySet()){
+						flag = flagEntry.getKey();
+						flagValue = flagEntry.getValue();
+						informations.add("regions["+regionName+"][flags]["+flag.getName()+"][value]="+URLEncoder.encode(String.valueOf(flagValue)));
+						informations.add("regions["+regionName+"][flags]["+flag.getName()+"][inherited]="+URLEncoder.encode(String.valueOf(flag.implicitlySetWithMembership())));
+					}
 				}
-				catch(Exception e){
-					logger.info("[ServerManager] Error updating region info for "+world.getName());
-					e.printStackTrace();
-				}
+				
+				infoArray = new String[informations.size()];
+				
+				DataSource.getResponse("world/region_info.php", informations.toArray(infoArray), RequestMethod.POST);
+				logger.info("Region info for "+worldName+" updated.");
 			}
 	}
 

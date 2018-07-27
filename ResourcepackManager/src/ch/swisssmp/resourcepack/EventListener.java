@@ -1,7 +1,5 @@
 package ch.swisssmp.resourcepack;
 
-import java.net.URLEncoder;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -10,6 +8,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -44,16 +43,11 @@ public class EventListener implements Listener{
 		else if(event.getStatus()==Status.SUCCESSFULLY_LOADED || event.getStatus()==Status.FAILED_DOWNLOAD){
 			event.getPlayer().setInvulnerable(false);
 			if(event.getStatus()==Status.FAILED_DOWNLOAD){
-				try {
-					DataSource.getResponse("server/alerts.php", new String[]{
-							"plugin=ResourcepackManager",
-							"player="+event.getPlayer().getUniqueId(),
-							"message=Resourcepack "+URLEncoder.encode(ResourcepackManager.playerMap.get(event.getPlayer()), "utf-8")+" konnte nicht geladen werden."
-						});
-				}
-				catch(Exception e){
-					e.printStackTrace();
-				}
+				DataSource.getResponse("server/alerts.php", new String[]{
+						"plugin=ResourcepackManager",
+						"player="+event.getPlayer().getUniqueId(),
+						"message=Resourcepack "+URLEncoder.encode(ResourcepackManager.playerMap.get(event.getPlayer()))+" konnte nicht geladen werden."
+					});
 				ResourcepackManager.playerMap.remove(event.getPlayer());
 			}
 		}

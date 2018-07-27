@@ -4,11 +4,13 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
-import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_12_R1.MinecraftServer;
+import net.minecraft.server.v1_12_R1.PlayerInteractManager;
+import net.minecraft.server.v1_12_R1.WorldServer;
 
-import java.net.URLEncoder;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -20,62 +22,44 @@ import org.bukkit.Location;
 
 public class PlayerStatueManager {
 	protected static boolean create(Location location, String playerName, String statueName){
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("statues/create.php", new String[]{
-					"player="+URLEncoder.encode(playerName, "utf-8"),
-					"name="+URLEncoder.encode(statueName, "utf-8"),
-					"x="+location.getX(),
-					"y="+location.getY(),
-					"z="+location.getZ(),
-					"yaw="+location.getYaw(),
-					"pitch="+location.getPitch(),
-					"world="+URLEncoder.encode(location.getWorld().getName(),"utf-8")
-			});
-			if(yamlConfiguration==null || !yamlConfiguration.contains("statue")) return false;
-			ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection("statue");
-			place(dataSection);
-			return true;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("statues/create.php", new String[]{
+				"player="+URLEncoder.encode(playerName),
+				"name="+URLEncoder.encode(statueName),
+				"x="+location.getX(),
+				"y="+location.getY(),
+				"z="+location.getZ(),
+				"yaw="+location.getYaw(),
+				"pitch="+location.getPitch(),
+				"world="+URLEncoder.encode(location.getWorld().getName())
+		});
+		if(yamlConfiguration==null || !yamlConfiguration.contains("statue")) return false;
+		ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection("statue");
+		place(dataSection);
+		return true;
 	}
 	protected static boolean update(Location location, String statueName, int range){
-		try {
-			DataSource.getResponse("statues/update.php", new String[]{
-					"name="+URLEncoder.encode(statueName, "utf-8"),
-					"range="+range,
-					"x="+location.getX(),
-					"y="+location.getY(),
-					"z="+location.getZ(),
-					"yaw="+location.getYaw(),
-					"pitch="+location.getPitch(),
-					"world="+URLEncoder.encode(location.getWorld().getName(),"utf-8")
-			});
-			return true;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+		DataSource.getResponse("statues/update.php", new String[]{
+				"name="+URLEncoder.encode(statueName),
+				"range="+range,
+				"x="+location.getX(),
+				"y="+location.getY(),
+				"z="+location.getZ(),
+				"yaw="+location.getYaw(),
+				"pitch="+location.getPitch(),
+				"world="+URLEncoder.encode(location.getWorld().getName())
+		});
+		return true;
 	}
 	protected static boolean remove(Location location, String statueName, int range){
-		try {
-			DataSource.getResponse("statues/remove.php", new String[]{
-					"name="+URLEncoder.encode(statueName, "utf-8"),
-					"range="+range,
-					"x="+location.getX(),
-					"y="+location.getY(),
-					"z="+location.getZ(),
-					"world="+URLEncoder.encode(location.getWorld().getName(),"utf-8")
-			});
-			return true;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+		DataSource.getResponse("statues/remove.php", new String[]{
+				"name="+URLEncoder.encode(statueName),
+				"range="+range,
+				"x="+location.getX(),
+				"y="+location.getY(),
+				"z="+location.getZ(),
+				"world="+URLEncoder.encode(location.getWorld().getName())
+		});
+		return true;
 	}
 	protected static void place(ConfigurationSection dataSection) {
     	String name = dataSection.getString("name");
@@ -99,9 +83,10 @@ public class PlayerStatueManager {
         npc.spawnIn(nmsWorld);
         ((CraftWorld)location.getWorld()).getHandle().addEntity(npc, SpawnReason.CUSTOM);
     }
-	
+	/*
 	protected static void loadStatues(org.bukkit. world){
 		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("statues/get.php");
 		
 	}
+	*/
 }

@@ -1,12 +1,11 @@
 package ch.swisssmp.knightstournament;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 
 import org.bukkit.Location;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -64,27 +63,22 @@ public class KnightsArena {
 	}
 	
 	public static KnightsArena load(String name){
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("knights_tournament/arena.php", new String[]{
-				"arena="+URLEncoder.encode(name, "utf-8")	
-			});
-			if(yamlConfiguration.contains("arena")){
-				ConfigurationSection arenaSection = yamlConfiguration.getConfigurationSection("arena");
-				Location posOne = arenaSection.getLocation("pos_1");
-				Location center = arenaSection.getLocation("center");
-				Location posTwo = arenaSection.getLocation("pos_2");
-				String beginSound = arenaSection.getString("begin_sound");
-				String callSound = arenaSection.getString("call_sound");
-				String endSound = arenaSection.getString("end_sound");
-				if(posOne!=null && center!=null && posTwo!=null){
-					KnightsArena result = new KnightsArena(name, posOne, center, posTwo, beginSound, callSound, endSound);
-					KnightsArena.loadedArenas.put(name.toLowerCase(), result);
-					return result;
-				}
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("knights_tournament/arena.php", new String[]{
+			"arena="+URLEncoder.encode(name)	
+		});
+		if(yamlConfiguration.contains("arena")){
+			ConfigurationSection arenaSection = yamlConfiguration.getConfigurationSection("arena");
+			Location posOne = arenaSection.getLocation("pos_1");
+			Location center = arenaSection.getLocation("center");
+			Location posTwo = arenaSection.getLocation("pos_2");
+			String beginSound = arenaSection.getString("begin_sound");
+			String callSound = arenaSection.getString("call_sound");
+			String endSound = arenaSection.getString("end_sound");
+			if(posOne!=null && center!=null && posTwo!=null){
+				KnightsArena result = new KnightsArena(name, posOne, center, posTwo, beginSound, callSound, endSound);
+				KnightsArena.loadedArenas.put(name.toLowerCase(), result);
+				return result;
 			}
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return null;
 	}

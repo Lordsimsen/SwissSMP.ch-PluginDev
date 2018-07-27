@@ -1,6 +1,5 @@
 package ch.swisssmp.transportation;
 
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -33,19 +33,14 @@ public class PublicTransportation extends JavaPlugin{
 	}
 	
 	protected static void updateTrainStations(){
-		try{
-			for(World world : Bukkit.getWorlds()){
-				YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transportation/stations.php", new String[]{
-						"world="+URLEncoder.encode(world.getName(), "utf-8")
-				});
-				if(yamlConfiguration==null) continue;
-				if(!yamlConfiguration.contains("stations")) continue;
-				trainStations.remove(world);
-				trainStations.put(world, yamlConfiguration.getStringList("stations"));
-			}
-		}
-		catch(Exception e){
-			
+		for(World world : Bukkit.getWorlds()){
+			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transportation/stations.php", new String[]{
+					"world="+URLEncoder.encode(world.getName())
+			});
+			if(yamlConfiguration==null) continue;
+			if(!yamlConfiguration.contains("stations")) continue;
+			trainStations.remove(world);
+			trainStations.put(world, yamlConfiguration.getStringList("stations"));
 		}
 	}
 	

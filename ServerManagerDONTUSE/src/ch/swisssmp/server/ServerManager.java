@@ -2,10 +2,8 @@ package ch.swisssmp.server;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +24,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.RequestMethod;
@@ -93,35 +92,27 @@ public class ServerManager extends JavaPlugin implements Listener{
 	}
 	
 	public void updatePluginInfos(){
-			String encoding = "UTF-8";
 			reload();
-			try{
-				String response = DataSource.getResponse("server/server_info.php", new String[]{
-						"server_id="+URLEncoder.encode(String.valueOf(server_id),encoding),
-						"server_version="+URLEncoder.encode(Bukkit.getBukkitVersion(),encoding),
-						"server_ip="+URLEncoder.encode(Bukkit.getIp()+":"+Bukkit.getPort(),encoding),
-				});
-				if(!String.valueOf(server_id).equals(response)){
-					if(response.isEmpty()){
-						logger.info("Did not receive new Server ID. Please try again.");
-						return;
-					}
-					server_id = Integer.parseInt(response);
-					if(server_id>0){
-						config.set("server_id", server_id);
-						config.save(configFile);
-					}
-					else{
-						logger.info("Server could not be registered!");
-						Bukkit.getPluginManager().disablePlugin(this);
-						return;
-					}
+			String response = DataSource.getResponse("server/server_info.php", new String[]{
+					"server_id="+URLEncoder.encode(String.valueOf(server_id)),
+					"server_version="+URLEncoder.encode(Bukkit.getBukkitVersion()),
+					"server_ip="+URLEncoder.encode(Bukkit.getIp()+":"+Bukkit.getPort()),
+			});
+			if(!String.valueOf(server_id).equals(response)){
+				if(response.isEmpty()){
+					logger.info("Did not receive new Server ID. Please try again.");
+					return;
 				}
-			}
-			catch(Exception e){
-				e.printStackTrace();
-				Bukkit.getPluginManager().disablePlugin(this);
-				return;
+				server_id = Integer.parseInt(response);
+				if(server_id>0){
+					config.set("server_id", server_id);
+					config.save(configFile);
+				}
+				else{
+					logger.info("Server could not be registered!");
+					Bukkit.getPluginManager().disablePlugin(this);
+					return;
+				}
 			}
 			
 			PluginManager pluginManager = Bukkit.getPluginManager();
@@ -136,72 +127,61 @@ public class ServerManager extends JavaPlugin implements Listener{
 			List<String> authors;
 			String website;
 			for(Plugin plugin : plugins){
-				try{
-					informations = new ArrayList<String>();
-					PluginDescriptionFile pluginDescriptionFile = plugin.getDescription();
-					informations.add("name="+URLEncoder.encode(pluginDescriptionFile.getName(),encoding));
-					description = pluginDescriptionFile.getDescription();
-					if(description!=null)
-						informations.add("description="+URLEncoder.encode(description,encoding));
-					version = pluginDescriptionFile.getVersion();
-					if(version!=null)
-						informations.add("version="+URLEncoder.encode(version,encoding));
-					authors = pluginDescriptionFile.getAuthors();
-					if(authors!=null)
-						informations.add("author="+URLEncoder.encode(String.join(", ", authors),encoding));
-					website = pluginDescriptionFile.getWebsite();
-					if(website!=null)
-						informations.add("website="+URLEncoder.encode(website,encoding));
-					informations.add("server_id="+server_id);
-					
-					subobject_id = 0;
-					permissions = pluginDescriptionFile.getPermissions();
-					if(permissions!=null){
-						for(Permission permission : permissions){
-							informations.add("permissions["+subobject_id+"][name]="+URLEncoder.encode(permission.getName(),encoding));
-							informations.add("permissions["+subobject_id+"][description]="+URLEncoder.encode(permission.getDescription(),encoding));
-							informations.add("permissions["+subobject_id+"][default]="+URLEncoder.encode(permission.getDefault().name(),encoding));
-							subobject_id++;
-						}
+				informations = new ArrayList<String>();
+				PluginDescriptionFile pluginDescriptionFile = plugin.getDescription();
+				informations.add("name="+URLEncoder.encode(pluginDescriptionFile.getName()));
+				description = pluginDescriptionFile.getDescription();
+				if(description!=null)
+					informations.add("description="+URLEncoder.encode(description));
+				version = pluginDescriptionFile.getVersion();
+				if(version!=null)
+					informations.add("version="+URLEncoder.encode(version));
+				authors = pluginDescriptionFile.getAuthors();
+				if(authors!=null)
+					informations.add("author="+URLEncoder.encode(String.join(", ", authors)));
+				website = pluginDescriptionFile.getWebsite();
+				if(website!=null)
+					informations.add("website="+URLEncoder.encode(website));
+				informations.add("server_id="+server_id);
+				
+				subobject_id = 0;
+				permissions = pluginDescriptionFile.getPermissions();
+				if(permissions!=null){
+					for(Permission permission : permissions){
+						informations.add("permissions["+subobject_id+"][name]="+URLEncoder.encode(permission.getName()));
+						informations.add("permissions["+subobject_id+"][description]="+URLEncoder.encode(permission.getDescription()));
+						informations.add("permissions["+subobject_id+"][default]="+URLEncoder.encode(permission.getDefault().name()));
+						subobject_id++;
 					}
+				}
 
-					subobject_id = 0;
-					Map<String,Map<String,Object>> commandsMap = pluginDescriptionFile.getCommands();
-					if(commandsMap!=null){
-						commands = commandsMap.keySet();
-						Map<String,Object> commandData;
-						for(String command : commands){
-							commandData = commandsMap.get(command);
-							for(String property : commandData.keySet()){
-								informations.add("commands["+command+"]["+property+"]="+URLEncoder.encode(String.valueOf(commandData.get(property)), encoding));
-							}
+				subobject_id = 0;
+				Map<String,Map<String,Object>> commandsMap = pluginDescriptionFile.getCommands();
+				if(commandsMap!=null){
+					commands = commandsMap.keySet();
+					Map<String,Object> commandData;
+					for(String command : commands){
+						commandData = commandsMap.get(command);
+						for(String property : commandData.keySet()){
+							informations.add("commands["+command+"]["+property+"]="+URLEncoder.encode(String.valueOf(commandData.get(property))));
 						}
 					}
-					
-					infoArray = new String[informations.size()];
-					
-					DataSource.getResponse("server/plugin_info.php", informations.toArray(infoArray), RequestMethod.POST);
 				}
-				catch(Exception e){
-					logger.info("[ServerManager] Error updating plugin info for "+plugin.getName());
-					e.printStackTrace();
-				}
+				
+				infoArray = new String[informations.size()];
+				
+				DataSource.getResponse("server/plugin_info.php", informations.toArray(infoArray), RequestMethod.POST);
 			}
 	}
 	
 	public void rename(String name){
-		try {
-			server_name = name;
-			config.set("server_name", server_name);
-			config.save(configFile);
-			DataSource.getResponse("server/set_info.php", new String[]{
-					"server_id="+URLEncoder.encode(String.valueOf(server_id), "UTF-8"),
-					"server_name="+URLEncoder.encode(server_name, "UTF-8")
-			});
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		server_name = name;
+		config.set("server_name", server_name);
+		config.save(configFile);
+		DataSource.getResponse("server/set_info.php", new String[]{
+				"server_id="+URLEncoder.encode(String.valueOf(server_id)),
+				"server_name="+URLEncoder.encode(server_name)
+		});
 	}
 	
     private void firstRun() throws Exception {

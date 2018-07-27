@@ -1,7 +1,5 @@
 package ch.swisssmp.permissionmanager;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -9,6 +7,7 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import ch.swisssmp.tablist.TabList;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,17 +59,12 @@ public class PermissionManager extends JavaPlugin implements Listener{
 	
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerJoin(PlayerJoinEvent event){
-		try {
-			Player player = event.getPlayer();
-			DataSource.getResponse("login.php", new String[]{
-					"player_uuid="+player.getUniqueId().toString(),
-					"player_name="+URLEncoder.encode(player.getName(), "utf-8"),
-				});
-			loadPermissions(player);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Player player = event.getPlayer();
+		DataSource.getResponse("login.php", new String[]{
+				"player_uuid="+player.getUniqueId().toString(),
+				"player_name="+URLEncoder.encode(player.getName()),
+			});
+		loadPermissions(player);
 	}
 	@EventHandler
 	private void onPlayerQuit(PlayerQuitEvent event){

@@ -1,8 +1,5 @@
 package ch.swisssmp.taxcollector;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,6 +21,7 @@ import org.bukkit.inventory.InventoryHolder;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -93,38 +91,32 @@ public class EventListener implements Listener{
 		if(!(humanEntity instanceof Player)){
 			return;
 		}
-		YamlConfiguration response;
-		try {
-			response = DataSource.getYamlResponse("taxes/info.php", new String[]{
-					"player="+event.getPlayer().getUniqueId(),
-					"flags[0]=raw",
-					"flags[1]=chest",
-					"block[world]="+URLEncoder.encode(chest.getWorld().getName(), "utf-8"),
-					"block[x]="+chest.getX(),
-					"block[y]="+chest.getY(),
-					"block[z]="+chest.getZ()
-					});
-			if(response.contains("data")){
-				ConfigurationSection dataSection = response.getConfigurationSection("data");
-				TaxInventory taxInventory = TaxInventory.open((Player)humanEntity,event.getInventory(),dataSection);
-				if(taxInventory==null){
-					event.setCancelled(true);
-					SwissSMPler.get((Player)event.getPlayer()).sendActionBar("Die Truhe ist blockiert.");
-					return;
-				}
-				if(taxInventory instanceof PenaltyInventory) event.setCancelled(true);
-			}
-			else if(response.contains("message")){
-				humanEntity.sendMessage(response.getString("message"));
+		YamlConfiguration response = DataSource.getYamlResponse("taxes/info.php", new String[]{
+				"player="+event.getPlayer().getUniqueId(),
+				"flags[0]=raw",
+				"flags[1]=chest",
+				"block[world]="+URLEncoder.encode(chest.getWorld().getName()),
+				"block[x]="+chest.getX(),
+				"block[y]="+chest.getY(),
+				"block[z]="+chest.getZ()
+				});
+		if(response.contains("data")){
+			ConfigurationSection dataSection = response.getConfigurationSection("data");
+			TaxInventory taxInventory = TaxInventory.open((Player)humanEntity,event.getInventory(),dataSection);
+			if(taxInventory==null){
 				event.setCancelled(true);
+				SwissSMPler.get((Player)event.getPlayer()).sendActionBar("Die Truhe ist blockiert.");
+				return;
 			}
-			else{
-				SwissSMPler.get((Player)event.getPlayer()).sendActionBar("Die Truhe ist verschlossen.");
-				event.setCancelled(true);
-			}
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(taxInventory instanceof PenaltyInventory) event.setCancelled(true);
+		}
+		else if(response.contains("message")){
+			humanEntity.sendMessage(response.getString("message"));
+			event.setCancelled(true);
+		}
+		else{
+			SwissSMPler.get((Player)event.getPlayer()).sendActionBar("Die Truhe ist verschlossen.");
+			event.setCancelled(true);
 		}
 	}
 	

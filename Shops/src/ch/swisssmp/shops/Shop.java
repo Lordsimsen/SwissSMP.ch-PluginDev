@@ -1,8 +1,7 @@
 package ch.swisssmp.shops;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +29,7 @@ import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPUtils;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.VectorKey;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
@@ -70,24 +70,27 @@ class Shop {
 		this.owner_name = dataSection.getString("owner_name");
 		this.owner_uuid = UUID.fromString(dataSection.getString("owner_uuid"));
 		this.profession = Profession.valueOf(dataSection.getString("profession"));
-		ConfigurationSection tradesSection = dataSection.getConfigurationSection("trades");
-		if(tradesSection!=null){
-			ConfigurationSection tradeSection;
-			for(String key : tradesSection.getKeys(false)){
-				tradeSection = tradesSection.getConfigurationSection(key);
+		List<String> trades = dataSection.getStringList("trades");
+		if(trades!=null){
+			YamlConfiguration tradeConfiguration;
+			String decodedTrade;
+			for(String trade : trades){
+				tradeConfiguration = new YamlConfiguration();
+				decodedTrade = new String(Base64.getMimeDecoder().decode(trade));
+				tradeConfiguration.loadFromString(decodedTrade);
 				ItemStack price_1 = null;
 				ItemStack price_2 = null;
 				ItemStack result = null;
-				if(tradeSection.contains("price_1")) price_1 = tradeSection.getItemStack("price_1");
-				if(tradeSection.contains("price_2")) price_2 = tradeSection.getItemStack("price_2");
-				if(tradeSection.contains("result")) result = tradeSection.getItemStack("result");
+				if(tradeConfiguration.contains("price_1")) price_1 = tradeConfiguration.getItemStack("price_1");
+				if(tradeConfiguration.contains("price_2")) price_2 = tradeConfiguration.getItemStack("price_2");
+				if(tradeConfiguration.contains("result")) result = tradeConfiguration.getItemStack("result");
 				if(price_1!=null && result!=null){
-					MerchantRecipe trade = new MerchantRecipe(result, Integer.MAX_VALUE);
+					MerchantRecipe merchantRecipe = new MerchantRecipe(result, Integer.MAX_VALUE);
 					List<ItemStack> price = new ArrayList<ItemStack>();
 					price.add(price_1);
 					if(price_2!=null) price.add(price_2);
-					trade.setIngredients(price);
-					recipes.add(trade);
+					merchantRecipe.setIngredients(price);
+					recipes.add(merchantRecipe);
 				}
 			}
 		}
@@ -323,16 +326,11 @@ class Shop {
 	}
 	
 	private void updateShopSettings(){
-		try{
-			DataSource.getResponse("shop/settings.php", new String[]{
-				"shop_id="+this.shop_id,
-				"name="+URLEncoder.encode(this.name, "utf-8"),
-				"profession="+this.profession.toString()
-			});
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
+		DataSource.getResponse("shop/settings.php", new String[]{
+			"shop_id="+this.shop_id,
+			"name="+URLEncoder.encode(this.name),
+			"profession="+this.profession.toString()
+		});
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -485,26 +483,18 @@ class Shop {
 		int chest_y = (chest!=null) ? chest.getY() : 0;
 		int chest_z = (chest!=null) ? chest.getZ() : location.getBlockZ();
 		YamlConfiguration yamlConfiguration;
-		try {
-			yamlConfiguration = DataSource.getYamlResponse("shop/create.php", new String[]{
-					"world="+owner.getWorld().getName(),
-					"marketplace_id="+marketplace_id,
-					"player="+owner.getUniqueId(),
-					"name="+URLEncoder.encode(shopName, "utf-8"),
-					"location[x]="+location.getBlockX(),
-					"location[y]="+location.getBlockY(),
-					"location[z]="+location.getBlockZ(),
-					"chest[x]="+chest_x,
-					"chest[y]="+chest_y,
-					"chest[z]="+chest_z,
-			});
-					
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			owner.sendMessage("[§dMarktplatz§r] §cBeim Erstellen des Händlers ist ein Fehler aufgetreten.");
-			return null;
-		}
+		yamlConfiguration = DataSource.getYamlResponse("shop/create.php", new String[]{
+				"world="+owner.getWorld().getName(),
+				"marketplace_id="+marketplace_id,
+				"player="+owner.getUniqueId(),
+				"name="+URLEncoder.encode(shopName),
+				"location[x]="+location.getBlockX(),
+				"location[y]="+location.getBlockY(),
+				"location[z]="+location.getBlockZ(),
+				"chest[x]="+chest_x,
+				"chest[y]="+chest_y,
+				"chest[z]="+chest_z,
+		});
 		if(yamlConfiguration==null || !yamlConfiguration.contains("shop")){
 			owner.sendMessage("[§dMarktplatz§r] §cBeim Erstellen des Händlers ist ein Fehler aufgetreten.");
 			return null;

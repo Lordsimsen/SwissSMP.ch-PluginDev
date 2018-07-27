@@ -1,6 +1,5 @@
 package ch.swisssmp.flyday;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
@@ -8,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 
 public class FlyDayCommand implements CommandExecutor{
@@ -27,22 +27,17 @@ public class FlyDayCommand implements CommandExecutor{
 			if(args.length<2){
 				return false;
 			}
-			try{
-				String[] worlds = args[1].split(",");
-				ArrayList<String> arguments = new ArrayList<String>();
-				for(String world : worlds){
-					if(Bukkit.getWorld(world)==null){
-						sender.sendMessage("[§7FlyDay§r] Welt "+world+" nicht gefunden.");
-						continue;
-					}
-					arguments.add("worlds[]="+URLEncoder.encode(world, "utf-8"));
+			String[] worlds = args[1].split(",");
+			ArrayList<String> arguments = new ArrayList<String>();
+			for(String world : worlds){
+				if(Bukkit.getWorld(world)==null){
+					sender.sendMessage("[§7FlyDay§r] Welt "+world+" nicht gefunden.");
+					continue;
 				}
-				arguments.add("global_flight=1");
-				DataSource.getResponse("flyday/set.php", arguments.toArray(new String[arguments.size()]));
+				arguments.add("worlds[]="+URLEncoder.encode(world));
 			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
+			arguments.add("global_flight=1");
+			DataSource.getResponse("flyday/set.php", arguments.toArray(new String[arguments.size()]));
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "broadcast §aHeute ist §EFlyDay§a! Wir wünschen euch viel Vergnügen beim Bauen und Erkunden.");
 			FlyDay.updateState();
 			sender.sendMessage("[FlyDay] FlyDay gestartet.");

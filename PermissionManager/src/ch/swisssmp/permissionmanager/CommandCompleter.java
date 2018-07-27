@@ -1,7 +1,5 @@
 package ch.swisssmp.permissionmanager;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -49,17 +48,13 @@ public class CommandCompleter implements TabCompleter{
 		}
 		default: return result;
 		}
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("commands/tab_complete.php", new String[]{
-				"type="+URLEncoder.encode(type, "utf-8"),
-				"part="+URLEncoder.encode(part, "utf-8")
-			});
-			if(yamlConfiguration==null) return result;
-			if(!yamlConfiguration.contains("completions")) return result;
-			return yamlConfiguration.getStringList("completions");
-		} catch (UnsupportedEncodingException e) {
-			return result;
-		}
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("commands/tab_complete.php", new String[]{
+			"type="+URLEncoder.encode(type),
+			"part="+URLEncoder.encode(part)
+		});
+		if(yamlConfiguration==null) return result;
+		if(!yamlConfiguration.contains("completions")) return result;
+		return yamlConfiguration.getStringList("completions");
 	}
 
 }

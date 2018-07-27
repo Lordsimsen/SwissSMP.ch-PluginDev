@@ -1,7 +1,5 @@
 package ch.swisssmp.knightstournament;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -17,6 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -46,24 +45,19 @@ public class EventListener implements Listener {
 		if(!player.hasPermission("knightstournament.admin")){
 			return;
 		}
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("knights_tournament/sign.php", new String[]{
-					"arena="+URLEncoder.encode(lines[1],"utf-8"),
-					"action="+URLEncoder.encode(lines[2], "utf-8")
-			});
-			if(yamlConfiguration==null) return;
-			if(yamlConfiguration.contains("message")){
-				player.sendMessage(yamlConfiguration.getString("message"));
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("knights_tournament/sign.php", new String[]{
+				"arena="+URLEncoder.encode(lines[1]),
+				"action="+URLEncoder.encode(lines[2])
+		});
+		if(yamlConfiguration==null) return;
+		if(yamlConfiguration.contains("message")){
+			player.sendMessage(yamlConfiguration.getString("message"));
+		}
+		if(yamlConfiguration.contains("lines")){
+			List<String> linesSection = yamlConfiguration.getStringList("lines");
+			for(int i = 0; i < linesSection.size() && i < 4; i++){
+				event.setLine(i,linesSection.get(i));
 			}
-			if(yamlConfiguration.contains("lines")){
-				List<String> linesSection = yamlConfiguration.getStringList("lines");
-				for(int i = 0; i < linesSection.size() && i < 4; i++){
-					event.setLine(i,linesSection.get(i));
-				}
-			}
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	

@@ -5,12 +5,12 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
 
 import ch.swisssmp.server.ServerManager;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 
 public class DataSource {
@@ -39,7 +39,7 @@ public class DataSource {
 		String resultString = "";
 		try{
 			String paramString = "token="+pluginToken+"&random="+random.nextInt(1000)
-					+"&server_id="+URLEncoder.encode(String.valueOf(ServerManager.getInstance().getServerId()),"utf-8")
+					+"&server_id="+URLEncoder.encode(String.valueOf(ServerManager.getInstance().getServerId()))
 					;
 			if(params!=null && params.length>0){
 				paramString+="&"+String.join("&", params);

@@ -1,8 +1,5 @@
 package ch.swisssmp.permissionmanager;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.commandscheduler.CommandScheduler;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import net.md_5.bungee.api.ChatColor;
@@ -72,15 +70,11 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission user [user]");
 							return true;
 						}
-						try {
-							YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/user_info.php", new String[]{"user="+URLEncoder.encode(args[1], "utf-8")});
-							if(yamlConfiguration==null) return true;
-							if(!yamlConfiguration.contains("message")) return true;
-							for(String line : yamlConfiguration.getStringList("message"))
-								sender.sendMessage(line);
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
+						YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/user_info.php", new String[]{"user="+URLEncoder.encode(args[1])});
+						if(yamlConfiguration==null) return true;
+						if(!yamlConfiguration.contains("message")) return true;
+						for(String line : yamlConfiguration.getStringList("message"))
+							sender.sendMessage(line);
 						break;
 					}
 					case "city":{
@@ -88,15 +82,11 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission city [city]");
 							return true;
 						}
-						try {
-							YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/city_info.php", new String[]{"city="+URLEncoder.encode(args[1], "utf-8")});
-							if(yamlConfiguration==null) return true;
-							if(!yamlConfiguration.contains("message")) return true;
-							for(String line : yamlConfiguration.getStringList("message"))
-								sender.sendMessage(line);
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
+						YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/city_info.php", new String[]{"city="+URLEncoder.encode(args[1])});
+						if(yamlConfiguration==null) return true;
+						if(!yamlConfiguration.contains("message")) return true;
+						for(String line : yamlConfiguration.getStringList("message"))
+							sender.sendMessage(line);
 						break;
 					}
 					case "rank":{
@@ -104,15 +94,11 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission rank [rank]");
 							return true;
 						}
-						try {
-							YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/rank_info.php", new String[]{"rank="+URLEncoder.encode(args[1], "utf-8")});
-							if(yamlConfiguration==null) return true;
-							if(!yamlConfiguration.contains("message")) return true;
-							for(String line : yamlConfiguration.getStringList("message"))
-								sender.sendMessage(line);
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
+						YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/rank_info.php", new String[]{"rank="+URLEncoder.encode(args[1])});
+						if(yamlConfiguration==null) return true;
+						if(!yamlConfiguration.contains("message")) return true;
+						for(String line : yamlConfiguration.getStringList("message"))
+							sender.sendMessage(line);
 						break;
 					}
 				}
@@ -120,36 +106,28 @@ public class PlayerCommand implements CommandExecutor{
 			}
 			case "promote":{
 				String user = args[0];
-				try {
-					String senderName = "console";
-					if(sender instanceof Player){
-						senderName = ((Player)sender).getUniqueId().toString();
-					}
-					sender.sendMessage(DataSource.getResponse("permissions/promote.php", new String[]{
-							"user="+URLEncoder.encode(user, "utf-8"),
-							"promoter="+URLEncoder.encode(senderName, "utf-8")
-					}));
-					CommandScheduler.runCommands();
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
+				String senderName = "console";
+				if(sender instanceof Player){
+					senderName = ((Player)sender).getUniqueId().toString();
 				}
+				sender.sendMessage(DataSource.getResponse("permissions/promote.php", new String[]{
+						"user="+URLEncoder.encode(user),
+						"promoter="+URLEncoder.encode(senderName)
+				}));
+				CommandScheduler.runCommands();
 				break;
 			}
 			case "demote":{
 				String user = args[0];
-				try {
-					String senderName = "console";
-					if(sender instanceof Player){
-						senderName = ((Player)sender).getUniqueId().toString();
-					}
-					sender.sendMessage(DataSource.getResponse("permissions/demote.php", new String[]{
-							"user="+URLEncoder.encode(user, "utf-8"),
-							"promoter="+URLEncoder.encode(senderName, "utf-8")
-					}));
-					CommandScheduler.runCommands();
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
+				String senderName = "console";
+				if(sender instanceof Player){
+					senderName = ((Player)sender).getUniqueId().toString();
 				}
+				sender.sendMessage(DataSource.getResponse("permissions/demote.php", new String[]{
+						"user="+URLEncoder.encode(user),
+						"promoter="+URLEncoder.encode(senderName)
+				}));
+				CommandScheduler.runCommands();
 				break;
 			}
 		}
