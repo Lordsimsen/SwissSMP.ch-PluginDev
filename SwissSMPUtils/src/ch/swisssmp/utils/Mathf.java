@@ -31,4 +31,10 @@ public final class Mathf{
 	public static double lerp(double from, double to, double t){
 		return from+(to-from)*t;
 	}
+	/*
+	 * Returns whether the given value is between from (inclusive) and to (inclusive)
+	 */
+	public static boolean isBetween(double value, double from, double to){
+		return value>=from && value<=to;
+	}
 }
