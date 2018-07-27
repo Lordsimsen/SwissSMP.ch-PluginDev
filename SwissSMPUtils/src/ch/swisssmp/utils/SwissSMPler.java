@@ -26,7 +26,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-public class SwissSMPler {
+public final class SwissSMPler {
 	protected static HashMap<UUID, Vector> last_vectors = new HashMap<UUID, Vector>();
 	protected static HashMap<UUID, BukkitTask> afk_tasks = new HashMap<UUID, BukkitTask>();
     protected final Player player;
@@ -123,7 +123,7 @@ public class SwissSMPler {
 					@Override
 					public void run() {
 						if(!hasPermission("smp.afk.kick")) return;
-						player.kickPlayer("Du wurdest gekickt, weil du länger als 15 Minuten abwesend warst.");
+						player.kickPlayer("Du wurdest gekickt, weil du lï¿½nger als 15 Minuten abwesend warst.");
 						SwissSMPler.afk_tasks.remove(player.getUniqueId());
 					}
 					

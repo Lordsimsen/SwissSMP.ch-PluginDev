@@ -219,10 +219,12 @@ public class ConfigurationSection{
 	}
 	
 	public Location getLocation(String arg0){
+		if(!this.configurationSection.contains(arg0)) return null;
 		return this.getConfigurationSection(arg0).getLocation();
 	}
 	
 	public Location getLocation(String arg0, World world){
+		if(!this.configurationSection.contains(arg0)) return null;
 		return this.getConfigurationSection(arg0).getLocation(world);
 	}
 	
@@ -369,15 +371,64 @@ public class ConfigurationSection{
 	}
 	
 	public ItemStack getItemStack(String arg0){
-		org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
-		try {
-			yamlConfiguration.loadFromString(new String(Base64.decodeBase64(this.getString(arg0))));
-			return yamlConfiguration.getItemStack("item");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(Base64.isBase64(this.getString(arg0))){
+			org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
+			try {
+				yamlConfiguration.loadFromString(new String(Base64.decodeBase64(this.getString(arg0))));
+				return yamlConfiguration.getItemStack("item");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		else return this.configurationSection.getItemStack(arg0);
+	}
+	
+	public ItemStack[] getItemStacks(String arg0, int size){
+		ConfigurationSection itemsSection = this.getConfigurationSection(arg0);
+		if(itemsSection==null) return null;
+		return itemsSection.getItemStacks(size);
+	}
+	
+	public ItemStack[] getItemStacks(int size){
+		ItemStack[] result = new ItemStack[size];
+		ConfigurationSection itemSection;
+		int slot;
+		ItemStack itemStack;
+		try{
+			for(String key : this.getKeys(false)){
+				itemSection = this.getConfigurationSection(key);
+				slot = itemSection.getInt("slot");
+				itemStack = itemSection.getItemStack("item");
+				if(itemStack==null) continue;
+				if(slot>=result.length) continue;
+				result[slot] = itemStack;
+			}
+		}
+		catch(Exception e){
 			return null;
 		}
+		return result;
+	}
+	
+	public void set(String arg0, ItemStack[] arg1){
+		ConfigurationSection itemsSection = this.createSection(arg0);
+		itemsSection.set("size", arg1.length);
+		ConfigurationSection itemSection;
+		for(int i = 0; i < arg1.length; i++){
+			if(arg1[i]==null)continue;
+			itemSection = itemsSection.createSection("item_"+i);
+			itemSection.set("slot", i);
+			itemSection.set("item", arg1[i]);
+		}
+	}
+	
+	public void set(String arg0, ItemStack arg1){
+		org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
+		yamlConfiguration.set("item", arg1);
+		String encoded = Base64.encodeBase64String(yamlConfiguration.saveToString().getBytes());
+		this.set(arg0, encoded);
 	}
 
 	public void set(String arg0, Object arg1) {

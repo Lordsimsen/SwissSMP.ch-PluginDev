@@ -1,59 +1,65 @@
 main: ch.swisssmp.utils.SwissSMPUtils
-version: 3.6.2
+version: 3.11
 name: SwissSMPUtils
 author: detig_iii
-description: Provides core functionality for other plugins
+description: Bietet Basisfunktionen für andere Plugins
 load: startup
 permissions:
   smp.commands.balance:
-    description: Allows you to use the /balance command
+    description: Erlaubt Verwendung des Befehls /balance
     default: true
   smp.commands.seen:
-    description: Allows you to use the /seen command
-    default: true
-  smp.commands.afk:
-    description: Allows you to set yourself to afk
+    description: Erlaubt Verwendung des Befehls /seen
     default: true
   smp.commands.list:
-    description: Allows you to use the /list command
-    default: true
-  smp.commands.tell:
-    description: Allows you to use the /tell command
+    description: Erlaubt Verwendung des Befehls /list
     default: true
   smp.commands.worlds:
-    description: Allows you to use the /worlds command
+    description: Erlaubt Verwendung des Befehls /worlds
     default: op
   smp.commands.hauptstadt:
     description: Erlaubt die Verwendung von /hauptstadt
     default: op
-  smp.afk.auto:
-    description: Automatically sets you to afk when you stand still on the same spot for two world auto saves
+  smp.commands.list:
+    description: Erlaubt Verwendung des Befehls /list
     default: true
-  smp.afk.kick:
-    description: Being afk for too long will kick you from the server
-    default: true
+  smp.commands.more:
+    description: Erlaubt Verwendung des Befehls /more
+    default: op
+  smp.commands.amount:
+    description: Erlaubt Verwendung des Befehls /amount
+    default: op
 commands:
   balance:
-    description: Zeigt deine Eventpunkte an
+    description: Zeigt deine Schoggitaler an
     usage: /balance
     permission: smp.commands.balance
+    aliases: [eventpunkte,ep]
   seen:
-    description: Displays the last time a player was online
+    description: Zeigt an wann ein Spieler zuletzt online war
     usage: /seen [player]
     permission: smp.commands.seen
-  afk:
-    description: Toggles your afk state
-    usage: /afk
-    permission: smp.commands.afk
+    aliases: [gesehen]
   list:
-    description: Lists all currently online players
+    description: Zeigt alle aktuellen Spieler auf dem Server an
     usage: /list
     permission: smp.commands.list
   worlds:
     description: Listet alle aktuell geladenen Welten auf
     usage: /worlds
     permission: smp.commands.worlds
+    aliases: [welten]
   hauptstadt:
     description: Zeigt und ändert deine Hauptstadt (für Doppelbürger)
     usage: /hauptstadt (Stadtname) - Bsp. /hauptstadt Spawnstadt
     permission: smp.commands.hauptstadt
+  more:
+    description: Füllt den Stack in deiner Hand auf oder gibt dir einen zweiten desselben
+    usage: /more
+    permission: smp.commands.more
+    aliases: [mehr]
+  amount:
+    description: Setzt den Stack in deiner Hand auf die angegebene Menge
+    usage: /amount [Anzahl]
+    permission: smp.commands.more
+    aliases: [menge]
