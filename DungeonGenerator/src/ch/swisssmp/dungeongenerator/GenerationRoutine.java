@@ -7,12 +7,12 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BlockVector;
 
 public class GenerationRoutine implements Runnable {
-	private final List<Generatable> generatables;
+	private final List<GenerationPart> generatables;
 	private final BlockVector referencePoint;
 	private int iterator = 0;
 	private BukkitTask task;
 	
-	private GenerationRoutine(List<Generatable> generatables, BlockVector referencePoint){
+	private GenerationRoutine(List<GenerationPart> generatables, BlockVector referencePoint){
 		this.generatables = generatables;
 		this.referencePoint = referencePoint;
 	}
@@ -28,7 +28,7 @@ public class GenerationRoutine implements Runnable {
 		iterator++;
 	}
 	
-	public static BukkitTask run(List<Generatable> generatables, BlockVector referencePoint){
+	public static BukkitTask run(List<GenerationPart> generatables, BlockVector referencePoint){
 		GenerationRoutine routine = new GenerationRoutine(generatables, referencePoint);
 		BukkitTask result = Bukkit.getScheduler().runTaskTimer(DungeonGeneratorPlugin.plugin, routine, 0, 1);
 		routine.task = result;

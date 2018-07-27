@@ -22,7 +22,7 @@ public class PartGenerator {
 	private int size;
 	private int remainingCycles = 0;
 	
-	public PartGenerator(DungeonGenerator generator, BlockVector startPosition, int size, Long seed){
+	private PartGenerator(DungeonGenerator generator, BlockVector startPosition, int size, Long seed){
 		this.generator = generator;
 		this.startPosition = startPosition;
 		this.size = size;
@@ -44,7 +44,7 @@ public class PartGenerator {
 		return result;
 	}
 	
-	private ArrayList<Generatable> generateData(){
+	private ArrayList<GenerationPart> generateData(){
 		GenerationPart part = new GenerationPart(templateParts.get(0), new BlockVector(0,0,0));
 		this.pending.add(part);
 		this.generationData.put(part.getGridPosition(), part);
@@ -81,7 +81,7 @@ public class PartGenerator {
 		if(invalidParts.size()>0){
 			Bukkit.getLogger().info("[DungeonGenerator] "+invalidParts.size()+" GenerationParts are invalid.");
 		}
-		return new ArrayList<Generatable>(generationData.values());
+		return new ArrayList<GenerationPart>(generationData.values());
 	}
 	
 	private boolean generateMissingNeighbours(GenerationPart part, PartGenerationMode mode){
@@ -155,19 +155,19 @@ public class PartGenerator {
 		}
 	}
 	
-	public GenerationPart getPart(BlockVector blockVector){
+	protected GenerationPart getPart(BlockVector blockVector){
 		return this.generationData.get(blockVector);
 	}
 	
-	public List<ProxyGeneratorPart> getTemplateParts(){
+	protected List<ProxyGeneratorPart> getTemplateParts(){
 		return this.templateParts;
 	}
 	
-	public Random getRandom(){
+	protected Random getRandom(){
 		return this.random;
 	}
 	
-	public int getPartCount(GeneratorPart part){
+	protected int getPartCount(GeneratorPart part){
 		if(this.partCounts.containsKey(part)) return this.partCounts.get(part);
 		return 0;
 	}
@@ -176,7 +176,7 @@ public class PartGenerator {
 	 * Returns a List of positioned and rotated Generatable Parts that fit together and  make up a dungeon
 	 * After this stage the dungeon is complete, but yet has to be placed into the world
 	 */
-	public static List<Generatable> generateData(DungeonGenerator generator, BlockVector startPosition, Long seed, int size){
+	public static List<GenerationPart> generateData(DungeonGenerator generator, BlockVector startPosition, Long seed, int size){
 		if(generator.getTemplateParts().size()==0) return null;
 		PartGenerator partGenerator = new PartGenerator(generator, startPosition, size, seed);
 		return partGenerator.generateData();

@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import org.bukkit.util.BlockVector;
 
-public class GenerationPart implements Generatable{
+public class GenerationPart{
 	private final ProxyGeneratorPart template;
 	private final BlockVector gridPosition;
 	

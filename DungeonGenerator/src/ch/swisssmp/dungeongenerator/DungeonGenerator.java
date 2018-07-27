@@ -42,7 +42,7 @@ public class DungeonGenerator implements Listener, SessionOwner{
 	
 	private ArrayList<GeneratorPart> templateParts = new ArrayList<GeneratorPart>();
 	
-	public DungeonGenerator(World world, ConfigurationSection dataSection){
+	private DungeonGenerator(World world, ConfigurationSection dataSection){
 		this.generator_id = dataSection.getInt("generator_id");
 		this.generator_name = dataSection.getString("generator_name");
 		this.world = world;
@@ -54,18 +54,6 @@ public class DungeonGenerator implements Listener, SessionOwner{
 				this.templateOrigin = templateOriginLocation.getBlock();
 			}
 		}
-		/*
-		if(dataSection.contains("parts")){
-			ConfigurationSection partsSection = dataSection.getConfigurationSection("parts");
-			ConfigurationSection partSection;
-			GeneratorPart part;
-			for(String key : partsSection.getKeys(false)){
-				partSection = partsSection.getConfigurationSection(key);
-				part = new GeneratorPart(this,partSection);
-				this.templateParts.add(part);
-			}
-		}
-		*/
 		this.sessionKey = new WorldEditSessionKey();
 		Bukkit.getPluginManager().registerEvents(this, DungeonGeneratorPlugin.plugin);
 		generators.put(this.generator_name.toLowerCase(), this);
@@ -79,7 +67,7 @@ public class DungeonGenerator implements Listener, SessionOwner{
 		return this.world;
 	}
 	
-	public Collection<String> getInfo(){
+	protected Collection<String> getInfo(){
 		this.update();
 		Collection<String> result = new ArrayList<String>();
 		result.add("Bezeichnung: "+generator_name+" (ID: "+generator_id+")");
@@ -139,7 +127,7 @@ public class DungeonGenerator implements Listener, SessionOwner{
 		this.update();
 	}
 	
-	public void update(){
+	protected void update(){
 		this.loadGeneratorParts(this.templateOrigin);
 		this.updateSignatures();
 		this.save();
@@ -147,18 +135,18 @@ public class DungeonGenerator implements Listener, SessionOwner{
 	
 	public boolean generate(BlockVector position, Long seed, int size){
 		this.update();
-		List<Generatable> parts = PartGenerator.generateData(this, position, seed, size);
+		List<GenerationPart> parts = PartGenerator.generateData(this, position, seed, size);
 		if(parts==null) return false;
 		Bukkit.getLogger().info("[DungeonGenerator] Data generated, placing blocks...");
 		GenerationRoutine.run(parts, position);
 		return true;
 	}
 	
-	public ArrayList<GeneratorPart> getTemplateParts(){
+	protected ArrayList<GeneratorPart> getTemplateParts(){
 		return this.templateParts;
 	}
 	
-	public Material getBoundingBoxMaterial(){
+	protected Material getBoundingBoxMaterial(){
 		return this.boundingBoxMaterial;
 	}
 	
