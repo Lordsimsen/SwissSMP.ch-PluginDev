@@ -51,6 +51,7 @@ public class CustomItems extends JavaPlugin{
 		net.minecraft.server.v1_12_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
 		if(!craftItemStack.hasTag()) return null;
 		NBTTagCompound nbtTags = craftItemStack.getTag();
+		if(!nbtTags.hasKey("customEnum")) return null;
 		return nbtTags.getString("customEnum");
 	}
 	
