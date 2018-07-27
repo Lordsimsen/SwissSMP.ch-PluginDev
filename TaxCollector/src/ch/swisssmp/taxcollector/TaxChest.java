@@ -89,7 +89,7 @@ public class TaxChest {
 	
 	private void clear(Inventory inventory){
 		if(inventory.getHolder() instanceof DoubleChest){
-			Bukkit.getLogger().info("[TaxCollector] Clearing the fucking DoubleChest inventory.");
+			Bukkit.getLogger().info("[TaxCollector] Clearing the DoubleChest inventory.");
 			DoubleChest doubleChest = (DoubleChest) inventory.getHolder();
 			Chest left = (Chest)doubleChest.getLeftSide();
 			Chest right = (Chest)doubleChest.getRightSide();
@@ -101,7 +101,7 @@ public class TaxChest {
 			right.update();
 		}
 		else if(inventory.getHolder() instanceof Chest){
-			Bukkit.getLogger().info("[TaxCollector] Clearing the fucking Chest inventory.");
+			Bukkit.getLogger().info("[TaxCollector] Clearing the Chest inventory.");
 			Chest theFuckingAssholeChest = (Chest)inventory.getHolder();
 			theFuckingAssholeChest.getInventory();
 			theFuckingAssholeChest.getBlockInventory().clear();
