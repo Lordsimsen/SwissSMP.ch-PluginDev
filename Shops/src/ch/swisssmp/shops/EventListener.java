@@ -44,6 +44,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
+import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.EventPoints;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.VectorKey;
@@ -71,9 +72,9 @@ public class EventListener implements Listener{
 		MerchantInventory merchantInventory = (MerchantInventory) event.getInventory();
 		if((event.getClickedInventory() instanceof MerchantInventory) && (event.getSlot()==0 || event.getSlot()==1)){
 			ItemStack itemStack = merchantInventory.getItem(event.getSlot());
-			if(itemStack!=null && itemStack.hasItemMeta()){
-				ItemMeta itemMeta = itemStack.getItemMeta();
-				if(itemMeta.hasDisplayName() && itemMeta.getDisplayName().equals(EventPoints.getSignature())){
+			if(itemStack!=null){
+				String customEnum = CustomItems.getCustomEnum(itemStack);
+				if(customEnum!=null && customEnum.equals("EVENT_POINT")){
 					event.setCancelled(true);
 				}
 			}
@@ -137,9 +138,9 @@ public class EventListener implements Listener{
 		else{
 			Bukkit.getLogger().info("[ShopManager] Admin Shop");
 			ItemStack ingredient = recipe.getIngredients().get(0);
-			if(ingredient!=null && ingredient.hasItemMeta()){
-				ItemMeta itemMeta = ingredient.getItemMeta();
-				if(itemMeta.hasDisplayName() && itemMeta.getDisplayName().equals(EventPoints.getSignature())){
+			if(ingredient!=null){
+				String customEnum = CustomItems.getCustomEnum(ingredient);
+				if(customEnum!=null && customEnum.equals("EVENT_POINT")){
 					int buyCount = playerCanBuy;
 					if(!event.isShiftClick()){
 						buyCount = Math.min(buyCount, 1);
