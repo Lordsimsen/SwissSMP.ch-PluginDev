@@ -1,0 +1,39 @@
+main: ch.swisssmp.loot.LootTables
+version: 1.0
+name: LootTables
+author: detig_iii
+description: Ermöglicht Befüllung von Truhen und anderen Inventaren mit zufälligem Inhalt
+depend: [WebCore]
+permissions:
+  loottables.admin:
+    description: Erlaubt Editieren von Beutetabellen
+commands:
+  loot:
+    description: Zur Verwaltung von Beutetabellen - [Parameter] sind Pflicht, (Parameter=Standardwert) sind optional
+    usage: |
+      /loot info §7- Listet alle Beutetabellen auf
+      /loot erstelle [Name] §7- Erstellt eine neue Beutetabelle
+      /loot aktualisiere (Name) §7- Aktualisiert Items dieser Beutetabelle
+      /loot item (Name) §7- Generiert einen Item Stack für diese Beutetabelle
+      /loot nenne (Name) [Neuer_Name] §7- Benennt diese Beutetabelle neu
+      /loot kategorie (Name) [Kategorie] §7- Ändert die Kategorie (Schatz, Selten, Normal, Müll)
+      /loot chance (Name) [Wahrscheinlichkeit] §7- Ändert die Wahrscheinlichkeit (0.00%-100%)
+      /loot anzahl (Name) [Min] (Max=Min) §7- Ändert die Anzahl generierter Stacks pro Inventar (-1 für unbegrenzt)
+      /loot bearbeite (Name) §7- Öffnet den Editor für diese Beutetabelle
+      /loot lösche (Name) §7- Löscht diese Beutetabelle
+    permission: loottables.admin
+  randomize:
+    description: Fügt Items Zufallswerte hinzu. Entfernt eine Einstellung wenn nicht alle Parameter angegeben werden oder die Einstellung keinen Zufall zulässt.
+    usage: |
+      /randomize menge [Min] [Max] §7- Zufällige Anzahl, wird zu mehreren Stacks wenn die Anzahl grösser ist als Stack Limit und das Inventar das zulässt
+      /randomize chance [Wahrscheinlichkeit] §7- Zahl von 0.00%-100%
+      /randomize haltbarkeit [Min] [Max] §7- Beschädigung, nur ganze Zahlen (z.B. 364). Achtung grosse Zahl bedeutet grosse "Beschädigung" und nicht "Verbleibende Haltbarkeit".
+      /randomize verzauberung [Verzauberung] [Stufe] [Wahrscheinlichkeit] §7- Verzauberung mit fester Stufe (0 um zu entfernen)
+      /randomize verzauberung [Verzauberung] [Min] [Max] [Wahrscheinlichkeit] §7- Verzauberung mit zufälliger Stufe
+      /randomize schaden [Min] [Max] §7- Angriffschaden, Komma Stellen erlaubt (z.B. 5.5)
+      /randomize geschwindigkeit [Min] [Max] §7- Angriffsgeschwindigkeit, Komma Stellen erlaubt (z.B. 1.6)
+      /randomize rüstung [Min] [Max] §7- Nur ganze Zahlen (z.B. 2)
+      /randomize härte [Min] [Max] §7- Nur ganze Zahlen (z.B. 1)
+      /randomize nichts §7- Entfernt alle Zufallseinstellungen von diesem Stack
+    permission: loottables.admin
+    aliases: [random,zufall]
