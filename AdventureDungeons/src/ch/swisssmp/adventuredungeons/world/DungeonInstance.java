@@ -11,11 +11,9 @@ import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -50,8 +48,6 @@ public class DungeonInstance{
 	private final ArrayList<UUID> invited_players = new ArrayList<UUID>();
 	private final HashMap<Integer, Camp> camps = new HashMap<Integer, Camp>();
 	private final HashMap<Entity,Integer> entityMap = new HashMap<Entity,Integer>();
-	private HashMap<Block, ArrayList<LootInventory>> inventories = new HashMap<Block, ArrayList<LootInventory>>();
-	private HashMap<Inventory, LootInventory> inventoryMap = new HashMap<Inventory, LootInventory>();
 	private final TransformationWorld transformationworld;
 
 	public DungeonInstance(int dungeon_id, World world, Difficulty difficulty, int instance_id, ArrayList<String> player_uuids){
@@ -261,7 +257,7 @@ public class DungeonInstance{
 	public boolean isRunning(){
 		return this.running;
 	}
-
+/*
 	public LootInventory createLootInventory(Player player, String action, boolean global, Block block, Inventory inventory){
 		LootInventory result = new LootInventory(this, player, action, global, block, inventory);
 		this.inventoryMap.put(inventory, result);
@@ -295,6 +291,7 @@ public class DungeonInstance{
 			this.inventories.remove(block);
 		}
 	}
+	*/
 	
 	//getters
 	public File getWorldguardDirectory(){
@@ -359,6 +356,7 @@ public class DungeonInstance{
 		}
 	}
 	public void delete(boolean graceful){
+		/*
 		List<LootInventory> allInventories = new ArrayList<LootInventory>();
 		for(List<LootInventory> inventories : this.inventories.values()){
 			for(LootInventory inventory : inventories.toArray(new LootInventory[inventories.size()])){
@@ -368,6 +366,7 @@ public class DungeonInstance{
 		for(LootInventory inventory : allInventories){
 			inventory.close();
 		}
+		*/
 		Bukkit.getPluginManager().callEvent(new DungeonEndEvent(this));
 		Dungeon dungeon = Dungeon.get(this.dungeon_id);
 		World world = this.getWorld();
