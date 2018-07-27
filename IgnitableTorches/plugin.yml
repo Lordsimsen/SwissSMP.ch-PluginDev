@@ -1,0 +1,5 @@
+main: ch.swisssmp.ignitabletorches.IgnitableTorches
+version: 1.0
+name: IgnitableTorches
+author: detig_iii
+description: Erlaubt anzünden von Redstone Fackeln mit Feuerzeugen in Welten mit der Gamerule ignitableTorches auf true

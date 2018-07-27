@@ -15,7 +15,6 @@ public class EventListenerMaster{
 	public EventListenerMaster(DungeonInstance dungeonInstance){
 		this.dungeonInstance = dungeonInstance;
 		listeners.add(new EventListenerEntity(this));
-		listeners.add(new EventListenerInventory(this));
 		listeners.add(new EventListenerPlayer(this));
 	}
 	
