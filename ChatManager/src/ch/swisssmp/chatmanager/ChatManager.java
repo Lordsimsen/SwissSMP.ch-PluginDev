@@ -1,6 +1,5 @@
 package ch.swisssmp.chatmanager;
 
-import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -16,6 +15,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 
 public class ChatManager extends JavaPlugin implements Listener{
@@ -49,17 +49,12 @@ public class ChatManager extends JavaPlugin implements Listener{
 		String name = event.getPlayer().getName();
 		String world = event.getPlayer().getWorld().getName();
 		String message = "joined";
-		try{
 		DataSource.getResponse("chat_notifications/chat.php", new String[]{
-			"player_uuid="+URLEncoder.encode(player_uuid, "utf-8"),
-			"name="+URLEncoder.encode(name, "utf-8"),
-			"world="+URLEncoder.encode(world, "utf-8"),
-			"message="+URLEncoder.encode(message, "utf-8")
+			"player_uuid="+URLEncoder.encode(player_uuid),
+			"name="+URLEncoder.encode(name),
+			"world="+URLEncoder.encode(world),
+			"message="+URLEncoder.encode(message)
 		});
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
 	}
 	
 	@EventHandler(ignoreCancelled=true)
@@ -68,17 +63,12 @@ public class ChatManager extends JavaPlugin implements Listener{
 		String name = event.getPlayer().getName();
 		String world = event.getPlayer().getWorld().getName();
 		String message = "quit";
-		try{
 		DataSource.getResponse("chat_notifications/chat.php", new String[]{
-			"player_uuid="+URLEncoder.encode(player_uuid, "utf-8"),
-			"name="+URLEncoder.encode(name, "utf-8"),
-			"world="+URLEncoder.encode(world, "utf-8"),
-			"message="+URLEncoder.encode(message, "utf-8")
+			"player_uuid="+URLEncoder.encode(player_uuid),
+			"name="+URLEncoder.encode(name),
+			"world="+URLEncoder.encode(world),
+			"message="+URLEncoder.encode(message)
 		});
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
 	}
 	
 	@EventHandler(ignoreCancelled=true,priority=EventPriority.LOWEST)
@@ -87,17 +77,12 @@ public class ChatManager extends JavaPlugin implements Listener{
 		String name = event.getPlayer().getName();
 		String world = event.getPlayer().getWorld().getName();
 		String message = event.getMessage();
-		try{
 		DataSource.getResponse("chat_notifications/chat.php", new String[]{
-			"player_uuid="+URLEncoder.encode(player_uuid, "utf-8"),
-			"name="+URLEncoder.encode(name, "utf-8"),
-			"world="+URLEncoder.encode(world, "utf-8"),
-			"message="+URLEncoder.encode(message, "utf-8")
+			"player_uuid="+URLEncoder.encode(player_uuid),
+			"name="+URLEncoder.encode(name),
+			"world="+URLEncoder.encode(world),
+			"message="+URLEncoder.encode(message)
 		});
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
 	}
 	
 	@EventHandler(ignoreCancelled=true)
@@ -130,22 +115,17 @@ public class ChatManager extends JavaPlugin implements Listener{
 			Player player = Bukkit.getPlayer(recipient);
 			if(player==null) return;
 			if(player.hasPermission("chatnotifier.personalalert") || event.getPlayer().hasPermission("chatnotifier.personalalert")){
-				try{
-					String player_uuid = event.getPlayer().getUniqueId().toString();
-					String name = event.getPlayer().getName();
-					String world = event.getPlayer().getWorld().getName();
-					message = extractMessage(message);
-					DataSource.getResponse("chat_notifications/chat.php", new String[]{
-						"player_uuid="+URLEncoder.encode(player_uuid, "utf-8"),
-						"name="+URLEncoder.encode(name, "utf-8"),
-						"world="+URLEncoder.encode(world, "utf-8"),
-						"message="+URLEncoder.encode(message, "utf-8"),
-						"recipient="+URLEncoder.encode(player.getName(), "utf-8")
-					});
-					}
-					catch(Exception e){
-						e.printStackTrace();
-					}
+				String player_uuid = event.getPlayer().getUniqueId().toString();
+				String name = event.getPlayer().getName();
+				String world = event.getPlayer().getWorld().getName();
+				message = extractMessage(message);
+				DataSource.getResponse("chat_notifications/chat.php", new String[]{
+					"player_uuid="+URLEncoder.encode(player_uuid),
+					"name="+URLEncoder.encode(name),
+					"world="+URLEncoder.encode(world),
+					"message="+URLEncoder.encode(message),
+					"recipient="+URLEncoder.encode(player.getName())
+				});
 			}
 		}
 	}

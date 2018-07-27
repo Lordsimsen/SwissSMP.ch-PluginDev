@@ -1,14 +1,12 @@
 package ch.swisssmp.elytrarace;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import eu.crushedpixel.camerastudio.CameraStudio;
@@ -171,16 +169,10 @@ public class PlayerCommand implements CommandExecutor{
 			{
 				if(args!=null && args.length>0 && player!=null){
 					YamlConfiguration yamlConfiguration;
-					try {
-						yamlConfiguration = DataSource.getYamlResponse("elytra_race/contest_reset.php", new String[]{
-								"contest_id="+((ElytraRace.currentContest!=null)?ElytraRace.currentContest.getContestId():0),
-								"player="+URLEncoder.encode(args[0], "utf-8")
-						});
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						return true;
-					}
+					yamlConfiguration = DataSource.getYamlResponse("elytra_race/contest_reset.php", new String[]{
+							"contest_id="+((ElytraRace.currentContest!=null)?ElytraRace.currentContest.getContestId():0),
+							"player="+URLEncoder.encode(args[0])
+					});
 					if(yamlConfiguration==null || !yamlConfiguration.contains("message")){
 						sender.sendMessage("[ElytraRace] Es ist ein Fehler aufgetreten.");
 						return true;

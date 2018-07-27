@@ -1,6 +1,5 @@
 package ch.swisssmp.elytrarace;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -84,14 +84,9 @@ public class RaceContest {
 	public static RaceContest create(CommandSender sender, String contest_name, String[] courses){
 		String contest_name_encoded;
 		String[] coursesEncoded = new String[courses.length];
-		try{
-			contest_name_encoded = URLEncoder.encode(contest_name, "utf-8");
-			for(int i = 0; i < courses.length; i++){
-				coursesEncoded[i] = "courses[]="+URLEncoder.encode(courses[i], "utf-8");
-			}
-		}
-		catch(Exception e){
-			return null;
+		contest_name_encoded = URLEncoder.encode(contest_name);
+		for(int i = 0; i < courses.length; i++){
+			coursesEncoded[i] = "courses[]="+URLEncoder.encode(courses[i]);
 		}
 		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("elytra_race/contest_create.php", new String[]{
 				"name="+contest_name_encoded,

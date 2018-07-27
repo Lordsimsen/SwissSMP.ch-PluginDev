@@ -1,7 +1,5 @@
 package ch.swisssmp.addonabnahme;
 
-import java.net.URLEncoder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -11,6 +9,8 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 
 import ch.swisssmp.webcore.DataSource;
@@ -23,17 +23,12 @@ public class ConsoleCommand implements CommandExecutor{
 		if(args.length<2) return false;
 		switch(args[0]){
 		case "update":{
-			try{
-				YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/info.php", new String[]{
-					"addon_instance_id="+URLEncoder.encode(args[1], "utf-8")
-				});
-				if(yamlConfiguration==null) return true;
-				if(yamlConfiguration.contains("sign")){
-					AddonAbnahme.editSign(yamlConfiguration.getConfigurationSection("sign"));
-				}
-			}
-			catch(Exception e){
-				e.printStackTrace();
+			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/info.php", new String[]{
+				"addon_instance_id="+URLEncoder.encode(args[1])
+			});
+			if(yamlConfiguration==null) return true;
+			if(yamlConfiguration.contains("sign")){
+				AddonAbnahme.editSign(yamlConfiguration.getConfigurationSection("sign"));
 			}
 			break;
 		}

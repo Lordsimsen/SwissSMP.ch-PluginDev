@@ -1,6 +1,5 @@
 package ch.swisssmp.chatmanager;
 
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import net.md_5.bungee.api.ChatColor;
 
@@ -32,20 +32,15 @@ public class PlayerChat implements CommandExecutor {
 			for(Player onlinePlayer : Bukkit.getOnlinePlayers()){
 				onlinePlayer.sendMessage(message);
 			}
-			try{
-				String player_uuid = name;
-				String world = "web";
-				args[0] = "";
-				DataSource.getResponse("chat_notifications/chat.php", new String[]{
-					"player_uuid="+player_uuid,
-					"name="+name,
-					"world="+world,
-					"message="+URLEncoder.encode(rawMessage, "utf-8")
-				});
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
+			String player_uuid = name;
+			String world = "web";
+			args[0] = "";
+			DataSource.getResponse("chat_notifications/chat.php", new String[]{
+				"player_uuid="+player_uuid,
+				"name="+name,
+				"world="+world,
+				"message="+URLEncoder.encode(rawMessage)
+			});
 		}
 		else{
 			message = String.join(" ", messageParts);

@@ -1,7 +1,6 @@
 package ch.swisssmp.transformations;
 
 import java.io.File;
-import java.net.URLEncoder;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +13,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -86,33 +86,28 @@ public class PlayerCommand implements CommandExecutor{
 	    			location = player.getLocation();
 	    		}
 	    		
-	    		try{
-	    			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/editor.php", new String[]{
-		    			"transformation="+transformation_id,
-		    			"schematic="+schematicName,
-		    			"action="+action,
-		    			"world="+URLEncoder.encode(location.getWorld().getName(), "utf-8"),
-		    			"x="+(int)Math.floor(location.getX()),
-		    			"y="+(int)Math.floor(location.getY()),
-		    			"z="+(int)Math.floor(location.getZ()),
-		    		});
-		    		
-		    		boolean success = (yamlConfiguration!=null && yamlConfiguration.contains("success"));
-					
-	    			String actionLabel = "registriert. Einstellungen im Web-Tool vornehmen und danach '/transformation reload' verwenden";
-	    			if(args[0].equals("unregister")){
-	    				actionLabel = "gelöscht. '/transformation reload' verwenden, damit die Änderungen sofort angewendet werden";
-	    			}
-		    		if(success){
-		    			player.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" Transformation "+actionLabel+".");
-		    		}
-		    		else{
-		    			player.sendMessage("[AreaTransformations]"+ChatColor.RED+" Fehler beim bearbeiten der Transformation.");
-		    		}
+    			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/editor.php", new String[]{
+	    			"transformation="+transformation_id,
+	    			"schematic="+schematicName,
+	    			"action="+action,
+	    			"world="+URLEncoder.encode(location.getWorld().getName()),
+	    			"x="+(int)Math.floor(location.getX()),
+	    			"y="+(int)Math.floor(location.getY()),
+	    			"z="+(int)Math.floor(location.getZ()),
+	    		});
+	    		
+	    		boolean success = (yamlConfiguration!=null && yamlConfiguration.contains("success"));
+				
+    			String actionLabel = "registriert. Einstellungen im Web-Tool vornehmen und danach '/transformation reload' verwenden";
+    			if(args[0].equals("unregister")){
+    				actionLabel = "gelöscht. '/transformation reload' verwenden, damit die Änderungen sofort angewendet werden";
+    			}
+	    		if(success){
+	    			player.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" Transformation "+actionLabel+".");
 	    		}
-		    	catch(Exception e){
-		    		e.printStackTrace();
-		    	}
+	    		else{
+	    			player.sendMessage("[AreaTransformations]"+ChatColor.RED+" Fehler beim bearbeiten der Transformation.");
+	    		}
 	    		break;
 	    	}
 	    	case "trigger":

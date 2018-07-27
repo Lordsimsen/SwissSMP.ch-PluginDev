@@ -1,7 +1,5 @@
 package ch.swisssmp.auctionhouse;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -15,6 +13,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -31,28 +30,23 @@ public class EventListener implements Listener{
 			addon = lines[2];
 		}
 		else return;
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("auction/sign.php", new String[]{
-					"player="+player.getUniqueId(),
-					"addon="+URLEncoder.encode(addon,"utf-8"),
-					"world="+URLEncoder.encode(player.getWorld().getName(), "utf-8"),
-					"x="+(int)Math.round(player.getLocation().getX()),
-					"y="+(int)Math.round(player.getLocation().getY()),
-					"z="+(int)Math.round(player.getLocation().getZ()),
-			});
-			if(yamlConfiguration==null) return;
-			if(yamlConfiguration.contains("message")){
-				player.sendMessage(yamlConfiguration.getString("message"));
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("auction/sign.php", new String[]{
+				"player="+player.getUniqueId(),
+				"addon="+URLEncoder.encode(addon),
+				"world="+URLEncoder.encode(player.getWorld().getName()),
+				"x="+(int)Math.round(player.getLocation().getX()),
+				"y="+(int)Math.round(player.getLocation().getY()),
+				"z="+(int)Math.round(player.getLocation().getZ()),
+		});
+		if(yamlConfiguration==null) return;
+		if(yamlConfiguration.contains("message")){
+			player.sendMessage(yamlConfiguration.getString("message"));
+		}
+		if(yamlConfiguration.contains("lines")){
+			List<String> linesSection = yamlConfiguration.getStringList("lines");
+			for(int i = 0; i < linesSection.size() && i < 4; i++){
+				event.setLine(i,linesSection.get(i));
 			}
-			if(yamlConfiguration.contains("lines")){
-				List<String> linesSection = yamlConfiguration.getStringList("lines");
-				for(int i = 0; i < linesSection.size() && i < 4; i++){
-					event.setLine(i,linesSection.get(i));
-				}
-			}
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	@EventHandler(ignoreCancelled=true)

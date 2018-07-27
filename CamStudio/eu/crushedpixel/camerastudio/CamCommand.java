@@ -1,7 +1,5 @@
 package eu.crushedpixel.camerastudio;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +17,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import com.mysql.jdbc.StringUtils;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -359,15 +358,10 @@ public class CamCommand implements CommandExecutor {
 					index++;
 				}
 
-				try {
-					DataSource.getResponse("camera_studio/save_path.php", new String[]{
-						"name="+URLEncoder.encode(name,"utf-8"),
-						String.join("&", locationLines)
-					});
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-					return false;
-				}
+				DataSource.getResponse("camera_studio/save_path.php", new String[]{
+					"name="+URLEncoder.encode(name),
+					String.join("&", locationLines)
+				});
 				player.sendMessage(prefix + ChatColor.BLUE + args[0]
 							+ ChatColor.YELLOW + " gespeichert.");
 				return true;
@@ -390,13 +384,9 @@ public class CamCommand implements CommandExecutor {
 			}
 			if(args.length<1) return false;
 			YamlConfiguration yamlConfiguration;
-			try {
-				yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_path.php", new String[]{
-						"name="+URLEncoder.encode(args[0], "utf-8")	
-					});
-			} catch (UnsupportedEncodingException e) {
-				return true;
-			}
+			yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_path.php", new String[]{
+					"name="+URLEncoder.encode(args[0])	
+				});
 			if(yamlConfiguration==null || !yamlConfiguration.contains("path")){
 				sender.sendMessage(prefix + ChatColor.RED + "Pfad '"+args[0]+"' nicht gefunden.");
 				return true;

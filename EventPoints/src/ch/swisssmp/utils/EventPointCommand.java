@@ -1,8 +1,5 @@
 package ch.swisssmp.utils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,15 +19,10 @@ public class EventPointCommand implements CommandExecutor {
 			if(!StringUtils.isNumeric(args[2])) return false;
 			String playerName = args[1];
 			int amount = Math.abs(Integer.parseInt(args[2]));
-			try {
-				sender.sendMessage(DataSource.getResponse("players/event_points.php", new String[]{
-						"player="+URLEncoder.encode(playerName, "utf-8"),
-						"amount="+amount
-				}));
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sender.sendMessage(DataSource.getResponse("players/event_points.php", new String[]{
+					"player="+URLEncoder.encode(playerName),
+					"amount="+amount
+			}));
 			break;
 		}
 		case "take":{
@@ -38,15 +30,10 @@ public class EventPointCommand implements CommandExecutor {
 			if(!StringUtils.isNumeric(args[2])) return false;
 			String playerName = args[1];
 			int amount = Math.abs(Integer.parseInt(args[2]));
-			try {
-				sender.sendMessage(DataSource.getResponse("players/event_points.php", new String[]{
-						"player="+URLEncoder.encode(playerName, "utf-8"),
-						"amount="+-amount
-				}));
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sender.sendMessage(DataSource.getResponse("players/event_points.php", new String[]{
+					"player="+URLEncoder.encode(playerName),
+					"amount="+-amount
+			}));
 			break;
 		}
 		case "summon":{

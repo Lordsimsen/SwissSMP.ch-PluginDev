@@ -1,7 +1,5 @@
 package ch.swisssmp.addonabnahme;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -13,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -52,44 +51,39 @@ public class AddonAbnahme extends JavaPlugin implements Listener{
 			return;
 		String city_name = lines[1];
 		String addon_name = lines[2];
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/register_addon.php", new String[]{
-					"player="+player.getUniqueId().toString(),
-					"city="+URLEncoder.encode(city_name, "utf-8"),
-					"addon="+URLEncoder.encode(addon_name, "utf-8"),
-					"world="+URLEncoder.encode(event.getBlock().getWorld().getName(), "utf-8"),
-					"x="+event.getBlock().getX(),
-					"y="+event.getBlock().getY(),
-					"z="+event.getBlock().getZ()
-			});
-			if(yamlConfiguration==null){
-				return;
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/register_addon.php", new String[]{
+				"player="+player.getUniqueId().toString(),
+				"city="+URLEncoder.encode(city_name),
+				"addon="+URLEncoder.encode(addon_name),
+				"world="+URLEncoder.encode(event.getBlock().getWorld().getName()),
+				"x="+event.getBlock().getX(),
+				"y="+event.getBlock().getY(),
+				"z="+event.getBlock().getZ()
+		});
+		if(yamlConfiguration==null){
+			return;
+		}
+		if(yamlConfiguration.contains("message")){
+			ConfigurationSection messageSection = yamlConfiguration.getConfigurationSection("message");
+			ChatColor color = ChatColor.valueOf(messageSection.getString("color"));
+			String text = messageSection.getString("text");
+			player.sendMessage(color+text);
+		}
+		if(yamlConfiguration.contains("lines")){
+			ConfigurationSection signSection = yamlConfiguration.getConfigurationSection("lines");
+			for(String key : signSection.getKeys(false)){
+				ConfigurationSection lineSection = signSection.getConfigurationSection(key);
+				int line = lineSection.getInt("line");
+				ChatColor color = ChatColor.valueOf(lineSection.getString("color"));
+				String text = lineSection.getString("text");
+				event.setLine(line, color+text);
 			}
-			if(yamlConfiguration.contains("message")){
-				ConfigurationSection messageSection = yamlConfiguration.getConfigurationSection("message");
-				ChatColor color = ChatColor.valueOf(messageSection.getString("color"));
-				String text = messageSection.getString("text");
-				player.sendMessage(color+text);
-			}
-			if(yamlConfiguration.contains("lines")){
-				ConfigurationSection signSection = yamlConfiguration.getConfigurationSection("lines");
-				for(String key : signSection.getKeys(false)){
-					ConfigurationSection lineSection = signSection.getConfigurationSection(key);
-					int line = lineSection.getInt("line");
-					ChatColor color = ChatColor.valueOf(lineSection.getString("color"));
-					String text = lineSection.getString("text");
-					event.setLine(line, color+text);
-				}
-			}
-			else{
-				Bukkit.getScheduler().runTaskLater(this, new Runnable(){
-					public void run(){CommandScheduler.runCommands();}
-				}, 1);
-				
-			}
+		}
+		else{
+			Bukkit.getScheduler().runTaskLater(this, new Runnable(){
+				public void run(){CommandScheduler.runCommands();}
+			}, 1);
 			
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -113,33 +107,28 @@ public class AddonAbnahme extends JavaPlugin implements Listener{
 		}
 		String city_name = sign.getLine(1);
 		String addon_name = sign.getLine(2);
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/unregister_addon.php", new String[]{
-				"player="+player.getUniqueId().toString(),
-				"city="+URLEncoder.encode(city_name, "utf-8"),
-				"addon="+URLEncoder.encode(addon_name, "utf-8"),
-				"x="+event.getBlock().getX(),
-				"y="+event.getBlock().getY(),
-				"z="+event.getBlock().getZ(),
-				"world="+URLEncoder.encode(event.getBlock().getWorld().getName(), "utf-8")
-			});
-			if(yamlConfiguration==null){
-				return;
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/unregister_addon.php", new String[]{
+			"player="+player.getUniqueId().toString(),
+			"city="+URLEncoder.encode(city_name),
+			"addon="+URLEncoder.encode(addon_name),
+			"x="+event.getBlock().getX(),
+			"y="+event.getBlock().getY(),
+			"z="+event.getBlock().getZ(),
+			"world="+URLEncoder.encode(event.getBlock().getWorld().getName())
+		});
+		if(yamlConfiguration==null){
+			return;
+		}
+		if(yamlConfiguration.contains("message")){
+			ConfigurationSection messageSection = yamlConfiguration.getConfigurationSection("message");
+			ChatColor color = ChatColor.valueOf(messageSection.getString("color"));
+			String text = messageSection.getString("text");
+			player.sendMessage(color+text);
+		}
+		if(yamlConfiguration.contains("allow")){
+			if(yamlConfiguration.getInt("allow")==0){
+				event.setCancelled(true);
 			}
-			if(yamlConfiguration.contains("message")){
-				ConfigurationSection messageSection = yamlConfiguration.getConfigurationSection("message");
-				ChatColor color = ChatColor.valueOf(messageSection.getString("color"));
-				String text = messageSection.getString("text");
-				player.sendMessage(color+text);
-			}
-			if(yamlConfiguration.contains("allow")){
-				if(yamlConfiguration.getInt("allow")==0){
-					event.setCancelled(true);
-				}
-			}
-			
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -164,31 +153,26 @@ public class AddonAbnahme extends JavaPlugin implements Listener{
 		}
 		String city_name = sign.getLine(1);
 		String addon_name = sign.getLine(2);
-		try {
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/toggle_approve.php", new String[]{
-				"player="+player.getUniqueId().toString(),
-				"city="+URLEncoder.encode(city_name, "utf-8"),
-				"addon="+URLEncoder.encode(addon_name, "utf-8"),
-			});
-			if(yamlConfiguration==null){
-				return;
-			}
-			if(yamlConfiguration.contains("message")){
-				ConfigurationSection messageSection = yamlConfiguration.getConfigurationSection("message");
-				ChatColor color = ChatColor.valueOf(messageSection.getString("color"));
-				String text = messageSection.getString("text");
-				player.sendMessage(color+text);
-			}
-			if(yamlConfiguration.contains("allow")){
-				if(yamlConfiguration.getInt("allow")==0){
-					event.setCancelled(true);
-				}
-			}
-			CommandScheduler.runCommands();
-			
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("addons/toggle_approve.php", new String[]{
+			"player="+player.getUniqueId().toString(),
+			"city="+URLEncoder.encode(city_name),
+			"addon="+URLEncoder.encode(addon_name),
+		});
+		if(yamlConfiguration==null){
+			return;
 		}
+		if(yamlConfiguration.contains("message")){
+			ConfigurationSection messageSection = yamlConfiguration.getConfigurationSection("message");
+			ChatColor color = ChatColor.valueOf(messageSection.getString("color"));
+			String text = messageSection.getString("text");
+			player.sendMessage(color+text);
+		}
+		if(yamlConfiguration.contains("allow")){
+			if(yamlConfiguration.getInt("allow")==0){
+				event.setCancelled(true);
+			}
+		}
+		CommandScheduler.runCommands();
 	}
 	
 	protected static void editSign(ConfigurationSection dataSection){

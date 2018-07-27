@@ -1,8 +1,6 @@
 package ch.swisssmp.craftbank;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,6 +26,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -68,18 +67,13 @@ public class CraftBank extends JavaPlugin implements Listener{
 		Location location = player.getLocation();
 		List<String> regionIds = WorldGuardPlugin.inst().getRegionManager(player.getWorld()).getApplicableRegionsIDs(new com.sk89q.worldedit.Vector(location.getX(), location.getY(), location.getZ()));
 		List<String> arguments = new ArrayList<String>();
-		try {
-			for(String regionId : regionIds){
-				arguments.add("regions[]="+URLEncoder.encode(regionId, "utf-8"));
-			}
-			for(String line : lines){
-				arguments.add("lines[]="+URLEncoder.encode(line, "utf-8"));
-			}
-			arguments.add("player="+player.getUniqueId().toString());
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for(String regionId : regionIds){
+			arguments.add("regions[]="+URLEncoder.encode(regionId));
 		}
+		for(String line : lines){
+			arguments.add("lines[]="+URLEncoder.encode(line));
+		}
+		arguments.add("player="+player.getUniqueId().toString());
 		String[] args = new String[arguments.size()];
 		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("bank/sign.php", arguments.toArray(args));
 		if(yamlConfiguration==null) return;

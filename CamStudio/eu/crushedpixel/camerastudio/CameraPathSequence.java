@@ -1,7 +1,5 @@
 package eu.crushedpixel.camerastudio;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -108,13 +107,9 @@ public class CameraPathSequence {
 	
 	public static CameraPathSequence load(String name){
 		YamlConfiguration yamlConfiguration;
-		try {
-			yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_sequence.php", new String[]{
-					"name="+URLEncoder.encode(name, "utf-8")
-			});
-		} catch (UnsupportedEncodingException e) {
-			return null;
-		}
+		yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_sequence.php", new String[]{
+				"name="+URLEncoder.encode(name)
+		});
 		if(yamlConfiguration==null || !yamlConfiguration.contains("sequence")) return null;
 		return CameraPathSequence.create(yamlConfiguration.getConfigurationSection("sequence"));
 	}
