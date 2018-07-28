@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.BlockVector;
 
 import com.sk89q.worldedit.EditSession;
@@ -24,6 +27,9 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.EntityUtil;
+import ch.swisssmp.utils.VectorUtil;
+import ch.swisssmp.utils.WorldUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 
 public class GeneratorPart{
@@ -65,33 +71,18 @@ public class GeneratorPart{
 	}
 	
 	//@SuppressWarnings("deprecation")
-	public void generate(BlockVector position, int rotation){
+	public void generate(World world, BlockVector position, int rotation){
 		//Bukkit.getLogger().info("[DungeonGenerator] Generiere Teil bei "+position.getBlockX()+","+position.getBlockY()+position.getBlockZ());
 		try{
-			World world = this.generator.getWorld();
+			position = this.adjustPastePosition(position, rotation);
 			LocalSession session = WorldEdit.getInstance().getSessionManager().get(this.generator);
 			@SuppressWarnings("deprecation")
 			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitUtil.getLocalWorld(world), -1);
 			this.copyToClipboard(session, editSession);
-			if(rotation>0){
-				this.rotateClipboard(session, rotation*90);
-				switch(rotation){
-				case 1:{
-					position = new BlockVector(position.getBlockX()+this.generator.getPartSizeXZ()-1,position.getBlockY(), position.getBlockZ());
-					break;
-				}
-				case 2:{
-					position = new BlockVector(position.getBlockX()+this.generator.getPartSizeXZ()-1,position.getBlockY(), position.getBlockZ()+this.generator.getPartSizeXZ()-1);
-					break;
-				}
-				case 3:{
-					position = new BlockVector(position.getBlockX(),position.getBlockY(), position.getBlockZ()+this.generator.getPartSizeXZ()-1);
-					break;
-				}
-				default:break;
-				}
-			}
+			this.rotateClipboard(session, rotation*90);
 			this.pasteClipboard(session, editSession, position);
+			this.copyEntities(world, position, rotation);
+			
 		}
 		catch(WorldEditException e){
 			e.printStackTrace();
@@ -140,12 +131,20 @@ public class GeneratorPart{
 		return this.layers;
 	}
 	
-	public BlockVector getMinPoint(){
+	public BlockVector getMinBlock(){
 		return new BlockVector(this.template_x,this.template_y,this.template_z);
 	}
 	
-	public BlockVector getMaxPoint(){
+	public BlockVector getMaxBlock(){
 		return new BlockVector(this.template_x+this.generator.getPartSizeXZ()-1,this.template_y+this.generator.getPartSizeY()-1,this.template_z+this.generator.getPartSizeXZ()-1);
+	}
+	
+	public org.bukkit.util.Vector getMinVector(){
+		return new org.bukkit.util.Vector(this.template_x,this.template_y,this.template_z);
+	}
+	
+	public org.bukkit.util.Vector getMaxVector(){
+		return new org.bukkit.util.Vector(this.template_x+this.generator.getPartSizeXZ(),this.template_y+this.generator.getPartSizeY(),this.template_z+this.generator.getPartSizeXZ());
 	}
 	
 	private void updateTopSignature(){
@@ -208,6 +207,21 @@ public class GeneratorPart{
 		return this.name;
 	}
 	
+	private BlockVector adjustPastePosition(BlockVector position, int rotation){
+		switch(rotation){
+		case 1:{
+			return new BlockVector(position.getBlockX()+this.generator.getPartSizeXZ()-1,position.getBlockY(), position.getBlockZ());
+		}
+		case 2:{
+			return new BlockVector(position.getBlockX()+this.generator.getPartSizeXZ()-1,position.getBlockY(), position.getBlockZ()+this.generator.getPartSizeXZ()-1);
+		}
+		case 3:{
+			return new BlockVector(position.getBlockX(),position.getBlockY(), position.getBlockZ()+this.generator.getPartSizeXZ()-1);
+		}
+		default: return position;
+		}
+	}
+	
 	private void copyToClipboard(LocalSession session, EditSession editSession) throws WorldEditException{
 		com.sk89q.worldedit.Vector from = new com.sk89q.worldedit.Vector(this.template_x, this.template_y, this.template_z);
 		com.sk89q.worldedit.Vector to = new com.sk89q.worldedit.Vector(this.template_x+this.generator.getPartSizeXZ()-1, this.template_y+this.generator.getPartSizeY()-1, this.template_z+this.generator.getPartSizeXZ()-1);
@@ -215,11 +229,14 @@ public class GeneratorPart{
 		BlockArrayClipboard clipboard = new BlockArrayClipboard(selection);
 		clipboard.setOrigin(from);
 		ForwardExtentCopy copy = new ForwardExtentCopy(editSession, selection, clipboard, new Vector(this.template_x,this.template_y,this.template_z));
-		copy.setCopyingEntities(true);
+		copy.setCopyingEntities(false);
 		Operations.complete(copy);
 		session.setClipboard(new ClipboardHolder(clipboard, editSession.getWorld().getWorldData()));
 	}
 	
+	/*
+	 * Rotates Clipboard and returns new paste position to keep the part in place
+	 */
 	private void rotateClipboard(LocalSession session, int rotation) throws WorldEditException{
 		ClipboardHolder holder;
 		holder = session.getClipboard();
@@ -239,6 +256,48 @@ public class GeneratorPart{
                 .build();
         Operations.completeLegacy(operation);
 		editSession.flushQueue();
+	}
+	
+	private void copyEntities(World world, BlockVector toPosition, int rotation){
+		//TODO fix item frame positioning
+		List<Entity> entities = WorldUtil.getEntitiesWithinBoundingBox(this.generator.getWorld(), this.getMinVector(), this.getMaxVector());
+		if(entities.size()>100){
+			Bukkit.getLogger().info("[WARNUNG] [DungeonGenerator] Teil '"+this.name+"' versucht, "+entities.size()+" Entities zu kopieren! (Limit: 100)");
+			return;
+		}
+		Entity entity;
+		Entity clone;
+		for(int i = 0; i < entities.size(); i++){
+			entity = entities.get(i);
+			if(entity.isInsideVehicle()){
+				Entity vehicle = this.getRecursiveVehicle(entity);
+				if(!entities.contains(vehicle)) entities.add(vehicle);
+				continue;
+			}
+			clone = this.copyEntity(entity, world, toPosition, rotation);
+			if(clone==null) continue;
+			this.performDuplicationSafeties(clone);
+		}
+	}
+	
+	private void performDuplicationSafeties(Entity entity){
+		//this unlinks custom shops from their original template
+		if(entity.getCustomName()!=null && entity.getCustomName().startsWith("§rShop_")) entity.setCustomName("");
+	}
+	
+	private Entity copyEntity(Entity entity, World world, BlockVector pivot, int rotation){
+		org.bukkit.util.Vector rotatedPositionDelta = VectorUtil.rotate(entity.getLocation().subtract(this.template_x,this.template_y,this.template_z).subtract(0.5,0.5,0.5).toVector(),rotation);
+		Location location = new Location(world,pivot.getBlockX(),pivot.getBlockY(),pivot.getBlockZ());
+		location.add(rotatedPositionDelta);
+		location.add(0.5,0.5,0.5);
+		location.setYaw(entity.getLocation().getYaw()+rotation*90);
+		location.setPitch(entity.getLocation().getPitch());
+		return EntityUtil.clone(entity, location);
+	}
+	
+	private Entity getRecursiveVehicle(Entity entity){
+		if(!entity.isInsideVehicle()) return entity;
+		return this.getRecursiveVehicle(entity.getVehicle());
 	}
 	
 	public static void createBoundingBox(DungeonGenerator generator, BlockVector position){
