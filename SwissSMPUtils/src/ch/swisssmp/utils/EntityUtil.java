@@ -37,6 +37,7 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Minecart;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Parrot;
@@ -65,9 +66,8 @@ import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
 import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 import org.bukkit.potion.PotionEffect;
 
@@ -192,6 +192,9 @@ public class EntityUtil {
 		}
 		if(template instanceof Llama){
 			EntityUtil.cloneLlamaSettings((Llama)template, (Llama)target);
+		}
+		if(template instanceof Merchant){
+			EntityUtil.cloneMerchantSettings((Merchant)template, (Merchant)target);
 		}
 		if(template instanceof Minecart){
 			EntityUtil.cloneMinecartSettings((Minecart)template, (Minecart)target);
@@ -334,8 +337,6 @@ public class EntityUtil {
 		target.setWaitTime(template.getWaitTime());
 	}
 	private static void cloneArmorStandSettings(ArmorStand template, ArmorStand target){
-		target.setArms(template.hasArms());
-		target.setBasePlate(template.hasBasePlate());
 		target.setBodyPose(template.getBodyPose());
 		target.setBoots(template.getBoots().clone());
 		target.setChestplate(template.getChestplate().clone());
@@ -345,9 +346,11 @@ public class EntityUtil {
 		target.setLeftArmPose(template.getLeftArmPose());
 		target.setLeftLegPose(template.getLeftLegPose());
 		target.setLeggings(template.getLeggings().clone());
-		target.setMarker(template.isMarker());
 		target.setRightArmPose(template.getRightArmPose());
 		target.setRightLegPose(template.getRightLegPose());
+		target.setArms(template.hasArms());
+		target.setBasePlate(template.hasBasePlate());
+		target.setMarker(template.isMarker());
 		target.setSmall(template.isSmall());
 		target.setVisible(template.isVisible());
 	}
@@ -362,6 +365,7 @@ public class EntityUtil {
 		for(Attribute attribute : Attribute.values()){
 			templateAttribute = template.getAttribute(attribute);
 			targetAttribute = target.getAttribute(attribute);
+			if(templateAttribute==null || targetAttribute==null) continue;
 			targetAttribute.setBaseValue(templateAttribute.getBaseValue());
 			for(AttributeModifier modifier : templateAttribute.getModifiers()){
 				targetAttribute.addModifier(new AttributeModifier(modifier.getName(),modifier.getAmount(),modifier.getOperation()));
@@ -414,12 +418,14 @@ public class EntityUtil {
 		target.setItemInMainHand(template.getItemInMainHand().clone());
 		target.setItemInOffHand(template.getItemInOffHand().clone());
 		target.setLeggings(template.getLeggings().clone());
-		target.setBootsDropChance(template.getBootsDropChance());
-		target.setChestplateDropChance(template.getChestplateDropChance());
-		target.setHelmetDropChance(template.getHelmetDropChance());
-		target.setItemInMainHandDropChance(template.getItemInMainHandDropChance());
-		target.setItemInOffHandDropChance(template.getItemInOffHandDropChance());
-		target.setLeggingsDropChance(template.getLeggingsDropChance());
+		if(template.getHolder() instanceof Monster){
+			target.setBootsDropChance(template.getBootsDropChance());
+			target.setChestplateDropChance(template.getChestplateDropChance());
+			target.setHelmetDropChance(template.getHelmetDropChance());
+			target.setItemInMainHandDropChance(template.getItemInMainHandDropChance());
+			target.setItemInOffHandDropChance(template.getItemInOffHandDropChance());
+			target.setLeggingsDropChance(template.getLeggingsDropChance());
+		}
 	}
 	private static void cloneExperienceOrbSettings(ExperienceOrb template, ExperienceOrb target){
 		target.setExperience(template.getExperience());
@@ -452,13 +458,7 @@ public class EntityUtil {
 		target.setGameMode(template.getGameMode());
 	}
 	private static void cloneInventoryHolderSettings(InventoryHolder template, InventoryHolder target){
-		EntityUtil.cloneInventorySettings(template.getInventory(), target.getInventory());
-	}
-	private static void cloneInventorySettings(Inventory template, Inventory target){
-		for(int i = 0; i < template.getSize(); i++){
-			target.setItem(i, (template.getItem(i)!=null ? template.getItem(i).clone() : null));
-		}
-		if(template instanceof PlayerInventory) ((PlayerInventory)target).setItemInOffHand(((PlayerInventory)template).getItemInOffHand()!=null ? ((PlayerInventory)template).getItemInOffHand().clone() : null);
+		InventoryUtil.clone(template.getInventory(), target.getInventory());
 	}
 	private static void cloneIronGolemSettings(IronGolem template, IronGolem target){
 		target.setPlayerCreated(template.isPlayerCreated());
@@ -486,6 +486,9 @@ public class EntityUtil {
 		target.setColor(template.getColor());
 		target.setStrength(template.getStrength());
 	}
+	private static void cloneMerchantSettings(Merchant template, Merchant target){
+		target.setRecipes(template.getRecipes());
+	}
 	private static void cloneMinecartSettings(Minecart template, Minecart target){
 		//TODO add 1.13 capabilities
 		target.setDamage(template.getDamage());
@@ -497,7 +500,7 @@ public class EntityUtil {
 		target.setSlowWhenEmpty(template.isSlowWhenEmpty());
 	}
 	private static void cloneNameableSettings(Nameable template, Nameable target){
-		if(target.getCustomName()!=null)
+		if(template.getCustomName()!=null)
 			target.setCustomName(template.getCustomName());
 	}
 	private static void cloneOcelotSettings(Ocelot template, Ocelot target){
