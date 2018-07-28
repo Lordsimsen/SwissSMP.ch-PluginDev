@@ -11,6 +11,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 public class WorldUtil {
+	/**
+	 * Loads respective chunks when necessary.
+	 * @param world - the world to  check in
+	 * @param from - one corner of the bounding box
+	 * @param to - opposite corner of bounding box
+	 * @return A List of all Etities between from and to (inclusive)
+	 */
 	public static List<Entity> getEntitiesWithinBoundingBox(World world, Vector from, Vector to) {
 	    List<Entity> entities = new ArrayList<Entity>();
 	    
