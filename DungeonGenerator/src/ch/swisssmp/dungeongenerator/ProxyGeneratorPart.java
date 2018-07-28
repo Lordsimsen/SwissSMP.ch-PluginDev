@@ -19,8 +19,8 @@ public class ProxyGeneratorPart {
 		World world = original.getGenerator().getWorld();
 		this.original = original;
 		this.rotation = rotation;
-		BlockVector min = original.getMinPoint();
-		BlockVector max = original.getMaxPoint();
+		BlockVector min = original.getMinBlock();
+		BlockVector max = original.getMaxBlock();
 		BlockVector bottomMin = new BlockVector(min.getBlockX(), min.getBlockY()-1, min.getBlockZ());
 		BlockVector bottomMax = new BlockVector(max.getBlockX(),min.getBlockY()-1, max.getBlockZ());
 		BlockVector topMin = new BlockVector(min.getBlockX(), max.getBlockY()+1, min.getBlockZ());
@@ -33,7 +33,7 @@ public class ProxyGeneratorPart {
 		this.westSignature = original.getSignature(Direction.WEST.rotate(rotation));
 	}
 	public DungeonGenerator getGenerator(){return this.original.getGenerator();}
-	public void generate(BlockVector position){this.original.generate(position, rotation);}
+	public void generate(World world, BlockVector position){this.original.generate(world, position, rotation);}
 	public String getSignature(Direction direction){
 		switch(direction){
 		case UP: return this.topSignature;

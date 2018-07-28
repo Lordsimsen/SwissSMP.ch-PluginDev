@@ -133,12 +133,12 @@ public class DungeonGenerator implements Listener, SessionOwner{
 		this.save();
 	}
 	
-	public boolean generate(BlockVector position, Long seed, int size){
+	public boolean generate(World world, BlockVector position, Long seed, int size){
 		this.update();
 		List<GenerationPart> parts = PartGenerator.generateData(this, position, seed, size);
 		if(parts==null) return false;
 		Bukkit.getLogger().info("[DungeonGenerator] Data generated, placing blocks...");
-		GenerationRoutine.run(parts, position);
+		GenerationRoutine.run(parts, world, position);
 		return true;
 	}
 	
@@ -183,7 +183,7 @@ public class DungeonGenerator implements Listener, SessionOwner{
 				part = GeneratorPart.get(this, world.getBlockAt(current.getX()+1,current.getY()+1,current.getZ()+1));
 				//GeneratorPart found
 				if(part!=null){
-					markerLocation = part.getMaxPoint().toLocation(world);
+					markerLocation = part.getMaxBlock().toLocation(world);
 					markerLocation.add(1-this.partSizeXZ/2f,3f,1-this.partSizeXZ/2f);
 					GeneratorPartMarker.show(markerLocation, Color.GREEN, 60L);
 					//Bukkit.getLogger().info("[DungeonGenerator] Found Part "+part.getName());

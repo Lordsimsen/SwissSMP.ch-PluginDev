@@ -184,7 +184,7 @@ public class GeneratorCommand implements CommandExecutor{
 				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 			}
 			else{
-				generator.generate(new BlockVector(player.getLocation().toVector().add(new Vector(1,0,1))), seed, size);
+				generator.generate(player.getWorld(), new BlockVector(player.getLocation().toVector().add(new Vector(1,0,1))), seed, size);
 				sender.sendMessage("[DungeonGenerator] Dungeon '"+name+"' mit Seed '"+seed+"' generiert.");
 			}
 			return true;

@@ -3,6 +3,7 @@ package ch.swisssmp.dungeongenerator;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.bukkit.World;
 import org.bukkit.util.BlockVector;
 
 public class GenerationPart{
@@ -26,13 +27,13 @@ public class GenerationPart{
 	/*
 	 * Generates the blocks for this part
 	 */
-	public void generate(BlockVector center){
+	public void generate(World world, BlockVector center){
 		DungeonGenerator generator = this.template.getGenerator();
 		int pos_x = center.getBlockX()+this.gridPosition.getBlockX()*generator.getPartSizeXZ();
 		int pos_y = center.getBlockY()+this.gridPosition.getBlockY()*generator.getPartSizeY();
 		int pos_z = center.getBlockZ()+this.gridPosition.getBlockZ()*generator.getPartSizeXZ();
 		BlockVector position = new BlockVector(pos_x,pos_y,pos_z);
-		this.template.generate(position);
+		this.template.generate(world, position);
 	}
 	
 	public void register(){

@@ -3,17 +3,20 @@ package ch.swisssmp.dungeongenerator;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BlockVector;
 
 public class GenerationRoutine implements Runnable {
 	private final List<GenerationPart> generatables;
+	private final World world;
 	private final BlockVector referencePoint;
 	private int iterator = 0;
 	private BukkitTask task;
 	
-	private GenerationRoutine(List<GenerationPart> generatables, BlockVector referencePoint){
+	private GenerationRoutine(List<GenerationPart> generatables, World world, BlockVector referencePoint){
 		this.generatables = generatables;
+		this.world = world;
 		this.referencePoint = referencePoint;
 	}
 
@@ -24,12 +27,17 @@ public class GenerationRoutine implements Runnable {
 			Bukkit.getLogger().info("[DungeonGenerator] Dungeon Generation completed.");
 			return;
 		}
-		generatables.get(iterator).generate(referencePoint);
+		try{			
+			generatables.get(iterator).generate(world, referencePoint);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 		iterator++;
 	}
 	
-	public static BukkitTask run(List<GenerationPart> generatables, BlockVector referencePoint){
-		GenerationRoutine routine = new GenerationRoutine(generatables, referencePoint);
+	public static BukkitTask run(List<GenerationPart> generatables, World world, BlockVector referencePoint){
+		GenerationRoutine routine = new GenerationRoutine(generatables, world, referencePoint);
 		BukkitTask result = Bukkit.getScheduler().runTaskTimer(DungeonGeneratorPlugin.plugin, routine, 0, 1);
 		routine.task = result;
 		return result;
