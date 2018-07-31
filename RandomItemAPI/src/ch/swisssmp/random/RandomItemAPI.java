@@ -1,4 +1,4 @@
-package ch.swisssmp.loot;
+package ch.swisssmp.random;
 
 import java.util.logging.Logger;
 
@@ -7,10 +7,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class LootTables extends JavaPlugin{
+public class RandomItemAPI extends JavaPlugin{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
-	protected static LootTables plugin;
+	protected static RandomItemAPI plugin;
 	
 	protected static boolean debug = false;
 	
@@ -19,14 +19,14 @@ public class LootTables extends JavaPlugin{
 		plugin = this;
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
-		Bukkit.getPluginCommand("loot").setExecutor(new LootCommand());
-		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+		Bukkit.getPluginCommand("randomize").setExecutor(new RandomItemCommand());
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
 	@Override
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
+		Bukkit.getScheduler().cancelTasks(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}

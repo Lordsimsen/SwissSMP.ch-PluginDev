@@ -1,4 +1,4 @@
-package ch.swisssmp.loot.populator;
+package ch.swisssmp.random;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,9 +14,14 @@ import ch.swisssmp.utils.Random;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 
-public class RandomItemHandler {
+public class RandomItemUtil {
+	private static Random random = new Random();
+	
+	public static ItemStack buildItemStack(ItemStack template){
+		return RandomItemUtil.buildItemStack(template, random);
+	}
 	public static ItemStack buildItemStack(ItemStack template, Random random){
-		return RandomItemHandler.buildItemStack(template, random, -1);
+		return RandomItemUtil.buildItemStack(template, random, -1);
 	}
 	public static ItemStack buildItemStack(ItemStack template, Random random, double chanceOverride){
 		//extract nbt data from the template
@@ -35,54 +40,54 @@ public class RandomItemHandler {
 		nmsStack.setTag(nbtTag);
 		ItemStack result = CraftItemStack.asBukkitCopy(nmsStack);
 		//randomize values that do not require nbt tag modification
-		RandomItemHandler.randomizeBaseValues(result, random, randomizeData);
+		RandomItemUtil.randomizeBaseValues(result, random, randomizeData);
 		//if this randomization resulted in an amount of zero items in the stack return nothing
 		if(result.getAmount()==0) return null;
 		//extract the nbt data from the resulting itemstack
-		NBTTagCompound resultNBTData = RandomItemHandler.getNBTData(result);
+		NBTTagCompound resultNBTData = RandomItemUtil.getNBTData(result);
 		if(resultNBTData==null) resultNBTData = new NBTTagCompound();
 		//extract any existing attributemodifiers or create a new compound for them
 		NBTTagList attributeModifiers = (resultNBTData.hasKey("AttributeModifiers")) ? resultNBTData.getList("AttributeModifiers",10) : new NBTTagList();
 		//randomize attribute modifiers
-		RandomItemHandler.randomizeAttributeModifiers(attributeModifiers, random, randomizeData);
+		RandomItemUtil.randomizeAttributeModifiers(attributeModifiers, random, randomizeData);
 		//if any were created put them into the resulting nbt data
 		if(attributeModifiers.size()>0){
 			resultNBTData.set("AttributeModifiers", attributeModifiers);
 		}
 		//if nbt data was created add it to the resulting itemstack
 		if(resultNBTData.c().size()>0){
-			RandomItemHandler.setNBTData(result, resultNBTData);
+			RandomItemUtil.setNBTData(result, resultNBTData);
 		}
 		//remove randomizeDescription from result
-		RandomItemHandler.removeRandomizeDescription(result);
+		RandomItemUtil.removeRandomizeDescription(result);
 		//return the result
 		return result;
 	}
 	
 	private static void randomizeBaseValues(ItemStack itemStack, Random random, NBTTagCompound randomizeData){
 		if(randomizeData.hasKey("amount")){
-			RandomItemHandler.randomizeAmount(itemStack, random, randomizeData.getCompound("amount"));
+			RandomItemUtil.randomizeAmount(itemStack, random, randomizeData.getCompound("amount"));
 		}
 		if(randomizeData.hasKey("durability")){
-			RandomItemHandler.randomizeDurability(itemStack, random, randomizeData.getCompound("durability"));
+			RandomItemUtil.randomizeDurability(itemStack, random, randomizeData.getCompound("durability"));
 		}
 		if(randomizeData.hasKey("enchantments")){
-			RandomItemHandler.randomizeEnchantments(itemStack, random, randomizeData.getCompound("enchantments"));
+			RandomItemUtil.randomizeEnchantments(itemStack, random, randomizeData.getCompound("enchantments"));
 		}
 	}
 	
 	private static void randomizeAttributeModifiers(NBTTagList attributeModifiers, Random random, NBTTagCompound randomizeData){
 		if(randomizeData.hasKey("attack_damage")){
-			RandomItemHandler.randomizeAttackDamage(attributeModifiers, random, randomizeData.getCompound("attack_damage"));
+			RandomItemUtil.randomizeAttackDamage(attributeModifiers, random, randomizeData.getCompound("attack_damage"));
 		}
 		if(randomizeData.hasKey("attack_speed")){
-			RandomItemHandler.randomizeAttackSpeed(attributeModifiers, random, randomizeData.getCompound("attack_speed"));
+			RandomItemUtil.randomizeAttackSpeed(attributeModifiers, random, randomizeData.getCompound("attack_speed"));
 		}
 		if(randomizeData.hasKey("armor")){
-			RandomItemHandler.randomizeArmor(attributeModifiers, random, randomizeData.getCompound("armor"));
+			RandomItemUtil.randomizeArmor(attributeModifiers, random, randomizeData.getCompound("armor"));
 		}
 		if(randomizeData.hasKey("toughness")){
-			RandomItemHandler.randomizeToughness(attributeModifiers, random, randomizeData.getCompound("toughness"));
+			RandomItemUtil.randomizeToughness(attributeModifiers, random, randomizeData.getCompound("toughness"));
 		}
 	}
 	
@@ -116,20 +121,20 @@ public class RandomItemHandler {
 	}
 	
 	private static void randomizeAttackDamage(NBTTagList attributeModifiers, Random random, NBTTagCompound dataSection){
-		RandomItemHandler.clearAttribute(attributeModifiers, "generic.attackDamage");
+		RandomItemUtil.clearAttribute(attributeModifiers, "generic.attackDamage");
 		double min = dataSection.getDouble("min");
 		double max = dataSection.getDouble("max");
-		NBTTagCompound attribute = RandomItemHandler.getNewAttributeModifier("generic.attackDamage", dataSection.getString("slot"));
+		NBTTagCompound attribute = RandomItemUtil.getNewAttributeModifier("generic.attackDamage", dataSection.getString("slot"));
 		attribute.setDouble("Amount", random.nextDouble()*(max-min)+min);
 		attribute.setString("Slot", "mainhand");
 		attributeModifiers.add(attribute);
 	}
 	
 	private static void randomizeAttackSpeed(NBTTagList attributeModifiers, Random random, NBTTagCompound dataSection){
-		RandomItemHandler.clearAttribute(attributeModifiers, "generic.attackSpeed");
+		RandomItemUtil.clearAttribute(attributeModifiers, "generic.attackSpeed");
 		double min = dataSection.getDouble("min");
 		double max = dataSection.getDouble("max");
-		NBTTagCompound attribute = RandomItemHandler.getNewAttributeModifier("generic.attackSpeed", dataSection.getString("slot"));
+		NBTTagCompound attribute = RandomItemUtil.getNewAttributeModifier("generic.attackSpeed", dataSection.getString("slot"));
 		attribute.setDouble("Amount", random.nextDouble()*(max-min)+min);
 		attribute.setInt("Operation", 0);
 		attribute.setString("Slot", dataSection.getString("slot"));
@@ -137,20 +142,20 @@ public class RandomItemHandler {
 	}
 	
 	private static void randomizeArmor(NBTTagList attributeModifiers, Random random, NBTTagCompound dataSection){
-		RandomItemHandler.clearAttribute(attributeModifiers, "generic.armor");
+		RandomItemUtil.clearAttribute(attributeModifiers, "generic.armor");
 		double min = dataSection.getDouble("min");
 		double max = dataSection.getDouble("max");
-		NBTTagCompound attribute = RandomItemHandler.getNewAttributeModifier("generic.armor", dataSection.getString("slot"));
+		NBTTagCompound attribute = RandomItemUtil.getNewAttributeModifier("generic.armor", dataSection.getString("slot"));
 		attribute.setDouble("Amount", random.nextDouble()*(max-min)+min);
 		attribute.setInt("Operation", 0);
 		attributeModifiers.add(attribute);
 	}
 	
 	private static void randomizeToughness(NBTTagList attributeModifiers, Random random, NBTTagCompound dataSection){
-		RandomItemHandler.clearAttribute(attributeModifiers, "generic.armorToughness");
+		RandomItemUtil.clearAttribute(attributeModifiers, "generic.armorToughness");
 		double min = dataSection.getDouble("min");
 		double max = dataSection.getDouble("max");
-		NBTTagCompound attribute = RandomItemHandler.getNewAttributeModifier("generic.armorToughness", dataSection.getString("slot"));
+		NBTTagCompound attribute = RandomItemUtil.getNewAttributeModifier("generic.armorToughness", dataSection.getString("slot"));
 		attribute.setDouble("Amount", random.nextDouble()*(max-min)+min);
 		attribute.setInt("Operation", 0);
 		attributeModifiers.add(attribute);
@@ -195,9 +200,9 @@ public class RandomItemHandler {
 	
 	public static void addRandomizeDescription(ItemStack itemStack){
 		//clear old data
-		RandomItemHandler.removeRandomizeDescription(itemStack);
+		RandomItemUtil.removeRandomizeDescription(itemStack);
 		//get randomize data
-		NBTTagCompound nbtTag = RandomItemHandler.getNBTData(itemStack);
+		NBTTagCompound nbtTag = RandomItemUtil.getNBTData(itemStack);
 		//if there is no randomize data return
 		if(nbtTag==null || !nbtTag.hasKey("randomize")) return;
 		NBTTagCompound randomizeData = nbtTag.getCompound("randomize");
@@ -252,7 +257,7 @@ public class RandomItemHandler {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		List<String> lore = itemMeta.getLore();
 		//find out at what line the randomize description starts
-		int randomizeDescriptionStart = RandomItemHandler.getRandomizeDescriptionStart(lore);
+		int randomizeDescriptionStart = RandomItemUtil.getRandomizeDescriptionStart(lore);
 		//if no randomize description was found return
 		if(randomizeDescriptionStart<0) return;
 		//remove all lines of the randomize description
@@ -274,7 +279,7 @@ public class RandomItemHandler {
 			name = itemStack.getType().toString();
 		}
 		result+=name;
-		NBTTagCompound nbtTag = RandomItemHandler.getNBTData(itemStack);
+		NBTTagCompound nbtTag = RandomItemUtil.getNBTData(itemStack);
 		if(nbtTag!=null && nbtTag.hasKey("randomize")){
 			NBTTagCompound randomizeData = nbtTag.getCompound("randomize");
 			if(randomizeData.hasKey("amount")){
@@ -301,7 +306,7 @@ public class RandomItemHandler {
 	}
 	
 	public static double getItemChance(ItemStack itemStack, double defaultChance){
-		NBTTagCompound nbtTag = RandomItemHandler.getNBTData(itemStack);
+		NBTTagCompound nbtTag = RandomItemUtil.getNBTData(itemStack);
 		if(nbtTag==null || !nbtTag.hasKey("randomize")) return defaultChance;
 		NBTTagCompound randomizeData = nbtTag.getCompound("randomize");
 		if(!randomizeData.hasKey("chance")) return defaultChance;

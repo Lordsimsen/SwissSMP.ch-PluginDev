@@ -10,6 +10,7 @@ import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import ch.swisssmp.random.RandomItemUtil;
 import ch.swisssmp.utils.Random;
 
 public abstract class InventoryPopulator {
@@ -48,7 +49,7 @@ public abstract class InventoryPopulator {
 			totalWeight = 0;
 			for(ItemStack template : this.templateStacks){
 				if(template==null) continue;
-				weight = RandomItemHandler.getItemChance(template, defaultWeight);
+				weight = RandomItemUtil.getItemChance(template, defaultWeight);
 				weightMap.put(template, weight);
 				totalWeight+=weight;
 			}
@@ -72,7 +73,7 @@ public abstract class InventoryPopulator {
 		return this.buildItemStack(template,-1);
 	}
 	private ItemStack buildItemStack(ItemStack template, double chanceOverride){
-		return RandomItemHandler.buildItemStack(template,this.random, chanceOverride);
+		return RandomItemUtil.buildItemStack(template,this.random, chanceOverride);
 	}
 	
 	public static void populate(Inventory inventory, ItemStack[] itemStacks, int min_rolls, int max_rolls, String seed){

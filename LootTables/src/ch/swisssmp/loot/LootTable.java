@@ -21,7 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.loot.populator.InventoryPopulator;
-import ch.swisssmp.loot.populator.RandomItemHandler;
+import ch.swisssmp.random.RandomItemUtil;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.SwissSMPUtils;
@@ -136,6 +136,7 @@ public class LootTable {
 		customItemBuilder.setUnbreakable(true);
 		customItemBuilder.setAmount(amount);
 		customItemBuilder.setDisplayName(displayName);
+		customItemBuilder.setLore(this.getItemInfo());
 		ItemStack result = customItemBuilder.build();
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(result);
 		NBTTagCompound nbtTag = nmsStack.getTag();
@@ -143,9 +144,7 @@ public class LootTable {
 		nbtTag.setInt("loot_table", this.loot_table_id);
 		nmsStack.setTag(nbtTag);
 		ItemMeta itemMeta = CraftItemStack.getItemMeta(nmsStack);
-		itemMeta.setLore(this.getItemInfo());;
 		result.setItemMeta(itemMeta);
-		result.getItemMeta();
 		return result;
 	}
 	
@@ -162,7 +161,7 @@ public class LootTable {
 			for(ItemStack itemStack : countInventory){
 				if(itemStack==null) continue;
 				if(result.size()<5){
-					line = RandomItemHandler.getDescriptiveItemString(itemStack);
+					line = RandomItemUtil.getDescriptiveItemString(itemStack);
 					result.add(line);
 				}
 				totalCount++;
