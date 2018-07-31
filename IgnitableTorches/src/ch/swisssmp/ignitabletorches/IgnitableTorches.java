@@ -8,7 +8,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.HandlerList;
 import org.bukkit.material.Directional;
-import org.bukkit.material.Torch;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -37,14 +36,33 @@ public class IgnitableTorches extends JavaPlugin{
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void igniteTorch(Block block){
 		BlockFace direction = BlockFace.UP;
 		if(block.getState().getData() instanceof Directional){
 			Directional directional = (Directional) block.getState().getData();
 			direction = directional.getFacing();
 		}
-		block.setType(Material.TORCH, false);
-		Torch torch = (Torch)block.getState();
-		torch.setFacingDirection(direction);
+		block.setTypeIdAndData(Material.TORCH.getId(), IgnitableTorches.getFacingByte(direction), false);
+	}
+	
+	private static byte getFacingByte(BlockFace face){
+        switch (face) {
+        case EAST:
+            return 0x1;
+
+        case WEST:
+            return 0x2;
+
+        case SOUTH:
+            return 0x3;
+
+        case NORTH:
+            return 0x4;
+
+        case UP:
+        default:
+            return 0x5;
+        }
 	}
 }
