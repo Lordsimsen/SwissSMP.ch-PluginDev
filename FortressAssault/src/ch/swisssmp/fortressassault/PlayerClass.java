@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -51,16 +52,16 @@ public class PlayerClass {
 		case PREGAME:
 			for(ItemStack itemStack : playerClass.inventory){
 				if(itemStack==null) continue;
-				if(isHelmet(itemStack)){
+				if(ItemUtil.isHelmet(itemStack)){
 					playerInventory.setHelmet(itemStack);
 				}
-				else if(isChestplate(itemStack)){
+				else if(ItemUtil.isChestplate(itemStack)){
 					playerInventory.setChestplate(itemStack);
 				}
-				else if(isLeggings(itemStack)){
+				else if(ItemUtil.isLeggings(itemStack)){
 					playerInventory.setLeggings(itemStack);
 				}
-				else if(isBoots(itemStack)){
+				else if(ItemUtil.isBoots(itemStack)){
 					playerInventory.setBoots(itemStack);
 				}
 				else{
@@ -86,49 +87,5 @@ public class PlayerClass {
 	}
 	protected static PlayerClass get(int class_id){
 		return playerClasses.get(class_id);
-	}
-	
-	private static boolean isHelmet(ItemStack itemStack){
-		if(itemStack==null)return false;
-		Material material = itemStack.getType();
-		return 
-				material==Material.LEATHER_HELMET||
-				material==Material.CHAINMAIL_HELMET||
-				material==Material.IRON_HELMET||
-				material==Material.GOLD_HELMET||
-				material==Material.DIAMOND_HELMET;
-	}
-	
-	private static boolean isChestplate(ItemStack itemStack){
-		if(itemStack==null)return false;
-		Material material = itemStack.getType();
-		return 
-				material==Material.LEATHER_CHESTPLATE||
-				material==Material.CHAINMAIL_CHESTPLATE||
-				material==Material.IRON_CHESTPLATE||
-				material==Material.GOLD_CHESTPLATE||
-				material==Material.DIAMOND_CHESTPLATE;
-	}
-	
-	private static boolean isLeggings(ItemStack itemStack){
-		if(itemStack==null)return false;
-		Material material = itemStack.getType();
-		return 
-				material==Material.LEATHER_LEGGINGS||
-				material==Material.CHAINMAIL_LEGGINGS||
-				material==Material.IRON_LEGGINGS||
-				material==Material.GOLD_LEGGINGS||
-				material==Material.DIAMOND_LEGGINGS;
-	}
-	
-	private static boolean isBoots(ItemStack itemStack){
-		if(itemStack==null)return false;
-		Material material = itemStack.getType();
-		return 
-				material==Material.LEATHER_BOOTS||
-				material==Material.CHAINMAIL_BOOTS||
-				material==Material.IRON_BOOTS||
-				material==Material.GOLD_BOOTS||
-				material==Material.DIAMOND_BOOTS;
 	}
 }
