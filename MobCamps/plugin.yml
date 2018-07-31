@@ -1,0 +1,25 @@
+main: ch.swisssmp.mobcamps.MobCamps
+version: 1.0
+name: MobCamps
+author: detig_iii
+description: Ermöglicht MobCamps mit Ingame Editor, welche in Welten mit der Gamerule doMobCampSawning auf true selbständig Mobs spawnen
+depend: [WebCore,RandomItemAPI]
+permissions:
+  mobcamps.admin:
+    description: Erlaubt bearbeiten von MobCamps
+    default: op
+commands:
+  camp:
+    description: Zur Verwaltung von Mob Camps - [Parameter] sind Pflicht, (Parameter=Standardwert) sind optional
+    usage: |
+      /camp info §7- Listet alle Mob Camps auf
+      /camp erstelle [Name] §7- Erstellt ein neues Mob Camp
+      /camp aktualisiere (Name) §7- Aktualisiert Instanzen und Item Stacks dieses Mob Camps
+      /camp lade (Welt) §7- Lädt alle Mob Camp Instanzen dieser oder aller Welten
+      /camp item (Name) §7- Generiert einen Item Stack für dieses Mob Camp
+      /camp nenne (Name) [Neuer_Name] §7- Benennt dieses Mob Camp neu
+      /camp radius (Name) [Radius] §7- Ändert den Spawn Radius für dieses Mob Camp
+      /camp limit (Name) [Limit] §7- Ändert das Spawn Limit für dieses Mob Camp
+      /camp trigger (Name) [Distanz] §7- Ändert den Auslöser Radius für dieses Mob Camp (min 16)
+      /camp bearbeite (Name) §7- Öffnet den Editor für dieses Mob Camp
+    permission: loottables.admin
