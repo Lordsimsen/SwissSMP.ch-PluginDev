@@ -1,0 +1,10 @@
+main: ch.swisssmp.customvehicles.CustomVehicles
+version: 1.0
+name: BigVehicles
+author: detig_iii
+description: Erlaubt spezielle Fortbewegungsmittel
+depend: [WebCore]
+permissions:
+  bigvehicles.craft:
+    description: Erlaubt Crafting von Bauteilen
+    default: op
