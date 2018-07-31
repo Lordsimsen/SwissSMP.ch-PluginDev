@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
+import ch.swisssmp.adventuredungeons.world.Dungeon;
+import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 
 public class MusicLoop {
 	private final Player player;
@@ -46,5 +48,18 @@ public class MusicLoop {
 	}
 	public void cancel(){
 		if(pending!=null) pending.cancel();
+	}
+	
+	public static void update(Player player){
+    	if(AdventureSound.musicLoops.containsKey(player.getUniqueId())){
+    		return;
+    	}
+    	Dungeon dungeon = Dungeon.get(player);
+    	if(dungeon!=null){
+    		DungeonInstance instance = Dungeon.getInstance(player);
+    		if(instance.isRunning() && dungeon.background_music>0){
+    			AdventureSound.playMusic(player, dungeon.background_music, dungeon.looptime);
+    		}
+    	}
 	}
 }

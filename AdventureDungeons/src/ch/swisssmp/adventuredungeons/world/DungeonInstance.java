@@ -22,7 +22,7 @@ import ch.swisssmp.adventuredungeons.AdventureDungeons;
 import ch.swisssmp.adventuredungeons.event.DungeonEndEvent;
 import ch.swisssmp.adventuredungeons.event.DungeonStartEvent;
 import ch.swisssmp.adventuredungeons.event.listener.EventListenerMaster;
-import ch.swisssmp.adventuredungeons.player.AdventurePlayer;
+import ch.swisssmp.adventuredungeons.sound.MusicLoop;
 import ch.swisssmp.transformations.AreaState;
 import ch.swisssmp.transformations.TransformationArea;
 import ch.swisssmp.transformations.TransformationWorld;
@@ -82,7 +82,7 @@ public class DungeonInstance{
 		for(String player_uuid : this.player_uuids){
 			Player player = Bukkit.getPlayer(UUID.fromString(player_uuid));
 			if(player!=null)
-				AdventurePlayer.updateMusic(player);
+				MusicLoop.update(player);
 		}
 	}
 	protected void join(Player player){

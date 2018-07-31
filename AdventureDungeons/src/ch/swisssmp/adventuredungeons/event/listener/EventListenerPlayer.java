@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.player.AdventurePlayer;
+import ch.swisssmp.adventuredungeons.sound.MusicLoop;
 
 public class EventListenerPlayer extends EventListenerBasic{
 	public EventListenerPlayer(EventListenerMaster master) {
@@ -31,7 +31,7 @@ public class EventListenerPlayer extends EventListenerBasic{
 		if(!this.getInstance().getPlayers().contains(player.getUniqueId().toString())) return;
 		Bukkit.getScheduler().runTaskLater(AdventureDungeons.plugin, new Runnable(){
 			public void run(){
-				AdventurePlayer.updateMusic(player);
+				MusicLoop.update(player);
 			}
 		}, 60L);
 	}
