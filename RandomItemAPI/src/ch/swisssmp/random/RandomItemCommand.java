@@ -1,4 +1,4 @@
-package ch.swisssmp.loot;
+package ch.swisssmp.random;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,23 +12,22 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import ch.swisssmp.loot.populator.RandomItemHandler;
 import ch.swisssmp.utils.Mathf;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
-public class RandomCommand implements CommandExecutor{
+public class RandomItemCommand implements CommandExecutor{
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(args==null || args.length==0) return false;
 		if(!(sender instanceof Player)){
-			sender.sendMessage("[LootTables] Kann nur ingame verwendet werden.");
+			sender.sendMessage("[RandomItemAPI] Kann nur ingame verwendet werden.");
 			return true;
 		}
 		Player player = (Player)sender;
 		ItemStack itemStack = player.getInventory().getItemInMainHand();
 		if(itemStack==null){
-			sender.sendMessage("[LootTables] Nimm zuerst ein Item in deine Haupthand.");
+			sender.sendMessage("[RandomItemAPI] Nimm zuerst ein Item in deine Haupthand.");
 		}
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 		NBTTagCompound nbtTag = nmsStack.getTag();
@@ -105,7 +104,7 @@ public class RandomCommand implements CommandExecutor{
 				if(randomizeData.hasKey("enchantments")){
 					enchantment = Enchantment.getByName(args[1]);
 					if(enchantment==null){
-						sender.sendMessage("[LootTables] Verzauberung '"+args[1]+"' nicht gefunden.");
+						sender.sendMessage("[RandomItemAPI] Verzauberung '"+args[1]+"' nicht gefunden.");
 						return true;
 					}
 					NBTTagCompound enchantmentsSection = randomizeData.getCompound("enchantments");
@@ -135,7 +134,7 @@ public class RandomCommand implements CommandExecutor{
 				chance = Double.parseDouble(args[4])*0.01;
 				enchantment = Enchantment.getByName(args[1]);
 				if(enchantment==null){
-					sender.sendMessage("[LootTables] Verzauberung '"+args[1]+"' nicht gefunden.");
+					sender.sendMessage("[RandomItemAPI] Verzauberung '"+args[1]+"' nicht gefunden.");
 					return true;
 				}
 			}
@@ -145,7 +144,7 @@ public class RandomCommand implements CommandExecutor{
 				chance = Double.parseDouble(args[3]);
 				enchantment = Enchantment.getByName(args[2]);
 				if(enchantment==null){
-					sender.sendMessage("[LootTables] Verzauberung '"+args[2]+"' nicht gefunden.");
+					sender.sendMessage("[RandomItemAPI] Verzauberung '"+args[2]+"' nicht gefunden.");
 					return true;
 				}
 			}
@@ -187,9 +186,9 @@ public class RandomCommand implements CommandExecutor{
 				if(randomizeData.hasKey("attack_damage")) randomizeData.remove("attack_damage");
 			}
 			else{
-				String slot = args.length>3 ? args[3] : RandomItemHandler.getDefaultSlot(itemStack, "mainhand");
+				String slot = args.length>3 ? args[3] : RandomItemUtil.getDefaultSlot(itemStack, "mainhand");
 				if(!isValidSlot(slot)){
-					sender.sendMessage("[LootTables] Ungültiger Slot '"+slot+"'");
+					sender.sendMessage("[RandomItemAPI] Ungültiger Slot '"+slot+"'");
 					return true;
 				}
 				NBTTagCompound randomizeAttackDamage = new NBTTagCompound();
@@ -213,9 +212,9 @@ public class RandomCommand implements CommandExecutor{
 				if(randomizeData.hasKey("attack_speed")) randomizeData.remove("attack_speed");
 			}
 			else{
-				String slot = args.length>3 ? args[3] : RandomItemHandler.getDefaultSlot(itemStack, "mainhand");
+				String slot = args.length>3 ? args[3] : RandomItemUtil.getDefaultSlot(itemStack, "mainhand");
 				if(!isValidSlot(slot)){
-					sender.sendMessage("[LootTables] Ungültiger Slot '"+slot+"'");
+					sender.sendMessage("[RandomItemAPI] Ungültiger Slot '"+slot+"'");
 					return true;
 				}
 				NBTTagCompound randomizeAttackSpeed = new NBTTagCompound();
@@ -240,9 +239,9 @@ public class RandomCommand implements CommandExecutor{
 				if(randomizeData.hasKey("armor")) randomizeData.remove("armor");
 			}
 			else{
-				String slot = args.length>3 ? args[3] : RandomItemHandler.getDefaultSlot(itemStack, "head");
+				String slot = args.length>3 ? args[3] : RandomItemUtil.getDefaultSlot(itemStack, "head");
 				if(!isValidSlot(slot)){
-					sender.sendMessage("[LootTables] Ungültiger Slot '"+slot+"'");
+					sender.sendMessage("[RandomItemAPI] Ungültiger Slot '"+slot+"'");
 					return true;
 				}
 				NBTTagCompound randomizeArmor = new NBTTagCompound();
@@ -265,9 +264,9 @@ public class RandomCommand implements CommandExecutor{
 				if(randomizeData.hasKey("toughness")) randomizeData.remove("toughness");
 			}
 			else{
-				String slot = args.length>3 ? args[3] : RandomItemHandler.getDefaultSlot(itemStack, "head");
+				String slot = args.length>3 ? args[3] : RandomItemUtil.getDefaultSlot(itemStack, "head");
 				if(!isValidSlot(slot)){
-					sender.sendMessage("[LootTables] Ungültiger Slot '"+slot+"'");
+					sender.sendMessage("[RandomItemAPI] Ungültiger Slot '"+slot+"'");
 					return true;
 				}
 				NBTTagCompound randomizeToughness = new NBTTagCompound();
@@ -304,7 +303,7 @@ public class RandomCommand implements CommandExecutor{
 		}
 		else if(nmsStack.hasTag()) nmsStack.setTag(null);
 		itemStack.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
-		RandomItemHandler.addRandomizeDescription(itemStack);
+		RandomItemUtil.addRandomizeDescription(itemStack);
 		return true;
 	}
 	private boolean isValidSlot(String slot){
