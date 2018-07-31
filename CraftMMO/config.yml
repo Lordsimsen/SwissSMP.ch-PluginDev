@@ -1,5 +1,0 @@
-webserver: https://yourdomain.com/plugin
-token: yourtoken
-#set this to true to get output of web traffic in the console
-debug: false
-default_world: world
