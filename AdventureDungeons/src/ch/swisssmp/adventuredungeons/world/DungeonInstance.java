@@ -19,7 +19,6 @@ import org.bukkit.scheduler.BukkitTask;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.camp.Camp;
 import ch.swisssmp.adventuredungeons.event.DungeonEndEvent;
 import ch.swisssmp.adventuredungeons.event.DungeonStartEvent;
 import ch.swisssmp.adventuredungeons.event.listener.EventListenerMaster;
@@ -27,11 +26,9 @@ import ch.swisssmp.adventuredungeons.player.AdventurePlayer;
 import ch.swisssmp.transformations.AreaState;
 import ch.swisssmp.transformations.TransformationArea;
 import ch.swisssmp.transformations.TransformationWorld;
-import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.RandomizedLocation;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.utils.WorldUtil;
 import net.md_5.bungee.api.ChatColor;
 
 public class DungeonInstance{
@@ -46,7 +43,6 @@ public class DungeonInstance{
 	private int respawnIndex = 0;
 	BukkitTask countdownTask = null;
 	private final ArrayList<UUID> invited_players = new ArrayList<UUID>();
-	private final HashMap<Integer, Camp> camps = new HashMap<Integer, Camp>();
 	private final HashMap<Entity,Integer> entityMap = new HashMap<Entity,Integer>();
 	private final TransformationWorld transformationworld;
 
@@ -61,7 +57,6 @@ public class DungeonInstance{
 		this.world = world;
 		this.difficulty = difficulty;
 		this.eventListener = new EventListenerMaster(this);
-		this.loadCamps();
 		this.transformationworld = TransformationWorld.get(world);
 		this.transformationworld.loadTransformations("dungeon_template_"+this.dungeon_id);
 		
@@ -324,49 +319,13 @@ public class DungeonInstance{
 		return this.player_uuids;
 	}
 	
-	public Camp getCamp(int camp_id){
-		return this.camps.get(camp_id);
-	}
-	
 	public int getCampId(Entity entity){
 		if(entity==null) return -2;
 		else if(!this.entityMap.containsKey(entity)) return -1;
 		return this.entityMap.get(entity);
 	}
 	
-	public Camp[] getCamps(){
-		return this.camps.values().toArray(new Camp[this.camps.size()]);
-	}
-	
-	public void loadCamps(){
-		if(this.camps!=null){
-			for(Camp oldCamp : this.camps.values()){
-				oldCamp.despawnMobs();
-			}
-		}
-		this.camps.clear();;
-
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("adventure/camps.php", new String[]{
-				"dungeon="+this.dungeon_id
-		});
-		for(String key : yamlConfiguration.getKeys(false)){
-			ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection(key);
-			Camp camp = new Camp(this, dataSection);
-			this.camps.put(camp.getCampId(), camp);
-		}
-	}
 	public void delete(boolean graceful){
-		/*
-		List<LootInventory> allInventories = new ArrayList<LootInventory>();
-		for(List<LootInventory> inventories : this.inventories.values()){
-			for(LootInventory inventory : inventories.toArray(new LootInventory[inventories.size()])){
-				allInventories.add(inventory);
-			}
-		}
-		for(LootInventory inventory : allInventories){
-			inventory.close();
-		}
-		*/
 		Bukkit.getPluginManager().callEvent(new DungeonEndEvent(this));
 		Dungeon dungeon = Dungeon.get(this.dungeon_id);
 		World world = this.getWorld();
@@ -379,7 +338,7 @@ public class DungeonInstance{
 			player.teleport(location);
 		}
 		try{
-			if(graceful) AdventureWorldUtil.deleteWorld(this.world, location, true);
+			if(graceful) WorldUtil.deleteWorld(this.world, location, true);
 		}
 		catch(Exception e){
 			e.printStackTrace();

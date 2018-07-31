@@ -1,5 +1,5 @@
 main: ch.swisssmp.adventuredungeons.AdventureDungeons
-version: 3.1.1
+version: 4.0
 name: AdventureDungeons
 author: detig_iii
 description: Dungeons in Minecraft ohne Mods
@@ -13,18 +13,6 @@ commands:
   AdventureDungeons:
     description: Generelle Verwaltung von AdventureDungeons
     aliases: [mmo,dungeons]
-    permission: dungeons.admin
-  camp:
-    description: Verwaltet MmoCamps
-    usage: |
-      /camp reload - Lädt Camps neu
-      /camp spawnpoints [Camp-ID] - Initiiert oder beendet Spawnpoint-Editor
-      /camp trigger [Camp-ID] (Instanz-ID) - Löst ein Camp aus
-      /camp clear [Camp-ID] (Instanz-ID) - Leert ein Camp
-    permission: dungeons.admin
-  rename:
-    description: Gib dem Item in deiner Hand einen neuen Namen
-    usage: /rename [name]
     permission: dungeons.admin
   dungeon:
     description: Verwaltet MmoDungeons

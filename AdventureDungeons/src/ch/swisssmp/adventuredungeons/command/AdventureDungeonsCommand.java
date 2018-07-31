@@ -1,14 +1,10 @@
 package ch.swisssmp.adventuredungeons.command;
 
-import net.md_5.bungee.api.ChatColor;
-
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
 
@@ -42,15 +38,6 @@ public class AdventureDungeonsCommand implements CommandExecutor{
 		    		break;
 			}
 	    	break;
-    	case "rename":
-    		PlayerInventory inventory = player.getInventory();
-    		ItemStack itemStack = inventory.getItemInMainHand();
-    		if(itemStack!=null && args.length>0){
-    			ItemMeta itemMeta = itemStack.getItemMeta();
-    			itemMeta.setDisplayName(args[0]);
-    			itemStack.setItemMeta(itemMeta);
-    		}
-    		break;
     	}
 		return true;
 	}

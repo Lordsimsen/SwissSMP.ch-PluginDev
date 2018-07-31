@@ -5,17 +5,13 @@ import java.util.List;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
-
-import ch.swisssmp.adventuredungeons.camp.Camp;
 
 public class EventListenerEntity extends EventListenerBasic{
 	
@@ -23,28 +19,6 @@ public class EventListenerEntity extends EventListenerBasic{
 	
 	public EventListenerEntity(EventListenerMaster master) {
 		super(master);
-	}
-	@EventHandler
-	private void onCampEntityExplode(EntityExplodeEvent event){
-		if(event.getEntity().getWorld()!=this.getInstance().getWorld()) return;
-		Entity entity = event.getEntity();
-		int camp_id = this.getInstance().getCampId(entity);
-		if(camp_id<=0){
-			return;
-		}
-		Camp camp = this.getInstance().getCamp(camp_id);
-		camp.manageEntityDeath(entity);
-	}
-	@EventHandler
-	private void onCampEntityDeath(EntityDeathEvent event){
-		if(event.getEntity().getWorld()!=this.getInstance().getWorld()) return;
-		LivingEntity entity = event.getEntity();
-		int camp_id = this.getInstance().getCampId(entity);
-		if(camp_id<=0){
-			return;
-		}
-		Camp camp = this.getInstance().getCamp(camp_id);
-		camp.manageEntityDeath(entity);
 	}
 	@EventHandler
 	private void onEntitySpawn(CreatureSpawnEvent event){

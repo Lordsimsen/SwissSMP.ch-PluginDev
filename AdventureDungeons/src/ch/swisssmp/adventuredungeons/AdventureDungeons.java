@@ -10,7 +10,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
-import ch.swisssmp.adventuredungeons.command.CampCommand;
 import ch.swisssmp.adventuredungeons.command.AdventureDungeonsCommand;
 import ch.swisssmp.adventuredungeons.command.DungeonCommand;
 import ch.swisssmp.adventuredungeons.command.PlayerCommand;
@@ -41,7 +40,6 @@ public class AdventureDungeons extends JavaPlugin{
 		this.getCommand("refuse").setExecutor(mmoPlayerCommand);
 		this.getCommand("choose").setExecutor(mmoPlayerCommand);
 		this.getCommand("invite").setExecutor(mmoPlayerCommand);
-		this.getCommand("camp").setExecutor(new CampCommand());
 		this.getCommand("dungeon").setExecutor(dungeonCommand);
 		this.getCommand("ready").setExecutor(dungeonCommand);
 		
@@ -50,7 +48,7 @@ public class AdventureDungeons extends JavaPlugin{
 			worldGuardPlugin = (WorldGuardPlugin) worldGuard;
 		}
 		else{
-			new NullPointerException("WorldGuard missing");
+			throw new NullPointerException("[AdventureDungeons] WorldGuard missing");
 		}
 
 		Dungeon.loadDungeons();

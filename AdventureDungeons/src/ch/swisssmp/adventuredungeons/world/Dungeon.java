@@ -23,9 +23,10 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.util.AdventureFileUtil;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.FileUtil;
 import ch.swisssmp.utils.RandomizedLocation;
+import ch.swisssmp.utils.WorldUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import net.md_5.bungee.api.ChatColor;
@@ -145,14 +146,14 @@ public class Dungeon{
 		File target = new File(Bukkit.getWorldContainer(), template_name);
         ArrayList<String> ignore = new ArrayList<String>(Arrays.asList("uid.dat", "session.dat"));
 		if(!target.exists()){
-			AdventureFileUtil.copyDirectory(source, target, ignore);
+			FileUtil.copyDirectory(source, target, ignore);
 		}
 		File mainWorldAdvancementsFile = new File(Bukkit.getWorldContainer(), Bukkit.getWorlds().get(0).getName()+"/data/advancements");
 		File worldAdvancementsFile = new File(Bukkit.getWorldContainer(), template_name+"/data/advancements");
 		if(worldAdvancementsFile.exists()){
-			AdventureFileUtil.deleteRecursive(worldAdvancementsFile);
+			FileUtil.deleteRecursive(worldAdvancementsFile);
 		}
-		AdventureFileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
+		FileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
 		World world = Bukkit.getServer().createWorld(new WorldCreator(template_name));
 		applyGamerules(world, Difficulty.PEACEFUL);
 		WorldGuardPlugin.inst().reloadConfig();
@@ -185,12 +186,12 @@ public class Dungeon{
 			public void run(){
 				if(target.exists()){
 					AdventureDungeons.info("Deleted old files of dungeon "+dungeon_id);
-					AdventureFileUtil.deleteRecursive(target);
+					FileUtil.deleteRecursive(target);
 				}
 		        ArrayList<String> ignore = new ArrayList<String>(Arrays.asList("uid.dat", "session.dat"));
-				AdventureFileUtil.copyDirectory(source, target, ignore);
+		        FileUtil.copyDirectory(source, target, ignore);
 				AdventureDungeons.info("Saved template of dungeon "+dungeon_id);
-				AdventureWorldUtil.deleteWorld(world, leavePoint, false);
+				WorldUtil.deleteWorld(world, leavePoint, false);
 			}
 		}, 20L);
 		return true;
@@ -206,19 +207,19 @@ public class Dungeon{
 	        File worldTargetDirectory = new File(Bukkit.getWorldContainer(), worldName);
 	        //strangely sometimes it fails to remove the old world file
 	        if(worldTargetDirectory.exists()){
-	        	AdventureFileUtil.deleteRecursive(worldTargetDirectory);
+	        	FileUtil.deleteRecursive(worldTargetDirectory);
 	        }
-			AdventureFileUtil.copyDirectory(this.getTemplateDirectory(), worldTargetDirectory, ignore);
+	        FileUtil.copyDirectory(this.getTemplateDirectory(), worldTargetDirectory, ignore);
 			//copy worldguard regions
 			File worldGuardTargetDirectory = new File(WorldGuardPlugin.inst().getDataFolder(), "worlds/"+worldName);
-			AdventureFileUtil.copyDirectory(this.getWorldguardDirectory(), worldGuardTargetDirectory, ignore);
+			FileUtil.copyDirectory(this.getWorldguardDirectory(), worldGuardTargetDirectory, ignore);
 			//copy advancement stuff because its stupid
 			File mainWorldAdvancementsFile = new File(Bukkit.getWorldContainer(), Bukkit.getWorlds().get(0).getName()+"/data/advancements");
 			File worldAdvancementsFile = new File(Bukkit.getWorldContainer(), worldName+"/data/advancements");
 			if(worldAdvancementsFile.exists()){
-				AdventureFileUtil.deleteRecursive(worldAdvancementsFile);
+				FileUtil.deleteRecursive(worldAdvancementsFile);
 			}
-			AdventureFileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
+			FileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
 			//let Spigot load the world
 			World world = Bukkit.createWorld(new WorldCreator(worldName));
 			applyGamerules(world, difficulty);
