@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.SwissSMPUtils
-version: 3.13
+version: 3.15
 name: SwissSMPUtils
 author: detig_iii
 description: Bietet Basisfunktionen für andere Plugins
@@ -61,5 +61,9 @@ commands:
   amount:
     description: Setzt den Stack in deiner Hand auf die angegebene Menge
     usage: /amount [Anzahl]
-    permission: smp.commands.more
+    permission: smp.commands.amount
     aliases: [menge]
+  rename:
+    description: Gib dem Item in deiner Hand einen neuen Namen
+    usage: /rename [name]
+    permission: smp.commands.rename

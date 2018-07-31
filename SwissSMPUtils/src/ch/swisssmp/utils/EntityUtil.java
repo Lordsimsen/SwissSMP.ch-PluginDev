@@ -1,7 +1,10 @@
 package ch.swisssmp.utils;
 
+import java.util.Collection;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Nameable;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
@@ -67,14 +70,34 @@ import org.bukkit.entity.minecart.HopperMinecart;
 import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 import org.bukkit.potion.PotionEffect;
 
 public class EntityUtil {
-	
+	public static void equip(LivingEntity entity, Collection<ItemStack> itemStacks){
+		EntityEquipment equipment = entity.getEquipment();
+		equipment.clear();
+		for(ItemStack itemStack : itemStacks){
+			if(ItemUtil.isHelmet(itemStack)) equipment.setHelmet(itemStack);
+			else if(ItemUtil.isChestplate(itemStack)) equipment.setChestplate(itemStack);
+			else if(ItemUtil.isLeggings(itemStack)) equipment.setLeggings(itemStack);
+			else if(ItemUtil.isBoots(itemStack)) equipment.setBoots(itemStack);
+			else if(equipment.getItemInMainHand()==null && itemStack.getType()!=Material.SHIELD) equipment.setItemInMainHand(itemStack);
+			else if(equipment.getItemInOffHand()==null) equipment.setItemInOffHand(itemStack);
+			else return;
+		}
+	}
 	@SuppressWarnings("deprecation")
 	public static Entity clone(Entity template, Location location){
+		if(template instanceof Hanging){
+			location.setX(Mathf.floorToInt(location.getX()));
+			location.setY(Mathf.floorToInt(location.getY()));
+			location.setZ(Mathf.floorToInt(location.getZ()));
+			location.setYaw(0);
+			location.setPitch(0);
+		}
 		Entity target;
 		try{
 			if(template instanceof FallingBlock){

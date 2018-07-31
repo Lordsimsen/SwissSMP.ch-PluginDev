@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.webcore.DataSource;
 
@@ -64,6 +65,17 @@ public final class PlayerCommand implements CommandExecutor{
 			itemStack.setAmount(amount);
 			break;
 		}
+    	case "rename":{
+			if(!(sender instanceof Player) || ((Player)sender).getGameMode()!=GameMode.CREATIVE) return true;
+    		PlayerInventory inventory = ((Player)sender).getInventory();
+    		ItemStack itemStack = inventory.getItemInMainHand();
+    		if(itemStack!=null && args.length>0){
+    			ItemMeta itemMeta = itemStack.getItemMeta();
+    			itemMeta.setDisplayName(args[0]);
+    			itemStack.setItemMeta(itemMeta);
+    		}
+    		break;
+    	}
 		case "list":{
 			List<String> arguments = new ArrayList<String>();
 			for(Player player : Bukkit.getOnlinePlayers()){
