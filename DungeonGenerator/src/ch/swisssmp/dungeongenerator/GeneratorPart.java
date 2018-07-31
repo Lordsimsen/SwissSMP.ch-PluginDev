@@ -10,6 +10,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Hanging;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.util.BlockVector;
 
 import com.sk89q.worldedit.EditSession;
@@ -28,7 +30,6 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.EntityUtil;
-import ch.swisssmp.utils.VectorUtil;
 import ch.swisssmp.utils.WorldUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 
@@ -285,14 +286,17 @@ public class GeneratorPart{
 		if(entity.getCustomName()!=null && entity.getCustomName().startsWith("§rShop_")) entity.setCustomName("");
 	}
 	
-	private Entity copyEntity(Entity entity, World world, BlockVector pivot, int rotation){
-		org.bukkit.util.Vector rotatedPositionDelta = VectorUtil.rotate(entity.getLocation().subtract(this.template_x,this.template_y,this.template_z).subtract(0.5,0.5,0.5).toVector(),rotation);
-		Location location = new Location(world,pivot.getBlockX(),pivot.getBlockY(),pivot.getBlockZ());
-		location.add(rotatedPositionDelta);
-		location.add(0.5,0.5,0.5);
-		location.setYaw(entity.getLocation().getYaw()+rotation*90);
-		location.setPitch(entity.getLocation().getPitch());
-		return EntityUtil.clone(entity, location);
+	private Entity copyEntity(Entity template, World world, BlockVector pivot, int rotation){
+		Location location = GeneratorUtil.getTargetLocation(template, world, new BlockVector(this.template_x,this.template_y,this.template_z), pivot, rotation);
+		Entity result = EntityUtil.clone(template, location);
+		if(result==null) return null;
+		if(template instanceof Hanging){
+			GeneratorUtil.cloneRotatedHangingSettings((Hanging)template, (Hanging)result, rotation);
+		}
+		if(template instanceof ItemFrame){
+			GeneratorUtil.cloneItemFrameSettings((ItemFrame)template, (ItemFrame)result); //have to do that again after calling setFacingDirection for Hanging
+		}
+		return result;
 	}
 	
 	private Entity getRecursiveVehicle(Entity entity){
