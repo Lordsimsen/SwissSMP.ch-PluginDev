@@ -1,14 +1,19 @@
 package ch.swisssmp.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class WorldUtil {
 	/**
@@ -45,5 +50,55 @@ public class WorldUtil {
 	    
 	    // Remove entities that are within the chunks but not actually in the bounding box we defined with the from and to location
 	    return entities.stream().filter(e -> VectorUtil.isBetween(e.getLocation().toVector(), min, max)).collect(Collectors.toList());
+	}
+	/**
+	 * Unload a world and delete its data from the disk.
+	 * @param world - The world to be deleted
+	 * @param leavePoint - Exit point for players still inside the world
+	 * @param deleteConfiguration - Delete WorldGuard configuration files as well?
+	 * @return True on success, False when something went wrong
+	 */
+	public static boolean deleteWorld(World world, Location leavePoint, boolean deleteConfiguration){
+    	try{
+        	String worldName = world.getName();
+            if(Bukkit.getServer().unloadWorld(world, true)){
+    	    	Bukkit.getLogger().info("[SwissSMPUtils] Welt "+worldName+" geschlossen.");
+    			File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
+    	    	WorldUtil.deleteFilesLater(worldDirectory, 20L);
+    	    	if(deleteConfiguration) WorldUtil.deleteWorldGuardConfiguration(worldName);
+    			WorldGuardPlugin worldGuard = WorldGuardPlugin.inst();
+    			if(worldGuard!=null){
+        	    	if(deleteConfiguration){
+        				File regionConfiguration = new File(worldGuard.getDataFolder(), "worlds/"+worldName);
+        				FileUtil.deleteRecursive(regionConfiguration);
+        	    	}
+        			worldGuard.reloadConfig();
+    			}
+    	    	return true;
+            }
+            else{
+            	Bukkit.getLogger().info("[SwissSMPUtils] Fehler beim Schliessen der Welt "+worldName);
+            	return false;
+            }
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    		return false;
+    	}
+	}
+	
+	private static void deleteWorldGuardConfiguration(String worldName){
+		
+	}
+	
+	private static void deleteFilesLater(File path, long delay){
+		Bukkit.getScheduler().runTaskLater(SwissSMPUtils.plugin, new Runnable(){
+			public void run(){
+				Thread thread = new Thread(()->{
+					FileUtil.deleteRecursive(path);
+				});
+				thread.start();
+			}
+		}, delay);
 	}
 }
