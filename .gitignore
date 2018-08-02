@@ -3,6 +3,9 @@ bin/
 elixr-master/
 fanciful-master/
 Prism-Bukkit-master/
+elixr/
+Prism-Bukkit/
+WebCore/
 tmp/
 *.tmp
 *.bak
