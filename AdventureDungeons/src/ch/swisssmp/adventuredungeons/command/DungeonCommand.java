@@ -52,7 +52,7 @@ public class DungeonCommand implements CommandExecutor{
 			    				return true;
 			    			}
 			    			else{
-			    				dungeonInstance.announce(String.join(" ", messageParts));
+			    				dungeonInstance.getPlayerManager().announce(String.join(" ", messageParts));
 			    			}
 			    		}
 			    		catch(Exception e){
@@ -274,7 +274,7 @@ public class DungeonCommand implements CommandExecutor{
 				    			for(int i = 3; i < args.length; i++){
 				    				messageParts.add(args[i]);
 				    			}
-				    			instance.announce(String.join(" ", messageParts));
+				    			instance.getPlayerManager().announce(String.join(" ", messageParts));
 				    		}
 			    		}
 			    		catch(Exception e){
@@ -292,7 +292,7 @@ public class DungeonCommand implements CommandExecutor{
 				    			sender.sendMessage("[AdventureDungeons] Instanz "+instance_id+" nicht gefunden.");
 				    			return true;
 				    		}
-				    		for(String player_uuid_string : dungeonInstance.getPlayers()){
+				    		for(String player_uuid_string : dungeonInstance.getPlayerManager().getPlayers()){
 				    			Player player = Bukkit.getPlayer(UUID.fromString(player_uuid_string));
 				    			if(player==null) continue;
 				    			AdventureSound.play(player, sound_id);
@@ -339,7 +339,7 @@ public class DungeonCommand implements CommandExecutor{
 	    		if(dungeonInstance==null) return true;
 	    		if(dungeonInstance.isRunning()) return true;
     			SwissSMPler swisssmpler = SwissSMPler.get(UUID.fromString(player_uuid));
-	    		if(dungeonInstance.toggleReady(player_uuid)){
+	    		if(dungeonInstance.getPlayerManager().toggleReady(player_uuid)){
 	    			if(swisssmpler!=null) swisssmpler.sendActionBar("Du bist nun bereit.");
 	    		}
 	    		else{

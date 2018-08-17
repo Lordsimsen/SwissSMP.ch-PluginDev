@@ -7,7 +7,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.adventuredungeons.AdventureDungeons;
 import ch.swisssmp.adventuredungeons.world.Dungeon;
 import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 import ch.swisssmp.utils.ChatRequest;
@@ -20,7 +19,6 @@ public class PlayerCommand implements CommandExecutor{
 		switch(label){
 		case "join":{
 			if(!(sender instanceof Player)){
-				AdventureDungeons.debug("Nur ingame verwendbar.");
 				return true;
 			}
 			if(args==null) {
@@ -47,11 +45,11 @@ public class PlayerCommand implements CommandExecutor{
 				break;
 			}
 			Player player = (Player) sender;
-			if(targetInstance.getPlayers().contains(player.getUniqueId().toString())){
+			if(targetInstance.getPlayerManager().getPlayers().contains(player.getUniqueId().toString())){
 				sender.sendMessage(ChatColor.YELLOW+"Du bist bereits in dieser Instanz.");
 				break;
 			}
-			if(!targetInstance.isInvitedPlayer(player.getUniqueId())){
+			if(!targetInstance.getPlayerManager().isInvitedPlayer(player.getUniqueId())){
 				sender.sendMessage(ChatColor.RED+"Du bist nicht in diese Instanz eingeladen worden.");
 				sender.sendMessage(ChatColor.YELLOW+"Ein Mitglied dieser Instanz kann dich mit '/invite "+player.getName()+"' einladen.");
 				break;
@@ -78,7 +76,7 @@ public class PlayerCommand implements CommandExecutor{
 			Player player = (Player) sender;
 			DungeonInstance dungeonInstance = Dungeon.getInstance(player);
 			if(dungeonInstance==null) return true;
-			dungeonInstance.leave(player.getUniqueId());
+			dungeonInstance.getPlayerManager().leave(player.getUniqueId());
 			break;
 		}
 		case "refuse":{
@@ -127,24 +125,12 @@ public class PlayerCommand implements CommandExecutor{
 				player.sendMessage(ChatColor.RED+otherPlayer.getDisplayName()+ChatColor.RED+" ist zu weit weg.");
 				break;
 			}
-			dungeonInstance.addInvitedPlayer(otherPlayer.getUniqueId());
+			dungeonInstance.getPlayerManager().addInvitedPlayer(otherPlayer.getUniqueId());
 		    ChatRequest mmoRequest = new ChatRequest(ChatColor.YELLOW+"Möchtest du der Gruppe von "+player.getDisplayName()+ChatColor.YELLOW+" beitreten?");
 		    mmoRequest.addOption("Beitreten", "join "+player.getName());
 		    mmoRequest.addOption("Ablehnen", "refuse "+player.getName());
 		    mmoRequest.send(otherPlayer.getUniqueId());
-		    dungeonInstance.addInvitedPlayer(otherPlayer.getUniqueId());
-			break;
-		}
-		case "choose":{
-			if(!(sender instanceof Player)) return true;
-			if(args==null) return true;
-			if(args.length<2) return true;
-			Player player = (Player) sender;
-			String requestIDString = args[0];
-			ChatRequest request = ChatRequest.get(requestIDString);
-			if(request==null) return true;
-			String key = args[1];
-			request.choose(player, key);
+		    dungeonInstance.getPlayerManager().addInvitedPlayer(otherPlayer.getUniqueId());
 			break;
 		}
 		default:{

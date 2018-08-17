@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -25,13 +26,14 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.FileUtil;
+import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.RandomizedLocation;
 import ch.swisssmp.utils.WorldUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
-import net.md_5.bungee.api.ChatColor;
 
 public class Dungeon{
+	private static Random random = new Random();
 	private static int auto_increment = 0;
 	public static HashMap<Integer, Dungeon> dungeons = new HashMap<Integer, Dungeon>();
 	public static HashMap<Integer, DungeonInstance> instances = new HashMap<Integer, DungeonInstance>();
@@ -75,7 +77,6 @@ public class Dungeon{
 				this.gamerules.put(key, gamerulesSection.getString(key));
 			}
 		}
-		AdventureDungeons.info("Dungeon "+this.name+" created");
 	}
 	
 	public int getDungeonId(){
@@ -89,8 +90,8 @@ public class Dungeon{
 		DungeonInstance currentInstance = getInstance(player_uuid);
 		if(currentInstance!=null){
 			if(currentInstance.getDungeonId()!=this.dungeon_id){
-				Dungeon mmoDungeon = get(dungeon_id);
-				mmoDungeon.leave(player_uuid);
+				Dungeon dungeon = get(dungeon_id);
+				dungeon.leave(player_uuid);
 			}
 			else return;
 		}
@@ -104,13 +105,13 @@ public class Dungeon{
 			player.sendMessage(ChatColor.RED+"Beim betreten des Dungeons ist ein Fehler aufgetreten. Bitte kontaktiere den Support.");
 			return;
 		}
-		targetInstance.join(player);
+		targetInstance.getPlayerManager().join(player);
 	}
 	
 	public void leave(UUID player_uuid){
 		DungeonInstance dungeonInstance = getInstance(player_uuid);
 		if(dungeonInstance==null)return;
-		dungeonInstance.leave(player_uuid);
+		dungeonInstance.getPlayerManager().leave(player_uuid);
 	}
 	
 	public Location getLeavePoint(){
@@ -131,9 +132,8 @@ public class Dungeon{
 		templateCreator.generateStructures(false);
 		templateCreator.type(WorldType.FLAT);
 		World world = Bukkit.getServer().createWorld(templateCreator);
-		applyGamerules(world, Difficulty.PEACEFUL);
+		this.applyGamerules(world, Difficulty.PEACEFUL, false);
 		WorldGuardPlugin.inst().reloadConfig();
-		AdventureDungeons.info("Created template for dungeon "+this.dungeon_id);
 		return world;
 	}
 	public World editTemplate(){
@@ -141,7 +141,7 @@ public class Dungeon{
 		if(Bukkit.getWorld(template_name)!=null){
 			return Bukkit.getWorld(template_name);
 		}
-		File source = new File(AdventureDungeons.plugin.getDataFolder(), "dungeon_templates/"+template_name);
+		File source = new File(AdventureDungeons.getInstance().getDataFolder(), "dungeon_templates/"+template_name);
 		if(!source.exists() || !source.isDirectory()) return createTemplate();
 		File target = new File(Bukkit.getWorldContainer(), template_name);
         ArrayList<String> ignore = new ArrayList<String>(Arrays.asList("uid.dat", "session.dat"));
@@ -155,12 +155,11 @@ public class Dungeon{
 		}
 		FileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
 		World world = Bukkit.getServer().createWorld(new WorldCreator(template_name));
-		applyGamerules(world, Difficulty.PEACEFUL);
+		this.applyGamerules(world, Difficulty.PEACEFUL, false);
 		WorldGuardPlugin.inst().reloadConfig();
 		for(ProtectedRegion protectedRegion : WorldGuardPlugin.inst().getRegionManager(world).getRegions().values()){
 			protectedRegion.setFlag(DefaultFlag.PASSTHROUGH, StateFlag.State.ALLOW);
 		};
-		AdventureDungeons.info("Retrieved template of dungeon "+this.dungeon_id);
 		return world;
 	}
 	public boolean saveTemplate(){
@@ -181,16 +180,14 @@ public class Dungeon{
 		if(!source.exists() || !source.isDirectory()) return false;
 		File target = this.getTemplateDirectory();
 		//task is run later because world first needs to finish saving
-		Bukkit.getScheduler().runTaskLater(AdventureDungeons.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
 			@Override
 			public void run(){
 				if(target.exists()){
-					AdventureDungeons.info("Deleted old files of dungeon "+dungeon_id);
 					FileUtil.deleteRecursive(target);
 				}
 		        ArrayList<String> ignore = new ArrayList<String>(Arrays.asList("uid.dat", "session.dat"));
 		        FileUtil.copyDirectory(source, target, ignore);
-				AdventureDungeons.info("Saved template of dungeon "+dungeon_id);
 				WorldUtil.deleteWorld(world, leavePoint, false);
 			}
 		}, 20L);
@@ -222,14 +219,13 @@ public class Dungeon{
 			FileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
 			//let Spigot load the world
 			World world = Bukkit.createWorld(new WorldCreator(worldName));
-			applyGamerules(world, difficulty);
+			this.applyGamerules(world, difficulty, true);
 			if(world!=null){
-				DungeonInstance dungeonInstance = new DungeonInstance(this.dungeon_id, world, difficulty, index, new ArrayList<String>());
+				DungeonInstance dungeonInstance = new DungeonInstance(this.dungeon_id, world, difficulty, index, random.nextLong(), new ArrayList<String>());
 				WorldGuardPlugin.inst().reloadConfig();
 				for(ProtectedRegion protectedRegion : WorldGuardPlugin.inst().getRegionManager(world).getRegions().values()){
 					protectedRegion.setFlag(DefaultFlag.PASSTHROUGH, StateFlag.State.ALLOW);
 				};
-				AdventureDungeons.info("Created instance of dungeon "+this.dungeon_id+" with instance id "+index);
 				//from this point on everything is going fine
 				return dungeonInstance;
 			}
@@ -239,7 +235,7 @@ public class Dungeon{
 		}
 		else return null;
 	}
-	private void applyGamerules(World world, Difficulty difficulty){
+	private void applyGamerules(World world, Difficulty difficulty, boolean isInstance){
 		world.setGameRuleValue("doMobSpawning", "false");
 		world.setGameRuleValue("doDaylightCycle", "false");
 		world.setGameRuleValue("doWeatherCycle", "false");
@@ -249,24 +245,27 @@ public class Dungeon{
 		for(Entry<String,String> gamerule : this.gamerules.entrySet()){
 			world.setGameRuleValue(gamerule.getKey(), gamerule.getValue());
 		}
+		if(isInstance){
+			world.setGameRuleValue("doMobCampSpawning", "true");
+		}
 		world.setDifficulty(difficulty);
 	}
 	public String getWorldName(){
 		return "dungeon_template_"+this.dungeon_id;
 	}
 	public File getTemplateDirectory(){
-		return new File(AdventureDungeons.plugin.getDataFolder(), "dungeon_templates/"+getWorldName());
+		return new File(AdventureDungeons.getInstance().getDataFolder(), "dungeon_templates/"+getWorldName());
 	}
 	public File getWorldguardDirectory(){
-		WorldGuardPlugin worldGuard = AdventureDungeons.worldGuardPlugin;
+		WorldGuardPlugin worldGuard = WorldGuardPlugin.inst();
 		return new File(worldGuard.getDataFolder(), "worlds/"+this.getWorldName());
 	}
 	public static DungeonInstance getInstance(Player player){
 		if(player==null)return null;
 		else return getInstance(player.getUniqueId());
 	}
-	public static Dungeon get(int mmo_dungeon_id){
-		return dungeons.get(mmo_dungeon_id);
+	public static Dungeon get(int dungeon_id){
+		return dungeons.get(dungeon_id);
 	}
 	public static Dungeon get(Player player){
 		DungeonInstance dungeonInstance = getInstance(player);

@@ -28,8 +28,8 @@ public class EventListenerPlayer extends EventListenerBasic{
 	private void onPlayerJoin(PlayerJoinEvent event){
 		Player player = event.getPlayer();
 		if(player.getGameMode()!=GameMode.ADVENTURE) return;
-		if(!this.getInstance().getPlayers().contains(player.getUniqueId().toString())) return;
-		Bukkit.getScheduler().runTaskLater(AdventureDungeons.plugin, new Runnable(){
+		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
+		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
 			public void run(){
 				MusicLoop.update(player);
 			}
@@ -39,7 +39,7 @@ public class EventListenerPlayer extends EventListenerBasic{
 	private void onPlayerDeath(PlayerDeathEvent event){
 		Player player = event.getEntity();
 		if(player.getGameMode()!=GameMode.ADVENTURE) return;
-		if(!this.getInstance().getPlayers().contains(player.getUniqueId().toString())) return;
+		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
 		switch(this.getInstance().getDifficulty()){
 		case EASY:
 			event.setKeepInventory(true);
@@ -61,16 +61,16 @@ public class EventListenerPlayer extends EventListenerBasic{
 	private void onPlayerChangedWorld(PlayerChangedWorldEvent event){
 		Player player = event.getPlayer();
 		if(player.getGameMode()!=GameMode.ADVENTURE) return;
-		if(!this.getInstance().getPlayers().contains(player.getUniqueId().toString())) return;
+		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
 		if(this.getInstance().getWorld()!=player.getWorld()){
-			this.getInstance().leave(player.getUniqueId());
+			this.getInstance().getPlayerManager().leave(player.getUniqueId());
 		}
 	}
 	@EventHandler(ignoreCancelled=true,priority=EventPriority.LOWEST)
 	private void onPlayerRespawn(PlayerRespawnEvent event){
 		Player player = event.getPlayer();
 		if(player.getGameMode()!=GameMode.ADVENTURE) return;
-		if(!this.getInstance().getPlayers().contains(player.getUniqueId().toString())) return;
+		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
 		Location respawn = this.getInstance().getRespawnLocation();
 		if(respawn==null) return;
 		event.setRespawnLocation(respawn);
@@ -80,7 +80,7 @@ public class EventListenerPlayer extends EventListenerBasic{
 	private void preventPlayerRocketBoost(PlayerInteractEvent event){
 		Player player = event.getPlayer();
 		if(player.getGameMode()!=GameMode.ADVENTURE) return;
-		if(!this.getInstance().getPlayers().contains(player.getUniqueId().toString())) return;
+		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
 		ItemStack itemStack = event.getItem();
 		if(itemStack==null) return;
 		if(itemStack.getType()==Material.FIREWORK) event.setUseItemInHand(Result.DENY);
@@ -92,7 +92,7 @@ public class EventListenerPlayer extends EventListenerBasic{
 		if(!(entity instanceof Player)) return;
 		Player player = (Player) entity;
 		if(player.getGameMode()!=GameMode.ADVENTURE) return;
-		if(!this.getInstance().getPlayers().contains(player.getUniqueId().toString())) return;
+		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
 		event.setCancelled(true);
 	}
 }

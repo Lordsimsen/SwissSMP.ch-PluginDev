@@ -1,5 +1,8 @@
 package ch.swisssmp.adventuredungeons.sound;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -8,57 +11,54 @@ import ch.swisssmp.adventuredungeons.AdventureDungeons;
 import ch.swisssmp.adventuredungeons.world.Dungeon;
 import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 
-public class MusicLoop {
+public class MusicLoop implements Runnable{
+	private static HashMap<UUID, MusicLoop> musicLoops = new HashMap<UUID, MusicLoop>();
+	
 	private final Player player;
 	private int music_id;
-	private long music_length;
-	private BukkitTask pending;
-	public MusicLoop(Player player, int music_id, long music_length){
+	
+	private BukkitTask task;
+	
+	private MusicLoop(Player player, int music_id){
 		this.player = player;
 		this.music_id = music_id;
-		this.music_length = music_length;
 	}
-	public void setMusicId(int music_id){
-		this.music_id = music_id;
-	}
-	public int getMusicId(){
-		return this.music_id;
-	}
-	public void setMusicLength(long music_length){
-		this.music_length = music_length;
-	}
-	public void start(){
-		runLoop();
-	}
-	private void runLoop(){
+	
+	@Override
+	public void run(){
 		if(!player.isOnline()){
-			this.cancel();
-			AdventureSound.musicLoops.remove(this.player.getUniqueId());
+			musicLoops.remove(this.player.getUniqueId());
+			this.task.cancel();
+			musicLoops.remove(this.player.getUniqueId());
 		}
 		player.playSound(player.getLocation(), String.valueOf(music_id), 500f, 1);
-		if(this.music_length==0){
-			Bukkit.getLogger().info("[AdventureDungeons] Warnung: Musik-Loop kann mit Länge 0 nicht starten! Track: "+music_id);
-			return;
-		}
-		pending = Bukkit.getScheduler().runTaskLater(AdventureDungeons.plugin, new Runnable(){
-			public void run(){
-				runLoop();
-			}
-		}, this.music_length);
 	}
+	
 	public void cancel(){
-		if(pending!=null) pending.cancel();
+		player.stopSound(String.valueOf(this.music_id));
+		this.task.cancel();
+	}
+	
+	private static MusicLoop run(Player player, int music_id, long looptime){
+		MusicLoop previous = musicLoops.get(player.getUniqueId());
+		if(previous!=null){
+			previous.cancel();
+		}
+		MusicLoop result = new MusicLoop(player, music_id);
+		result.task = Bukkit.getScheduler().runTaskTimer(AdventureDungeons.getInstance(), result, 0, looptime);
+		musicLoops.put(player.getUniqueId(), result);
+		return result;
 	}
 	
 	public static void update(Player player){
-    	if(AdventureSound.musicLoops.containsKey(player.getUniqueId())){
+    	if(musicLoops.containsKey(player.getUniqueId())){
     		return;
     	}
     	Dungeon dungeon = Dungeon.get(player);
     	if(dungeon!=null){
     		DungeonInstance instance = Dungeon.getInstance(player);
     		if(instance.isRunning() && dungeon.background_music>0){
-    			AdventureSound.playMusic(player, dungeon.background_music, dungeon.looptime);
+    			MusicLoop.run(player, dungeon.background_music, dungeon.looptime);
     		}
     	}
 	}

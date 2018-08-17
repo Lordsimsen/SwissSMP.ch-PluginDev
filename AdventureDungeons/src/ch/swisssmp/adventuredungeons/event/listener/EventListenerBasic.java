@@ -11,7 +11,7 @@ public abstract class EventListenerBasic implements Listener {
 	private final EventListenerMaster master;
 	public EventListenerBasic(EventListenerMaster master){
 		this.master = master;
-		Bukkit.getPluginManager().registerEvents(this, AdventureDungeons.plugin);
+		Bukkit.getPluginManager().registerEvents(this, AdventureDungeons.getInstance());
 	}
 	protected DungeonInstance getInstance(){
 		return this.master.getInstance();

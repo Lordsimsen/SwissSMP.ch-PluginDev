@@ -3,17 +3,14 @@ version: 4.0
 name: AdventureDungeons
 author: detig_iii
 description: Dungeons in Minecraft ohne Mods
-depend: [WorldGuard,WebCore]
+depend: [WorldGuard,WebCore,AreaTransformations]
+softdepend: [DungeonGenerator]
 load: startup
 permissions: 
   dungeons.admin:
     default: op
     description: Erlaubt die Verwaltung von AdventureDungeons
 commands:
-  AdventureDungeons:
-    description: Generelle Verwaltung von AdventureDungeons
-    aliases: [mmo,dungeons]
-    permission: dungeons.admin
   dungeon:
     description: Verwaltet MmoDungeons
     usage: |
@@ -39,9 +36,6 @@ commands:
   refuse:
     description: Lehne eine Anfrage eines Spielers ab
     usage: /refuse [Spieler]
-  choose:
-    description: Entscheide bei einer Anfrage
-    usage: /choose [ID der Anfrage] [Auswahl]
   invite:
     description: Lade einen Spieler in deine Dungeon Instanz ein
     usage: /invite [Spielername]
