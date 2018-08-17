@@ -32,8 +32,8 @@ public final class SwissSMPUtils extends JavaPlugin{
 		this.getCommand("list").setExecutor(playerCommand);
 		this.getCommand("more").setExecutor(playerCommand);
 		this.getCommand("amount").setExecutor(playerCommand);
-		this.getCommand("worlds").setExecutor(playerCommand);
 		this.getCommand("hauptstadt").setExecutor(playerCommand);
+		this.getCommand("choose").setExecutor(playerCommand);
 		
 		Bukkit.getPluginManager().registerEvents(new SignEditorListener(), this);
 		

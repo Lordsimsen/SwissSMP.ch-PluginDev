@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -89,14 +88,6 @@ public final class PlayerCommand implements CommandExecutor{
 				sender.sendMessage(line);
 			break;
 		}
-		case "worlds":{
-			List<String> worldNames = new ArrayList<String>();
-			for(World world : Bukkit.getWorlds()){
-				worldNames.add(world.getName());
-			}
-			sender.sendMessage(String.join(", ", worldNames));
-			break;
-		}
 		case "hauptstadt":{
 			if(!(sender instanceof Player)){
 				sender.sendMessage("Can only be used from within the game");
@@ -112,6 +103,18 @@ public final class PlayerCommand implements CommandExecutor{
 			parametersArray = new String[parameters.size()];
 			String message = DataSource.getResponse("players/cityswap.php", parameters.toArray(parametersArray));
 			sender.sendMessage(message);
+			break;
+		}
+		case "choose":{
+			if(!(sender instanceof Player)) return true;
+			if(args==null) return true;
+			if(args.length<2) return true;
+			Player player = (Player) sender;
+			String requestIDString = args[0];
+			ChatRequest request = ChatRequest.get(requestIDString);
+			if(request==null) return true;
+			String key = args[1];
+			request.choose(player, key);
 			break;
 		}
 		}

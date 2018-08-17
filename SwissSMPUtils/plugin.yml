@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.SwissSMPUtils
-version: 3.15
+version: 3.16
 name: SwissSMPUtils
 author: detig_iii
 description: Bietet Basisfunktionen für andere Plugins
@@ -44,11 +44,6 @@ commands:
     description: Zeigt alle aktuellen Spieler auf dem Server an
     usage: /list
     permission: smp.commands.list
-  worlds:
-    description: Listet alle aktuell geladenen Welten auf
-    usage: /worlds
-    permission: smp.commands.worlds
-    aliases: [welten]
   hauptstadt:
     description: Zeigt und ändert deine Hauptstadt (für Doppelbürger)
     usage: /hauptstadt (Stadtname) - Bsp. /hauptstadt Spawnstadt
@@ -67,3 +62,6 @@ commands:
     description: Gib dem Item in deiner Hand einen neuen Namen
     usage: /rename [name]
     permission: smp.commands.rename
+  choose:
+    description: Entscheide bei einer Anfrage
+    usage: /choose [ID der Anfrage] [Auswahl]
