@@ -1,0 +1,6 @@
+main: ch.swisssmp.customentities.CustomEntities
+version: 1.0
+name: CustomEntities
+author: detig_iii
+description: Erlaubt spezielle Entities (Experimentell)
+depend: [WebCore]
