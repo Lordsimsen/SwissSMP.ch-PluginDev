@@ -32,7 +32,7 @@ public class WorldBorderChecker extends BukkitRunnable{
 	public void run() {
 		for(Player player : Bukkit.getOnlinePlayers()){
 			worldName = player.getWorld().getName();
-			worldBorder = WorldManager.plugin.getWorldBorder(worldName);
+			worldBorder = WorldManager.getWorldBorder(worldName);
 			if(worldBorder==null) continue;
 			if(!worldBorder.doWrap()) continue;
 			outOfBounds = false;
