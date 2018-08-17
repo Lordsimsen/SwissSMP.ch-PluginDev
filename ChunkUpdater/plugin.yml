@@ -1,0 +1,10 @@
+main: ch.swisssmp.chunkupdater.ChunkUpdater
+version: 1.0
+name: ChunkUpdater
+author: detig_iii
+description: Hilfe um Chunks zu aktualisieren
+permissions:
+  chunkupdater.admin:
+    description: Regeneriert einen ausgewählten Chunk
+    default: op
+api-version: 1.13
