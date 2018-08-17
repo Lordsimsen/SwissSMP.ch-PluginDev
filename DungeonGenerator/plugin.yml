@@ -11,10 +11,11 @@ commands:
   generator:
     description: Steuert den Generator
     usage: |
-      /generator info - Zeigt Informationen über den Generator an
-      /generator erstelle [Name] (XZ=16) (Y=16) - Erstellt einen neuen Generator mit den angegebenen Teilgrössen
-      /generator bearbeite [Name] [Variabel:Wert...] - Ändert Einstellungen am Generator (Verfügbar: Name, GrösseX, GrösseZ)
-      /generator hierhin [Name] (x) (y) (z) - Setzt den Ausgangspunkt vom Vorlagengitter zu deiner Position
-      /generator aktualisiere [Name] - Aktualisiert Daten
-      /generator generiere [Name] (Grösse=100) (Seed=Random) - Generiert einen Dungeon
+      /generator info §7- Zeigt Informationen über den Generator an
+      /generator erstelle [Name] (XZ=16) (Y=16) §7- Erstellt einen neuen Generator mit den angegebenen Teilgrössen
+      /generator bearbeite [Name] [Variabel:Wert...] §7- Ändert Einstellungen am Generator (Verfügbar: Name, GrösseX, GrösseZ)
+      /generator item [Name] §7- Generiert einen Item Stack für diesen Generator
+      /generator hierhin [Name] (x) (y) (z) §7- Setzt den Ausgangspunkt vom Vorlagengitter zu deiner Position
+      /generator aktualisiere [Name] §7- Aktualisiert Daten
+      /generator generiere [Name] (Grösse=100) (Seed=Random) §7- Generiert einen Dungeon
     permission: generator.admin

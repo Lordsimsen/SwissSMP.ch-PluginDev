@@ -2,6 +2,7 @@ package ch.swisssmp.dungeongenerator;
 
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -9,10 +10,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
-
-import com.sk89q.worldguard.internal.flywaydb.core.internal.util.StringUtils;
 
 public class GeneratorCommand implements CommandExecutor{
 	private static Random random = new Random();
@@ -26,11 +26,12 @@ public class GeneratorCommand implements CommandExecutor{
 		}
 		Player player = (Player) sender;
 		World world = player.getWorld();
+		GeneratorManager manager = GeneratorManager.get(world);
 		switch(args[0]){
 		case "info":{
 			if(args.length<2){
 				player.sendMessage("[DungeonGenerator] Alle geladenen Generatoren:");
-				for(DungeonGenerator generator : DungeonGenerator.getAll()){
+				for(DungeonGenerator generator : manager.getAll()){
 					player.sendMessage("#-------");
 					for(String infoLine : generator.getInfo()){
 						player.sendMessage(infoLine);
@@ -39,7 +40,7 @@ public class GeneratorCommand implements CommandExecutor{
 			}
 			else{
 				String name = args[1];
-				DungeonGenerator generator = DungeonGenerator.get(world, name);
+				DungeonGenerator generator = manager.get(name);
 				if(generator==null){
 					player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 				}
@@ -76,7 +77,7 @@ public class GeneratorCommand implements CommandExecutor{
 					return true;
 				}
 			}
-			DungeonGenerator generator = DungeonGenerator.create(player.getWorld(), name, partSizeXZ, partSizeY);
+			DungeonGenerator generator = manager.create(name, partSizeXZ, partSizeY);
 			if(generator==null){
 				sender.sendMessage("[DungeonGenerator] Konnte den Generator nicht erstellen.");
 			}
@@ -90,7 +91,7 @@ public class GeneratorCommand implements CommandExecutor{
 		case "update":{
 			if(args.length<2) return false;
 			String name = args[1];
-			DungeonGenerator generator = DungeonGenerator.get(world, name);
+			DungeonGenerator generator = manager.get(name);
 			if(generator==null){
 				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 			}
@@ -100,11 +101,31 @@ public class GeneratorCommand implements CommandExecutor{
 			}
 			return true;
 		}
+		case "item":
+		case "get":{
+			if(!(sender instanceof Player)){
+				sender.sendMessage("[DungeonGenerator] Diesen Befehl kannst du nur ingame verwenden.");
+				return true;
+			}
+			String name = args[1];
+			DungeonGenerator generator = manager.get(name);
+			if(generator==null){
+				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
+				return true;
+			}
+			int amount = 1;
+			if(args.length>2 && StringUtils.isNumeric(args[2])){
+				amount = Integer.parseInt(args[2]);
+			}
+			ItemStack itemStack = generator.getInventoryToken(amount);
+			((Player)sender).getInventory().addItem(itemStack);
+			return true;
+		}
 		case "hierhin":
 		case "movehere":{
 			if(args.length<2) return false;
 			String name = args[1];
-			DungeonGenerator generator = DungeonGenerator.get(world, name);
+			DungeonGenerator generator = manager.get(name);
 			if(generator==null){
 				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 			}
@@ -134,7 +155,7 @@ public class GeneratorCommand implements CommandExecutor{
 		case "edit":{
 			if(args.length<3) return false;
 			String name = args[1];
-			DungeonGenerator generator = DungeonGenerator.get(world, name);
+			DungeonGenerator generator = manager.get(name);
 			if(generator==null){
 				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 				return true;
@@ -179,7 +200,7 @@ public class GeneratorCommand implements CommandExecutor{
 			else{
 				seed = random.nextLong();
 			}
-			DungeonGenerator generator = DungeonGenerator.get(world, name);
+			DungeonGenerator generator = manager.get(name);
 			if(generator==null){
 				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 			}
