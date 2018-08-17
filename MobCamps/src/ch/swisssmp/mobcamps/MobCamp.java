@@ -272,7 +272,7 @@ public class MobCamp {
 		instance.updateState();
 	}
 	
-	public void updateTokens(){
+	protected void updateTokens(){
 		MobCampQuery lootTableQuery;
 		ItemStack tokenStack = this.getInventoryToken(1);
 		for(Player player : Bukkit.getOnlinePlayers()){
