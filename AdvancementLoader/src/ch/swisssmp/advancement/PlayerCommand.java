@@ -8,7 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import ch.swisssmp.world.WorldFileUtil;
+import ch.swisssmp.utils.FileUtil;
 
 public class PlayerCommand implements CommandExecutor {
 
@@ -20,9 +20,9 @@ public class PlayerCommand implements CommandExecutor {
 		for(int i = 2; i < worlds.length; i++){
 			File worldAdvancementsFile = new File(Bukkit.getWorldContainer(), worlds[i].getName()+"/data/advancements");
 			if(worldAdvancementsFile.exists()){
-				WorldFileUtil.deleteRecursive(worldAdvancementsFile);
+				FileUtil.deleteRecursive(worldAdvancementsFile);
 			}
-			WorldFileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
+			FileUtil.copyDirectory(mainWorldAdvancementsFile, worldAdvancementsFile);
 		}
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "minecraft:reload");
 		sender.sendMessage("[AdvancementLoader] Advancements aktualisiert.");
