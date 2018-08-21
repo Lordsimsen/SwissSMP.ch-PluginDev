@@ -1,0 +1,6 @@
+main: ch.swisssmp.flyinglanterns.FlyingLanterns
+version: 1.0
+name: FlyingLanterns
+depend: [CustomItems]
+author: detig_iii
+description: Ermöglicht Crafting von fliegenden Laternen
