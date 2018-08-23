@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -177,19 +176,7 @@ public class DungeonCommand implements CommandExecutor{
 			    			sender.sendMessage("Dungeon "+args[1]+" nicht gefunden.");
 			    			return true;
 			    		}
-			    		World templateWorld  = dungeon.editTemplate();
-			    		if(templateWorld!=null){
-			    			Player player = (Player)sender;
-			    			Location joinLocation = templateWorld.getSpawnLocation();
-			    			if(dungeon.lobby_join!=null){
-			    				joinLocation = dungeon.lobby_join.getLocation(templateWorld);
-			    			}
-			    			player.teleport(joinLocation);
-			    			player.setGameMode(GameMode.CREATIVE);
-			    		}
-			    		else{
-			    			sender.sendMessage(ChatColor.RED+"Konnte den Bearbeitungsmodus nicht initiieren.");
-			    		}
+			    		dungeon.initiateEditor((Player)sender);
 			    		break;
 			    	}
 			    	case "endedit":{

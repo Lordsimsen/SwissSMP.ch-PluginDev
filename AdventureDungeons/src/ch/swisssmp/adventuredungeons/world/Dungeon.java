@@ -31,27 +31,25 @@ import ch.swisssmp.utils.RandomizedLocation;
 import ch.swisssmp.utils.WorldUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.world.WorldManager;
 
 public class Dungeon{
 	private static Random random = new Random();
 	private static int auto_increment = 0;
-	public static HashMap<Integer, Dungeon> dungeons = new HashMap<Integer, Dungeon>();
-	public static HashMap<Integer, DungeonInstance> instances = new HashMap<Integer, DungeonInstance>();
-	public static HashMap<String, DungeonInstance> worldMap = new HashMap<String, DungeonInstance>();
-	public static File dungeonInstancesFile;
-	public final static HashMap<String, Integer> playerMap = new HashMap<String, Integer>(); //String is a player_uuid, Integer is the instance_id of the Dungeon
+	private static HashMap<Integer, Dungeon> dungeons = new HashMap<Integer, Dungeon>();
+	private final static HashMap<String, Integer> playerMap = new HashMap<String, Integer>(); //String is a player_uuid, Integer is the instance_id of the Dungeon
 	
-	public final Integer dungeon_id;
-	public final int background_music;
-	public final Long looptime;
-	public final Integer lobby_trigger;
-	public final String name;
-	public final int maxPlayers;
-	public final HashMap<String, Vector> points = new HashMap<String, Vector>();
+	private final Integer dungeon_id;
+	private final int background_music;
+	private final Long looptime;
+	private final Integer lobby_trigger;
+	private final String name;
+	private final int maxPlayers;
+	private final HashMap<String, Vector> points = new HashMap<String, Vector>();
 	
-	public final RandomizedLocation lobby_join;
-	public final RandomizedLocation lobby_leave;
-	public final ArrayList<RandomizedLocation> respawnLocations;
+	private final RandomizedLocation lobby_join;
+	private final RandomizedLocation lobby_leave;
+	private final ArrayList<RandomizedLocation> respawnLocations;
 	
 	private final HashMap<String, String> gamerules;
 	
@@ -136,10 +134,17 @@ public class Dungeon{
 		WorldGuardPlugin.inst().reloadConfig();
 		return world;
 	}
-	public World editTemplate(){
+	public void initiateEditor(Player player){
 		String template_name = "dungeon_template_"+this.dungeon_id;
+		World world = Bukkit.getWorld(template_name);
+		if(world!=null){
+			
+		}
 		if(Bukkit.getWorld(template_name)!=null){
 			return Bukkit.getWorld(template_name);
+		}
+		if(WorldManager.localWorldExists(template_name)){
+			return WorldManager.loadWorld(template_name);
 		}
 		File source = new File(AdventureDungeons.getInstance().getDataFolder(), "dungeon_templates/"+template_name);
 		if(!source.exists() || !source.isDirectory()) return createTemplate();
@@ -160,7 +165,6 @@ public class Dungeon{
 		for(ProtectedRegion protectedRegion : WorldGuardPlugin.inst().getRegionManager(world).getRegions().values()){
 			protectedRegion.setFlag(DefaultFlag.PASSTHROUGH, StateFlag.State.ALLOW);
 		};
-		return world;
 	}
 	public boolean saveTemplate(){
 		String template_name = "dungeon_template_"+this.dungeon_id;

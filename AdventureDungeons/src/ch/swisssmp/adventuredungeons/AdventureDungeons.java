@@ -42,9 +42,6 @@ public class AdventureDungeons extends JavaPlugin{
 		for(DungeonInstance dungeonInstance : Dungeon.instances.values()){
 			dungeonInstance.delete(false);
 		}
-		for(Dungeon dungeon : Dungeon.dungeons.values()){
-			dungeon.saveTemplate();
-		}
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);
 		PluginDescriptionFile pdfFile = getDescription();
