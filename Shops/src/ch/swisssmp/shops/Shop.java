@@ -1,7 +1,6 @@
 package ch.swisssmp.shops;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,27 +69,27 @@ class Shop {
 		this.owner_name = dataSection.getString("owner_name");
 		this.owner_uuid = UUID.fromString(dataSection.getString("owner_uuid"));
 		this.profession = Profession.valueOf(dataSection.getString("profession"));
-		List<String> trades = dataSection.getStringList("trades");
+		ConfigurationSection trades = dataSection.getConfigurationSection("trades");
 		if(trades!=null){
-			YamlConfiguration tradeConfiguration;
-			String decodedTrade;
-			for(String trade : trades){
-				tradeConfiguration = new YamlConfiguration();
-				decodedTrade = new String(Base64.getMimeDecoder().decode(trade));
-				tradeConfiguration.loadFromString(decodedTrade);
-				ItemStack price_1 = null;
-				ItemStack price_2 = null;
-				ItemStack result = null;
-				if(tradeConfiguration.contains("price_1")) price_1 = tradeConfiguration.getItemStack("price_1");
-				if(tradeConfiguration.contains("price_2")) price_2 = tradeConfiguration.getItemStack("price_2");
-				if(tradeConfiguration.contains("result")) result = tradeConfiguration.getItemStack("result");
-				if(price_1!=null && result!=null){
-					MerchantRecipe merchantRecipe = new MerchantRecipe(result, Integer.MAX_VALUE);
-					List<ItemStack> price = new ArrayList<ItemStack>();
-					price.add(price_1);
-					if(price_2!=null) price.add(price_2);
-					merchantRecipe.setIngredients(price);
-					recipes.add(merchantRecipe);
+			ConfigurationSection tradeSection;
+			for(String key : trades.getKeys(false)){
+				try{
+					tradeSection = trades.getConfigurationSection(key);
+					ItemStack price_1 = tradeSection.contains("price_1") ? tradeSection.getItemStack("price_1") : null;
+					ItemStack price_2 = tradeSection.contains("price_2") ? tradeSection.getItemStack("price_2") : null;
+					ItemStack result = tradeSection.contains("result") ? tradeSection.getItemStack("result") : null;
+					if(price_1!=null && result!=null){
+						MerchantRecipe merchantRecipe = new MerchantRecipe(result, Integer.MAX_VALUE);
+						List<ItemStack> price = new ArrayList<ItemStack>();
+						price.add(price_1);
+						if(price_2!=null) price.add(price_2);
+						merchantRecipe.setIngredients(price);
+						recipes.add(merchantRecipe);
+					}
+				}
+				catch(Exception e){
+					System.out.println("[Shops] Konnte Zeile '"+key+"' nicht verarbeiten.");
+					e.printStackTrace();
 				}
 			}
 		}
@@ -334,7 +333,7 @@ class Shop {
 	}
 	
 	@SuppressWarnings("deprecation")
-	protected void openEditor(Player player){
+	protected void openEditor(Player player, Villager villager){
 		Inventory editor = Bukkit.createInventory(null, 27, "Shop bearbeiten");
 		
 		ItemStack itemStack;
@@ -365,8 +364,8 @@ class Shop {
 		itemStack.setItemMeta(itemMeta);
 		editor.setItem(26, itemStack);
 		
-		for(int i = 0; i < this.recipes.size(); i++){
-			MerchantRecipe recipe = this.recipes.get(i);
+		for(int i = 0; i < villager.getRecipeCount(); i++){
+			MerchantRecipe recipe = villager.getRecipe(i);
 			List<ItemStack> ingredients = recipe.getIngredients();
 			editor.setItem(i, recipe.getResult());
 			editor.setItem(i+9, ingredients.get(0));

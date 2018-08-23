@@ -172,7 +172,7 @@ class ShopEditor implements Listener{
 			public void run(){
 				shop.setName("§a"+event.getMessage());
 				close();
-				shop.openEditor(player);
+				shop.openEditor(player, shop.getAgents().length>0 ? shop.getAgents()[0] : null);
 			}
 		}, 1L);
 		if(this.waitTimeoutTask!=null){

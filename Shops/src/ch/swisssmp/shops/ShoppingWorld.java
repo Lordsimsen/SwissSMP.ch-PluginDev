@@ -3,6 +3,7 @@ package ch.swisssmp.shops;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Chest;
@@ -122,21 +123,21 @@ class ShoppingWorld {
 			return null;
 		}
 		if(villager.getVehicle().getType()!=EntityType.ARMOR_STAND){
-			//Bukkit.getLogger().info("[ShopManager] Vehicle ist kein ArmorStand");
+			Bukkit.getLogger().info("[ShopManager] Vehicle ist kein ArmorStand");
 			return null;
 		}
 		ArmorStand armorStand = (ArmorStand) villager.getVehicle();
 		if(armorStand.getCustomName()==null){
-			//Bukkit.getLogger().info("[ShopManager] ArmorStand hat keinen CustomName");
+			Bukkit.getLogger().info("[ShopManager] ArmorStand hat keinen CustomName");
 			return null;
 		}
 		String customName = armorStand.getCustomName();
 		if(!customName.contains("§rShop_")){
-			//Bukkit.getLogger().info("[ShopManager] ArmorStand hat keine gültige Identifikation");
+			Bukkit.getLogger().info("[ShopManager] ArmorStand hat keine gültige Identifikation");
 			return null;
 		}
 		int shop_id = Integer.parseInt(customName.split("_")[1]);
-		//Bukkit.getLogger().info("[ShopManager] Shop-ID ist "+shop_id);
+		Bukkit.getLogger().info("[ShopManager] Shop-ID ist "+shop_id);
 		ShoppingWorld shoppingWorld = ShoppingWorld.get(armorStand.getWorld());
 		return shoppingWorld.getShop(shop_id);
 	}

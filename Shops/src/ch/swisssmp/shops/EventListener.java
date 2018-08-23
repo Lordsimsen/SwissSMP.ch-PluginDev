@@ -264,7 +264,7 @@ public class EventListener implements Listener{
 			//Bukkit.getLogger().info("[ShopManager] Spieler schleicht");
 			if(shop.getOwnerUUID().equals(event.getPlayer().getUniqueId()) || event.getPlayer().hasPermission("shop.admin")){
 				event.setCancelled(true);
-				shop.openEditor(event.getPlayer());
+				shop.openEditor(event.getPlayer(), villager);
 				//Bukkit.getLogger().info("[ShopManager] Öffne Editor");
 			}
 			else{
