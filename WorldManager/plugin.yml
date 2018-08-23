@@ -20,7 +20,7 @@ commands:
       /worldmanager reload - Lädt und deaktiviert Welten
       /worldmanager create [Welt] (Seed=Zufall) - Öffnet den Editor zum erstellen einer neuen Welt
       /worldmanager load [Welt] - Lädt eine Welt
-      /worldmanager unload [Welt] (Speichern=True) - Deaktiviert eine Welt, Speichern kann True oder False
+      /worldmanager unload [Welt] - Deaktiviert eine Welt (ohne zu speichern!)
       /worldmanager upload [Welt] - Lädt eine Welt auf den Austauschserver hoch
       /worldmanager download [Welt] - Lädt eine Welt vom Austauschserver herunter
       /worldmanager delete [Welt] - Löscht eine Welt von diesem Server

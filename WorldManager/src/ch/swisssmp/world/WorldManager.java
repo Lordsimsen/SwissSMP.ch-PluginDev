@@ -19,6 +19,7 @@ import ch.swisssmp.utils.FileUtil;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.FTPConnection;
 
 public class WorldManager extends JavaPlugin{
 	protected static Logger logger;
@@ -64,7 +65,13 @@ public class WorldManager extends JavaPlugin{
 		}
 	}
 	
-	protected static World loadWorld(String worldName){
+	/**
+	 * Loads a Minecraft World
+	 * @param worldName - The name of the World
+	 * @return <code>World</code> if successfully loaded;
+	 *         <code>null</code> otherwise
+	 */
+	public static World loadWorld(String worldName){
 		Bukkit.getLogger().info("[WorldManager] Lade Welt "+worldName);
 		//Load World Settings
 		YamlConfiguration yamlConfiguration = WorldManager.getWorldSettings(worldName);
@@ -75,9 +82,15 @@ public class WorldManager extends JavaPlugin{
 		return WorldLoader.load(worldName, yamlConfiguration.getConfigurationSection("world"));
 	}
 	
-	protected static boolean unloadWorld(String worldName, boolean save){
+	/**
+	 * Unloads a Minecraft World
+	 * @param worldName - The name of the World
+	 * @return <code>true</code> if the World was unloaded;
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean unloadWorld(String worldName){
 		Bukkit.getLogger().info("[WorldManager] Deaktiviere Welt "+worldName);
-		if(Bukkit.unloadWorld(worldName, save)){
+		if(Bukkit.unloadWorld(worldName, false)){
 			DataSource.getResponse("world/unload.php", new String[]{
 					"world="+URLEncoder.encode(worldName)
 			});
@@ -90,7 +103,7 @@ public class WorldManager extends JavaPlugin{
 	 * Uploads a World to the FTP Server
 	 * @param sender - The responsible Entity for this transaction
 	 * @param worldName - The local World Folder to be uploaded
-	 * @return A WorldTransferTask reporting the status of the upload to the sender
+	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
 	 */
 	public static WorldTransferObserver uploadWorld(CommandSender sender, String worldName){
 		return WorldManager.uploadWorld(sender, worldName, worldName);
@@ -101,7 +114,7 @@ public class WorldManager extends JavaPlugin{
 	 * @param sender - The responsible Entity for this transaction
 	 * @param worldName - The local World Folder to be uploaded
 	 * @param overrideWorldName - The name of the World Folder on the remote Server
-	 * @return A WorldTransferTask reporting the status of the upload to the sender
+	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
 	 */
 	public static WorldTransferObserver uploadWorld(CommandSender sender, String worldName, String overrideWorldName){
 		WorldUpload worldUpload = new WorldUpload(worldName,overrideWorldName);
@@ -115,7 +128,7 @@ public class WorldManager extends JavaPlugin{
 	 * Downloads a World from the FTP Server
 	 * @param sender - The responsible Entity for this transaction
 	 * @param worldName - The remote World Folder to be downloaded
-	 * @return A WorldTransferTask reporting the status of the upload to the sender
+	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
 	 */
 	public static WorldTransferObserver downloadWorld(CommandSender sender, String worldName){
 		return WorldManager.downloadWorld(sender, worldName, worldName);
@@ -126,7 +139,7 @@ public class WorldManager extends JavaPlugin{
 	 * @param sender - The responsible Entity for this transaction
 	 * @param worldName - The remote World Folder to be downloaded
 	 * @param overrideWorldName - The name of the World Folder on the local Server
-	 * @return A WorldTransferTask reporting the status of the upload to the sender
+	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
 	 */
 	public static WorldTransferObserver downloadWorld(CommandSender sender, String worldName, String overrideWorldName){
 		WorldDownload worldDownload = new WorldDownload(worldName,overrideWorldName);
@@ -143,11 +156,38 @@ public class WorldManager extends JavaPlugin{
 		return result;
 	}
 	
+	/**
+	 * Returns <code>true</code> if a World with the given worldName exists
+	 * @param worldName - The worldName to look for
+	 * @return <code>true</code> if a World on the local Server exists;
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean localWorldExists(String worldName){
+		File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
+		return worldDirectory.exists();
+	}
+
+	/**
+	 * Returns <code>true</code> if a World with the given worldName exists
+	 * @param worldName - The worldName to look for
+	 * @return <code>true</code> if a World on the FTP Server exists;
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean remoteWorldExists(String worldName){
+		return FTPConnection.fileExists("worlds/"+worldName+".zip");
+	}
+	
+	/**
+	 * Gets the WorldBorder associated with a World
+	 * @param worldName - The name of the World to look for
+	 * @return A <code>WorldBorder</code> if found;
+	 *         <code>null</code> otherwise
+	 */
 	public static WorldBorder getWorldBorder(String worldName){
 		return WorldManager.worldBorders.get(worldName);
 	}
 	
-	public static File getTempFolder(){
+	protected static File getTempFolder(){
 		return new File(WorldManager.plugin.getDataFolder(), "temp");
 	}
 	

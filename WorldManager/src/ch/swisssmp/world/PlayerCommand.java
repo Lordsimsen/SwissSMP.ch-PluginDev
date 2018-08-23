@@ -55,11 +55,7 @@ public class PlayerCommand implements CommandExecutor {
 		}
 		case "unload":{
 			if(args.length<2) return false;
-			boolean save = true;
-			if(args.length>2){
-				save = !args[2].equals("False");
-			}
-			if(WorldManager.unloadWorld(args[1], save)){
+			if(WorldManager.unloadWorld(args[1])){
 				sender.sendMessage("[WorldManager] Welt "+args[1]+" deaktiviert.");
 			}
 			else{
