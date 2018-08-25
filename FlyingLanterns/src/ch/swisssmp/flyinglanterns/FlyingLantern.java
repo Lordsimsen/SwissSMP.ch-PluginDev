@@ -32,6 +32,7 @@ public class FlyingLantern implements Runnable{
 	private double speed = 0.002;
 	private int flameCountdown = 0;
 	
+	private boolean preventDespawn = true;
 	private Location nextLocation;
 	
 	private BukkitTask task;
@@ -70,7 +71,10 @@ public class FlyingLantern implements Runnable{
 			entity.getWorld().spawnParticle(Particle.FLAME, entity.getLocation().add(0,0.5,0), 1, 0.02,0.02,0.02, 0.003, null);
 			this.flameCountdown = 4;
 		}
-		if(entity.getLocation().getY()>300) this.remove();
+		if(entity.getLocation().getY()>300){
+			if(!this.preventDespawn) this.remove();
+			this.preventDespawn = false;
+		}
 	}
 	
 	protected void unload(){
@@ -115,19 +119,23 @@ public class FlyingLantern implements Runnable{
 	
 	protected void remove(){
 		this.unload();
+		for(Entity passenger : this.entity.getPassengers()){
+			passenger.remove();
+		}
 		this.entity.remove();
 	}
 	
 	protected static FlyingLantern spawn(Location location){
-		location = location.clone();
-		location.setYaw(random.nextFloat()*360f);
-		ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+		final Location locationClone = location.clone();
+		locationClone.setYaw(random.nextFloat()*360f);
+		ArmorStand armorStand = (ArmorStand) locationClone.getWorld().spawnEntity(locationClone.clone().add(0, 1000, 0), EntityType.ARMOR_STAND);
 		armorStand.getEquipment().setHelmet(FlyingLanterns.getFlyingLantern());
 		armorStand.setVisible(false);
 		armorStand.setGravity(false);
 		armorStand.setInvulnerable(true);
 		armorStand.setSmall(true);
-		location.getWorld().playSound(location, Sound.BLOCK_CLOTH_PLACE, 5, 1);
+		Bukkit.getScheduler().runTaskLater(FlyingLanterns.plugin, new Runnable(){public void run(){armorStand.teleport(locationClone);}}, 1L);
+		locationClone.getWorld().playSound(locationClone, Sound.BLOCK_CLOTH_PLACE, 5, 1);
 		return FlyingLantern.load(armorStand);
 	}
 	
