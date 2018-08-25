@@ -1,4 +1,4 @@
-package ch.swisssmp.adventuredungeons.sound;
+package ch.swisssmp.adventuredungeons;
 
 import org.bukkit.entity.Player;
 

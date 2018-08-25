@@ -14,17 +14,18 @@ commands:
   dungeon:
     description: Verwaltet MmoDungeons
     usage: |
-      /dungeon reload
       /dungeon join [Dungeon-ID] [Schwierigkeit] (Spieler)
       /dungeon leave
-      /dungeon list
       /dungeon edit [Dungeon-ID]
       /dungeon endedit
       /dungeon warp [Dungeon-ID]
-      /dungeon players
       /dungeon respawn_index [Welt] [Respawn-Index]
       /dungeon play_sound [Instanz-ID] [Sound-ID]
     aliases: [mmodungeon]
+    permission: dungeons.admin
+  dungeons:
+    description: Zeigt alle Dungeons an
+    usage: /dungeons
     permission: dungeons.admin
   join:
     description: Betrete eine Dungeon Instanz eines anderen Spielers

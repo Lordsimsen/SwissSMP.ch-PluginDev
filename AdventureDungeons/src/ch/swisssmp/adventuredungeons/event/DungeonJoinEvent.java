@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 
 public class DungeonJoinEvent extends DungeonEvent implements Cancellable{
     private static final HandlerList handlers = new HandlerList();

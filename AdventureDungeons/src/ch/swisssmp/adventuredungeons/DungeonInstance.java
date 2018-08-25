@@ -1,7 +1,9 @@
-package ch.swisssmp.adventuredungeons.world;
+package ch.swisssmp.adventuredungeons;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -10,21 +12,24 @@ import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import ch.swisssmp.adventuredungeons.event.DungeonEndEvent;
 import ch.swisssmp.adventuredungeons.event.DungeonStartEvent;
 import ch.swisssmp.adventuredungeons.event.listener.EventListenerMaster;
-import ch.swisssmp.adventuredungeons.playermanagement.PlayerManager;
-import ch.swisssmp.adventuredungeons.sound.MusicLoop;
 import ch.swisssmp.transformations.AreaState;
 import ch.swisssmp.transformations.TransformationArea;
 import ch.swisssmp.transformations.TransformationWorld;
-import ch.swisssmp.utils.RandomizedLocation;
+import ch.swisssmp.utils.Position;
+import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.WorldUtil;
 
 public class DungeonInstance{
+	private static HashMap<Integer,DungeonInstance> instances = new HashMap<Integer,DungeonInstance>();
+	private static HashMap<World,DungeonInstance> worldMap = new HashMap<World,DungeonInstance>();
+	
 	private final int instance_id;
 	private final int dungeon_id;
 	private final long seed;
@@ -36,28 +41,36 @@ public class DungeonInstance{
 	private final TransformationWorld transformationworld;
 	
 	private int respawnIndex = 0;
+	private String background_music;
+	private long music_loop_time;
+	private final ArrayList<Position> respawn_points;
+	private final Random random = new Random();
 
-	public DungeonInstance(int dungeon_id, World world, Difficulty difficulty, int instance_id, long seed, ArrayList<String> player_uuids){
-		this.dungeon_id = dungeon_id;
+	private DungeonInstance(Dungeon dungeon, World world, Difficulty difficulty, int instance_id, long seed){
+		this.dungeon_id = dungeon.getDungeonId();
 		this.instance_id = instance_id;
 		this.seed = seed;
-		for(String player_uuid : player_uuids){
-			Dungeon.playerMap.put(player_uuid, this.instance_id);
-		}
 		
 		this.world = world;
 		this.difficulty = difficulty;
 		this.eventListener = new EventListenerMaster(this);
-		this.playerManager = new PlayerManager(this,player_uuids);
+		this.playerManager = new PlayerManager(this);
 		this.transformationworld = TransformationWorld.get(world);
 		this.transformationworld.loadTransformations("dungeon_template_"+this.dungeon_id);
 		
-		Dungeon.instances.put(this.instance_id, this);
-		Dungeon.worldMap.put(this.world.getName(), this);
+		this.respawn_points = dungeon.getRespawnPoints();
 		
 		if(Bukkit.getPluginManager().getPlugin("DungeonGenerator")!=null){
 			DungeonGeneratorHandler.generateDungeons(world, "dungeon_template_"+dungeon_id, this.seed);
 		}
+	}
+	
+	public String getBackgroundMusic(){
+		return this.background_music;
+	}
+	
+	public long getMusicLoopTime(){
+		return this.music_loop_time;
 	}
 	
 	//actions
@@ -65,15 +78,15 @@ public class DungeonInstance{
 		this.running = true;
 		Dungeon dungeon = Dungeon.get(this);
 		if(dungeon==null) return;
-		if(dungeon.lobby_trigger>0){
-			TransformationArea transformation = transformationworld.getTransformation(dungeon.lobby_trigger);
+		if(dungeon.getLobbyTrigger()>0){
+			TransformationArea transformation = transformationworld.getTransformation(dungeon.getLobbyTrigger());
 			if(transformation!=null){
 				AreaState areaState = transformation.getSchematic("Offen");
 				if(areaState!=null) areaState.trigger();
 			}
 		}
 		Bukkit.getPluginManager().callEvent(new DungeonStartEvent(this));
-		this.playerManager.sendTitle(ChatColor.GREEN+"START!", dungeon.name);
+		this.playerManager.sendTitle(ChatColor.GREEN+"START!", dungeon.getName());
 		for(String player_uuid : this.playerManager.getPlayers()){
 			Player player = Bukkit.getPlayer(UUID.fromString(player_uuid));
 			if(player!=null) MusicLoop.update(player);
@@ -82,9 +95,9 @@ public class DungeonInstance{
 	
 	public boolean setRespawnIndex(int respawnIndex){
 		int oldIndex = this.respawnIndex;
-		int newIndex = Math.min(this.getDungeon().respawnLocations.size()-1, Math.max(this.respawnIndex, respawnIndex));
-		RandomizedLocation randomizedLocation = this.getDungeon().respawnLocations.get(newIndex);
-		if(randomizedLocation!=null){
+		int newIndex = Math.min(this.respawn_points.size()-1, Math.max(this.respawnIndex, respawnIndex));
+		Position position = this.respawn_points.get(newIndex);
+		if(position!=null){
 			this.respawnIndex = newIndex;
 		}
 		return newIndex==respawnIndex && newIndex!=oldIndex;
@@ -120,17 +133,19 @@ public class DungeonInstance{
 		return this.difficulty;
 	}
 	public Location getRespawnLocation(){
-		RandomizedLocation randomizedRespawn = this.getDungeon().respawnLocations.get(this.respawnIndex);
-		return randomizedRespawn.getLocation(this.getWorld());
+		Position respawnPoint = this.respawn_points.get(this.respawnIndex).clone();
+		Vector random = this.random.insideUnitSphere().multiply(5);
+		respawnPoint.add(random.getX(), 0, random.getZ());
+		return respawnPoint.getLocation(this.getWorld());
 	}
 	
 	public void delete(boolean graceful){
 		Bukkit.getPluginManager().callEvent(new DungeonEndEvent(this));
 		Dungeon dungeon = Dungeon.get(this.dungeon_id);
 		World world = this.getWorld();
-		Location location = dungeon.getLeavePoint();
+		Location location = dungeon.getLobbyLeave().getLocation(Bukkit.getWorlds().get(0));
 		if(location==null){
-			Bukkit.getLogger().info("LeavePoint is null! Falling back to global Spawnpoint");
+			Bukkit.getLogger().info("[AdventureDungeons] LeavePoint is null! Falling back to global Spawnpoint");
 			location = Bukkit.getWorlds().get(0).getSpawnLocation();
 		}
 		for(Player player : world.getPlayers()){
@@ -143,10 +158,42 @@ public class DungeonInstance{
 			e.printStackTrace();
 		}
 		
-		Dungeon.instances.remove(this.instance_id);
+		instances.remove(this.instance_id);
+		worldMap.remove(this.world);
 		this.eventListener.unregister();
 	}
 	public int getInstanceId() {
 		return this.instance_id;
+	}
+	
+	protected static DungeonInstance create(int instance_id, Dungeon dungeon, Difficulty difficulty, World world, long seed){
+		DungeonInstance result = new DungeonInstance(dungeon,world,difficulty,instance_id,seed);
+		instances.put(instance_id, result);
+		worldMap.put(world, result);
+		return result;
+	}
+	
+	public static DungeonInstance get(int instance_id){
+		return instances.get(instance_id);
+	}
+	
+	public static DungeonInstance get(World world){
+		return worldMap.get(world);
+	}
+	
+	public static DungeonInstance get(Player player){
+		return DungeonInstance.get(player.getUniqueId());
+	}
+	
+	public static DungeonInstance get(UUID player_uuid){
+		String player_uuid_string = player_uuid.toString();
+		for(DungeonInstance instance : instances.values()){
+			if(instance.playerManager.getPlayers().contains(player_uuid_string)) return instance;
+		}
+		return null;
+	}
+	
+	public static Collection<DungeonInstance> getAll(){
+		return instances.values();
 	}
 }

@@ -9,8 +9,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.adventuredungeons.command.DungeonCommand;
 import ch.swisssmp.adventuredungeons.command.PlayerCommand;
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 
 public class AdventureDungeons extends JavaPlugin{
 	private static Logger logger;
@@ -28,18 +26,17 @@ public class AdventureDungeons extends JavaPlugin{
 		this.getCommand("leave").setExecutor(playerCommand);
 		this.getCommand("refuse").setExecutor(playerCommand);
 		this.getCommand("invite").setExecutor(playerCommand);
+		this.getCommand("ready").setExecutor(playerCommand);
 		DungeonCommand dungeonCommand = new DungeonCommand();
 		this.getCommand("dungeon").setExecutor(dungeonCommand);
-		this.getCommand("ready").setExecutor(dungeonCommand);
-
-		Dungeon.loadDungeons();
+		this.getCommand("dungeons").setExecutor(dungeonCommand);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
 	@Override
 	public void onDisable() {
-		for(DungeonInstance dungeonInstance : Dungeon.instances.values()){
+		for(DungeonInstance dungeonInstance : DungeonInstance.getAll()){
 			dungeonInstance.delete(false);
 		}
 		HandlerList.unregisterAll(this);

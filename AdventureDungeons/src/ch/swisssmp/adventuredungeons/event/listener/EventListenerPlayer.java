@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.sound.MusicLoop;
+import ch.swisssmp.adventuredungeons.MusicLoop;
 
 public class EventListenerPlayer extends EventListenerBasic{
 	public EventListenerPlayer(EventListenerMaster master) {

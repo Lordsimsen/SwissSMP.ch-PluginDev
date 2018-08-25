@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 
 public abstract class EventListenerBasic implements Listener {
 

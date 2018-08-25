@@ -1,25 +1,23 @@
-package ch.swisssmp.adventuredungeons.sound;
+package ch.swisssmp.adventuredungeons;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-
-import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 
 public class MusicLoop implements Runnable{
 	private static HashMap<UUID, MusicLoop> musicLoops = new HashMap<UUID, MusicLoop>();
 	
 	private final Player player;
-	private int music_id;
+	private final String music_id;
 	
 	private BukkitTask task;
 	
-	private MusicLoop(Player player, int music_id){
+	private MusicLoop(Player player, String music_id){
 		this.player = player;
 		this.music_id = music_id;
 	}
@@ -31,15 +29,22 @@ public class MusicLoop implements Runnable{
 			this.task.cancel();
 			musicLoops.remove(this.player.getUniqueId());
 		}
-		player.playSound(player.getLocation(), String.valueOf(music_id), 500f, 1);
+		player.stopSound(Sound.MUSIC_CREATIVE, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_CREDITS, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_DRAGON, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_END, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_GAME, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_MENU, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_NETHER, SoundCategory.MUSIC);
+		player.playSound(player.getLocation(), this.music_id, SoundCategory.MUSIC, 500f, 1);
 	}
 	
 	public void cancel(){
-		player.stopSound(String.valueOf(this.music_id));
+		player.stopSound(this.music_id);
 		this.task.cancel();
 	}
 	
-	private static MusicLoop run(Player player, int music_id, long looptime){
+	private static MusicLoop run(Player player, String music_id, long looptime){
 		MusicLoop previous = musicLoops.get(player.getUniqueId());
 		if(previous!=null){
 			previous.cancel();
@@ -54,12 +59,9 @@ public class MusicLoop implements Runnable{
     	if(musicLoops.containsKey(player.getUniqueId())){
     		return;
     	}
-    	Dungeon dungeon = Dungeon.get(player);
-    	if(dungeon!=null){
-    		DungeonInstance instance = Dungeon.getInstance(player);
-    		if(instance.isRunning() && dungeon.background_music>0){
-    			MusicLoop.run(player, dungeon.background_music, dungeon.looptime);
-    		}
-    	}
+		DungeonInstance instance = DungeonInstance.get(player);
+		if(instance!=null && instance.isRunning() && !instance.getBackgroundMusic().isEmpty()){
+			MusicLoop.run(player, instance.getBackgroundMusic(), instance.getMusicLoopTime());
+		}
 	}
 }

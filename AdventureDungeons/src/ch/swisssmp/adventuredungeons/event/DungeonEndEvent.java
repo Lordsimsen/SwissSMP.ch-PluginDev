@@ -2,7 +2,7 @@ package ch.swisssmp.adventuredungeons.event;
 
 import org.bukkit.event.HandlerList;
 
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 
 public class DungeonEndEvent extends DungeonEvent{
     private static final HandlerList handlers = new HandlerList();

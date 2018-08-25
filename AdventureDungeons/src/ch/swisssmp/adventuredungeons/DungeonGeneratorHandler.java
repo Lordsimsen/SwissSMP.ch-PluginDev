@@ -1,4 +1,4 @@
-package ch.swisssmp.adventuredungeons.world;
+package ch.swisssmp.adventuredungeons;
 
 import java.util.Collection;
 

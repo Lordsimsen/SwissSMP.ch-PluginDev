@@ -1,4 +1,4 @@
-package ch.swisssmp.adventuredungeons.playermanagement;
+package ch.swisssmp.adventuredungeons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,47 +9,43 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 import ch.swisssmp.utils.SwissSMPler;
 import net.md_5.bungee.api.ChatColor;
 
 public class PlayerManager {
 	private final DungeonInstance instance;
-	private final List<String> player_uuids;
+	private final List<String> player_uuids = new ArrayList<String>();
 	private final List<String> ready_uuids = new ArrayList<String>();
 	private final ArrayList<UUID> invited_players = new ArrayList<UUID>();
 
 	CountdownTask countdownTask = null;
 	
-	public PlayerManager(DungeonInstance instance, List<String> player_uuids){
+	public PlayerManager(DungeonInstance instance){
 		this.instance = instance;
-		this.player_uuids = player_uuids;
 	}
 	
 	public void join(Player player){
 		UUID player_uuid = player.getUniqueId();
 		SwissSMPler swisssmpler = SwissSMPler.get(player);
 		Dungeon dungeon = Dungeon.get(this.instance);
-		if(this.player_uuids.size()>=dungeon.maxPlayers){
-			swisssmpler.sendActionBar(ChatColor.RED+"Dieser Dungeon ist auf "+dungeon.maxPlayers+" Spieler beschränkt.");
+		if(this.player_uuids.size()>=dungeon.getMaxPlayers()){
+			swisssmpler.sendActionBar(ChatColor.RED+"Dieser Dungeon ist auf "+dungeon.getMaxPlayers()+" Spieler beschränkt.");
 			return;
 		}
 		if(!this.player_uuids.contains(player_uuid.toString())){
-			swisssmpler.sendMessage("["+ChatColor.RED+dungeon.name+ChatColor.RESET+"]"+ChatColor.YELLOW+" beigetreten.");
-			swisssmpler.sendMessage("["+ChatColor.RED+dungeon.name+ChatColor.RESET+"]"+ChatColor.YELLOW+" Verwende jederzeit §o§a/leave§r§E, um die Instanz wieder zu verlassen.");
+			swisssmpler.sendMessage("["+ChatColor.RED+dungeon.getName()+ChatColor.RESET+"]"+ChatColor.YELLOW+" beigetreten.");
+			swisssmpler.sendMessage("["+ChatColor.RED+dungeon.getName()+ChatColor.RESET+"]"+ChatColor.YELLOW+" Verwende jederzeit §o§a/leave§r§E, um die Instanz wieder zu verlassen.");
 			switch(this.instance.getDifficulty()){
 			case EASY:{
-				swisssmpler.sendMessage("["+ChatColor.RED+dungeon.name+ChatColor.RESET+"]"+ChatColor.YELLOW+" Schwierigkeit: "+ChatColor.GREEN+"Einfach "+ChatColor.YELLOW+"(Behalte XP und Items bei Tod)");
+				swisssmpler.sendMessage("["+ChatColor.RED+dungeon.getName()+ChatColor.RESET+"]"+ChatColor.YELLOW+" Schwierigkeit: "+ChatColor.GREEN+"Einfach "+ChatColor.YELLOW+"(Behalte XP und Items bei Tod)");
 				break;
 			}
 			case NORMAL:{
-				swisssmpler.sendMessage("["+ChatColor.RED+dungeon.name+ChatColor.RESET+"]"+ChatColor.YELLOW+" Schwierigkeit: "+ChatColor.RED+"Normal "+ChatColor.YELLOW+"(Verliere XP und behalte Items bei Tod)");
+				swisssmpler.sendMessage("["+ChatColor.RED+dungeon.getName()+ChatColor.RESET+"]"+ChatColor.YELLOW+" Schwierigkeit: "+ChatColor.RED+"Normal "+ChatColor.YELLOW+"(Verliere XP und behalte Items bei Tod)");
 				break;
 			}
 			case HARD:{
-				swisssmpler.sendMessage("["+ChatColor.RED+dungeon.name+ChatColor.RESET+"]"+ChatColor.YELLOW+" Schwierigkeit: "+ChatColor.DARK_PURPLE+"Hart "+ChatColor.YELLOW+"(Verliere XP und Items bei Tod)");
+				swisssmpler.sendMessage("["+ChatColor.RED+dungeon.getName()+ChatColor.RESET+"]"+ChatColor.YELLOW+" Schwierigkeit: "+ChatColor.DARK_PURPLE+"Hart "+ChatColor.YELLOW+"(Verliere XP und Items bei Tod)");
 				break;
 			}
 			default:{
@@ -61,10 +57,14 @@ public class PlayerManager {
 				if(othersmpler!=null) othersmpler.sendMessage(ChatColor.YELLOW+player.getDisplayName()+ChatColor.YELLOW+" ist beigetreten.");
 			}
 			this.player_uuids.add(player_uuid.toString());
-			Dungeon.playerMap.put(player_uuid.toString(), this.instance.getInstanceId());
-			
-			if(dungeon.lobby_join!=null){
-				Location teleport_target = dungeon.lobby_join.getLocation(this.instance.getWorld());
+			if(player!=null){
+				Location teleport_target;
+				if(dungeon.getLobbyJoin()!=null){
+					teleport_target = dungeon.getLobbyJoin().getLocation(this.instance.getWorld());
+				}
+				else{
+					teleport_target = this.instance.getWorld().getSpawnLocation();
+				}
 				if(player!=null) player.teleport(teleport_target);
 			}
 		}
@@ -73,24 +73,18 @@ public class PlayerManager {
 	}
 	
 	public void leave(UUID player_uuid){
+		String player_uuid_string = player_uuid.toString();
 		Player player = Bukkit.getPlayer(player_uuid);
 		Dungeon dungeon = Dungeon.get(this.instance);
-		Dungeon.playerMap.remove(player_uuid.toString());
 		if(player!=null){
 			player.setGameMode(GameMode.SURVIVAL);
-			if(dungeon.lobby_leave!=null){
-				Location teleport_target = dungeon.getLeavePoint();
-				if(teleport_target==null){
-					teleport_target = Bukkit.getWorlds().get(0).getSpawnLocation();
-					Bukkit.getLogger().info("[AdventureDungeons] Dungeon "+dungeon.getDungeonId()+" returned an invalid leave point!");
-				}
-				player.teleport(teleport_target);
-			}
+			Location teleport_target = dungeon.getLobbyLeave().getLocation(Bukkit.getWorlds().get(0));
+			player.teleport(teleport_target);
 		}
-		if(this.player_uuids.contains(player_uuid.toString())){
-			this.player_uuids.remove(player_uuid.toString());
+		if(this.player_uuids.contains(player_uuid_string)){
+			this.player_uuids.remove(player_uuid_string);
 			SwissSMPler swisssmpler = SwissSMPler.get(player_uuid);
-			if(swisssmpler!=null) swisssmpler.sendMessage("["+ChatColor.RED+dungeon.name+ChatColor.RESET+"]"+ChatColor.YELLOW+" verlassen.");
+			if(swisssmpler!=null) swisssmpler.sendMessage("["+ChatColor.RED+dungeon.getName()+ChatColor.RESET+"]"+ChatColor.YELLOW+" verlassen.");
 			if(this.player_uuids.size()>0){
 				for(String otherPlayer : this.player_uuids){
 					SwissSMPler othersmpler = SwissSMPler.get(UUID.fromString(otherPlayer));
@@ -106,6 +100,8 @@ public class PlayerManager {
 				return;
 			}
 		}
+		this.ready_uuids.remove(player_uuid_string);
+		this.invited_players.remove(player_uuid);
 		checkReady();
 	}
 	

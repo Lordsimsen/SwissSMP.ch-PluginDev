@@ -1,10 +1,7 @@
-package ch.swisssmp.adventuredungeons.playermanagement;
+package ch.swisssmp.adventuredungeons;
 
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
-
-import ch.swisssmp.adventuredungeons.AdventureDungeons;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 
 public class CountdownTask implements Runnable{
 

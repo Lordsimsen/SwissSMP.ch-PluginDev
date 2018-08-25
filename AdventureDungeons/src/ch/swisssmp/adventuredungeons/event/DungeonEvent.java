@@ -3,8 +3,8 @@ package ch.swisssmp.adventuredungeons.event;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.Dungeon;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 
 public abstract class DungeonEvent extends Event{
     private static final HandlerList handlers = new HandlerList();

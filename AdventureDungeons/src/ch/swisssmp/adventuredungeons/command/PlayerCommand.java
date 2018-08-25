@@ -7,9 +7,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.Dungeon;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 import ch.swisssmp.utils.ChatRequest;
+import ch.swisssmp.utils.SwissSMPler;
 import net.md_5.bungee.api.ChatColor;
 
 public class PlayerCommand implements CommandExecutor{
@@ -35,7 +36,7 @@ public class PlayerCommand implements CommandExecutor{
 				sender.sendMessage(ChatColor.RED+otherPlayerName+" nicht gefunden.");
 				return true;
 			}
-			DungeonInstance targetInstance = Dungeon.getInstance(otherPlayer);
+			DungeonInstance targetInstance = DungeonInstance.get(otherPlayer);
 			if(targetInstance==null) {
 				sender.sendMessage(otherPlayerName+" ist momentan nicht in einem Dungeon.");
 				return true;
@@ -56,7 +57,7 @@ public class PlayerCommand implements CommandExecutor{
 			}
 			Dungeon dungeon = Dungeon.get(targetInstance.getDungeonId());
 			int maxDistance = 50;
-			Location entryLocation = dungeon.lobby_leave.getLocation();
+			Location entryLocation = dungeon.getLobbyLeave().getLocation(Bukkit.getWorlds().get(0));
 			if(player.getLocation().getWorld()!=entryLocation.getWorld()){
 				player.sendMessage(ChatColor.RED+"Du bist nicht in der Nähe des Dungeon-Eingangs.");
 				break;
@@ -65,7 +66,7 @@ public class PlayerCommand implements CommandExecutor{
 				player.sendMessage(ChatColor.RED+"Du bist nicht in der Nähe des Dungeon-Eingangs.");
 				break;
 			}
-			dungeon.join(player.getUniqueId(), targetInstance, targetInstance.getDifficulty());
+			dungeon.join(player, targetInstance, targetInstance.getDifficulty());
 			break;
 		}
 		case "quit":
@@ -74,7 +75,7 @@ public class PlayerCommand implements CommandExecutor{
 		case "leave":{
 			if(!(sender instanceof Player)) return true;
 			Player player = (Player) sender;
-			DungeonInstance dungeonInstance = Dungeon.getInstance(player);
+			DungeonInstance dungeonInstance = DungeonInstance.get(player);
 			if(dungeonInstance==null) return true;
 			dungeonInstance.getPlayerManager().leave(player.getUniqueId());
 			break;
@@ -96,9 +97,8 @@ public class PlayerCommand implements CommandExecutor{
 			if(args==null) return false;
 			if(args.length<1) return false;
 			Player player = (Player) sender;
-			Dungeon playerDungeon = Dungeon.get(player);
-			DungeonInstance dungeonInstance = Dungeon.getInstance(player);
-			if(playerDungeon==null || dungeonInstance==null){
+			DungeonInstance dungeonInstance = DungeonInstance.get(player);
+			if(dungeonInstance==null){
 				return true;
 			}
 			if(dungeonInstance.isRunning()){
@@ -112,7 +112,7 @@ public class PlayerCommand implements CommandExecutor{
 				return true;
 			}
 			int maxDistance = 50;
-			Location entryLocation = playerDungeon.lobby_leave.getLocation();
+			Location entryLocation = dungeonInstance.getDungeon().getLobbyLeave().getLocation(Bukkit.getWorlds().get(0));
 			if(entryLocation==null){
 				player.sendMessage(ChatColor.RED+"Ein Fehler ist aufgetreten. Konnte nicht überprüfen, ob "+otherPlayer.getDisplayName()+ChatColor.RESET+" in der Nähe des Eingangs ist.");
 				return true;
@@ -133,6 +133,39 @@ public class PlayerCommand implements CommandExecutor{
 		    dungeonInstance.getPlayerManager().addInvitedPlayer(otherPlayer.getUniqueId());
 			break;
 		}
+    	case "ready":{
+    		String player_string;
+    		Player player;
+    		if((sender instanceof Player)){
+    			player = (Player) sender;
+	    		player_string = player.getUniqueId().toString();
+    		}
+    		else{
+    			if(args.length>0){
+    				player_string = args[0];
+    				player = Bukkit.getPlayer(player_string);
+    				if(player!=null){
+    					player_string = player.getUniqueId().toString();
+    				}
+    				else{
+    					sender.sendMessage("[AdventureDungeons] Spieler '"+player_string+"' nicht gefunden.");
+    					return true;
+    				}
+    			}
+    			else return false;
+    		}
+    		DungeonInstance dungeonInstance = DungeonInstance.get(player);
+    		if(dungeonInstance==null) return true;
+    		if(dungeonInstance.isRunning()) return true;
+			SwissSMPler swisssmpler = SwissSMPler.get(player);
+    		if(dungeonInstance.getPlayerManager().toggleReady(player_string)){
+    			swisssmpler.sendActionBar("Du bist nun bereit.");
+    		}
+    		else{
+    			swisssmpler.sendActionBar("Du bist nun nicht mehr bereit.");
+    		}
+    		break;
+    	}
 		default:{
 			break;
 		}

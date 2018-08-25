@@ -6,7 +6,7 @@ import java.util.List;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 
 public class EventListenerMaster{
 	private final DungeonInstance dungeonInstance;
