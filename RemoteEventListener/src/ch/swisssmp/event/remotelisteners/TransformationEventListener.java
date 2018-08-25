@@ -2,8 +2,7 @@ package ch.swisssmp.event.remotelisteners;
 
 import org.bukkit.event.Event;
 
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 import ch.swisssmp.event.remotelisteners.filter.PlayerFilter;
 import ch.swisssmp.event.remotelisteners.filter.TransformationFilter;
 import ch.swisssmp.event.remotelisteners.filter.WorldFilter;
@@ -35,7 +34,7 @@ public class TransformationEventListener extends BasicEventListener implements T
 		command = command.replace("{State}", transformationEvent.getNewState().getSchematicName());
 		command = command.replace("{World}", transformationEvent.getWorld().getName());
 		if(command.contains("{Instance-ID}")){
-			DungeonInstance dungeonInstance = Dungeon.getInstance(transformationEvent.getWorld().getName());
+			DungeonInstance dungeonInstance = DungeonInstance.get(transformationEvent.getWorld());
 			if(dungeonInstance!=null){
 				command = command.replace("{Instance-ID}", String.valueOf(dungeonInstance.getInstanceId()));
 			}

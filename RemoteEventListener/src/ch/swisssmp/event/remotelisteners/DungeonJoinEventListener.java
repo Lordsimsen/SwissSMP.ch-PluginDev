@@ -3,8 +3,7 @@ package ch.swisssmp.event.remotelisteners;
 import org.bukkit.event.Event;
 
 import ch.swisssmp.adventuredungeons.event.DungeonJoinEvent;
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 import ch.swisssmp.event.remotelisteners.filter.DungeonFilter;
 import ch.swisssmp.event.remotelisteners.filter.PlayerFilter;
 import ch.swisssmp.event.remotelisteners.filter.WorldFilter;
@@ -22,7 +21,7 @@ public class DungeonJoinEventListener extends DungeonEventListener implements Du
 		DungeonJoinEvent dungeonJoinEvent = (DungeonJoinEvent) event;
 		if(!checkDungeon(this.dataSection, dungeonJoinEvent)) return;
 		if(!checkPlayer(this.dataSection, dungeonJoinEvent.getPlayer())) return;
-		DungeonInstance dungeonInstance = Dungeon.getInstance(dungeonJoinEvent.getInstanceId());
+		DungeonInstance dungeonInstance = DungeonInstance.get(dungeonJoinEvent.getInstanceId());
 		if(!checkWorld(this.dataSection, dungeonInstance.getWorld())) return;
 		super.trigger(event, dungeonJoinEvent.getPlayer());
 	}

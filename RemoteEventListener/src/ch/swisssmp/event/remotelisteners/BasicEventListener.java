@@ -7,8 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
 import ch.swisssmp.event.pluginlisteners.EventListenerMaster;
 import ch.swisssmp.event.remotelisteners.filter.CancelFilter;
 import ch.swisssmp.utils.ConfigurationSection;
@@ -100,18 +98,12 @@ public class BasicEventListener implements CancelFilter{
 		return command;
 	}
 	
-	private String insertPlayer(String command, Player player){
+	protected String insertPlayer(String command, Player player){
 		if(player!=null){
 			command = command.replace("{UUID}", player.getUniqueId().toString());
 			command = command.replace("{Player}", player.getName());
 			command = command.replace("{§Player}", player.getDisplayName());
 			command = command.replace("{World}", player.getWorld().getName());
-			if(command.contains("{Instance-ID}")){
-				DungeonInstance dungeonInstance = Dungeon.getInstance(player);
-				if(dungeonInstance!=null){
-					command = command.replace("{Instance-ID}", String.valueOf(dungeonInstance.getInstanceId()));
-				}
-			}
 		}
 		return command;
 	}

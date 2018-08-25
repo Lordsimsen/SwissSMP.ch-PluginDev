@@ -1,5 +1,5 @@
 main: ch.swisssmp.event.RemoteEventListener
-version: 1.5
+version: 1.6
 name: RemoteEventListener
 author: detig_iii
 description: Führt Befehle vom Web-Interface bei ingame Events aus
