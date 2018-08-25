@@ -3,12 +3,12 @@ package ch.swisssmp.knightstournament;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -20,9 +20,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
-import ch.swisssmp.utils.RandomizedLocation;
+import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPler;
 
 public class Tournament implements Listener{
@@ -32,6 +33,8 @@ public class Tournament implements Listener{
 	private final List<Player> registeredPlayers = new ArrayList<Player>();
 	private TournamentParticipant[] participants;
 	private TournamentBracket bracket;
+	
+	private Random random = new Random();
 	
 	protected Duel runningDuel = null;
 	
@@ -187,11 +190,11 @@ public class Tournament implements Listener{
 					if(this.registeredPlayers.size()>=8){
 						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement grant "+player.getName()+" only swisssmp:events/knights_tournament/win_tournament");
 					}
-					RandomizedLocation fireworksLocation = new RandomizedLocation(player.getLocation(), 5f);
+					Location location = player.getLocation();
 					for(int i = 0; i < 10; i++){
 						Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
 							public void run(){
-								spawnFirework(fireworksLocation);
+								spawnFirework(location);
 								
 							}
 						}, i*5L);
@@ -206,14 +209,13 @@ public class Tournament implements Listener{
 		}
 	}
 	
-	private void spawnFirework(RandomizedLocation location){
-		Firework firework = (Firework) location.getLocation().add(0, 10, 0).getWorld().spawnEntity(location.getLocation(), EntityType.FIREWORK);
+	private void spawnFirework(Location location){
+		Vector randomVector = this.random.insideUnitSphere().multiply(5f);
+		Firework firework = (Firework) location.getWorld().spawnEntity(location.clone().add(randomVector.getX(), randomVector.getY()+10, randomVector.getZ()), EntityType.FIREWORK);
 		FireworkMeta fireworkMeta = firework.getFireworkMeta();
-        //Our random generator
-        Random random = new Random();   
 
         //Get the type
-        int rt = random.nextInt(5) + 1;
+        int rt = this.random.nextInt(5) + 1;
         Type type = Type.BALL;       
         if (rt == 1) type = Type.BALL;
         if (rt == 2) type = Type.BALL_LARGE;
@@ -226,13 +228,13 @@ public class Tournament implements Listener{
         Color c2 = Color.WHITE;
        
         //Create our effect with this
-        FireworkEffect effect = FireworkEffect.builder().flicker(random.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(random.nextBoolean()).build();
+        FireworkEffect effect = FireworkEffect.builder().flicker(this.random.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(this.random.nextBoolean()).build();
        
         //Then apply the effect to the meta
         fireworkMeta.addEffect(effect);
        
         //Generate some random power and set it
-        int rp = random.nextInt(2) + 1;
+        int rp = this.random.nextInt(2) + 1;
         fireworkMeta.setPower(rp);
        
         //Then apply this to our rocket
