@@ -1,5 +1,5 @@
 main: ch.swisssmp.flyinglanterns.FlyingLanterns
-version: 1.0
+version: 1.1
 name: FlyingLanterns
 depend: [CustomItems]
 author: detig_iii
