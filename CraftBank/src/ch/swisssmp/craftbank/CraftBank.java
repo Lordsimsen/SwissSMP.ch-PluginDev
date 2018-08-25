@@ -12,6 +12,8 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -151,16 +153,20 @@ public class CraftBank extends JavaPlugin implements Listener{
 		String transferString;
 		if(transferAmount>0){
 			//deposit
+			/*
 			Integer oldExp = ExperienceManager.getExperience(player);
 			player.setLevel(0);
 			player.setExp(0);
 			int newExp = oldExp-transferAmount;
 			player.giveExp((int)Math.round(newExp*0.989));
+			*/
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "xp -"+transferAmount+" "+player.getName());
 			transferString = ChatColor.GREEN+"+"+transferAmount+ChatColor.RESET+" ";
 		}
 		else if(transferAmount<0){
 			//widthdraw
-			player.giveExp((int)Math.round(Math.abs(transferAmount)*0.989));
+			ExperienceOrb orb = (ExperienceOrb)player.getWorld().spawnEntity(player.getLocation().add(0, 0.5, 0), EntityType.EXPERIENCE_ORB);
+			orb.setExperience((int)Math.round(Math.abs(transferAmount)*0.989));
 			transferString = ChatColor.RED+""+transferAmount+ChatColor.RESET+" ";
 		}
 		else{

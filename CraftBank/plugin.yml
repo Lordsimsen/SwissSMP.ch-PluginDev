@@ -1,12 +1,12 @@
 main: ch.swisssmp.craftbank.CraftBank
-version: 1.2
+version: 1.3
 name: CraftBank
 author: detig_iii
-description: Use banks to store experience
+description: Erlaubt speichern von Erfahrungspunkten in einem virtuellen Bankkonto
 permissions:
   craftbank.use:
-    description: Allows you to use your bank account
+    description: Erlabut Verwendung des Bankkontos
     default: false
   craftbank.employee:
-    description: Allows you to set up bank counters and ATMs in your city
+    description: Erlaubt erstellen von Bankschaltern und Automaten in der Stadt
     default: false
