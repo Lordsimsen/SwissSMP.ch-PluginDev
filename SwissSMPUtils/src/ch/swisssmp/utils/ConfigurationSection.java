@@ -243,6 +243,20 @@ public class ConfigurationSection{
 		float pitch = (float)this.getDouble("pitch");
 		return new Location(world, x, y, z, yaw, pitch);
 	}
+	
+	public Position getPosition(String arg0){
+		if(!this.contains(arg0)) return null;
+		return this.getConfigurationSection(arg0).getPosition();
+	}
+	
+	public Position getPosition(){
+		double x = this.getDouble("x");
+		double y = this.getDouble("y");
+		double z = this.getDouble("z");
+		float yaw = (float)this.getDouble("yaw");
+		float pitch = (float)this.getDouble("pitch");
+		return new Position(x, y, z, yaw, pitch);
+	}
 
 	public long getLong(String arg0) {
 		if(this.isConfigurationSection(arg0)){
@@ -284,22 +298,6 @@ public class ConfigurationSection{
 	
 	public String getName() {
 		return configurationSection.getName();
-	}
-	
-	public RandomizedLocation getRandomizedLocation(String arg0){
-		return this.getConfigurationSection(arg0).getRandomizedLocation();
-	}
-	
-	public RandomizedLocation getRandomizedLocation(){
-		String worldName = this.getString("world");
-		double x = this.getDouble("x");
-		double y = this.getDouble("y");
-		double z = this.getDouble("z");
-		float pitch = (float)this.getDouble("pitch");
-		float yaw = (float)this.getDouble("yaw");
-		double range = this.getDouble("range");
-		World world = Bukkit.getWorld(worldName);
-		return new RandomizedLocation(world, x, y, z, yaw, pitch, range);
 	}
 	
 	public Enchantment getEnchantment(String arg0){
