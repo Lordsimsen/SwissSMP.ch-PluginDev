@@ -7,8 +7,8 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -17,10 +17,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.utils.RandomizedLocation;
-import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.YamlConfiguration;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -30,6 +27,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
+
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.Random;
+import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.YamlConfiguration;
 
 public class Arena implements Listener{
     
@@ -52,9 +55,9 @@ public class Arena implements Listener{
     protected final int preparationTime;
     
     //Locations
-    protected final RandomizedLocation joinLocation;
-    protected final RandomizedLocation leaveLocation;
-    protected final RandomizedLocation spectateLocation;
+    protected final Location joinLocation;
+    protected final Location leaveLocation;
+    protected final Location spectateLocation;
     protected final Location schematicLocation;
     
     //Player lists
@@ -85,9 +88,9 @@ public class Arena implements Listener{
         this.schematicName = dataSection.getString("schematic");
         
         ConfigurationSection pointsSection = dataSection.getConfigurationSection("points");
-        this.joinLocation = pointsSection.getRandomizedLocation("join");
-        this.leaveLocation = pointsSection.getRandomizedLocation("leave");
-        this.spectateLocation = pointsSection.getRandomizedLocation("spectator");
+        this.joinLocation = pointsSection.getLocation("join");
+        this.leaveLocation = pointsSection.getLocation("leave");
+        this.spectateLocation = pointsSection.getLocation("spectator");
         this.schematicLocation = pointsSection.getLocation("schematic");
         
         ConfigurationSection regionsSection = dataSection.getConfigurationSection("regions");
@@ -170,14 +173,16 @@ public class Arena implements Listener{
         if(player==null) return;
         if(isRunning)
         {
-            player.sendActionBar(ChatColor.YELLOW + "Partie im Gange. Warte bis nächste Runde.");
+            player.sendActionBar(ChatColor.YELLOW + "Partie im Gange. Warte bis nï¿½chste Runde.");
             return;
         }
         
         if(player.getGameMode()!=GameMode.SURVIVAL) return;
         if(!player.hasPermission("spleef.play")) return;
+        Vector randomPosition = random.insideUnitSphere().multiply(5);
+        randomPosition.setY(0);
         player.setInvulnerable(true);
-        player.teleport(joinLocation.getLocation(true, true));
+        player.teleport(joinLocation.clone().add(randomPosition));
         player.sendActionBar(ChatColor.YELLOW + name + " betreten.");
         for(String line : instructions)
         {
@@ -226,7 +231,7 @@ public class Arena implements Listener{
                 if(tempPlayer == null)
                     continue;
                 
-                tempPlayer.sendActionBar(ChatColor.RED + String.valueOf(player_uuids.size()) + ChatColor.YELLOW + " Spieler, mindestens "+ minPlayers + " für Start.");
+                tempPlayer.sendActionBar(ChatColor.RED + String.valueOf(player_uuids.size()) + ChatColor.YELLOW + " Spieler, mindestens "+ minPlayers + " fï¿½r Start.");
             }
         }
     }
@@ -247,7 +252,7 @@ public class Arena implements Listener{
         if(alive_uuids.contains(player.getUniqueId()))
         {
             this.alive_uuids.remove(player.getUniqueId());
-            player.teleport(spectateLocation.getLocation(true, true));
+            player.teleport(spectateLocation);
             player.sendActionBar(ChatColor.RED + deathMessages.get(random.nextInt(deathMessages.size())));
             
             if(alive_uuids.size() <= 1)
@@ -264,7 +269,7 @@ public class Arena implements Listener{
 
         player.setInvulnerable(false);
         this.player_uuids.remove(player.getUniqueId());
-        player.teleport(leaveLocation.getLocation(true, true));
+        player.teleport(leaveLocation);
         player.sendActionBar(ChatColor.YELLOW + name + " verlassen.");
         this.reportPlayers();
     }
@@ -279,8 +284,9 @@ public class Arena implements Listener{
             SwissSMPler player = SwissSMPler.get(player_uuid);
             if(player == null)
                 continue;
-            
-            player.teleport(joinLocation.getLocation(true, true));
+            Vector randomPosition = random.insideUnitSphere().multiply(5);
+            randomPosition.setY(0);
+            player.teleport(joinLocation.clone().add(randomPosition));
             player.sendActionBar(ChatColor.YELLOW + "Neuer Partie beigetreten.");
         }
         

@@ -29,31 +29,31 @@ public class PlayerCommand implements CommandExecutor{
         {
             case "reload":
                 Arena.loadArenas();
-                sender.sendMessage("Spleef Arenen neu geladen");
+                sender.sendMessage("[Spleef] Spleef Arenen neu geladen");
                 break;
                 
             case "debug":
                 Spleef.debug = !Spleef.debug;
                 if(Spleef.debug)
-                        sender.sendMessage("Der Debug-Modus ist nun aktiviert.");
+                        sender.sendMessage("[Spleef] Der Debug-Modus ist nun aktiviert.");
                 else
-                    sender.sendMessage("Der Debug-Modus ist nun deaktiviert.");
+                    sender.sendMessage("[Spleef] Der Debug-Modus ist nun deaktiviert.");
                 
                 break;
             case "reset":
             {
             	if(args.length<2){
-            		sender.sendMessage("Bitte eine ID angeben.");
+            		sender.sendMessage("[Spleef] Bitte eine Arena-ID angeben.");
             		return true;
             	}
             	int arena_id = Integer.parseInt(args[1]);
             	Arena arena = Arena.get(arena_id);
             	if(arena==null){
-            		sender.sendMessage("Arena "+args[1]+" nicht gefunden.");
+            		sender.sendMessage("[Spleef] Arena "+args[1]+" nicht gefunden.");
             		return true;
             	}
             	arena.resetGame();
-            	sender.sendMessage("Arena "+arena_id+" zurückgesetzt.");
+            	sender.sendMessage("[Spleef] Arena "+arena_id+" zurÃ¼ckgesetzt.");
             	break;
             }
             	
@@ -61,20 +61,20 @@ public class PlayerCommand implements CommandExecutor{
             {
             	if(!(sender instanceof Player))
             	{
-            		sender.sendMessage("Can only be executed from within the game");
+            		sender.sendMessage("[Spleef] Kann nur ingame verwendet werden.");
             		return true;
             	}
             	
             	Player player = (Player) sender;
             	if(args.length<2){
-            		sender.sendMessage("Bitte eine ID angeben.");
+            		sender.sendMessage("[Spleef] Bitte eine Arena-ID angeben.");
             		return true;
             	}
             	int arena_id = Integer.parseInt(args[1]);
             	String schematicName = "arena_" + arena_id;
             	Arena arena = Arena.get(arena_id);
             	if(arena==null){
-            		sender.sendMessage("Arena "+args[1]+" nicht gefunden.");
+            		sender.sendMessage("[Spleef] Arena "+args[1]+" nicht gefunden.");
             		return true;
             	}
             	Location saveLocation = SchematicUtil.save(player, schematicName);
@@ -85,7 +85,7 @@ public class PlayerCommand implements CommandExecutor{
             			"z="+saveLocation.getZ(),
             			"arena="+arena_id
             	});
-            	sender.sendMessage("Arena "+arena_id+" gespeichert.");
+            	sender.sendMessage("[Spleef] Arena "+arena_id+" gespeichert.");
             	break;
             }
                 

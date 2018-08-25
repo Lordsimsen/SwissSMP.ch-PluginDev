@@ -1,18 +1,22 @@
 name: Spleef
 authors: [Nevac, detig_iii]
-version: 1.0.0
-description: Awesome Spleef SwissSMP version!!!!!11einself
+version: 1.1
+description: Awesome Spleef SwissSMP.ch version!!!!!11einself
 
 main: ch.swisssmp.spleef.Spleef
 permissions:
   spleef.admin:
-    description: Allows you to use the power of the gods
+    description: Erlaubt Verwaltung des Plugins
     default: op
   spleef.play:
-    description: Allows you to play spleef
+    description: Erlaubt Verwendung der Spleef Arenen
     default: op
 commands:
   spleef:
-    description: Admin commands
-    usage: /spleef [action] [args]
+    description: Admin Befehl
+    usage: |
+      /spleef reload - Lädt Arenen neu
+      /spleef debug - Schaltet den Debug-Modus an und ab
+      /spleef reset [Arena-ID] - Setzt die Arena in den Originalzustand zurück
+      /spleef save [Arena-ID] - Speichert den Zustand der Arena als Originalzustand
     permission: spleef.admin
