@@ -2,8 +2,7 @@ package ch.swisssmp.resourcepack;
 
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.adventuredungeons.world.Dungeon;
-import ch.swisssmp.adventuredungeons.world.DungeonInstance;
+import ch.swisssmp.adventuredungeons.DungeonInstance;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
@@ -17,7 +16,7 @@ public class AdventureResourcepackUpdater extends ResourcepackUpdater{
 	@Override
 	public void updateResourcepack(Player player) {
 		if(player==null) return;
-		DungeonInstance dungeonInstance = Dungeon.getInstance(player);
+		DungeonInstance dungeonInstance = DungeonInstance.get(player);
 		YamlConfiguration yamlConfiguration;
 		if(dungeonInstance==null){
 			yamlConfiguration = DataSource.getYamlResponse("resourcepack/get.php", new String[]{
