@@ -30,6 +30,14 @@ public final class Mathf{
 	public static int roundToInt(double value){
 		return (int)Math.round(value);
 	}
+	public static float round(float value, int decimal_places){
+		int power_of_ten = (int)Math.pow(10, decimal_places);
+		return Math.round(value*power_of_ten)/power_of_ten;
+	}
+	public static double round(double value, int decimal_places){
+		int power_of_ten = (int)Math.pow(10, decimal_places);
+		return Math.round(value*power_of_ten)/power_of_ten;
+	}
 	public static double lerp(double from, double to, double t){
 		return from+(to-from)*t;
 	}
