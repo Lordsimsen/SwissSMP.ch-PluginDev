@@ -33,6 +33,8 @@ public class WorldLoader {
 		//Create World
 		World result = Bukkit.createWorld(creator);
 		if(result==null) return null;
+		//Set time
+		result.setTime(dataSection.contains("time") ? dataSection.getLong("time") : 0);
 		//Apply Game Rules
 		if(dataSection.contains("gamerules")){
 			WorldLoader.applyGameRules(result, dataSection.getConfigurationSection("gamerules"));

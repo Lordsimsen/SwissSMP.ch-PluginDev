@@ -18,7 +18,8 @@ public class WorldTransferObserver implements Runnable {
 	private final WorldTransfer transfer;
 	
 	private BukkitTask task;
-	
+
+	private List<Runnable> onImmediateFinish = new ArrayList<Runnable>();
 	private List<Runnable> onFinish = new ArrayList<Runnable>();
 	
 	private WorldTransferObserver(CommandSender sender, String worldName, WorldTransfer transfer){
@@ -29,25 +30,31 @@ public class WorldTransferObserver implements Runnable {
 	
 	@Override
 	public void run() {
-		this.showProgress(this.transfer.getStatusObserver()!=null?this.transfer.getStatusObserver().getProgress():0);
+		this.showProgress(this.transfer.getStatusObserver()!=null ? this.transfer.getStatusObserver().getProgress() : 0);
 		if(this.transfer.getStatusObserver()==null || !this.transfer.getStatusObserver().isDone()){
 			return;
 		}
 		if(this.transfer.getStatusObserver().isError()) sender.sendMessage("[WorldManager] "+this.transfer.getStatusObserver().getError());
 		else sender.sendMessage("[WorldManager] "+ChatColor.GREEN+"Welt '"+worldName+"' erfolgreich transferiert.");
-		task.cancel();
-		for(Runnable runnable : this.onFinish){
-			try{
-				runnable.run();
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
+		for(Runnable runnable : this.onImmediateFinish){
+			Bukkit.getScheduler().runTaskLater(WorldManager.plugin, runnable, 1L);
 		}
+		for(Runnable runnable : this.onFinish){
+			Bukkit.getScheduler().runTaskLater(WorldManager.plugin, runnable, 5L);
+		}
+		task.cancel();
 	}
 	
 	private void showProgress(int progress){
 		if(sender instanceof Player) SwissSMPler.get((Player)sender).sendActionBar("Fortschritt: "+progress+"%");
+	}
+	
+	/**
+	 * Used to execute and completely finish internal WorldManager code before everything else
+	 * @param runnable - Runnable to run directly after the download finishes
+	 */
+	protected void addImmediateOnFinishListener(Runnable runnable){
+		this.onImmediateFinish.add(runnable);
 	}
 	
 	public void addOnFinishListener(Runnable runnable){

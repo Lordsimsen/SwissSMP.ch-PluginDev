@@ -1,11 +1,13 @@
 package ch.swisssmp.world;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
@@ -43,6 +45,8 @@ public class WorldEditor extends InventoryView implements Listener{
 	
 	private String seed;
 	
+	private ArrayList<WorldEventListener> onWorldGenerate = new ArrayList<WorldEventListener>();
+	
 	private WorldEditor(String worldName, Player player){
 		this.worldName = worldName;
 		this.player = player;
@@ -52,9 +56,21 @@ public class WorldEditor extends InventoryView implements Listener{
 		this.updateCheckmarkItem();
 	}
 	
+	/**
+	 * Sets the seed for the World Creator
+	 * @param seed - Alphanumeric Strings will be converted to <code>long</code> using <code>String.hashCode()</code>
+	 */
 	public void setSeed(String seed){
 		this.seed = seed;
 		this.updateSeedItem();
+	}
+	
+	/**
+	 * Adds an Event Listener
+	 * @param runnable - The Runnable to execute when this WorldEditor closes and generates a World
+	 */
+	public void onWorldGenerate(WorldEventListener listener){
+		this.onWorldGenerate.add(listener);
 	}
 	
 	private void loadSettings(){
@@ -77,12 +93,23 @@ public class WorldEditor extends InventoryView implements Listener{
 		this.updateWorldTypeItem();
 	}
 	
-	private void generateWorld(){
-		Bukkit.createWorld(new WorldCreator(this.worldName)
+	private void generateWorld() throws NullPointerException{
+		World world = Bukkit.createWorld(new WorldCreator(this.worldName)
 				.environment(this.environment)
 				.generateStructures(this.generate_structures)
 				.type(this.worldType)
 				.seed(StringUtils.isNumeric(this.seed) ? Long.valueOf(this.seed) : this.seed.hashCode()));
+		if(world==null){
+			throw new NullPointerException("[WorldManager] Konnte Welt "+this.worldName+" nicht generieren.");
+		}
+		for(WorldEventListener listener : this.onWorldGenerate){
+			try{
+				listener.run(world);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 		player.sendMessage("[WorldManager] "+ChatColor.GREEN+"Welt "+this.worldName+" generiert.");
 	}
 	
@@ -247,7 +274,7 @@ public class WorldEditor extends InventoryView implements Listener{
 		}
 	}
 	
-	protected static WorldEditor open(String worldName, Player player){
+	public static WorldEditor open(String worldName, Player player){
 		WorldEditor result = new WorldEditor(worldName, player);
 		Bukkit.getPluginManager().registerEvents(result, WorldManager.plugin);
 		player.openInventory(result);
