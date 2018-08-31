@@ -1,17 +1,15 @@
 package ch.swisssmp.adventuredungeons;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -23,8 +21,10 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.Position;
 import ch.swisssmp.utils.Random;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.world.WorldEditor;
 import ch.swisssmp.world.WorldManager;
 import ch.swisssmp.world.WorldTransferObserver;
 
@@ -34,17 +34,16 @@ public class Dungeon{
 	private static HashMap<Integer, Dungeon> dungeons = new HashMap<Integer, Dungeon>();
 	
 	private final Integer dungeon_id;
-	private final String name;
+	private String name;
 	private final int maxPlayers;
 	private final String background_music;
 	private final Long music_loop_time;
 	private final Integer lobby_trigger;
 	
-	private final Position lobby_join;
-	private final Position lobby_leave;
-	private final ArrayList<Position> respawn_points;
+	private Position lobby_join;
+	private Position lobby_leave;
 	
-	private final HashMap<String, String> gamerules;
+	private final HashMap<String, String> gamerules = new HashMap<String,String>();
 	
 	private Dungeon(ConfigurationSection dataSection){
 		this.dungeon_id = dataSection.getInt("dungeon_id");
@@ -55,14 +54,7 @@ public class Dungeon{
 		this.lobby_trigger = dataSection.getInt("lobby_trigger");
 		this.lobby_join = dataSection.getPosition("lobby_join");
 		this.lobby_leave = dataSection.getPosition("lobby_leave");
-		this.respawn_points = new ArrayList<Position>();
-		
-		ConfigurationSection respawnsSection = dataSection.getConfigurationSection("respawns");
-		for(String key : respawnsSection.getKeys(false)){
-			respawn_points.add(respawnsSection.getPosition(key));
-		}
 		ConfigurationSection gamerulesSection = dataSection.getConfigurationSection("gamerules");
-		this.gamerules = new HashMap<String,String>();
 		if(gamerulesSection!=null){
 			for(String key : gamerulesSection.getKeys(false)){
 				this.gamerules.put(key, gamerulesSection.getString(key));
@@ -78,6 +70,10 @@ public class Dungeon{
 		return this.name;
 	}
 	
+	protected void setName(String name){
+		this.name = name;
+	}
+	
 	public int getMaxPlayers(){
 		return this.maxPlayers;
 	}
@@ -90,8 +86,30 @@ public class Dungeon{
 		return this.music_loop_time;
 	}
 	
-	public ArrayList<Position> getRespawnPoints(){
-		return new ArrayList<Position>(this.respawn_points);
+	public Position getLobbyJoin(){
+		return this.lobby_join;
+	}
+	
+	protected void setLobbyJoin(Position position){
+		this.lobby_join = position;
+	}
+	
+	public Position getLobbyLeave(){
+		if(this.lobby_leave!=null){
+			return this.lobby_leave;
+		}
+		else{
+			World defaultWorld = Bukkit.getWorlds().get(0);
+			return new Position(defaultWorld.getSpawnLocation());
+		}
+	}
+	
+	protected void setLobbyLeave(Position position){
+		this.lobby_leave = position;
+	}
+	
+	public int getLobbyTrigger(){
+		return this.lobby_trigger;
 	}
 	
 	public void join(Player player, DungeonInstance targetInstance, Difficulty difficulty){
@@ -119,46 +137,10 @@ public class Dungeon{
 		dungeonInstance.getPlayerManager().leave(player_uuid);
 	}
 	
-	public Position getLobbyJoin(){
-		return this.lobby_join;
-	}
-	
-	public Position getLobbyLeave(){
-		if(this.lobby_leave!=null){
-			return this.lobby_leave;
-		}
-		else{
-			World defaultWorld = Bukkit.getWorlds().get(0);
-			return new Position(defaultWorld.getSpawnLocation());
-		}
-	}
-	
-	public int getLobbyTrigger(){
-		return this.lobby_trigger;
-	}
-	
-	public World createTemplate(){
-		String template_name = this.getTemplateName();
-		if(Bukkit.getWorld(template_name)!=null){
-			return Bukkit.getWorld(template_name);
-		}
-		WorldCreator templateCreator = new WorldCreator(template_name);
-		templateCreator.generateStructures(false);
-		templateCreator.type(WorldType.FLAT);
-		World world = Bukkit.getServer().createWorld(templateCreator);
-		this.applyGamerules(world, Difficulty.PEACEFUL, false);
-		WorldGuardPlugin.inst().reloadConfig();
-		for(ProtectedRegion protectedRegion : WorldGuardPlugin.inst().getRegionManager(world).getRegions().values()){
-			protectedRegion.setFlag(DefaultFlag.PASSTHROUGH, StateFlag.State.ALLOW);
-		};
-		return world;
-	}
-	
 	public void initiateEditor(Player player){
 		String template_name = this.getTemplateName();
 		World world = Bukkit.getWorld(template_name);
 		if(world==null){
-			player.teleport(this.lobby_join.getLocation(world));
 			if(WorldManager.localWorldExists(template_name)){
 				//World is present on local disk, load it and then teleport into it
 				world = WorldManager.loadWorld(template_name);
@@ -175,7 +157,16 @@ public class Dungeon{
 			}
 			else{
 				//World does not exist, create it then teleport into it
-				world = this.createTemplate();
+				WorldEditor worldEditor = WorldEditor.open(template_name, player);
+				worldEditor.onWorldGenerate((World newWorld)->{
+					this.applyGamerules(newWorld, Difficulty.EASY, false);
+					WorldGuardPlugin.inst().reloadConfig();
+					for(ProtectedRegion protectedRegion : WorldGuardPlugin.inst().getRegionManager(newWorld).getRegions().values()){
+						protectedRegion.setFlag(DefaultFlag.PASSTHROUGH, StateFlag.State.ALLOW);
+					};
+					this.initiateEditor(player);
+				});
+				return;
 			}
 		}
 		if(world!=null){
@@ -185,6 +176,15 @@ public class Dungeon{
 		else{
 			player.sendMessage("[AdventureDungeons] Konnte den Editor nicht initiieren.");
 		}
+	}
+	
+	protected void saveSettings(){
+		DataSource.getResponse("dungeons/save_dungeon_settings.php", new String[]{
+			"id="+dungeon_id,
+			"name="+URLEncoder.encode(this.name),
+			this.lobby_join.getURLString("lobby_join"),
+			this.lobby_leave.getURLString("lobby_leave")
+		});
 	}
 	
 	public boolean saveTemplate(CommandSender sender){
@@ -206,8 +206,7 @@ public class Dungeon{
 				WorldTransferObserver transferObserver = WorldManager.uploadWorld(sender, template_name);
 				transferObserver.addOnFinishListener(new Runnable(){
 					public void run(){
-						Bukkit.getLogger().info("[AdventureDungeons] Delete World "+world.getName()+" now.");
-						//FileUtil.deleteRecursive(world.getWorldFolder());
+						WorldManager.deleteWorld(world.getName());
 					}
 				});
 			}
@@ -262,11 +261,11 @@ public class Dungeon{
 		world.setGameRuleValue("doFireTick", "false");
 		world.setGameRuleValue("mobGriefing", "false");
 		world.setGameRuleValue("keepInventory", "false");
-		for(Entry<String,String> gamerule : this.gamerules.entrySet()){
-			world.setGameRuleValue(gamerule.getKey(), gamerule.getValue());
-		}
 		if(isInstance){
 			world.setGameRuleValue("doMobCampSpawning", "true");
+			for(Entry<String,String> gamerule : this.gamerules.entrySet()){
+				world.setGameRuleValue(gamerule.getKey(), gamerule.getValue());
+			}
 		}
 		world.setDifficulty(difficulty);
 	}
@@ -280,15 +279,40 @@ public class Dungeon{
 		return Dungeon.load(dungeon_id);
 	}
 	
+	/**
+	 * Searches for a Dungeon with a name containing the provided identifier.
+	 * The search starts at the Dungeon with lowest ID.
+	 * @param identifier - The key to look for in the name
+	 * @return The first Dungeon matching the identifier
+	 */
+	public static Dungeon get(String identifier){
+		for(Dungeon dungeon : dungeons.values()){
+			if(dungeon.getName().toLowerCase().contains(identifier.toLowerCase())) return dungeon;
+		}
+		return Dungeon.load(identifier);
+	}
+	
 	public static Dungeon get(DungeonInstance dungeonInstance){
 		if(dungeonInstance==null) return null;
 		return Dungeon.get(dungeonInstance.getDungeonId());
 	}
+	
+	private static Dungeon load(String identifier){
+		return Dungeon.load(new String[]{
+				"identifier="+identifier
+		});
+	}
 
 	private static Dungeon load(int dungeon_id){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("dungeons/get_dungeon.php");
+		return Dungeon.load(new String[]{
+				"id="+dungeon_id
+		});
+	}
+	
+	private static Dungeon load(String[] args){
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("dungeons/get_dungeon.php", args);
 		if(yamlConfiguration==null || !yamlConfiguration.contains("dungeon")){
-			Bukkit.getLogger().info("[AdventureDungeons] Konnte Dungeon "+dungeon_id+" nicht laden.");
+			Bukkit.getLogger().info("[AdventureDungeons] Konnte den Dungeon ("+StringUtils.join(args,", ")+") nicht laden.");
 			return null;
 		}
 		ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection("dungeon");

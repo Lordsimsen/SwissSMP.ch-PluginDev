@@ -1,4 +1,4 @@
-package ch.swisssmp.adventuredungeons.command;
+package ch.swisssmp.adventuredungeons;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -7,8 +7,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.adventuredungeons.Dungeon;
-import ch.swisssmp.adventuredungeons.DungeonInstance;
 import ch.swisssmp.utils.ChatRequest;
 import ch.swisssmp.utils.SwissSMPler;
 import net.md_5.bungee.api.ChatColor;

@@ -1,11 +1,20 @@
 package ch.swisssmp.adventuredungeons;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.Mathf;
+import ch.swisssmp.utils.Position;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class ItemManager {
@@ -23,16 +32,48 @@ public class ItemManager {
 		if(!nbtTag.hasKey("dungeon_id")) return -1;
 		return nbtTag.getInt("dungeon_id");
 	}
+	
+	/**
+	 * 
+	 * @param dungeon_id - The ID written into the ItemStacks NBT data
+	 * @param dungeon_name - The name for the ItemStack
+	 * @param custom_enum - The custom item enum to be used for this token
+	 * @return An <code>ItemStack</code> containing the <code>dungeon_id</code> in the NBT data
+	 */
 	public static ItemStack getDungeonToken(int dungeon_id, String dungeon_name, String custom_enum){
 		CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(custom_enum);
-		itemBuilder.setDisplayName(dungeon_name);
+		itemBuilder.setDisplayName(ChatColor.LIGHT_PURPLE+dungeon_name);
 		itemBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		ItemStack result = itemBuilder.build();
-		net.minecraft.server.v1_12_R1.ItemStack nbtStack = CraftItemStack.asNMSCopy(result);
-		NBTTagCompound nbtTag = nbtStack.getTag();
-		nbtTag.setInt("dungeon_id", dungeon_id);
-		nbtStack.setTag(nbtTag);
-		result.setItemMeta(CraftItemStack.getItemMeta(nbtStack));
+		ItemUtil.setInt(result, "dungeon_id", dungeon_id);
+		ItemUtil.setString(result, "dungeon_tool", "DUNGEON");
 		return result;
+	}
+	
+	/**
+	 * @param position - The position to be displayed
+	 * @return A description Text for Position Token ItemStacks containing instructions and its coordinates
+	 */
+	protected static List<String> getPositionTokenLore(Position position){
+		List<String> result = new ArrayList<String>();
+		result.add(ChatColor.GRAY+"X: "+Mathf.round(position.getX(),1)+", Y: "+Mathf.round(position.getY(),1)+", Z: "+Mathf.round(position.getZ(),1));
+		result.add(ChatColor.GRAY+"Linksklick: Teleport");
+		result.add(ChatColor.GRAY+"Rechtsklick: Punkt setzen");
+		return result;
+	}
+	
+	/**
+	 * Waits one server tick to then set the slot to the defined ItemStack
+	 * @param inventory - The inventory to modify
+	 * @param slot - The slot to modify
+	 * @param itemStack - The ItemStack to put into the given slot
+	 */
+	protected static void refillInventorySlot(Inventory inventory, int slot, ItemStack itemStack){
+		if(itemStack==null) return;
+		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
+			public void run(){
+				inventory.setItem(slot, itemStack);
+			}
+		}, 1L);
 	}
 }

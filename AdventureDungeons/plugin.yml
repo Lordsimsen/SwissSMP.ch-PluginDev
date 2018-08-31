@@ -18,8 +18,7 @@ commands:
       /dungeon leave
       /dungeon edit [Dungeon-ID]
       /dungeon endedit
-      /dungeon warp [Dungeon-ID]
-      /dungeon respawn_index [Welt] [Respawn-Index]
+      /dungeon respawn_position [X] [Y] [Z] [Yaw] [Pitch]
       /dungeon play_sound [Instanz-ID] [Sound-ID]
     aliases: [mmodungeon]
     permission: dungeons.admin

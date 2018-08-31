@@ -1,4 +1,4 @@
-package ch.swisssmp.adventuredungeons.command;
+package ch.swisssmp.adventuredungeons;
 
 import java.util.UUID;
 import java.util.ArrayList;
@@ -8,16 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.adventuredungeons.AdventureSound;
-import ch.swisssmp.adventuredungeons.Dungeon;
-import ch.swisssmp.adventuredungeons.DungeonInstance;
+import ch.swisssmp.utils.Position;
 
 public class DungeonCommand implements CommandExecutor{
     @Override
@@ -47,7 +44,7 @@ public class DungeonCommand implements CommandExecutor{
 			    			e.printStackTrace();
 			    			return false;
 			    		}
-			    		break;
+			    		return true;
 			    	}
 			    	case "join":{
 			    		//dungeon join [Dungeon-ID] [Schwierigkeit] (Spieler) (Anderer Spieler)
@@ -61,7 +58,7 @@ public class DungeonCommand implements CommandExecutor{
 			    			difficulty = Difficulty.HARD;
 			    			targetInstance = null;
 			    			if(!(sender instanceof Player)){
-			    				sender.sendMessage("Bitte Spieler angeben oder ingame ausführen.");
+			    				sender.sendMessage("[AdventureDungeons] Bitte Spieler angeben oder ingame ausführen.");
 			    				return true;
 			    			}
 			    			player = (Player)sender;
@@ -77,7 +74,7 @@ public class DungeonCommand implements CommandExecutor{
 				    		
 				    		if(args.length<4){
 				    			if(!(sender instanceof Player)){
-				    				sender.sendMessage("Bitte Spieler angeben oder ingame ausführen.");
+				    				sender.sendMessage("[AdventureDungeons] Bitte Spieler angeben oder ingame ausführen.");
 				    				return true;
 				    			}
 				    			player = (Player)sender;
@@ -87,7 +84,7 @@ public class DungeonCommand implements CommandExecutor{
 				    			String playerName = args[3];
 				    			player = Bukkit.getPlayer(playerName);
 				    			if(player==null){
-				    				sender.sendMessage("Spieler "+playerName+" nicht gefunden.");
+				    				sender.sendMessage("[AdventureDungeons] Spieler "+playerName+" nicht gefunden.");
 				    				return true;
 				    			}
 				    			if(args.length>4){
@@ -102,17 +99,17 @@ public class DungeonCommand implements CommandExecutor{
 			    		}
 			    		
 			    		if(!StringUtils.isNumeric(args[1])){
-			    			sender.sendMessage(args[1]+" ist keine Dungeon-ID.");
+			    			sender.sendMessage("[AdventureDungeons] "+args[1]+" ist keine Dungeon-ID.");
 			    			return true;
 			    		}
 			    		int dungeon_id = Integer.parseInt(args[1]);
 			    		Dungeon dungeon = Dungeon.get(dungeon_id);
 			    		if(dungeon==null){
-			    			sender.sendMessage("Dungeon nicht gefunden.");
+			    			sender.sendMessage("[AdventureDungeons] Dungeon "+dungeon_id+" nicht gefunden.");
 			    			return true;
 			    		}
 			    		dungeon.join(player, targetInstance, difficulty);
-			    		break;
+			    		return true;
 			    	}
 			    	case "leave":{
 			    		String playerName;
@@ -128,33 +125,40 @@ public class DungeonCommand implements CommandExecutor{
 			    		Player player = Bukkit.getPlayer(playerName);
 			    		DungeonInstance dungeonInstance = DungeonInstance.get(player);
 			    		if(dungeonInstance==null){
-			    			player.sendMessage(playerName+" ist momentan nicht in einem Dungeon.");
+			    			player.sendMessage("[AdventureDungeons] "+playerName+" ist momentan nicht in einem Dungeon.");
 			    			return true;
 			    		}
-			    		Dungeon mmoDungeon = Dungeon.get(dungeonInstance);
-			    		if(mmoDungeon==null){
-			    			player.sendMessage("Beim Verlassen des Dungeons ist ein Fehler aufgetreten. Bitte kontaktiere den Support.");
+			    		Dungeon dungeon = Dungeon.get(dungeonInstance);
+			    		if(dungeon==null){
+			    			player.sendMessage("[AdventureDungeons] Beim Verlassen des Dungeons ist ein Fehler aufgetreten. Bitte kontaktiere den Support.");
 			    			return true;
 			    		}
-			    		mmoDungeon.leave(player.getUniqueId());
-			    		break;
+			    		dungeon.leave(player.getUniqueId());
+			    		return true;
 			    	}
 			    	case "edit":{
 			    		if(!(sender instanceof Player)){
 			    			sender.sendMessage("[AdventureDungeons] Du kannst nur ingame Dungeons bearbeiten.");
 			    		}
 			    		if(args.length<2){
-			    			sender.sendMessage("Dungeon-ID nicht spezifiziert. (Siehe Web-Tool)");
+			    			sender.sendMessage("[AdventureDungeons] Dungeon-ID nicht spezifiziert. (Siehe Web-Tool)");
 			    			return true;
 			    		}
-			    		int dungeon_id = Integer.parseInt(args[1]);
-			    		Dungeon dungeon = Dungeon.get(dungeon_id);
+			    		String dungeonIdentifier = args[1];
+			    		Dungeon dungeon;
+			    		if(StringUtils.isNumeric(dungeonIdentifier)){
+				    		int dungeon_id = Integer.parseInt(args[1]);
+				    		dungeon = Dungeon.get(dungeon_id);
+			    		}
+			    		else{
+			    			dungeon = Dungeon.get(dungeonIdentifier);
+			    		}
 			    		if(dungeon==null){
-			    			sender.sendMessage("Dungeon "+args[1]+" nicht gefunden.");
+			    			sender.sendMessage("[AdventureDungeons] Dungeon "+args[1]+" nicht gefunden.");
 			    			return true;
 			    		}
 			    		dungeon.initiateEditor((Player)sender);
-			    		break;
+			    		return true;
 			    	}
 			    	case "endedit":{
 			    		Integer dungeon_id;
@@ -174,7 +178,7 @@ public class DungeonCommand implements CommandExecutor{
 			    		else return true;
 			    		Dungeon dungeon = Dungeon.get(dungeon_id);
 			    		if(dungeon==null){
-			    			sender.sendMessage("Dungeon "+args[1]+" nicht gefunden.");
+			    			sender.sendMessage("[AdventureDungeons] Dungeon "+args[1]+" nicht gefunden.");
 			    			return true;
 			    		}
 			    		if(dungeon.saveTemplate(sender)){
@@ -183,52 +187,31 @@ public class DungeonCommand implements CommandExecutor{
 			    		else{
 			    			sender.sendMessage("[AdventureDungeons] "+ChatColor.RED+"Konnte den Bearbeitungsmodus nicht beenden.");
 			    		}
-			    		break;
+			    		return true;
 			    	}
-			    	case "warp":{
-			    		if(args.length<2){
-			    			sender.sendMessage("[AdventureDungeons] Dungeon ID nicht angegeben.");
-			    			return true;
-			    		}
-			    		else if(!(sender instanceof Player)){
-			    			sender.sendMessage("[AdventureDungeons] Kann nur ingame verwendet werden.");
-			    			return true;
-			    		}
-			    		int dungeon_id = Integer.parseInt(args[1]);
-			    		Dungeon dungeon = Dungeon.get(dungeon_id);
-			    		if(dungeon==null){
-			    			sender.sendMessage("[AdventureDungeons] Dungeon "+args[1]+" nicht gefunden.");
-			    			return true;
-			    		}
-			    		World templateWorld  = Bukkit.getWorld("template_"+dungeon_id);
-			    		if(sender instanceof Player && templateWorld!=null){
-			    			Player player = (Player)sender;
-			    			Location joinLocation = dungeon.getLobbyJoin().getLocation(templateWorld);
-			    			player.teleport(joinLocation);
-			    		}
-			    		else if(templateWorld==null){
-			    			sender.sendMessage(ChatColor.RED+"Der Editor dieses Dungeons ist nicht initiiert.");
-			    		}
-			    		break;
-			    	}
-			    	case "respawn_index":{
-			    		if(args.length<3) return false;
+			    	case "respawn_position":{
+			    		if(args.length<7) return false;
 			    		try{
-			    			String worldName = args[1];
-				    		int respawnIndex = Integer.parseInt(args[2]);
-				    		World world = Bukkit.getWorld(worldName);
-				    		if(world==null){
-				    			Bukkit.getLogger().info("[AdventureDungeons] Konnte den Respawn Index für die Welt '"+worldName+"' nicht auf "+respawnIndex+" setzen. (Welt nicht gefunden)");
-				    			return true;
-				    		}
+			    			World world = Bukkit.getWorld(args[1]);
+			    			if(world==null){
+			    				sender.sendMessage("[AdventureDungeons] Welt '"+args[1]+"' nicht gefunden.");
+			    				return true;
+			    			}
+			    			double x = Double.parseDouble(args[2]);
+			    			double y = Double.parseDouble(args[3]);
+			    			double z = Double.parseDouble(args[4]);
+			    			float yaw = Float.parseFloat(args[5]);
+			    			float pitch = Float.parseFloat(args[6]);
+			    			Position position = new Position(x,y,z,yaw,pitch);
 				    		DungeonInstance instance = DungeonInstance.get(world);
 				    		if(instance==null){
-				    			sender.sendMessage("[AdventureDungeons] Instanz "+worldName+" nicht gefunden.");
+				    			sender.sendMessage("[AdventureDungeons] Instanz "+world.getName()+" nicht gefunden.");
 				    			return true;
 				    		}
-				    		if(instance.setRespawnIndex(respawnIndex) && args.length>3){
+				    		instance.setRespawn(position);
+				    		if(args.length>7){
 				    			List<String> messageParts = new ArrayList<String>();
-				    			for(int i = 3; i < args.length; i++){
+				    			for(int i = 7; i < args.length; i++){
 				    				messageParts.add(args[i]);
 				    			}
 				    			instance.getPlayerManager().announce(String.join(" ", messageParts));
@@ -237,7 +220,7 @@ public class DungeonCommand implements CommandExecutor{
 			    		catch(Exception e){
 			    			return false;
 			    		}
-			    		break;
+			    		return true;
 			    	}
 			    	case "play_sound":{
 			    		if(args.length<3) return false;
@@ -259,13 +242,17 @@ public class DungeonCommand implements CommandExecutor{
 			    			e.printStackTrace();
 			    			return false;
 			    		}
-			    		break;
+			    		return true;
 			    	}
 			    	default: return false;
 				}
-	    		return true;
 	    	}
 	    	case "dungeons":{
+	    		if(!(sender instanceof Player)){
+	    			sender.sendMessage("[AdventureDungeons] Kann nur ingame verwendet werden.");
+	    			return true;
+	    		}
+	    		DungeonsView.open((Player)sender);
 	    		return true;
 	    	}
 	    	default: return false;

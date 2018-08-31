@@ -1,7 +1,6 @@
 package ch.swisssmp.adventuredungeons;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
@@ -40,11 +39,11 @@ public class DungeonInstance{
 	private boolean running = false;
 	private final TransformationWorld transformationworld;
 	
-	private int respawnIndex = 0;
 	private String background_music;
 	private long music_loop_time;
-	private final ArrayList<Position> respawn_points;
 	private final Random random = new Random();
+	
+	private Position respawnPosition;
 
 	private DungeonInstance(Dungeon dungeon, World world, Difficulty difficulty, int instance_id, long seed){
 		this.dungeon_id = dungeon.getDungeonId();
@@ -57,8 +56,6 @@ public class DungeonInstance{
 		this.playerManager = new PlayerManager(this);
 		this.transformationworld = TransformationWorld.get(world);
 		this.transformationworld.loadTransformations("dungeon_template_"+this.dungeon_id);
-		
-		this.respawn_points = dungeon.getRespawnPoints();
 		
 		if(Bukkit.getPluginManager().getPlugin("DungeonGenerator")!=null){
 			DungeonGeneratorHandler.generateDungeons(world, "dungeon_template_"+dungeon_id, this.seed);
@@ -93,14 +90,8 @@ public class DungeonInstance{
 		}
 	}
 	
-	public boolean setRespawnIndex(int respawnIndex){
-		int oldIndex = this.respawnIndex;
-		int newIndex = Math.min(this.respawn_points.size()-1, Math.max(this.respawnIndex, respawnIndex));
-		Position position = this.respawn_points.get(newIndex);
-		if(position!=null){
-			this.respawnIndex = newIndex;
-		}
-		return newIndex==respawnIndex && newIndex!=oldIndex;
+	protected void setRespawn(Position position){
+		this.respawnPosition = position;
 	}
 	
 	public boolean isRunning(){
@@ -133,7 +124,7 @@ public class DungeonInstance{
 		return this.difficulty;
 	}
 	public Location getRespawnLocation(){
-		Position respawnPoint = this.respawn_points.get(this.respawnIndex).clone();
+		Position respawnPoint = this.respawnPosition.clone();
 		Vector random = this.random.insideUnitSphere().multiply(5);
 		respawnPoint.add(random.getX(), 0, random.getZ());
 		return respawnPoint.getLocation(this.getWorld());

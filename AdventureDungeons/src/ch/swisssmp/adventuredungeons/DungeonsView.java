@@ -32,7 +32,7 @@ public class DungeonsView extends InventoryView implements Listener{
 	private void createDungeonTokens(){
 		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("dungeons/get_dungeons.php");
 		if(yamlConfiguration==null || !yamlConfiguration.contains("dungeons")){
-			this.player.sendMessage("[AdventureDungeons] "+ChatColor.RED+"Konnte Dungeons nicht laden.");
+			this.player.sendMessage("[AdventureDungeons] "+ChatColor.RED+"Konnte Dungeons nicht anzeigen.");
 			return;
 		}
 		ConfigurationSection dungeonsSection = yamlConfiguration.getConfigurationSection("dungeons");
@@ -53,16 +53,13 @@ public class DungeonsView extends InventoryView implements Listener{
 	
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
-		if(event.getView()!=this) return;
-		event.setCancelled(true);
-		if(event.getCursor()!=null) return;
+		if(event.getView()!=this || event.getClickedInventory()!=this.inventory) return;
 		ItemStack itemStack = this.inventory.getItem(event.getSlot());
-		if(itemStack==null) return;
-		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
-			public void run(){
-				inventory.setItem(event.getSlot(), itemStack.clone());
-			}
-		}, 1L);
+		if(itemStack == null || (event.getCursor()!=null && event.getCursor().isSimilar(itemStack))){
+			event.setCancelled(true);
+			return;
+		}
+		ItemManager.refillInventorySlot(inventory, event.getSlot(), itemStack.clone());
 		
 	}
 	

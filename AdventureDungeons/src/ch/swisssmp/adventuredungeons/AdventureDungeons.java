@@ -7,9 +7,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ch.swisssmp.adventuredungeons.command.DungeonCommand;
-import ch.swisssmp.adventuredungeons.command.PlayerCommand;
-
 public class AdventureDungeons extends JavaPlugin{
 	private static Logger logger;
 	private static PluginDescriptionFile pdfFile;
@@ -30,6 +27,8 @@ public class AdventureDungeons extends JavaPlugin{
 		DungeonCommand dungeonCommand = new DungeonCommand();
 		this.getCommand("dungeon").setExecutor(dungeonCommand);
 		this.getCommand("dungeons").setExecutor(dungeonCommand);
+		
+		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
