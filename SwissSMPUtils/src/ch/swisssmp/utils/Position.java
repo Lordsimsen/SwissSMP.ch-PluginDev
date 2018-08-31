@@ -59,11 +59,19 @@ public class Position {
 		return this;
 	}
 	
+	public Location getLocation(World world){
+		return new Location(world, this.x,this.y,this.z,this.yaw,this.pitch);
+	}
+	
 	public Position clone(){
 		return new Position(this);
 	}
 	
-	public Location getLocation(World world){
-		return new Location(world, this.x,this.y,this.z,this.yaw,this.pitch);
+	public String getURLString(String parameterName){
+		return parameterName+"[x]="+this.x+"&"
+				+ parameterName+"[y]="+this.y+"&"
+				+ parameterName+"[z]="+this.z+"&"
+				+ parameterName+"[yaw]="+this.yaw+"&"
+				+ parameterName+"[pitch]="+this.pitch;
 	}
 }
