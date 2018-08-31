@@ -1,0 +1,17 @@
+main: ch.swisssmp.loginrewards.LoginRewards
+version: 1.0
+name: LoginRewards
+author: detig_iii
+description: Belohnt Spieler für tägliche Aktivität
+depend: [WebCore]
+permissions: 
+  loginrewards.admin:
+    default: op
+    description: Erlaubt die Steuerung des Plugins
+commands:
+  loginrewards:
+    usage: |
+      /loginrewards trigger - Löst Belohnungen aus
+      /loginrewards reset - Setzt Zähler für alle Spieler zurück
+    description: Löst Belohnungen manuell aus
+    permission: loginrewards.admin
