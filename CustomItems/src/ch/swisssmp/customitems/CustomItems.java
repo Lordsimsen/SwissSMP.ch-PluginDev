@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.FurnaceInventory;
@@ -22,9 +21,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.EnchantmentData;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class CustomItems extends JavaPlugin{
 	protected static Logger logger;
@@ -40,6 +39,7 @@ public class CustomItems extends JavaPlugin{
 		
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("customitems").setExecutor(playerCommand);
+		this.getCommand("rename").setExecutor(new RenameCommand());
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
@@ -48,11 +48,7 @@ public class CustomItems extends JavaPlugin{
 	
 	public static String getCustomEnum(ItemStack itemStack){
 		if(itemStack==null)return null;
-		net.minecraft.server.v1_12_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
-		if(!craftItemStack.hasTag()) return null;
-		NBTTagCompound nbtTags = craftItemStack.getTag();
-		if(!nbtTags.hasKey("customEnum")) return null;
-		return nbtTags.getString("customEnum");
+		return ItemUtil.getString(itemStack, "customEnum");
 	}
 	
 	public static CustomItemBuilder getCustomItemBuilder(String custom_enum){
