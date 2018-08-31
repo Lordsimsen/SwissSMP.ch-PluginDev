@@ -1,12 +1,10 @@
 package ch.swisssmp.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Collection;
+
+import org.apache.commons.io.FileUtils;
 
 public class FileUtil {
 	public static boolean deleteRecursive(File path) {
@@ -28,36 +26,20 @@ public class FileUtil {
 	      return(path.delete());
 		}
 		public static void copyDirectory(File source, File target){
-			copyDirectory(source, target, new ArrayList<String>());
+			copyDirectory(source, target, null);
 		}
-		public static void copyDirectory(File source, File target, ArrayList<String> ignore){
-		    try {
-		    	if(ignore==null){
-		    		ignore = new ArrayList<String>();
-		    	}
-		        if(!ignore.contains(source.getName())) {
-		            if(source.isDirectory()) {
-		                if(!target.exists())
-		                target.mkdirs();
-		                String files[] = source.list();
-		                for (String file : files) {
-		                    File srcFile = new File(source, file);
-		                    File destFile = new File(target, file);
-		                    copyDirectory(srcFile, destFile, ignore);
-		                }
-		            } else {
-		                InputStream in = new FileInputStream(source);
-		                OutputStream out = new FileOutputStream(target);
-		                byte[] buffer = new byte[1024];
-		                int length;
-		                while ((length = in.read(buffer)) > 0)
-		                    out.write(buffer, 0, length);
-		                in.close();
-		                out.close();
-		            }
-		        }
-		    } catch (IOException e) {
-		    	e.printStackTrace();
-		    }
+		public static void copyDirectory(File source, File target, Collection<String> ignoreFiles){
+			try {
+				if(ignoreFiles==null){
+					FileUtils.copyDirectory(source, target);
+				}
+				else{
+					FileUtils.copyDirectory(source, target, (File file)->{
+						return !ignoreFiles.contains(file.getName());
+					});
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 }
