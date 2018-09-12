@@ -1,17 +1,12 @@
 package ch.swisssmp.mobcamps;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
 
 public class CampCommand implements CommandExecutor{
 
@@ -21,31 +16,16 @@ public class CampCommand implements CommandExecutor{
 		MobCamp mobCamp;
 		if(sender instanceof Player){
 			PlayerInventory playerInventory = ((Player)sender).getInventory();
-			MobCampQuery mainhandQuery = MobCamp.get(playerInventory.getItemInMainHand());
-			MobCampQuery offhandQuery = MobCamp.get(playerInventory.getItemInMainHand());
-			if(mainhandQuery.getMobCamp()!=null) mobCamp = mainhandQuery.getMobCamp();
-			else if(offhandQuery.getMobCamp()!=null) mobCamp = offhandQuery.getMobCamp();
+			MobCamp mainhand = MobCamp.get(playerInventory.getItemInMainHand());
+			MobCamp offhand = MobCamp.get(playerInventory.getItemInMainHand());
+			if(mainhand!=null) mobCamp = mainhand;
+			else if(offhand!=null) mobCamp = offhand;
 			else mobCamp = null;
 		}
 		else{
 			mobCamp = null;
 		}
 		switch(args[0].toLowerCase()){
-		case "info":
-		case "auflisten":
-		case "liste":
-		case "list":{
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("camps/list_camps.php");
-			if(yamlConfiguration==null || !yamlConfiguration.contains("lines")){
-				sender.sendMessage("[MobCamps] Ein Fehler ist aufgetreten.");
-				return true;
-			}
-			sender.sendMessage("[MobCamps] Alle Mob Camps:");
-			for(String line : yamlConfiguration.getStringList("lines")){
-				sender.sendMessage(line);
-			}
-			return true;
-		}
 		case "erstelle":
 		case "erstellen":
 		case "create":{
@@ -63,41 +43,12 @@ public class CampCommand implements CommandExecutor{
 			}
 			return true;
 		}
-		case "item":
-		case "get":{
-			if(!(sender instanceof Player)){
-				sender.sendMessage("[MobCamps] Diesen Befehl kannst du nur ingame verwenden.");
-				return true;
-			}
-			if(args.length<2){
-				if(mobCamp==null) return false;
-			}
-			else{
-				mobCamp = MobCamp.get(args[1]);
-			}
-			if(mobCamp==null){
-				if(args.length>1){
-					sender.sendMessage("[MobCamps] '"+args[1]+"' nicht gefunden.");
-				}
-				else{
-					sender.sendMessage("[MobCamps] Kein Mob Camp ausgewählt.");
-				}
-				return true;
-			}
-			int amount = 1;
-			if(args.length>2 && StringUtils.isNumeric(args[2])){
-				amount = Integer.parseInt(args[2]);
-			}
-			ItemStack itemStack = mobCamp.getInventoryToken(amount);
-			((Player)sender).getInventory().addItem(itemStack);
-			return true;
-		}
 		case "lade":
 		case "load":
 		case "reload":{
 			if(args.length<2){
 				MobCampInstance.loadAll();
-				sender.sendMessage("[MobCamps] Mob Camp Instanzen geladen.");
+				sender.sendMessage("[MobCamps] Camp Instanzen geladen.");
 				return true;
 			}
 			World world = Bukkit.getWorld(args[1]);
@@ -106,7 +57,7 @@ public class CampCommand implements CommandExecutor{
 				return true;
 			}
 			MobCampInstance.loadAll(world);
-			sender.sendMessage("[MobCamps] Mob Camp Instanzen geladen.");
+			sender.sendMessage("[MobCamps] Camp Instanzen geladen.");
 			return true;
 		}
 		case "aktualisiere":
@@ -132,27 +83,6 @@ public class CampCommand implements CommandExecutor{
 			}
 			mobCamp.updateInstances();
 			mobCamp.updateTokens();
-			return true;
-		}
-		case "umbenennen":
-		case "name":
-		case "nenne":
-		case "rename":{
-			if(args.length<2) return false;
-			if(args.length<3){
-				if(mobCamp==null) return false;
-			}
-			else{
-				mobCamp = MobCamp.get(args[1]);
-			}
-			if(mobCamp==null){
-				if(args.length>2) sender.sendMessage("[MobCamps] '"+args[1]+"' nicht gefunden.");
-				else sender.sendMessage("[MobCamps] Mob Camp nicht gefunden.");
-				return true;
-			}
-			String oldName = mobCamp.getName();
-			mobCamp.setName(args.length>2 ? args[2] : args[1]);
-			sender.sendMessage("[LootTables] '"+oldName+"' zu '"+mobCamp.getName()+"' umbenennt.");
 			return true;
 		}
 		case "radius":{
@@ -243,24 +173,6 @@ public class CampCommand implements CommandExecutor{
 				return true;
 			}
 			mobCamp.setRequiredPlayerRange(requiredPlayerRange);
-			return true;
-		}
-		case "bearbeite":
-		case "bearbeiten":
-		case "edit":{
-			if(!(sender instanceof Player)){
-				sender.sendMessage("[LootTables] Du kannst Mob Camps nur ingame bearbeiten.");
-				return true;
-			}
-			if(args.length>1){
-				mobCamp = MobCamp.get(args[1]);
-			}
-			if(mobCamp==null){
-				if(args.length>1) sender.sendMessage("[LootTables] '"+args[1]+"' nicht gefunden.");
-				else sender.sendMessage("[LootTables] Mob Camp nicht gefunden.");
-				return true;
-			}
-			MobCampEditor.open((Player)sender, mobCamp);
 			return true;
 		}
 		default: return false;

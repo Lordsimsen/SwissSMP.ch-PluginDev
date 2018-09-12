@@ -16,6 +16,8 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.PlayerRenameItemEvent;
 import ch.swisssmp.utils.SwissSMPler;
 
 public class EventListener implements Listener{
@@ -68,19 +70,28 @@ public class EventListener implements Listener{
 		if(event.getAction()!=Action.RIGHT_CLICK_AIR && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		if(event.getItem()==null) return;
 		ItemStack itemStack = event.getItem();
-		MobCampQuery mobCampQuery = MobCamp.get(itemStack);
-		if(!mobCampQuery.isMobCampToken()) return;
-		if(mobCampQuery.getMobCamp()!=null){
+		int camp_id = ItemUtil.getInt(itemStack, "mob_camp");
+		MobCamp mobCamp = MobCamp.get(camp_id);
+		if(mobCamp!=null){
 			if(event.getAction()==Action.RIGHT_CLICK_BLOCK){
 				Block block = event.getClickedBlock().getRelative(event.getBlockFace());
-				MobCampInstance.create(block.getLocation().add(0.5, 0, 0.5),mobCampQuery.getMobCamp());
+				MobCampInstance.create(block.getLocation().add(0.5, 0, 0.5),mobCamp);
 			}
 			else{
-				mobCampQuery.getMobCamp().openEditor(event.getPlayer());
+				mobCamp.openEditor(event.getPlayer());
 			}
 		}
-		else{
-			event.getPlayer().sendMessage("[LootTables] Beutetabelle "+mobCampQuery.getMobCampId()+" nicht gefunden. Vielleicht wurde sie gelöscht? Du kannst mit '/camp info' herausfinden, welche Camps existieren.");
+		else if(camp_id>0){
+			itemStack.setAmount(0);
+			event.getPlayer().sendMessage("[MobCamps] Camp nicht gefunden. Vielleicht wurde es gelöscht? Du kannst mit '/camps' herausfinden, welche Camps existieren.");
 		}
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	private void onItemRename(PlayerRenameItemEvent event){
+		MobCamp mobCamp = MobCamp.get(event.getItemStack());
+		if(mobCamp==null) return;
+		mobCamp.setName(event.getNewName());
+		event.setName(ChatColor.LIGHT_PURPLE+event.getNewName());
 	}
 }

@@ -10,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -27,13 +26,13 @@ import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.random.RandomItemUtil;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.EntityUtil;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class MobCamp {
 	private static HashMap<Integer,MobCamp> camps = new HashMap<Integer,MobCamp>();
@@ -127,13 +126,7 @@ public class MobCamp {
 		customItemBuilder.setDisplayName(displayName);
 		customItemBuilder.setLore(this.getInfo());
 		ItemStack result = customItemBuilder.build();
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(result);
-		NBTTagCompound nbtTag = nmsStack.getTag();
-		if(nbtTag==null) nbtTag = new NBTTagCompound();
-		nbtTag.setInt("mob_camp", this.camp_id);
-		nmsStack.setTag(nbtTag);
-		ItemMeta itemMeta = CraftItemStack.getItemMeta(nmsStack);
-		result.setItemMeta(itemMeta);
+		ItemUtil.setInt(result, "mob_camp", this.camp_id);
 		return result;
 	}
 	
@@ -273,12 +266,12 @@ public class MobCamp {
 	}
 	
 	protected void updateTokens(){
-		MobCampQuery lootTableQuery;
+		int camp_id;
 		ItemStack tokenStack = this.getInventoryToken(1);
 		for(Player player : Bukkit.getOnlinePlayers()){
 			for(ItemStack itemStack : player.getInventory()){
-				lootTableQuery = MobCamp.get(itemStack);
-				if(lootTableQuery.getMobCamp()!=this) continue;
+				camp_id = ItemUtil.getInt(itemStack, "mob_camp");
+				if(camp_id!=this.camp_id) continue;
 				itemStack.setItemMeta(tokenStack.getItemMeta());
 				itemStack.setDurability(tokenStack.getDurability());
 			}
@@ -333,11 +326,7 @@ public class MobCamp {
 		return MobCamp.load(name, true);
 	}
 	
-	public static MobCampQuery get(ItemStack tokenStack){
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(tokenStack);
-		NBTTagCompound nbtTag = nmsStack.getTag();
-		if(nbtTag==null || !nbtTag.hasKey("mob_camp")) return new MobCampQuery(null, -1, false);
-		int camp_id = nbtTag.getInt("mob_camp");
-		return new MobCampQuery(MobCamp.get(camp_id), camp_id,true);
+	public static MobCamp get(ItemStack tokenStack){
+		return MobCamp.get(ItemUtil.getInt(tokenStack, "mob_camp"));
 	}
 }
