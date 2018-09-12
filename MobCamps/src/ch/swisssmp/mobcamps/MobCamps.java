@@ -22,6 +22,7 @@ public class MobCamps extends JavaPlugin{
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		Bukkit.getPluginCommand("camp").setExecutor(new CampCommand());
+		Bukkit.getPluginCommand("camps").setExecutor(new CampsCommand());
 		MobCampInstance.loadAll();
 	}
 

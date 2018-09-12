@@ -10,25 +10,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.loot.populator.InventoryPopulator;
 import ch.swisssmp.random.RandomItemUtil;
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class LootTable {
 	private static HashMap<String,LootTable> loadedTables = new HashMap<String,LootTable>();
@@ -66,6 +64,10 @@ public class LootTable {
 	
 	public String getName(){
 		return this.name;
+	}
+	
+	public String getDisplayName(){
+		return this.lootType.getColor()+this.getName();
 	}
 	
 	public void setLootType(LootType lootType){
@@ -116,7 +118,7 @@ public class LootTable {
 	}
 	
 	public ItemStack getInventoryToken(int amount){
-		String displayName = this.lootType.getColor()+this.getName();
+		String displayName = this.getDisplayName();
 		if(this.chance<1){
 			displayName+= ChatColor.DARK_GRAY+" - "+(this.chance*100)+"%";
 		}
@@ -138,13 +140,7 @@ public class LootTable {
 		customItemBuilder.setDisplayName(displayName);
 		customItemBuilder.setLore(this.getItemInfo());
 		ItemStack result = customItemBuilder.build();
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(result);
-		NBTTagCompound nbtTag = nmsStack.getTag();
-		if(nbtTag==null) nbtTag = new NBTTagCompound();
-		nbtTag.setInt("loot_table", this.loot_table_id);
-		nmsStack.setTag(nbtTag);
-		ItemMeta itemMeta = CraftItemStack.getItemMeta(nmsStack);
-		result.setItemMeta(itemMeta);
+		ItemUtil.setInt(result, "loot_table", this.loot_table_id);
 		return result;
 	}
 	
@@ -222,12 +218,10 @@ public class LootTable {
 	}
 	
 	public void updateTokens(){
-		LootTableQuery lootTableQuery;
 		ItemStack tokenStack = this.getInventoryToken(1);
 		for(Player player : Bukkit.getOnlinePlayers()){
 			for(ItemStack itemStack : player.getInventory()){
-				lootTableQuery = LootTable.get(itemStack);
-				if(lootTableQuery.getLootTable()!=this) continue;
+				if(ItemUtil.getInt(itemStack, "loot_table")!=this.loot_table_id) continue;
 				itemStack.setItemMeta(tokenStack.getItemMeta());
 				itemStack.setDurability(tokenStack.getDurability());
 			}
@@ -274,11 +268,7 @@ public class LootTable {
 		return new LootTable(yamlConfiguration.getConfigurationSection("loot_table"));
 	}
 	
-	public static LootTableQuery get(ItemStack tokenStack){
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(tokenStack);
-		NBTTagCompound nbtTag = nmsStack.getTag();
-		if(nbtTag==null || !nbtTag.hasKey("loot_table")) return new LootTableQuery(null, -1, false);
-		int loot_table_id = nbtTag.getInt("loot_table");
-		return new LootTableQuery(LootTable.get(loot_table_id), loot_table_id,true);
+	public static LootTable get(ItemStack tokenStack){
+		return LootTable.get(ItemUtil.getInt(tokenStack, "loot_table"));
 	}
 }

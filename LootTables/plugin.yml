@@ -11,14 +11,11 @@ commands:
   loot:
     description: Zur Verwaltung von Beutetabellen - [Parameter] sind Pflicht, (Parameter=Standardwert) sind optional
     usage: |
-      /loot info §7- Listet alle Beutetabellen auf
+      /loot §7- Zeigt alle Beutetabellen an
       /loot erstelle [Name] §7- Erstellt eine neue Beutetabelle
-      /loot aktualisiere (Name) §7- Aktualisiert Items dieser Beutetabelle
-      /loot item (Name) §7- Generiert einen Item Stack für diese Beutetabelle
-      /loot nenne (Name) [Neuer_Name] §7- Benennt diese Beutetabelle neu
+      /loot aktualisiere (Name) §7- Aktualisiert Item Tokens dieser Beutetabelle
       /loot kategorie (Name) [Kategorie] §7- Ändert die Kategorie (Schatz, Selten, Normal, Müll)
       /loot chance (Name) [Wahrscheinlichkeit] §7- Ändert die Wahrscheinlichkeit (0.00%-100%)
       /loot anzahl (Name) [Min] (Max=Min) §7- Ändert die Anzahl generierter Stacks pro Inventar (-1 für unbegrenzt)
-      /loot bearbeite (Name) §7- Öffnet den Editor für diese Beutetabelle
       /loot lösche (Name) §7- Löscht diese Beutetabelle
     permission: loottables.admin
