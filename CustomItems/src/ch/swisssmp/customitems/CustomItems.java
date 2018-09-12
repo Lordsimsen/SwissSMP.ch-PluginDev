@@ -39,7 +39,6 @@ public class CustomItems extends JavaPlugin{
 		
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("customitems").setExecutor(playerCommand);
-		this.getCommand("rename").setExecutor(new RenameCommand());
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");

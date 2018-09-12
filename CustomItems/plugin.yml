@@ -1,5 +1,5 @@
 main: ch.swisssmp.customitems.CustomItems
-version: 1.8
+version: 1.9
 name: CustomItems
 author: detig_iii
 description: Konfigurierbare Items
@@ -16,9 +16,4 @@ commands:
       /customitems summon [Custom-Enum] [Menge]
     aliases: [customitem]
     description: Steuert CustomItems
-    permission: customitems.admin
-  rename:
-    usage: /rename [Name]
-    aliases: [umbenennen]
-    description: Benennt ein Item neu
     permission: customitems.admin
