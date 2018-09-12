@@ -1,6 +1,5 @@
 package ch.swisssmp.dungeongenerator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -8,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
@@ -31,7 +29,6 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.EntityUtil;
 import ch.swisssmp.utils.WorldUtil;
-import ch.swisssmp.utils.YamlConfiguration;
 
 public class GeneratorPart{
 	private final DungeonGenerator generator;
@@ -45,6 +42,7 @@ public class GeneratorPart{
 	private final int min_distance;
 	private final int max_distance;
 	private final List<Integer> layers;
+	private final List<Integer> rotations;
 	
 	//calculated signatures
 	private String topSignature;
@@ -54,7 +52,7 @@ public class GeneratorPart{
 	private String southSignature;
 	private String westSignature;
 	
-	private GeneratorPart(DungeonGenerator generator, Block position, ConfigurationSection dataSection){
+	protected GeneratorPart(DungeonGenerator generator, Block position, ConfigurationSection dataSection){
 		this.generator = generator;
 		this.template_x = position.getX();
 		this.template_y = position.getY();
@@ -65,6 +63,7 @@ public class GeneratorPart{
 		this.min_distance = dataSection.contains("min_distance") ? dataSection.getInt("min_distance") : -1;
 		this.max_distance = dataSection.contains("max_distance") ? dataSection.getInt("max_distance") : -1;
 		this.layers = dataSection.contains("layers") ? dataSection.getIntegerList("layers") : null;
+		this.rotations = dataSection.contains("rotations") ? dataSection.getIntegerList("rotations") : null;
 	}
 	
 	public String getInfoString(){
@@ -89,18 +88,6 @@ public class GeneratorPart{
 			e.printStackTrace();
 			return;
 		}
-	}
-	
-	public void savePart(List<String> arguments, int part_id){
-		arguments.add("parts["+part_id+"][position_x]="+this.template_x);
-		arguments.add("parts["+part_id+"][position_y]="+this.template_y);
-		arguments.add("parts["+part_id+"][position_z]="+this.template_z);
-		arguments.add("parts["+part_id+"][signatures][top]="+this.topSignature);
-		arguments.add("parts["+part_id+"][signatures][bottom]="+this.bottomSignature);
-		arguments.add("parts["+part_id+"][signatures][north]="+this.northSignature);
-		arguments.add("parts["+part_id+"][signatures][east]="+this.eastSignature);
-		arguments.add("parts["+part_id+"][signatures][south]="+this.southSignature);
-		arguments.add("parts["+part_id+"][signatures][west]="+this.westSignature);
 	}
 	
 	public void updateSignatures(){
@@ -130,6 +117,10 @@ public class GeneratorPart{
 	
 	public List<Integer> getLayers(){
 		return this.layers;
+	}
+	
+	public List<Integer> getRotations(){
+		return this.rotations;
 	}
 	
 	public BlockVector getMinBlock(){
@@ -253,7 +244,7 @@ public class GeneratorPart{
         Operation operation = holder
                 .createPaste(editSession, editSession.getWorld().getWorldData())
                 .to(to)
-                .ignoreAirBlocks(false)
+                .ignoreAirBlocks(true)
                 .build();
         Operations.completeLegacy(operation);
 		editSession.flushQueue();
@@ -305,32 +296,9 @@ public class GeneratorPart{
 	}
 	
 	public static void createBoundingBox(DungeonGenerator generator, BlockVector position){
-		Collection<Block> boundingBox = BlockUtil.getBoundingBox(generator.getWorld().getBlockAt(position.getBlockX(), position.getBlockY(), position.getBlockZ()), generator.getPartSizeXZ(), generator.getPartSizeY());
+		Collection<Block> boundingBox = BlockUtil.getBox(generator.getWorld().getBlockAt(position.getBlockX(), position.getBlockY(), position.getBlockZ()), generator.getPartSizeXZ(), generator.getPartSizeY(), 1);
 		for(Block block : boundingBox){
 			block.setType(generator.getBoundingBoxMaterial());
 		}
-	}
-	
-	public static GeneratorPart get(DungeonGenerator generator, Block position){
-		Collection<Block> boundingBox = BlockUtil.getBoundingBox(position, generator.getPartSizeXZ(), generator.getPartSizeY());
-		//check if bounding box is correct and complete
-		for(Block block : boundingBox){
-			if(block.getType()!=generator.getBoundingBoxMaterial()) return null;
-		}
-		//read special properties from signs
-		YamlConfiguration partConfiguration = new YamlConfiguration();
-		Collection<Sign> attachedSigns = BlockUtil.getAttachedSigns(boundingBox);
-		ArrayList<String> configurationStrings = new ArrayList<String>();
-		//int totalConfigurations = 0;
-		for(Sign sign : attachedSigns){
-			for(String line : sign.getLines()){
-				if(line.isEmpty()) continue;
-				configurationStrings.add(line);
-				//totalConfigurations++;
-			}
-		}
-		PartConfigurationUtil.applyPartConfiguration(partConfiguration, configurationStrings);
-		//Bukkit.getLogger().info("[DungeonGenerator] "+attachedSigns.size()+" "+(attachedSigns.size()==1?"Schild":"Schilder")+" mit total "+totalConfigurations+" "+(totalConfigurations==1?"Einstellung":"Einstellungen")+" gefunden.");
-		return new GeneratorPart(generator,position,partConfiguration);
 	}
 }

@@ -37,6 +37,11 @@ public enum Direction {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param from - The BlockVector from which to move in this direction
+	 * @return A BlockVector next to the original BlockVector in this direction
+	 */
 	public BlockVector moveVector(BlockVector from){
 		switch(this){
 		case UP: return new BlockVector(from.getBlockX(),from.getBlockY()+1,from.getBlockZ());

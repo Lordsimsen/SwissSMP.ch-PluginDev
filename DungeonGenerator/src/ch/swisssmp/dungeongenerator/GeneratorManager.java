@@ -1,32 +1,31 @@
 package ch.swisssmp.dungeongenerator;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.inventory.ItemStack;
 
-import ch.swisssmp.utils.URLEncoder;
+import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class GeneratorManager {
 	private static HashMap<World,GeneratorManager> managers = new HashMap<World,GeneratorManager>();
 	
-	private final HashMap<String,DungeonGenerator> generators = new HashMap<String,DungeonGenerator>();
+	public static GeneratorManager get(World world){
+		if(managers.containsKey(world)) return managers.get(world);
+		GeneratorManager result = new GeneratorManager(world);
+		result.importAll();
+		managers.put(world, result);
+		return result;
+	}
+	private final HashMap<Integer,DungeonGenerator> generators = new HashMap<Integer,DungeonGenerator>();
+	
 	private final World world;
 	
 	private GeneratorManager(World world){
 		this.world = world;
-	}
-	
-	protected void unload(){
-		for(DungeonGenerator generator : this.generators.values()){
-			generator.unload();
-		}
 	}
 	
 	/**
@@ -39,52 +38,38 @@ public class GeneratorManager {
 	public DungeonGenerator create(String name, int partSizeXZ, int partSizeY){
 		DungeonGenerator existing = this.get(name.toLowerCase());
 		if(existing!=null) return existing;
-		YamlConfiguration yamlConfiguration;
-		yamlConfiguration = DataSource.getYamlResponse("dungeons/create_generator.php", new String[]{
-				"world="+world.getName(),
-				"name="+URLEncoder.encode(name),
-				"part_size[xz]="+partSizeXZ,
-				"part_size[y]="+partSizeY
-		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("generator")) return null;
-		return new DungeonGenerator(this.world,yamlConfiguration.getConfigurationSection("generator"));
+		YamlConfiguration yamlConfiguration = new YamlConfiguration();
+		ConfigurationSection dataSection = yamlConfiguration.createSection("generator");
+		int generator_id = this.generators.size()>0 ? Collections.max(this.generators.keySet())+1 : 1;
+		dataSection.set("generator_id", generator_id);
+		dataSection.set("generator_name", name);
+		dataSection.set("part_size_xz", partSizeXZ);
+		dataSection.set("part_size_y", partSizeY);
+		
+		DungeonGenerator result = new DungeonGenerator(this,yamlConfiguration.getConfigurationSection("generator"));
+		this.generators.put(generator_id, result);
+		return result;
 	}
 	
 	/**
-	 * @param name - The name of the DungeonGenerator to be found
-	 * @return Returns a DungeonGenerator if found or null
-	 */
-	public DungeonGenerator get(String name){
-		if(!this.generators.containsKey(name.toLowerCase())){
-			return this.load(name.toLowerCase());
-		}
-		else{
-			return this.generators.get(name.toLowerCase());
-		}
-	}
-	
-	/**
-	 * @param name - The name of the DungeonGenerator to be found
-	 * @return Returns a DungeonGenerator if found or null
+	 * @param generator_id - The ID of the DungeonGenerator to be found
+	 * @return A DungeonGenerator if found;
+	 * 		   <code>null</code> otherwise
 	 */
 	public DungeonGenerator get(int generator_id){
-		for(DungeonGenerator generator : this.generators.values()){
-			if(generator.getId()==generator_id) return generator;
-		}
-		return this.load(generator_id);
+		return this.generators.get(generator_id);
 	}
 	
 	/**
-	 * Find out which DungeonGenerator an ItemStack is associated with
-	 * @param tokenStack - The ItemStack to check
-	 * @return A query with information about whether the ItemStack is associated with any DungeonGenerator and which it is.
+	 * @param name - The name of the DungeonGenerator to be found
+	 * @return A DungeonGenerator if found;
+	 * 		   <code>null</code> otherwise
 	 */
-	public DungeonGeneratorQuery get(ItemStack tokenStack){
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(tokenStack);
-		NBTTagCompound nbtTag = nmsStack.getTag();
-		if(nbtTag==null || !nbtTag.hasKey("generator_id")) return new DungeonGeneratorQuery(null, -1, false);
-		int generator_id = nbtTag.getInt("generator_id");
-		return new DungeonGeneratorQuery(this.get(generator_id), generator_id,true);
+	public DungeonGenerator get(String name){
+		for(DungeonGenerator generator : this.generators.values()){
+			if(generator.getName().toLowerCase().contains(name.toLowerCase())) return generator;
+		}
+		return null;
 	}
 	
 	/**
@@ -94,40 +79,45 @@ public class GeneratorManager {
 		return this.generators.values();
 	}
 	
-	/**
-	 * @param worldName - The name of the Minecraft World to look for
-	 * @return Returns a Collection of all DungeonGenerator names which were created in the world with the given worldName
-	 */
-	public Collection<String> importAll(String worldName){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("dungeons/get_generators.php", new String[]{
-			"world="+URLEncoder.encode(worldName)	
-		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("generators")) return new ArrayList<String>();
-		return yamlConfiguration.getStringList("generators");
+	private File getGeneratorsFile(){
+		return new File(this.world.getWorldFolder(), "plugindata/dungeon_generators.yml");
 	}
 	
-	private DungeonGenerator load(String name){
-		if(this.generators.containsKey(name.toLowerCase())){
-			return this.generators.get(name.toLowerCase());
+	public World getWorld(){
+		return this.world;
+	}
+	
+	private void importAll(){
+		File generatorsFile = this.getGeneratorsFile();
+		if(!generatorsFile.exists()) return;
+		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(generatorsFile);
+		if(yamlConfiguration==null || !yamlConfiguration.contains("generators")) return;
+		ConfigurationSection generatorsSection = yamlConfiguration.getConfigurationSection("generators");
+		ConfigurationSection generatorSection;
+		int generator_id;
+		for(String key : generatorsSection.getKeys(false)){
+			generatorSection = generatorsSection.getConfigurationSection(key);
+			generator_id = generatorSection.getInt("generator_id");
+			this.generators.put(generator_id, new DungeonGenerator(this, generatorSection));
 		}
-		return this.load(new String[]{"name="+URLEncoder.encode(name)});
 	}
 	
-	private DungeonGenerator load(int generator_id){
-		return this.load(new String[]{"id="+generator_id});
+	protected void saveAll(){
+		YamlConfiguration yamlConfiguration = new YamlConfiguration();
+		ConfigurationSection generatorsSection = yamlConfiguration.createSection("generators");
+		ConfigurationSection generatorSection;
+		for(DungeonGenerator dungeonGenerator : this.generators.values()){
+			generatorSection = generatorsSection.createSection("generator_"+dungeonGenerator.getId());
+			dungeonGenerator.save(generatorSection);
+		}
+		File file = this.getGeneratorsFile();
+		if(!file.getParentFile().exists()) file.getParentFile().mkdirs();
+		yamlConfiguration.save(file);
 	}
 	
-	private DungeonGenerator load(String[] args){
-		YamlConfiguration yamlConfiguration;
-		yamlConfiguration = DataSource.getYamlResponse("dungeons/get_generator.php", args);
-		if(yamlConfiguration==null || !yamlConfiguration.contains("generator")) return null;
-		return new DungeonGenerator(world,yamlConfiguration.getConfigurationSection("generator"));
-	}
-	
-	public static GeneratorManager get(World world){
-		if(managers.containsKey(world)) return managers.get(world);
-		GeneratorManager result = new GeneratorManager(world);
-		managers.put(world, result);
-		return result;
+	protected void unload(){
+		for(DungeonGenerator generator : this.generators.values()){
+			generator.unload();
+		}
 	}
 }

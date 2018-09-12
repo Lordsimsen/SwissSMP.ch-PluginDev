@@ -20,6 +20,7 @@ public class DungeonGeneratorPlugin extends JavaPlugin{
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
 		Bukkit.getPluginCommand("generator").setExecutor(new GeneratorCommand());
+		Bukkit.getPluginCommand("generators").setExecutor(new GeneratorsCommand());
 		Bukkit.getPluginManager().registerEvents(new EventListener(), DungeonGeneratorPlugin.plugin);
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}

@@ -24,15 +24,12 @@ public class GenerationPart{
 		this.gridPosition = gridPosition;
 	}
 	
-	/*
+	/**
 	 * Generates the blocks for this part
+	 * @param world - The World to generate the blocks in
+	 * @param position - The reference position to place the blocks
 	 */
-	public void generate(World world, BlockVector center){
-		DungeonGenerator generator = this.template.getGenerator();
-		int pos_x = center.getBlockX()+this.gridPosition.getBlockX()*generator.getPartSizeXZ();
-		int pos_y = center.getBlockY()+this.gridPosition.getBlockY()*generator.getPartSizeY();
-		int pos_z = center.getBlockZ()+this.gridPosition.getBlockZ()*generator.getPartSizeXZ();
-		BlockVector position = new BlockVector(pos_x,pos_y,pos_z);
+	public void generate(World world, BlockVector position){
 		this.template.generate(world, position);
 	}
 	
@@ -45,7 +42,7 @@ public class GenerationPart{
 		if(westNeighbour!=null)westNeighbour.setNeighbour(this, Direction.WEST.opposite());
 	}
 	
-	/*
+	/**
 	 * Removes this part as a neighbour from all surrounding parts
 	 */
 	public void remove(){
@@ -57,7 +54,7 @@ public class GenerationPart{
 		if(this.westNeighbour!=null) this.westNeighbour.setNeighbour(null, Direction.WEST.opposite());
 	}
 
-	/*
+	/**
 	 * DistanceToStart is the amount of GenerationParts you need to pass to get to the first GenerationPart placed
 	 * Upon updating the distanceToStart the part will update all of its neighbours recursively if necessary
 	 */
@@ -65,7 +62,7 @@ public class GenerationPart{
 		this.setDistanceToStart(GeneratorUtil.getDistanceToStart(this.topNeighbour,this.bottomNeighbour,this.northNeighbour,this.eastNeighbour,this.southNeighbour,this.westNeighbour));
 	}
 	
-	/*
+	/**
 	 * DistanceToStart is the amount of GenerationParts you need to pass to get to the first GenerationPart placed
 	 * Upon setting the distanceToStart the part will update all of its neighbours recursively if necessary
 	 */
@@ -79,14 +76,14 @@ public class GenerationPart{
 		if(this.westNeighbour!=null && this.westNeighbour.getDistanceToStart()>this.distanceToStart+1) this.westNeighbour.setDistanceToStart(distanceToStart+1);
 	}
 
-	/*
+	/**
 	 * DistanceToStart is the amount of GenerationParts you need to pass to get to the first GenerationPart placed
 	 */
 	public int getDistanceToStart(){
 		return this.distanceToStart;
 	}
 	
-	/*
+	/**
 	 * Checks which of its neighbours are valid and then returns a random one
 	 */
 	public Collection<GenerationPart> getNeighbours(){
@@ -100,14 +97,23 @@ public class GenerationPart{
 		return validNeighbours;
 	}
 	
-	public ProxyGeneratorPart getTemplate(){return this.template;}
-	public BlockVector getGridPosition(){return this.gridPosition;}
-	public BlockVector getWorldPosition(BlockVector startPosition){
-		int x = startPosition.getBlockX()+this.gridPosition.getBlockX()*this.template.getGenerator().getPartSizeXZ();
-		int y = startPosition.getBlockY()+this.gridPosition.getBlockY()*this.template.getGenerator().getPartSizeY();
-		int z = startPosition.getBlockZ()+this.gridPosition.getBlockZ()*this.template.getGenerator().getPartSizeXZ();
-		return new BlockVector(x, y, z);
+	public String getSignature(Direction direction){
+		return this.template.getSignature(direction);
 	}
+	
+	public int getLimit(){
+		return this.template.getLimit();
+	}
+	
+	public GeneratorPart getOriginal(){
+		return this.template.getOriginal();
+	}
+	
+	public ProxyGeneratorPart getProxy(){
+		return this.template;
+	}
+
+	public BlockVector getGridPosition(){return this.gridPosition;}
 	
 	public GenerationPart getNeighbour(Direction direction){
 		switch(direction){

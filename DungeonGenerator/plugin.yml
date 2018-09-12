@@ -9,13 +9,19 @@ permissions:
     description: Erlaubt Verwendung des Plugins
 commands:
   generator:
-    description: Steuert den Generator
+    description: Steuert einen Generator
     usage: |
-      /generator info §7- Zeigt Informationen über den Generator an
+      /generator info [Name] §7- Zeigt Informationen über einen Generator an
       /generator erstelle [Name] (XZ=16) (Y=16) §7- Erstellt einen neuen Generator mit den angegebenen Teilgrössen
-      /generator bearbeite [Name] [Variabel:Wert...] §7- Ändert Einstellungen am Generator (Verfügbar: Name, GrösseX, GrösseZ)
+      /generator bearbeite [Name] [Variabel:Wert...] §7- Ändert Einstellungen am Generator (Verfügbar: Name, Grösse, GrösseX, GrösseZ)
       /generator item [Name] §7- Generiert einen Item Stack für diesen Generator
       /generator hierhin [Name] (x) (y) (z) §7- Setzt den Ausgangspunkt vom Vorlagengitter zu deiner Position
       /generator aktualisiere [Name] §7- Aktualisiert Daten
       /generator generiere [Name] (Grösse=100) (Seed=Random) §7- Generiert einen Dungeon
+    aliases: [dungeon_generator]
+    permission: generator.admin
+  generators:
+    description: Zeigt alle Generatoren in dieser Welt an
+    usage: /generators
+    aliases: [dungeon_generators,generatoren,dungeon_generatoren]
     permission: generator.admin

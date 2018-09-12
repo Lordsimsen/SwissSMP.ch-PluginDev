@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-//import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -106,36 +105,95 @@ public class BlockUtil {
 		}
 	}
 	
-	public static Collection<Block> getBoundingBox(Block position, int sizeXZ, int sizeY){
+	public static Collection<Block> getBox(Block position){
+		Block boxOrigin = BlockUtil.getBoxOrigin(position);
+		Block southEnd = BlockUtil.getFurthestValidBlock(boxOrigin, BlockFace.SOUTH, boxOrigin.getType(), 0);
+		Block upEnd = BlockUtil.getFurthestValidBlock(boxOrigin, BlockFace.UP, boxOrigin.getType(), 0);
+		int sizeXZ = Math.abs(boxOrigin.getZ()-southEnd.getZ())+1;
+		int sizeY = Math.abs(boxOrigin.getY()-upEnd.getY())+1;
+		return BlockUtil.getBox(boxOrigin, sizeXZ, sizeY);
+	}
+	
+	public static Collection<Block> getBox(Block position, int sizeXZ, int sizeY){
+		return BlockUtil.getBox(position, sizeXZ, sizeY, 0);
+	}
+
+	public static Collection<Block> getBox(Block position, int sizeXZ, int sizeY, int offset){
 		Collection<Block> result = new ArrayList<Block>();
 		World world = position.getWorld();
 		int template_x = position.getX();
 		int template_y = position.getY();
 		int template_z = position.getZ();
-		for(int x = -1; x < sizeXZ+1; x++){
-			result.add(world.getBlockAt(template_x+x, template_y-1, template_z-1));
-			result.add(world.getBlockAt(template_x+x, template_y-1, template_z+sizeXZ));
-			result.add(world.getBlockAt(template_x+x, template_y+sizeY, template_z-1));
-			result.add(world.getBlockAt(template_x+x, template_y+sizeY, template_z+sizeXZ));
+		for(int x = 0-offset; x < sizeXZ+offset; x++){
+			result.add(world.getBlockAt(template_x+x, template_y-offset, template_z-offset));
+			result.add(world.getBlockAt(template_x+x, template_y-offset, template_z+(sizeXZ+offset-1)));
+			result.add(world.getBlockAt(template_x+x, template_y+(sizeY+offset-1), template_z-offset));
+			result.add(world.getBlockAt(template_x+x, template_y+(sizeY+offset-1), template_z+(sizeXZ+offset-1)));
 		}
-		for(int y = -1; y < sizeY+1; y++){
-			result.add(world.getBlockAt(template_x-1, template_y+y, template_z-1));
-			result.add(world.getBlockAt(template_x-1, template_y+y, template_z+sizeXZ));
-			result.add(world.getBlockAt(template_x+sizeXZ, template_y+y, template_z-1));
-			result.add(world.getBlockAt(template_x+sizeXZ, template_y+y, template_z+sizeXZ));
+		for(int y = 0-offset; y < sizeY+offset; y++){
+			result.add(world.getBlockAt(template_x-offset, template_y+y, template_z-offset));
+			result.add(world.getBlockAt(template_x-offset, template_y+y, template_z+(sizeXZ+offset-1)));
+			result.add(world.getBlockAt(template_x+(sizeXZ+offset-1), template_y+y, template_z-offset));
+			result.add(world.getBlockAt(template_x+(sizeXZ+offset-1), template_y+y, template_z+(sizeXZ+offset-1)));
 		}
-		for(int z = -1; z < sizeXZ+1; z++){
-			result.add(world.getBlockAt(template_x-1, template_y-1, template_z+z));
-			result.add(world.getBlockAt(template_x+sizeXZ, template_y-1, template_z+z));
-			result.add(world.getBlockAt(template_x-1, template_y+sizeY, template_z+z));
-			result.add(world.getBlockAt(template_x+sizeXZ, template_y+sizeY, template_z+z));
+		for(int z = 0-offset; z < sizeXZ+offset; z++){
+			result.add(world.getBlockAt(template_x-offset, template_y-offset, template_z+z));
+			result.add(world.getBlockAt(template_x+(sizeXZ+offset-1), template_y-offset, template_z+z));
+			result.add(world.getBlockAt(template_x-offset, template_y+(sizeY+offset-1), template_z+z));
+			result.add(world.getBlockAt(template_x+(sizeXZ+offset-1), template_y+(sizeY+offset-1), template_z+z));
 		}
 		return result;
+	}
+
+	/**
+	 * Looks for the block with the lowest XYZ coordinates still belonging to the box
+	 * @param block - A block somewhere in the bounding box
+	 * @param boxMaterial - The Material of the bounding box
+	 * @return The origin block of the box
+	 */
+	protected static Block getBoxOrigin(Block block){
+		if(block.getRelative(BlockFace.DOWN).getType()==block.getType()){
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.DOWN, block.getType(), 0);
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.NORTH, block.getType(), 0);
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.WEST, block.getType(), 0);
+		}
+		else if(block.getRelative(BlockFace.NORTH).getType()==block.getType()){
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.NORTH, block.getType(), 0);
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.WEST, block.getType(), 0);
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.DOWN, block.getType(), 0);
+		}
+		else if(block.getRelative(BlockFace.WEST).getType()==block.getType()){
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.WEST, block.getType(), 0);
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.NORTH, block.getType(), 0);
+			block = BlockUtil.getFurthestValidBlock(block, BlockFace.DOWN, block.getType(), 0);
+		}
+		return block;
+	}
+	
+	protected static Block getFurthestValidBlock(Block block, BlockFace direction, Material material, int tolerance){
+		Block lastValidBlock = block;
+		int currentTolerance = tolerance;
+		int infiniteLoopProtection = 10000;
+		while(block.getType()==material || currentTolerance>0){
+			block = block.getRelative(direction);
+			if(block.getType()==material){
+				lastValidBlock = block;
+				currentTolerance = tolerance;
+			}
+			else{
+				currentTolerance--;
+			}
+			infiniteLoopProtection--;
+			if(infiniteLoopProtection<0){
+				throw new StackOverflowError("Could not find the furst Block with Type "+material.name());
+			}
+		}
+		return lastValidBlock;
 	}
 	
 	public static Collection<Sign> getAttachedSigns(Collection<Block> blocks){
 		Collection<Sign> result = new ArrayList<Sign>();
-		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH,BlockFace.EAST,BlockFace.SOUTH,BlockFace.WEST};
+		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH,BlockFace.EAST,BlockFace.SOUTH,BlockFace.WEST,BlockFace.UP};
 		Block neighbour;
 		for(Block block : blocks){
 			for(BlockFace face : faces){

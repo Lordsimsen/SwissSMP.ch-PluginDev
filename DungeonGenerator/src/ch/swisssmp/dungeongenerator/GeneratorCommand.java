@@ -3,16 +3,12 @@ package ch.swisssmp.dungeongenerator;
 import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BlockVector;
-import org.bukkit.util.Vector;
 
 public class GeneratorCommand implements CommandExecutor{
 	private static Random random = new Random();
@@ -82,6 +78,7 @@ public class GeneratorCommand implements CommandExecutor{
 				sender.sendMessage("[DungeonGenerator] Konnte den Generator nicht erstellen.");
 			}
 			else{
+				manager.saveAll();
 				sender.sendMessage("[DungeonGenerator] Generator '"+name+"' erstellt!");
 			}
 			return true;
@@ -97,7 +94,7 @@ public class GeneratorCommand implements CommandExecutor{
 			}
 			else{
 				generator.update();
-				sender.sendMessage("[DungeonGenerator] Generator aktualisiert.");
+				sender.sendMessage("[DungeonGenerator] Generator '"+generator.getName()+"' aktualisiert.");
 			}
 			return true;
 		}
@@ -117,37 +114,8 @@ public class GeneratorCommand implements CommandExecutor{
 			if(args.length>2 && StringUtils.isNumeric(args[2])){
 				amount = Integer.parseInt(args[2]);
 			}
-			ItemStack itemStack = generator.getInventoryToken(amount);
+			ItemStack itemStack = ItemManager.getInventoryToken(generator, amount);
 			((Player)sender).getInventory().addItem(itemStack);
-			return true;
-		}
-		case "hierhin":
-		case "movehere":{
-			if(args.length<2) return false;
-			String name = args[1];
-			DungeonGenerator generator = manager.get(name);
-			if(generator==null){
-				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
-			}
-			else{
-				Block block = null;
-				if(args.length<5){
-					Location location = player.getLocation();
-					location.add(2, 1, 2); //move one on XZ so the player is not inside the first GeneratorPart and another one on XYZ because of its bounding box
-					block = location.getBlock();
-				}
-				else{
-					try{
-						block = player.getWorld().getBlockAt(Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]));
-					}
-					catch(Exception e){
-						sender.sendMessage("[DungeonGenerator] Ungültige Koordinaten '"+args[2]+","+args[3]+","+args[4]+"'");
-						return true;
-					}
-				}
-				generator.setTemplateOrigin(block);
-			}
-			sender.sendMessage("[DungeonGenerator] Vorlage neu platziert.");
 			return true;
 		}
 		case "bearbeite":
@@ -166,6 +134,7 @@ public class GeneratorCommand implements CommandExecutor{
 				if(variableInput.length<2) continue;
 				switch(variableInput[0].toLowerCase()){
 				case "name": generator.setName(variableInput[1]); break;
+				case "grösse": generator.setDefaultSize(Integer.parseInt(variableInput[1])); break;
 				case "grössexz":
 				case "grösse_xz":
 				case "sizexz":
@@ -183,7 +152,12 @@ public class GeneratorCommand implements CommandExecutor{
 		case "generate":{
 			if(args.length<2) return false;
 			String name = args[1];
-			int size = 100;
+			DungeonGenerator generator = manager.get(name);
+			if(generator==null){
+				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
+				return true;
+			}
+			int size = generator.getDefaultSize();
 			if(args.length>2 && StringUtils.isNumeric(args[2])){
 				try{
 					size = Integer.parseInt(args[2]);
@@ -200,14 +174,12 @@ public class GeneratorCommand implements CommandExecutor{
 			else{
 				seed = random.nextLong();
 			}
-			DungeonGenerator generator = manager.get(name);
-			if(generator==null){
-				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
+			int resultSize = generator.generate(sender, seed, size);
+			if(resultSize<0){
+				sender.sendMessage("[DungeonGenerator] Konnte den Dungeon '"+generator.getName()+"' mit dem Seed '"+seed+"' nicht generieren.");
+				return true;
 			}
-			else{
-				generator.generate(player.getWorld(), new BlockVector(player.getLocation().toVector().add(new Vector(1,0,1))), seed, size);
-				sender.sendMessage("[DungeonGenerator] Dungeon '"+name+"' mit Seed '"+seed+"' generiert.");
-			}
+			sender.sendMessage("[DungeonGenerator] Dungeon '"+generator.getName()+"' mit Seed '"+seed+"' generiert. ("+resultSize+" Teile)");
 			return true;
 		}
 		default: return false;

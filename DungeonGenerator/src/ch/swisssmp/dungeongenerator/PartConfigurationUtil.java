@@ -2,14 +2,40 @@ package ch.swisssmp.dungeongenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.YamlConfiguration;
 
 public class PartConfigurationUtil {
 	
-	public static void applyPartConfiguration(ConfigurationSection dataSection, Collection<String> configurationLines){
+	public static YamlConfiguration getPartConfiguration(Block block){
+		Collection<Block> boundingBox = BlockUtil.getBox(block);
+		return PartConfigurationUtil.getPartConfiguration(boundingBox);
+	}
+	public static YamlConfiguration getPartConfiguration(Collection<Block> boundingBox){
+		//read special properties from signs
+		YamlConfiguration result = new YamlConfiguration();
+		Collection<Sign> attachedSigns = BlockUtil.getAttachedSigns(boundingBox);
+		ArrayList<String> configurationStrings = new ArrayList<String>();
+		//int totalConfigurations = 0;
+		for(Sign sign : attachedSigns){
+			for(String line : sign.getLines()){
+				if(line.isEmpty()) continue;
+				configurationStrings.add(line);
+				//totalConfigurations++;
+			}
+		}
+		PartConfigurationUtil.applyPartConfiguration(result, configurationStrings);
+		return result;
+	}
+	
+	private static void applyPartConfiguration(ConfigurationSection dataSection, Collection<String> configurationLines){
 		String[] lineParts;
 		for(String line : configurationLines){
 			lineParts = line.split(":");
@@ -17,11 +43,11 @@ public class PartConfigurationUtil {
 				Bukkit.getLogger().info("[DungeonGenerator] Ungültige Konfigurationszeile '"+line+"'");
 				continue;
 			}
-			PartConfigurationUtil.applyPartConfiguration(dataSection, lineParts[0], lineParts[1]);
+			PartConfigurationUtil.applyPartConfiguration(dataSection, lineParts[0].trim(), lineParts[1].trim());
 		}
 	}
 	
-	public static void applyPartConfiguration(ConfigurationSection dataSection, String fieldName, String fieldValue){
+	private static void applyPartConfiguration(ConfigurationSection dataSection, String fieldName, String fieldValue){
 		switch(fieldName.toLowerCase()){
 		case "name": applyNameSetting(dataSection, fieldValue);break;
 		case "priorität":
@@ -35,7 +61,8 @@ public class PartConfigurationUtil {
 		case "distance":
 		case "dist": applyDistanceSetting(dataSection, fieldValue); break;
 		case "ebene":
-		case "layer": applyLayerSetting(dataSection, fieldValue);break;
+		case "layer": applyLayerSetting(dataSection, fieldValue); break;
+		case "rotation": applyRotationSetting(dataSection, fieldValue); break;
 		default:break;
 		}
 	}
@@ -70,7 +97,7 @@ public class PartConfigurationUtil {
 	
 	private static void applyLayerSetting(ConfigurationSection dataSection, String layerString){
 		ArrayList<Integer> validLayers = new ArrayList<Integer>();
-		String[] layerParts = layerString.split(",");
+		String[] layerParts = layerString.replace(" ", "").split(",");
 		int layer;
 		for(String layerPart : layerParts){
 			try{
@@ -100,5 +127,23 @@ public class PartConfigurationUtil {
 			}
 		}
 		dataSection.set("layers", validLayers);
+	}
+
+	private static void applyRotationSetting(ConfigurationSection dataSection, String rotationsString){
+		Set<Integer> validRotations = new HashSet<Integer>();
+		String[] rotationStrings = rotationsString.replace(" ", "").split(",");
+		for(String rotationString : rotationStrings){
+			try{
+				int rotation = Integer.parseInt(rotationString);
+				validRotations.add(rotation);
+			}
+			catch(Exception e){}
+		}
+		if(dataSection.contains("rotations")){
+			for(int existing : dataSection.getIntegerList("rotations")){
+				validRotations.add(existing);
+			}
+		}
+		dataSection.set("rotations", validRotations);
 	}
 }
