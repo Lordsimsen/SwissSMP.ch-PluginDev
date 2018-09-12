@@ -1,0 +1,19 @@
+main: ch.swisssmp.countdown.CountdownClockPlugin
+version: 1.0
+name: CountdownPlugin
+author: detig_iii
+depend: [WebCore]
+description: Zeigt eine grosse automatisierte Uhr
+permissions:
+  countdown.admin:
+    description: Erlaubt Verwaltung des Plugins
+    default: op
+commands:
+  countdown:
+    description: Steuert Countdowns
+    usage: |
+      /countdown reload §7- Lädt Einstellungen neu
+      /countdown start [Name] [DD.MM.YYYY] [HH:MM:SS] [Material] (Material=Luft) §7- Startet einen neuen Countdown an deiner Position
+      /countdown stop [Name] §7- Stoppt einen Countdown
+      /countdown list §7- Zeigt alle aktiven Countdowns in deiner Welt an
+    permission: countdown.admin
