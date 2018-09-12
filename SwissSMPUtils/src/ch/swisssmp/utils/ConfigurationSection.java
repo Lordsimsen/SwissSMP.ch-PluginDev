@@ -353,7 +353,7 @@ public class ConfigurationSection{
 	}
 
 	public Vector getVector(String arg0) {
-		return this.getConfigurationSection(arg0).getVector();
+		return this.configurationSection.getVector(arg0);
 	}
 	
 	public Vector getVector(){

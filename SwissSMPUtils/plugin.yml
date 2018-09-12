@@ -5,6 +5,9 @@ author: detig_iii
 description: Bietet Basisfunktionen für andere Plugins
 load: startup
 permissions:
+  smp.commands.help:
+    description: Erlaubt Verwendung des Befehls /help
+    default: true
   smp.commands.balance:
     description: Erlaubt Verwendung des Befehls /balance
     default: true
@@ -30,6 +33,11 @@ permissions:
     description: Erlaubt Verwendung des Befehls /amount
     default: op
 commands:
+  help:
+    description: Zeigt die Hilfe an
+    usage: /help
+    permission: smp.commands.help
+    aliases: [hilfe]
   balance:
     description: Zeigt deine Schoggitaler an
     usage: /balance

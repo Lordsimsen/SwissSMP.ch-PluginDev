@@ -11,7 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.webcore.DataSource;
 
@@ -20,6 +19,16 @@ public final class PlayerCommand implements CommandExecutor{
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		switch(command.getName()){
+		case "help":{
+			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("players/help.php");
+			if(yamlConfiguration==null || !yamlConfiguration.contains("message")){
+				sender.sendMessage("[Hilfe] https://swisssmp.ch/forums/serverinfos.1/");
+				return true;
+			}
+			for(String line : yamlConfiguration.getStringList("message"))
+				sender.sendMessage(line);
+			return true;
+		}
 		case "balance":{
 			if(!(sender instanceof Player)) return true;
 			Player player = (Player) sender;
@@ -28,7 +37,7 @@ public final class PlayerCommand implements CommandExecutor{
 			if(!yamlConfiguration.contains("message")) return true;
 			for(String line : yamlConfiguration.getStringList("message"))
 				sender.sendMessage(line);
-			break;
+			return true;
 		}
 		case "seen":{
 			if(args==null || args.length<1) return false;
@@ -37,7 +46,7 @@ public final class PlayerCommand implements CommandExecutor{
 			if(!yamlConfiguration.contains("message")) return true;
 			for(String line : yamlConfiguration.getStringList("message"))
 				sender.sendMessage(line);
-			break;
+			return true;
 		}
 		case "more":{
 			if(!(sender instanceof Player) || ((Player)sender).getGameMode()!=GameMode.CREATIVE) return true;
@@ -46,7 +55,7 @@ public final class PlayerCommand implements CommandExecutor{
 			if(itemStack==null) return true;
 			if(itemStack.getAmount()>=64) playerInventory.addItem(itemStack.clone());
 			else itemStack.setAmount(64);
-			break;
+			return true;
 		}
 		case "amount":{
 			if(!(sender instanceof Player) || ((Player)sender).getGameMode()!=GameMode.CREATIVE) return true;
@@ -62,19 +71,8 @@ public final class PlayerCommand implements CommandExecutor{
 			ItemStack itemStack = playerInventory.getItemInMainHand()!=null ? playerInventory.getItemInMainHand() : playerInventory.getItemInOffHand();
 			if(itemStack==null) return true;
 			itemStack.setAmount(amount);
-			break;
+			return true;
 		}
-    	case "rename":{
-			if(!(sender instanceof Player) || ((Player)sender).getGameMode()!=GameMode.CREATIVE) return true;
-    		PlayerInventory inventory = ((Player)sender).getInventory();
-    		ItemStack itemStack = inventory.getItemInMainHand();
-    		if(itemStack!=null && args.length>0){
-    			ItemMeta itemMeta = itemStack.getItemMeta();
-    			itemMeta.setDisplayName(args[0]);
-    			itemStack.setItemMeta(itemMeta);
-    		}
-    		break;
-    	}
 		case "list":{
 			List<String> arguments = new ArrayList<String>();
 			for(Player player : Bukkit.getOnlinePlayers()){
@@ -86,7 +84,7 @@ public final class PlayerCommand implements CommandExecutor{
 			if(!yamlConfiguration.contains("message")) return true;
 			for(String line : yamlConfiguration.getStringList("message"))
 				sender.sendMessage(line);
-			break;
+			return true;
 		}
 		case "hauptstadt":{
 			if(!(sender instanceof Player)){
@@ -103,7 +101,7 @@ public final class PlayerCommand implements CommandExecutor{
 			parametersArray = new String[parameters.size()];
 			String message = DataSource.getResponse("players/cityswap.php", parameters.toArray(parametersArray));
 			sender.sendMessage(message);
-			break;
+			return true;
 		}
 		case "choose":{
 			if(!(sender instanceof Player)) return true;
@@ -115,10 +113,10 @@ public final class PlayerCommand implements CommandExecutor{
 			if(request==null) return true;
 			String key = args[1];
 			request.choose(player, key);
-			break;
+			return true;
 		}
+		default:return false;
 		}
-		return true;
 	}
 
 }
