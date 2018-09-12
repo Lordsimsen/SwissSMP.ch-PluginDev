@@ -1,0 +1,18 @@
+main: ch.swisssmp.deluminator.DeluminatorPlugin
+version: 1.0
+name: Deluminator
+author: detig_iii
+description: Der Deluminator kann Lampen in der Umgebung anzünden oder auslöschen
+depend: [CustomItems,LampControl]
+permissions:
+  deluminator.use:
+    description: Erlaubt Verwendung des Deluminators
+    default: op
+  deluminator.summon:
+    description: Erlaubt Beschwörung des Deluminators
+    default: op
+commands:
+  deluminator:
+    description: Beschwört einen Deluminator
+    usage: /deluminator
+    permission: deluminator.summon
