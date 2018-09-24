@@ -2,6 +2,7 @@ package ch.swisssmp.dungeongenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.bukkit.World;
 import org.bukkit.util.BlockVector;
@@ -10,7 +11,7 @@ public class GenerationPart{
 	private final ProxyGeneratorPart template;
 	private final BlockVector gridPosition;
 	
-	private int distanceToStart = -1;
+	private boolean staticPart = false;
 	
 	private GenerationPart topNeighbour;
 	private GenerationPart bottomNeighbour;
@@ -19,9 +20,14 @@ public class GenerationPart{
 	private GenerationPart southNeighbour;
 	private GenerationPart westNeighbour;
 	
-	public GenerationPart(ProxyGeneratorPart template, BlockVector gridPosition){
+	private DungeonFloor floor;
+	
+	private HashMap<PartType,Integer> typeDistances = new HashMap<PartType,Integer>();
+	
+	protected GenerationPart(ProxyGeneratorPart template, BlockVector gridPosition, DungeonFloor floor){
 		this.template = template;
 		this.gridPosition = gridPosition;
+		this.floor = floor;
 	}
 	
 	/**
@@ -29,64 +35,102 @@ public class GenerationPart{
 	 * @param world - The World to generate the blocks in
 	 * @param position - The reference position to place the blocks
 	 */
-	public void generate(World world, BlockVector position){
+	protected void generate(World world, BlockVector position){
 		this.template.generate(world, position);
 	}
 	
-	public void register(){
+	protected void reset(World world, BlockVector position){
+		this.template.reset(world, position);
+	}
+	
+	protected void register(){
 		if(topNeighbour!=null)topNeighbour.setNeighbour(this, Direction.UP.opposite());
 		if(bottomNeighbour!=null)bottomNeighbour.setNeighbour(this, Direction.DOWN.opposite());
 		if(northNeighbour!=null)northNeighbour.setNeighbour(this, Direction.NORTH.opposite());
 		if(eastNeighbour!=null)eastNeighbour.setNeighbour(this, Direction.EAST.opposite());
 		if(southNeighbour!=null)southNeighbour.setNeighbour(this, Direction.SOUTH.opposite());
 		if(westNeighbour!=null)westNeighbour.setNeighbour(this, Direction.WEST.opposite());
+		if(this.getPartTypes().contains(PartType.FORK)){
+			this.floor.addFork();
+		}
+		if(this.getPartTypes().contains(PartType.CHAMBER)){
+			for(GenerationPart neighbour : this.getNeighbours()){
+				if(neighbour==null) continue;
+				if(!neighbour.getPartTypes().contains(PartType.CHAMBER)) continue;
+				this.floor.addChamber();
+				break;
+			}
+		}
 	}
 	
 	/**
 	 * Removes this part as a neighbour from all surrounding parts
 	 */
-	public void remove(){
-		if(this.topNeighbour!=null) this.topNeighbour.setNeighbour(null, Direction.UP.opposite());
-		if(this.bottomNeighbour!=null) this.bottomNeighbour.setNeighbour(null, Direction.DOWN.opposite());
-		if(this.northNeighbour!=null) this.northNeighbour.setNeighbour(null, Direction.NORTH.opposite());
-		if(this.eastNeighbour!=null) this.eastNeighbour.setNeighbour(null, Direction.EAST.opposite());
-		if(this.southNeighbour!=null) this.southNeighbour.setNeighbour(null, Direction.SOUTH.opposite());
-		if(this.westNeighbour!=null) this.westNeighbour.setNeighbour(null, Direction.WEST.opposite());
+	protected void remove(){
+		if(this.getPartTypes().contains(PartType.FORK)){
+			this.floor.removeFork();
+		}
+		if(this.getPartTypes().contains(PartType.CHAMBER)){
+			boolean chamberLeft = false;
+			for(GenerationPart neighbour : this.getNeighbours()){
+				if(neighbour==null) continue;
+				if(!neighbour.getPartTypes().contains(PartType.CHAMBER)) continue;
+				chamberLeft = true;
+				break;
+			}
+			if(!chamberLeft) this.floor.removeChamber();
+		}
+		{
+			GenerationPart neighbour;
+			for(Direction direction : Direction.values()){
+				neighbour = this.getNeighbour(direction);
+				if(neighbour==null) continue;
+				neighbour.setNeighbour(null, direction.opposite());
+			}
+		}
+		for(GenerationPart neighbour : this.getNeighbours()){
+			if(neighbour==null) continue;
+			neighbour.updateDistances();
+		}
 	}
 
 	/**
 	 * DistanceToStart is the amount of GenerationParts you need to pass to get to the first GenerationPart placed
 	 * Upon updating the distanceToStart the part will update all of its neighbours recursively if necessary
 	 */
-	public void updateDistanceToStart(){
-		this.setDistanceToStart(GeneratorUtil.getDistanceToStart(this.topNeighbour,this.bottomNeighbour,this.northNeighbour,this.eastNeighbour,this.southNeighbour,this.westNeighbour));
+	protected void updateDistances(){
+		for(PartType partType : PartType.values()){
+			if(this.getPartTypes().contains(partType)){
+				this.setDistance(partType, 0);
+			}
+			else{
+				this.setDistance(partType, GeneratorUtil.getDistance(partType, this.topNeighbour,this.bottomNeighbour,this.northNeighbour,this.eastNeighbour,this.southNeighbour,this.westNeighbour));
+			}
+		}
 	}
 	
 	/**
 	 * DistanceToStart is the amount of GenerationParts you need to pass to get to the first GenerationPart placed
 	 * Upon setting the distanceToStart the part will update all of its neighbours recursively if necessary
 	 */
-	public void setDistanceToStart(int distanceToStart){
-		this.distanceToStart = distanceToStart;
-		if(this.topNeighbour!=null && this.topNeighbour.getDistanceToStart()>this.distanceToStart+1) this.topNeighbour.setDistanceToStart(distanceToStart+1);
-		if(this.bottomNeighbour!=null && this.bottomNeighbour.getDistanceToStart()>this.distanceToStart+1) this.bottomNeighbour.setDistanceToStart(distanceToStart+1);
-		if(this.northNeighbour!=null && this.northNeighbour.getDistanceToStart()>this.distanceToStart+1) this.northNeighbour.setDistanceToStart(distanceToStart+1);
-		if(this.eastNeighbour!=null && this.eastNeighbour.getDistanceToStart()>this.distanceToStart+1) this.eastNeighbour.setDistanceToStart(distanceToStart+1);
-		if(this.southNeighbour!=null && this.southNeighbour.getDistanceToStart()>this.distanceToStart+1) this.southNeighbour.setDistanceToStart(distanceToStart+1);
-		if(this.westNeighbour!=null && this.westNeighbour.getDistanceToStart()>this.distanceToStart+1) this.westNeighbour.setDistanceToStart(distanceToStart+1);
+	protected void setDistance(PartType partType, int distance){
+		this.typeDistances.put(partType, distance);
+		for(GenerationPart neighbour : this.getNeighbours()){
+			if(neighbour!=null && neighbour.getDistance(partType)>distance+1) neighbour.setDistance(partType, distance+1);
+		}
 	}
 
 	/**
 	 * DistanceToStart is the amount of GenerationParts you need to pass to get to the first GenerationPart placed
 	 */
-	public int getDistanceToStart(){
-		return this.distanceToStart;
+	protected int getDistance(PartType partType){
+		return this.typeDistances.containsKey(partType) ? this.typeDistances.get(partType) : 0;
 	}
 	
 	/**
 	 * Checks which of its neighbours are valid and then returns a random one
 	 */
-	public Collection<GenerationPart> getNeighbours(){
+	protected Collection<GenerationPart> getNeighbours(){
 		ArrayList<GenerationPart> validNeighbours = new ArrayList<GenerationPart>();
 		if(this.topNeighbour!=null) validNeighbours.add(this.topNeighbour);
 		if(this.bottomNeighbour!=null) validNeighbours.add(this.bottomNeighbour);
@@ -97,25 +141,44 @@ public class GenerationPart{
 		return validNeighbours;
 	}
 	
-	public String getSignature(Direction direction){
+	protected Collection<PartType> getPartTypes(){
+		return this.template.getPartTypes();
+	}
+	
+	protected DungeonFloor getFloor(){
+		return this.floor;
+	}
+	
+	protected String getImage(){
+		return this.template.getImage();
+	}
+	
+	protected String getSignature(Direction direction){
 		return this.template.getSignature(direction);
 	}
 	
-	public int getLimit(){
+	protected String getInfoString(){
+		return this.template.getInfoString();
+	}
+	
+	protected int getLimit(){
 		return this.template.getLimit();
 	}
 	
-	public GeneratorPart getOriginal(){
+	protected GeneratorPart getOriginal(){
 		return this.template.getOriginal();
 	}
 	
-	public ProxyGeneratorPart getProxy(){
+	protected ProxyGeneratorPart getProxy(){
 		return this.template;
 	}
+	public boolean typeMatch(PartType...partTypes){
+		return this.template.typeMatch(partTypes);
+	}
 
-	public BlockVector getGridPosition(){return this.gridPosition;}
+	protected BlockVector getGridPosition(){return this.gridPosition;}
 	
-	public GenerationPart getNeighbour(Direction direction){
+	protected GenerationPart getNeighbour(Direction direction){
 		switch(direction){
 		case UP: return this.topNeighbour;
 		case DOWN: return this.bottomNeighbour;
@@ -127,7 +190,7 @@ public class GenerationPart{
 		}
 	}
 	
-	public void setNeighbour(GenerationPart part, Direction direction){
+	protected void setNeighbour(GenerationPart part, Direction direction){
 		switch(direction){
 		case UP: this.topNeighbour = part; break;
 		case DOWN: this.bottomNeighbour = part; break;
@@ -137,5 +200,13 @@ public class GenerationPart{
 		case WEST: this.westNeighbour = part; break;
 		default: return;
 		}
+	}
+	
+	protected void setStatic(boolean staticPart){
+		this.staticPart = staticPart;
+	}
+	
+	protected boolean isStatic(){
+		return this.staticPart;
 	}
 }

@@ -1,5 +1,6 @@
 package ch.swisssmp.dungeongenerator;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.World;
@@ -16,24 +17,18 @@ public class ProxyGeneratorPart {
 	private final String westSignature;
 	
 	public ProxyGeneratorPart(GeneratorPart original, int rotation){
-		World world = original.getGenerator().getWorld();
 		this.original = original;
 		this.rotation = rotation;
-		BlockVector min = original.getMinBlock();
-		BlockVector max = original.getMaxBlock();
-		BlockVector bottomMin = new BlockVector(min.getBlockX(), min.getBlockY()-1, min.getBlockZ());
-		BlockVector bottomMax = new BlockVector(max.getBlockX(),min.getBlockY()-1, max.getBlockZ());
-		BlockVector topMin = new BlockVector(min.getBlockX(), max.getBlockY()+1, min.getBlockZ());
-		BlockVector topMax = new BlockVector(max.getBlockX(),max.getBlockY()+1, max.getBlockZ());
-		this.topSignature = BlockUtil.getSignature(world, topMin, topMax, rotation);
-		this.bottomSignature = BlockUtil.getSignature(world, bottomMin, bottomMax, rotation);
-		this.northSignature = original.getSignature(Direction.NORTH.rotate(rotation));
-		this.eastSignature = original.getSignature(Direction.EAST.rotate(rotation));
-		this.southSignature = original.getSignature(Direction.SOUTH.rotate(rotation));
-		this.westSignature = original.getSignature(Direction.WEST.rotate(rotation));
+		this.topSignature = original.getSignature(Direction.UP, rotation);
+		this.bottomSignature = original.getSignature(Direction.DOWN, rotation);
+		this.northSignature = original.getSignature(Direction.NORTH.rotate(rotation), rotation);
+		this.eastSignature = original.getSignature(Direction.EAST.rotate(rotation), rotation);
+		this.southSignature = original.getSignature(Direction.SOUTH.rotate(rotation), rotation);
+		this.westSignature = original.getSignature(Direction.WEST.rotate(rotation), rotation);
 	}
 	public DungeonGenerator getGenerator(){return this.original.getGenerator();}
 	public void generate(World world, BlockVector position){this.original.generate(world, position, rotation);}
+	public void reset(World world, BlockVector position){this.original.reset(world, position);}
 	public String getSignature(Direction direction){
 		switch(direction){
 		case UP: return this.topSignature;
@@ -44,6 +39,15 @@ public class ProxyGeneratorPart {
 		case WEST: return this.westSignature;
 		default: return null;
 		}
+	}
+	public int getId(){
+		return this.original.getId();
+	}
+	public String getInfoString(){
+		return this.original.getInfoString();
+	}
+	public int getRotation(){
+		return this.rotation;
 	}
 	public float getWeight(){
 		return this.original.getWeight();
@@ -60,7 +64,15 @@ public class ProxyGeneratorPart {
 	public List<Integer> getLayers(){
 		return this.original.getLayers();
 	}
-	
+	public Collection<PartType> getPartTypes(){
+		return this.original.getPartTypes();
+	}
+	public boolean typeMatch(PartType...partTypes){
+		return this.original.typeMatch(partTypes);
+	}
+	public String getImage(){
+		return this.original.getImage();
+	}
 	public GeneratorPart getOriginal(){
 		return this.original;
 	}

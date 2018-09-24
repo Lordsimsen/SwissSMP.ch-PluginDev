@@ -1,5 +1,7 @@
 package ch.swisssmp.dungeongenerator;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.bukkit.Material;
@@ -14,8 +16,8 @@ public class ObstructedGenerationPart extends GenerationPart{
 	
 	private boolean debug = false; //for debugging set to true
 	
-	public ObstructedGenerationPart(BlockVector gridPosition, int partSizeXZ, int partSizeY) {
-		super(null, gridPosition);
+	public ObstructedGenerationPart(BlockVector gridPosition, DungeonFloor floor, int partSizeXZ, int partSizeY) {
+		super(null, gridPosition, floor);
 		this.partSizeXZ = partSizeXZ;
 		this.partSizeY = partSizeY;
 	}
@@ -43,6 +45,33 @@ public class ObstructedGenerationPart extends GenerationPart{
 	@Override
 	public String getSignature(Direction direction){
 		return "";
+	}
+	
+	@Override
+	public String getInfoString(){
+		return "Blockiert";
+	}
+	
+	/**
+	 * Nothing to reset in empty part
+	 */
+	@Override
+	public void reset(World world, BlockVector position){
+		if(!this.debug) return;
+		for(Block block : BlockUtil.getBox(world.getBlockAt(position.getBlockX(), position.getBlockY(), position.getBlockZ()), this.partSizeXZ, this.partSizeY)){
+			if(block.getType()!=Material.REDSTONE_BLOCK) continue;
+			block.setType(Material.AIR);
+		}
+	}
+	
+	@Override
+	public boolean typeMatch(PartType...partTypes){
+		return false;
+	}
+	
+	@Override
+	protected Collection<PartType> getPartTypes(){
+		return new ArrayList<PartType>();
 	}
 	
 	protected void findNeighbours(HashMap<BlockVector,GenerationPart> generationData){

@@ -1,10 +1,13 @@
 package ch.swisssmp.dungeongenerator;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -12,6 +15,8 @@ import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.util.BlockVector;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
@@ -32,6 +37,10 @@ import ch.swisssmp.utils.WorldUtil;
 
 public class GeneratorPart{
 	private final DungeonGenerator generator;
+
+	private final int part_id;
+	private final List<PartType> partTypes = new ArrayList<PartType>();
+	
 	private final int template_x;
 	private final int template_y;
 	private final int template_z;
@@ -44,35 +53,88 @@ public class GeneratorPart{
 	private final List<Integer> layers;
 	private final List<Integer> rotations;
 	
-	//calculated signatures
-	private String topSignature;
-	private String bottomSignature;
-	private String northSignature;
-	private String eastSignature;
-	private String southSignature;
-	private String westSignature;
+	private final String imageData;
 	
-	protected GeneratorPart(DungeonGenerator generator, Block position, ConfigurationSection dataSection){
+	protected GeneratorPart(DungeonGenerator generator, int part_id, Block position, ConfigurationSection dataSection){
 		this.generator = generator;
+		this.part_id = part_id;
 		this.template_x = position.getX();
 		this.template_y = position.getY();
 		this.template_z = position.getZ();
-		this.name = dataSection.contains("name") ? dataSection.getString("name") : "GeneratorPart";
+		this.name = dataSection.contains("name") ? dataSection.getString("name") : "Unnamed Part";
 		this.weight = dataSection.contains("weight") ? (float)dataSection.getDouble("weight") : -1;
 		this.limit = dataSection.contains("limit") ? dataSection.getInt("limit") : -1;
 		this.min_distance = dataSection.contains("min_distance") ? dataSection.getInt("min_distance") : -1;
 		this.max_distance = dataSection.contains("max_distance") ? dataSection.getInt("max_distance") : -1;
 		this.layers = dataSection.contains("layers") ? dataSection.getIntegerList("layers") : null;
+		this.imageData = dataSection.getString("image");
 		this.rotations = dataSection.contains("rotations") ? dataSection.getIntegerList("rotations") : null;
+		if(dataSection.contains("types")){
+			for(String partTypeString : dataSection.getStringList("types")){
+				this.partTypes.add(PartType.get(partTypeString));
+			}
+		}
+	}
+	
+	public int getId(){
+		return this.part_id;
 	}
 	
 	public String getInfoString(){
 		return this.name+(this.weight>=0 ? " ["+this.weight+"]" : "")+(this.limit>=0 ? " (max. "+this.limit+")":"");
 	}
 	
-	//@SuppressWarnings("deprecation")
+	public String getImage(){
+		return this.imageData;
+	}
+	
+	public JsonObject getJsonData(){
+		JsonObject result = new JsonObject();
+		result.addProperty("id", this.part_id);
+		result.addProperty("name", this.getName());
+		result.addProperty("x", this.template_x);
+		result.addProperty("y", this.template_y);
+		result.addProperty("z", this.template_z);
+		JsonArray typesArray = new JsonArray();
+		for(PartType partType : this.partTypes){
+			typesArray.add(partType.toString());
+		}
+		result.add("type", typesArray);
+		String signature;
+		JsonObject signaturesData = new JsonObject();
+		JsonObject directionData;
+		for(Direction direction : Direction.values()){
+			directionData = new JsonObject();
+			for(int i = 0; i < 4; i++){
+			signature = this.getSignature(direction, i);
+			if(signature.isEmpty()) continue;
+				directionData.addProperty(String.valueOf(i), signature);
+			}
+			signaturesData.add(direction.toString(), directionData);
+		}
+		result.add("signatures", signaturesData);
+		if(this.weight>=0) result.addProperty("weight", this.getWeight());
+		if(this.limit>=0) result.addProperty("limit", this.getLimit());
+		if(this.min_distance>=0) result.addProperty("min_distance", this.getMinDistance());
+		if(this.max_distance>=0) result.addProperty("max_distance", this.getMaxDistance());
+		if(this.layers!=null){
+			JsonArray layersArray = new JsonArray();
+			for(int layer : this.layers){
+				layersArray.add(layer);
+			}
+			result.add("layers", layersArray);
+		}
+		if(this.rotations!=null){
+			JsonArray rotationsArray = new JsonArray();
+			for(int rotation : this.rotations){
+				rotationsArray.add(rotation);
+			}
+			result.add("rotations", rotationsArray);
+		}
+		return result;
+	}
+	
 	public void generate(World world, BlockVector position, int rotation){
-		//Bukkit.getLogger().info("[DungeonGenerator] Generiere Teil bei "+position.getBlockX()+","+position.getBlockY()+position.getBlockZ());
 		try{
 			position = this.adjustPastePosition(position, rotation);
 			LocalSession session = WorldEdit.getInstance().getSessionManager().get(this.generator);
@@ -90,13 +152,14 @@ public class GeneratorPart{
 		}
 	}
 	
-	public void updateSignatures(){
-		this.updateTopSignature();
-		this.updateBottomSignature();
-		this.updateNorthSignature();
-		this.updateEastSignature();
-		this.updateSouthSignature();
-		this.updateWestSignature();
+	public void reset(World world, BlockVector position){
+		for(int y = this.generator.getPartSizeY()-1; y >= 0; y--){
+			for(int x = 0; x < this.generator.getPartSizeXZ(); x++){
+				for(int z = 0; z < this.generator.getPartSizeXZ(); z++){
+					world.getBlockAt(position.getBlockX()+x, position.getBlockY()+y, position.getBlockZ()+z).setType(Material.AIR);
+				}
+			}
+		}
 	}
 	
 	public float getWeight(){
@@ -123,6 +186,17 @@ public class GeneratorPart{
 		return this.rotations;
 	}
 	
+	public Collection<PartType> getPartTypes(){
+		return Collections.unmodifiableCollection(this.partTypes);
+	}
+	
+	public boolean typeMatch(PartType...partTypes){
+		for(PartType partType : partTypes){
+			if(this.partTypes.contains(partType)) return true;
+		}
+		return false;
+	}
+	
 	public BlockVector getMinBlock(){
 		return new BlockVector(this.template_x,this.template_y,this.template_z);
 	}
@@ -139,56 +213,60 @@ public class GeneratorPart{
 		return new org.bukkit.util.Vector(this.template_x+this.generator.getPartSizeXZ(),this.template_y+this.generator.getPartSizeY(),this.template_z+this.generator.getPartSizeXZ());
 	}
 	
-	private void updateTopSignature(){
+	private String getTopSignature(int rotation){
 		BlockVector from = new BlockVector(this.template_x,this.template_y+this.generator.getPartSizeY(),this.template_z);
 		BlockVector to = new BlockVector(from.getBlockX()+this.generator.getPartSizeXZ()-1,from.getBlockY(),from.getBlockZ()+this.generator.getPartSizeXZ()-1);
-		this.topSignature = BlockUtil.getSignature(this.generator.getWorld(), from, to);
+		return BlockUtil.getSignature(this.generator.getWorld(), from, to, rotation);
 	}
 	
-	private void updateBottomSignature(){
+	private String getBottomSignature(int rotation){
 		BlockVector from = new BlockVector(this.template_x,this.template_y-1,this.template_z);
 		BlockVector to = new BlockVector(from.getBlockX()+this.generator.getPartSizeXZ()-1,from.getBlockY(),from.getBlockZ()+this.generator.getPartSizeXZ()-1);
-		this.bottomSignature = BlockUtil.getSignature(this.generator.getWorld(), from, to);
+		return BlockUtil.getSignature(this.generator.getWorld(), from, to, rotation);
 	}
 	
-	private void updateNorthSignature(){
+	private String getNorthSignature(int rotation){
 		BlockVector from = new BlockVector(this.template_x,this.template_y,this.template_z-1);
 		BlockVector to = new BlockVector(from.getBlockX()+this.generator.getPartSizeXZ()-1,from.getBlockY()+this.generator.getPartSizeY()-1,from.getBlockZ());
-		this.northSignature = BlockUtil.getSignature(this.generator.getWorld(), from, to);
+		return BlockUtil.getSignature(this.generator.getWorld(), from, to, rotation);
 	}
 	
-	private void updateEastSignature(){
+	private String getEastSignature(int rotation){
 		BlockVector from = new BlockVector(this.template_x+this.generator.getPartSizeXZ(),this.template_y,this.template_z);
 		BlockVector to = new BlockVector(from.getBlockX(),from.getBlockY()+this.generator.getPartSizeY()-1,from.getBlockZ()+this.generator.getPartSizeXZ()-1);
-		this.eastSignature = BlockUtil.getSignature(this.generator.getWorld(), from, to);
+		return BlockUtil.getSignature(this.generator.getWorld(), from, to, rotation);
 	}
 	
-	private void updateSouthSignature(){
+	private String getSouthSignature(int rotation){
 		BlockVector from = new BlockVector(this.template_x,this.template_y,this.template_z+this.generator.getPartSizeXZ());
 		BlockVector to = new BlockVector(from.getBlockX()+this.generator.getPartSizeXZ()-1,from.getBlockY()+this.generator.getPartSizeY()-1,from.getBlockZ());
-		this.southSignature = BlockUtil.getSignature(this.generator.getWorld(), from, to);
+		return BlockUtil.getSignature(this.generator.getWorld(), from, to, rotation);
 	}
 	
-	private void updateWestSignature(){
+	private String getWestSignature(int rotation){
 		BlockVector from = new BlockVector(this.template_x-1,this.template_y,this.template_z);
 		BlockVector to = new BlockVector(from.getBlockX(),from.getBlockY()+this.generator.getPartSizeY()-1,from.getBlockZ()+this.generator.getPartSizeXZ()-1);
-		this.westSignature = BlockUtil.getSignature(this.generator.getWorld(), from, to);
+		return BlockUtil.getSignature(this.generator.getWorld(), from, to, rotation);
 	}
 	
-	public String getSignature(Direction direction){
+	public String getSignature(Direction direction, int rotation){
 		switch(direction){
-		case UP: return this.topSignature;
-		case DOWN: return this.bottomSignature;
-		case NORTH: return this.northSignature;
-		case EAST: return this.eastSignature;
-		case SOUTH: return this.southSignature;
-		case WEST: return this.westSignature;
+		case UP: return this.getTopSignature( rotation);
+		case DOWN: return this.getBottomSignature( rotation);
+		case NORTH: return this.getNorthSignature( rotation);
+		case EAST: return this.getEastSignature( rotation);
+		case SOUTH: return this.getSouthSignature( rotation);
+		case WEST: return this.getWestSignature( rotation);
 		default: return null;
 		}
 	}
 	
 	public DungeonGenerator getGenerator(){
 		return this.generator;
+	}
+	
+	public BlockVector getPosition(){
+		return new BlockVector(this.template_x,this.template_y,this.template_z);
 	}
 	
 	public String getPositionString(){

@@ -5,11 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.BlockVector;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import ch.swisssmp.utils.URLEncoder;
+import ch.swisssmp.webcore.DataSource;
 
 public class PartGenerator {
 	private final DungeonGenerator generator;
@@ -17,52 +24,44 @@ public class PartGenerator {
 	private final Random random;
 	
 	private final HashMap<BlockVector,GenerationPart> generationData = new HashMap<BlockVector,GenerationPart>(); //BlockVector represents grid coordinates, not block coordinates;
-	private final HashMap<BlockVector,GeneratorPartSelector> partSelectors = new HashMap<BlockVector,GeneratorPartSelector>();
+	private final HashMap<BlockVector,PartSelector> partSelectors = new HashMap<BlockVector,PartSelector>();
 	private final HashMap<GeneratorPart,Integer> partCounts = new HashMap<GeneratorPart,Integer>();
-	private final List<ProxyGeneratorPart> templateParts;
+	private final PartCollection partCollection;
 	private final ArrayList<GenerationPart> pending = new ArrayList<GenerationPart>();
 	private final ArrayList<GenerationPart> invalidParts = new ArrayList<GenerationPart>();
+	
+	private final HashMap<Integer, DungeonFloor> floors = new HashMap<Integer,DungeonFloor>();
 
 	private int size;
 	private int obstructedPartsCount = 0;
 	private int remainingCycles = 0;
+	
+	private List<LogEntry> log = new ArrayList<LogEntry>();
 	
 	private PartGenerator(DungeonGenerator generator, BlockVector startPosition, int size, Long seed){
 		this.generator = generator;
 		this.startPosition = startPosition;
 		this.size = size;
 		this.random = new Random(seed);
-		this.templateParts = this.generateRotatedTemplateVersions(generator.getTemplateParts());
-	}
-	
-	/*
-	 * Adds rotated proxy versions for all GeneratorParts
-	 */
-	private List<ProxyGeneratorPart> generateRotatedTemplateVersions(List<GeneratorPart> templateParts){
-		List<ProxyGeneratorPart> result = new ArrayList<ProxyGeneratorPart>();
-		int[] rotations = new int[]{0,90,180,270};
-		List<Integer> validRotations;
-		for(GeneratorPart part : templateParts){
-			for(int i = 0; i < rotations.length; i++){
-				validRotations = part.getRotations();
-				if(validRotations!=null && !validRotations.contains(rotations[i])) continue;
-				result.add(new ProxyGeneratorPart(part, i));
-			}
-		}
-		return result;
+		this.partCollection = PartCollection.get(generator);
 	}
 	
 	private ArrayList<GenerationPart> generateData(CommandSender sender){
-		this.generateObstructedParts(new BlockVector(0,0,0));
-		GeneratorPartSelector partSelector = this.getPartSelector(new BlockVector(0,0,0));
-		GenerationPart part = new GenerationPart(this.templateParts.get(0), new BlockVector(0,0,0));
+		DungeonFloor floor = this.getFloor(0);
+		this.generateObstructedParts(new BlockVector(0,0,0), floor);
+		PartSelector partSelector = this.getPartSelector(new BlockVector(0,0,0));
+		GenerationPart part = new GenerationPart(this.partCollection.get(0), new BlockVector(0,0,0), floor);
+		part.setStatic(true);
+		part.register();
+		this.log.add(new LogEntryPartAdded(part));
+		Bukkit.getLogger().info(part.getInfoString());
 		this.pending.add(part);
 		this.generationData.put(part.getGridPosition(), part);
 		this.partSelectors.put(new BlockVector(0,0,0), partSelector);
 		if(part.getLimit()>=0){
 			this.partCounts.put(part.getOriginal(), 1);
 		}
-		part.setDistanceToStart(0);
+		part.updateDistances();
 		this.remainingCycles = size*2;
 		PartGenerationMode mode = PartGenerationMode.FREE;
 		boolean isValid;
@@ -72,9 +71,16 @@ public class PartGenerator {
 		 */
 		while(pending.size()>0 && remainingCycles > -this.size*100){ //if remainingCycles is smaller than -100*size the system has failed that many times to fill unfinished parts, which is an indicator for an error in the process
 			part = pending.get(0);
-			this.generateObstructedParts(part.getGridPosition());
+			this.generateObstructedParts(part.getGridPosition(), part.getFloor());
 			isValid = this.generateMissingNeighbours(part, mode);
-			if(!isValid) invalidParts.add(part);
+			if(!isValid){
+				if(part.isStatic()){
+					sender.sendMessage("[DungeonGenerator] Generierung abgebrochen. Eine unmögliche Konstellation ist aufgetreten.");
+					this.uploadLog();
+					return null;
+				}
+				invalidParts.add(part);
+			}
 			pending.remove(0);
 			if(pending.size()==0){
 				this.removeInvalidParts();
@@ -94,6 +100,7 @@ public class PartGenerator {
 			Bukkit.getLogger().info("[DungeonGenerator] "+invalidParts.size()+" GenerationParts are invalid.");
 		}
 		Bukkit.getLogger().info("[DungeonGenerator] Generated Dungeon with "+generationData.size()+" parts.");
+		this.uploadLog();
 		return new ArrayList<GenerationPart>(generationData.values());
 	}
 	
@@ -101,7 +108,7 @@ public class PartGenerator {
 	 * Puts ObstructedGenerationParts where Blocks are in the generator's way
 	 * @param gridPosition - The position in the generation grid
 	 */
-	private void generateObstructedParts(BlockVector gridPosition){
+	private void generateObstructedParts(BlockVector gridPosition, DungeonFloor floor){
 		World world = this.generator.getWorld();
 		BlockVector neighbourPosition;
 		BlockVector neighboursNeighbourGridPosition;
@@ -117,9 +124,11 @@ public class PartGenerator {
 				neighboursNeighbourWorldPosition = this.getWorldPosition(neighboursNeighbourGridPosition);
 				block = world.getBlockAt(neighboursNeighbourWorldPosition.getBlockX(), neighboursNeighbourWorldPosition.getBlockY(), neighboursNeighbourWorldPosition.getBlockZ());
 				if(GeneratorUtil.isVolumeEmpty(block, generator.getPartSizeXZ(), generator.getPartSizeY(), this.generator.getGenerationBoxMaterial())) continue; //volume is empty
-				obstructedPart = new ObstructedGenerationPart(neighboursNeighbourGridPosition, this.generator.getPartSizeXZ(), this.generator.getPartSizeY());
+				obstructedPart = new ObstructedGenerationPart(neighboursNeighbourGridPosition, floor, this.generator.getPartSizeXZ(), this.generator.getPartSizeY());
 				obstructedPart.findNeighbours(this.generationData);
 				obstructedPart.register();
+				obstructedPart.setStatic(true);
+				this.addLogEntry(new LogEntryObstruction(obstructedPart));
 				this.generationData.put(obstructedPart.getGridPosition(), obstructedPart); //mark position as obstructed
 				obstructedPartsCount++;
 			}
@@ -133,14 +142,14 @@ public class PartGenerator {
 			BlockVector worldPosition = this.getWorldPosition(gridPosition);
 			BlockVector newPartGridPosition;
 			GenerationPart newPart;
-			GeneratorPartSelector partSelector;
+			PartSelector partSelector;
 			boolean limitExpansion;
 			for(Direction direction : Direction.values()){
 				if(part.getNeighbour(direction)!=null || part.getSignature(direction).isEmpty()) continue; //nothing to do in this direction
 				newPartGridPosition = direction.moveVector(gridPosition);
 				limitExpansion = this.isExpansionLimited(worldPosition, direction);
 				partSelector = this.getPartSelector(newPartGridPosition);
-				newPart = partSelector.getPart(newNeighbours, limitExpansion? PartGenerationMode.FORCE_CLOSE : mode);
+				newPart = partSelector.getPart(part, newNeighbours, limitExpansion? PartGenerationMode.FORCE_CLOSE : mode);
 				if(newPart!=null){
 					newNeighbours.add(newPart);
 				}
@@ -157,9 +166,10 @@ public class PartGenerator {
 				continue;
 			}
 			newNeighbour.register();
+			this.addLogEntry(new LogEntryPartAdded(newNeighbour));
 			this.pending.add(newNeighbour);
 			this.generationData.put(newNeighbour.getGridPosition(), newNeighbour);
-			newNeighbour.updateDistanceToStart();
+			newNeighbour.updateDistances();
 			if(newNeighbour.getLimit()>=0){
 				count = this.getPartCount(newNeighbour.getOriginal());
 				this.partCounts.put(newNeighbour.getOriginal(), count+1);
@@ -174,7 +184,7 @@ public class PartGenerator {
 	private void removeInvalidParts(){
 		GenerationPart part;
 		GeneratorPart original;
-		GeneratorPartSelector partSelector;
+		PartSelector partSelector;
 		while(invalidParts.size()>0){
 			part = invalidParts.get(0);
 			partSelector = this.partSelectors.get(part.getGridPosition());
@@ -192,6 +202,7 @@ public class PartGenerator {
 			}
 			invalidParts.remove(part);
 			part.remove();
+			this.addLogEntry(new LogEntryPartRemoved(part));
 			original = part.getOriginal();
 			if(original!=null && partCounts.containsKey(original)){
 				int count = this.getPartCount(original);
@@ -206,21 +217,53 @@ public class PartGenerator {
 		return false;
 	}
 	
-	private GeneratorPartSelector getPartSelector(BlockVector gridPosition){
+	private PartSelector getPartSelector(BlockVector gridPosition){
 		if(this.partSelectors.containsKey(gridPosition)){
 			return this.partSelectors.get(gridPosition);
 		}
-		GeneratorPartSelector partSelector = new GeneratorPartSelector(this,gridPosition);
+		PartSelector partSelector = new PartSelector(this,gridPosition);
 		this.partSelectors.put(gridPosition, partSelector);
 		return partSelector;
+	}
+	
+	private void uploadLog(){
+		Bukkit.getLogger().info("[DungeonGenerator] Log Grösse: "+log.size()+" Einträge");
+		List<String> arguments = new ArrayList<String>();
+		arguments.add("id="+this.generator.getId());
+		arguments.add("generator_name="+URLEncoder.encode(this.generator.getName()));
+		arguments.add("mc_world="+URLEncoder.encode(this.generator.getWorld().getName()));
+		arguments.add("generation_position[x]="+this.startPosition.getBlockX());
+		arguments.add("generation_position[y]="+this.startPosition.getBlockY());
+		arguments.add("generation_position[z]="+this.startPosition.getBlockZ());
+		arguments.add("configuration[size]="+this.generator.getDefaultSize());
+		arguments.add("configuration[corridor_length]="+this.generator.getCorridorLength());
+		arguments.add("configuration[chamber_count]="+this.generator.getChamberCount());
+		arguments.add("configuration[branch_density]="+this.generator.getBranchDensity());
+		JsonObject jsonData = new JsonObject();
+		JsonArray logData = new JsonArray();
+		for(LogEntry logEntry : this.log){
+			logData.add(logEntry.getLogData());
+		}
+		jsonData.add("log_entries", logData);
+		arguments.add("log="+Base64.encodeBase64URLSafeString(jsonData.toString().getBytes()));
+		String[] argumentsArray = new String[arguments.size()];
+		arguments.toArray(argumentsArray);
+		Thread thread = new Thread(()->{
+			DataSource.getResponse("dungeons/upload_generator_log.php",argumentsArray);
+		});
+		thread.start();
+	}
+	
+	protected void addLogEntry(LogEntry logEntry){
+		this.log.add(logEntry);
 	}
 	
 	protected GenerationPart getPart(BlockVector blockVector){
 		return this.generationData.get(blockVector);
 	}
 	
-	protected List<ProxyGeneratorPart> getTemplateParts(){
-		return this.templateParts;
+	protected PartCollection getPartCollection(){
+		return this.partCollection;
 	}
 	
 	protected Random getRandom(){
@@ -234,6 +277,17 @@ public class PartGenerator {
 	protected int getPartCount(GeneratorPart part){
 		if(this.partCounts.containsKey(part)) return this.partCounts.get(part);
 		return 0;
+	}
+	
+	protected DungeonFloor getFloor(int index){
+		if(this.floors.containsKey(index)) return this.floors.get(index);
+		DungeonFloor result = new DungeonFloor(index);
+		this.floors.put(index, result);
+		return result;
+	}
+	
+	protected DungeonGenerator getGenerator(){
+		return this.generator;
 	}
 	
 	/*

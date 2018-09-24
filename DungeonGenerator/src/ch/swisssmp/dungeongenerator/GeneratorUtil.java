@@ -18,11 +18,11 @@ import org.bukkit.util.Vector;
 import ch.swisssmp.utils.VectorUtil;
 
 public class GeneratorUtil {
-	protected static int getDistanceToStart(GenerationPart... neighbours){
+	protected static int getDistance(PartType partType, GenerationPart... neighbours){
 		ArrayList<Integer> distances = new ArrayList<Integer>();
 		for(GenerationPart neighbour : neighbours){
-			if(neighbour==null || neighbour.getDistanceToStart()<0 || neighbour instanceof ObstructedGenerationPart) continue;
-			distances.add(neighbour.getDistanceToStart());
+			if(neighbour==null || neighbour.getDistance(partType)<0 || neighbour instanceof ObstructedGenerationPart) continue;
+			distances.add(neighbour.getDistance(partType));
 		}
 		if(distances.size()==0) return 0;
 		return Collections.min(distances)+1;

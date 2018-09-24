@@ -7,16 +7,16 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class GeneratorPartMarker extends BukkitRunnable{
+public class PartMarker extends BukkitRunnable{
 	private final Location location;
 	private final Color color;
 	private final Random random = new Random();
 	private float lifetime = 60;
 	
-	private GeneratorPartMarker(Location location, Color color, long lifetime){
+	private PartMarker(Location location, Color color, long lifetime){
 		this.location = location;
 		this.color = color;
-		this.runTaskTimer(DungeonGeneratorPlugin.plugin, 0, 3L);
+		this.runTaskTimer(DungeonGeneratorPlugin.getInstance(), 0, 3L);
 		this.lifetime = lifetime;
 	}
 	@Override
@@ -32,7 +32,7 @@ public class GeneratorPartMarker extends BukkitRunnable{
 		return -0.05f+random.nextFloat()*0.1f;
 	}
 	
-	public static GeneratorPartMarker show(Location location, Color color, long lifetime){
-		return new GeneratorPartMarker(location, color, lifetime);
+	public static PartMarker show(Location location, Color color, long lifetime){
+		return new PartMarker(location, color, lifetime);
 	}
 }

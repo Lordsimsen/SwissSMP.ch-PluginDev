@@ -5,9 +5,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -32,6 +36,8 @@ public class PartConfigurationUtil {
 			}
 		}
 		PartConfigurationUtil.applyPartConfiguration(result, configurationStrings);
+		PartConfigurationUtil.applyPartTypes(result, BlockUtil.getPartTypes(boundingBox));
+		PartConfigurationUtil.applyPartImage(result,BlockUtil.getPartImage(boundingBox));
 		return result;
 	}
 	
@@ -45,6 +51,38 @@ public class PartConfigurationUtil {
 			}
 			PartConfigurationUtil.applyPartConfiguration(dataSection, lineParts[0].trim(), lineParts[1].trim());
 		}
+	}
+	
+	private static void applyPartTypes(ConfigurationSection dataSection, Collection<PartType> partTypes){
+		ArrayList<String> partTypeStrings = new ArrayList<String>();
+		for(PartType partType : partTypes){
+			partTypeStrings.add(partType.toString());
+		}
+		dataSection.set("types", partTypeStrings);
+	}
+	
+	private static void applyPartImage(ConfigurationSection dataSection, Collection<Block> partImage){
+		if(partImage==null || partImage.size()==0) return;
+		Block min = BlockUtil.getMinBlock(partImage);
+		Block max = BlockUtil.getMaxBlock(partImage);
+		int width = max.getX()-min.getX()+1;
+		int height = max.getZ()-min.getZ()+1;
+		int start_x = min.getX();
+		int start_z = min.getZ();
+		JsonObject jsonData = new JsonObject();
+		JsonArray imageArray = new JsonArray();
+		JsonObject imagePart;
+		for(Block block : partImage){
+			imagePart = new JsonObject();
+			imagePart.addProperty("x", block.getZ()-start_z);
+			imagePart.addProperty("y", height-(block.getX()-start_x+1));
+			imagePart.addProperty("color", ch.swisssmp.utils.BlockUtil.getWebColor(block));
+			imageArray.add(imagePart);
+		}
+		jsonData.addProperty("width", width);
+		jsonData.addProperty("height", height);
+		jsonData.add("data", imageArray);
+		dataSection.set("image", new String(Base64.encodeBase64URLSafe(jsonData.toString().getBytes())));
 	}
 	
 	private static void applyPartConfiguration(ConfigurationSection dataSection, String fieldName, String fieldValue){
@@ -144,6 +182,7 @@ public class PartConfigurationUtil {
 				validRotations.add(existing);
 			}
 		}
-		dataSection.set("rotations", validRotations);
+		System.out.println(validRotations.size()+" Rotationen gefunden.");
+		dataSection.set("rotations", new ArrayList<Integer>(validRotations));
 	}
 }

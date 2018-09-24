@@ -46,7 +46,7 @@ public class GeneratorsView extends InventoryView implements Listener {
 		if(event.getView()!=this || event.getClickedInventory()!=this.inventory) return;
 		ItemStack itemStack = this.inventory.getItem(event.getSlot());
 		if(itemStack==null){
-			Bukkit.getScheduler().runTaskLater(DungeonGeneratorPlugin.plugin, ()->{
+			Bukkit.getScheduler().runTaskLater(DungeonGeneratorPlugin.getInstance(), ()->{
 				inventory.setItem(event.getSlot(), null);
 			}, 1L);
 			return;
@@ -97,7 +97,7 @@ public class GeneratorsView extends InventoryView implements Listener {
 	
 	protected static GeneratorsView open(Player player){
 		GeneratorsView result = new GeneratorsView(player);
-		Bukkit.getPluginManager().registerEvents(result, DungeonGeneratorPlugin.plugin);
+		Bukkit.getPluginManager().registerEvents(result, DungeonGeneratorPlugin.getInstance());
 		player.openInventory(result);
 		return result;
 	}

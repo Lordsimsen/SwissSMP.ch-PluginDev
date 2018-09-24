@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import ch.swisssmp.utils.ObservableRoutine;
+
 public class GeneratorCommand implements CommandExecutor{
 	private static Random random = new Random();
 	
@@ -157,6 +159,9 @@ public class GeneratorCommand implements CommandExecutor{
 				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 				return true;
 			}
+			if(sender instanceof Player){
+				generator.inspectInBrowser((Player)sender);
+			}
 			int size = generator.getDefaultSize();
 			if(args.length>2 && StringUtils.isNumeric(args[2])){
 				try{
@@ -174,12 +179,33 @@ public class GeneratorCommand implements CommandExecutor{
 			else{
 				seed = random.nextLong();
 			}
-			int resultSize = generator.generate(sender, seed, size);
-			if(resultSize<0){
-				sender.sendMessage("[DungeonGenerator] Konnte den Dungeon '"+generator.getName()+"' mit dem Seed '"+seed+"' nicht generieren.");
+			ObservableRoutine observableRoutine = generator.generate(sender, seed, size);
+			observableRoutine.addObserver(player);
+			return true;
+		}
+		case "reset":{
+			if(args.length<2) return false;
+			String name = args[1];
+			DungeonGenerator generator = manager.get(name);
+			if(generator==null){
+				player.sendMessage("[DungeonGenerator] Generator '"+name+"' nicht gefunden.");
 				return true;
 			}
-			sender.sendMessage("[DungeonGenerator] Dungeon '"+generator.getName()+"' mit Seed '"+seed+"' generiert. ("+resultSize+" Teile)");
+			ObservableRoutine activeRoutine = generator.reset(sender);
+			if(activeRoutine==null){
+				sender.sendMessage("[DungeonGenerator] Generator '"+generator.getName()+"' zurückgesetzt.");
+			}
+			else if(!(activeRoutine instanceof ResetRoutine)){
+				sender.sendMessage("[DungeonGenerator] Der Generator ist beschäftigt. ("+activeRoutine.getClass().getSimpleName()+")");
+				activeRoutine.addOnFinishListener(()->{
+					sender.sendMessage("[DungeonGenerator] Der Generator '"+generator.getName()+"' ist nun frei.");
+				});
+			}
+			else{
+				activeRoutine.addOnFinishListener(()->{
+					sender.sendMessage("[DungeonGenerator] Generator '"+generator.getName()+"' zurückgesetzt.");
+				});
+			}
 			return true;
 		}
 		default: return false;

@@ -1,28 +1,24 @@
 package ch.swisssmp.dungeongenerator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
 
 public class GeneratorManager {
 	private static HashMap<World,GeneratorManager> managers = new HashMap<World,GeneratorManager>();
-	
-	public static GeneratorManager get(World world){
-		if(managers.containsKey(world)) return managers.get(world);
-		GeneratorManager result = new GeneratorManager(world);
-		result.importAll();
-		managers.put(world, result);
-		return result;
-	}
-	private final HashMap<Integer,DungeonGenerator> generators = new HashMap<Integer,DungeonGenerator>();
-	
+
 	private final World world;
+	private final HashMap<Integer,DungeonGenerator> generators = new HashMap<Integer,DungeonGenerator>();
+	private final HashMap<String,DungeonGenerator> browserInspections = new HashMap<String,DungeonGenerator>();
 	
 	private GeneratorManager(World world){
 		this.world = world;
@@ -79,27 +75,25 @@ public class GeneratorManager {
 		return this.generators.values();
 	}
 	
-	private File getGeneratorsFile(){
-		return new File(this.world.getWorldFolder(), "plugindata/dungeon_generators.yml");
-	}
-	
 	public World getWorld(){
 		return this.world;
 	}
 	
-	private void importAll(){
-		File generatorsFile = this.getGeneratorsFile();
-		if(!generatorsFile.exists()) return;
-		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(generatorsFile);
-		if(yamlConfiguration==null || !yamlConfiguration.contains("generators")) return;
-		ConfigurationSection generatorsSection = yamlConfiguration.getConfigurationSection("generators");
-		ConfigurationSection generatorSection;
-		int generator_id;
-		for(String key : generatorsSection.getKeys(false)){
-			generatorSection = generatorsSection.getConfigurationSection(key);
-			generator_id = generatorSection.getInt("generator_id");
-			this.generators.put(generator_id, new DungeonGenerator(this, generatorSection));
+	protected void addBrowserInspection(Player player, DungeonGenerator generator){
+		this.browserInspections.put(player.getName(), generator);
+	}
+	
+	protected void stopBrowserInspection(Player player){
+		this.browserInspections.remove(player.getName());
+	}
+	
+	protected Collection<String> getInspectors(DungeonGenerator generator){
+		Collection<String> result = new ArrayList<String>();
+		for(Entry<String,DungeonGenerator> entry : this.browserInspections.entrySet()){
+			if(entry.getValue()!=generator) continue;
+			result.add(entry.getKey());
 		}
+		return result;
 	}
 	
 	protected void saveAll(){
@@ -119,5 +113,31 @@ public class GeneratorManager {
 		for(DungeonGenerator generator : this.generators.values()){
 			generator.unload();
 		}
+	}
+	
+	private File getGeneratorsFile(){
+		return new File(this.world.getWorldFolder(), "plugindata/dungeon_generators.yml");
+	}
+	
+	private void importAll(){
+		File generatorsFile = this.getGeneratorsFile();
+		if(!generatorsFile.exists()) return;
+		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(generatorsFile);
+		if(yamlConfiguration==null || !yamlConfiguration.contains("generators")) return;
+		ConfigurationSection generatorsSection = yamlConfiguration.getConfigurationSection("generators");
+		ConfigurationSection generatorSection;
+		int generator_id;
+		for(String key : generatorsSection.getKeys(false)){
+			generatorSection = generatorsSection.getConfigurationSection(key);
+			generator_id = generatorSection.getInt("generator_id");
+			this.generators.put(generator_id, new DungeonGenerator(this, generatorSection));
+		}
+	}
+	public static GeneratorManager get(World world){
+		if(managers.containsKey(world)) return managers.get(world);
+		GeneratorManager result = new GeneratorManager(world);
+		result.importAll();
+		managers.put(world, result);
+		return result;
 	}
 }

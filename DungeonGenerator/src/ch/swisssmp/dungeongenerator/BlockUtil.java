@@ -3,7 +3,9 @@ package ch.swisssmp.dungeongenerator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 
+//import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -119,7 +121,7 @@ public class BlockUtil {
 	}
 
 	public static Collection<Block> getBox(Block position, int sizeXZ, int sizeY, int offset){
-		Collection<Block> result = new ArrayList<Block>();
+		Collection<Block> result = new HashSet<Block>();
 		World world = position.getWorld();
 		int template_x = position.getX();
 		int template_y = position.getY();
@@ -170,11 +172,59 @@ public class BlockUtil {
 		return block;
 	}
 	
+	protected static Block getMinBlock(Collection<Block> box){
+		if(box==null || box.size()==0) return null;
+		int min_x = Integer.MAX_VALUE;
+		int min_y = Integer.MAX_VALUE;
+		int min_z = Integer.MAX_VALUE;
+		for(Block block : box){
+			min_x = Math.min(min_x, block.getX());
+			min_y = Math.min(min_y, block.getY());
+			min_z = Math.min(min_z, block.getZ());
+		}
+		return box.iterator().next().getWorld().getBlockAt(min_x,min_y,min_z);
+	}
+	
+	protected static Block getMaxBlock(Collection<Block> box){
+		if(box==null || box.size()==0) return null;
+		int max_x = Integer.MIN_VALUE;
+		int max_y = Integer.MIN_VALUE;
+		int max_z = Integer.MIN_VALUE;
+		for(Block block : box){
+			max_x = Math.max(max_x, block.getX());
+			max_y = Math.max(max_y, block.getY());
+			max_z = Math.max(max_z, block.getZ());
+		}
+		return box.iterator().next().getWorld().getBlockAt(max_x,max_y,max_z);
+	}
+	
+	protected static Collection<Block> getPartImage(Collection<Block> boundingBox){
+		Block min = BlockUtil.getMinBlock(boundingBox);
+		Block max = BlockUtil.getMaxBlock(boundingBox);
+		Block imageBoxOrigin = BlockUtil.getFurthestValidBlock(min.getRelative(BlockFace.DOWN), BlockFace.DOWN, Material.IRON_BLOCK, 20);
+		if(imageBoxOrigin==null){
+			System.out.println("[DungeonGenerator] No Part Image found at "+min.getX()+","+min.getY()+","+min.getZ());
+			return null;
+		}
+		int width = max.getX()-min.getX()-1;
+		int height = max.getZ()-min.getZ()-1;
+		int start_x = imageBoxOrigin.getX()+1;
+		int start_z = imageBoxOrigin.getZ()+1;
+		World world = imageBoxOrigin.getWorld();
+		Collection<Block> result = new ArrayList<Block>();
+		for(int x = 0; x < width; x++){
+			for(int z = 0; z < height; z++){
+				result.add(world.getBlockAt(start_x+x, imageBoxOrigin.getY(), start_z+z));
+			}
+		}
+		return result;
+	}
+	
 	protected static Block getFurthestValidBlock(Block block, BlockFace direction, Material material, int tolerance){
-		Block lastValidBlock = block;
+		Block lastValidBlock = block.getType()==material ? block : null;
 		int currentTolerance = tolerance;
 		int infiniteLoopProtection = 10000;
-		while(block.getType()==material || currentTolerance>0){
+		while((block.getType()==material || currentTolerance>0) && block.getY()>0 && block.getY()<block.getWorld().getMaxHeight()){
 			block = block.getRelative(direction);
 			if(block.getType()==material){
 				lastValidBlock = block;
@@ -185,7 +235,7 @@ public class BlockUtil {
 			}
 			infiniteLoopProtection--;
 			if(infiniteLoopProtection<0){
-				throw new StackOverflowError("Could not find the furst Block with Type "+material.name());
+				throw new StackOverflowError("Could not find the first Block with Type "+material.name()+" at "+block.getX()+","+block.getY()+","+block.getZ()+" "+direction.toString());
 			}
 		}
 		return lastValidBlock;
@@ -202,6 +252,24 @@ public class BlockUtil {
 				result.add((Sign)neighbour.getState());
 			}
 		}
+		return result;
+	}
+	
+	public static Collection<PartType> getPartTypes(Collection<Block> blocks){
+		Collection<PartType> result = new ArrayList<PartType>();
+		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH,BlockFace.EAST,BlockFace.SOUTH,BlockFace.WEST,BlockFace.UP};
+		Block neighbour;
+		PartType partType;
+		for(Block block : blocks){
+			for(BlockFace face : faces){
+				neighbour = block.getRelative(face);
+				if(neighbour.getType()==Material.AIR) continue;
+				partType = PartType.get(neighbour.getType());
+				if(partType==null || result.contains(partType)) continue;
+				result.add(partType);
+			}
+		}
+		if(result.size()==0) result.add(PartType.GENERIC);
 		return result;
 	}
 }

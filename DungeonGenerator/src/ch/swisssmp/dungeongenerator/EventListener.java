@@ -39,12 +39,17 @@ public class EventListener implements Listener{
 			}
 		}
 		else if(event.getAction()==Action.RIGHT_CLICK_BLOCK){
+			generator.inspectInBrowser(event.getPlayer());
 			if(event.getClickedBlock().getType()!=generator.getBoundingBoxMaterial()) return;
 			YamlConfiguration yamlConfiguration = PartConfigurationUtil.getPartConfiguration(event.getClickedBlock());
 			Player player = event.getPlayer();
 			for(String key : yamlConfiguration.getKeys(false)){
 				player.sendMessage(key+": "+yamlConfiguration.getString(key));
 			}
+		}
+		else if(event.getAction()==Action.RIGHT_CLICK_AIR){
+			generator.inspectInBrowser(event.getPlayer());
+			GeneratorEditorView.open(generator, event.getPlayer());
 		}
 	}
 	@EventHandler
