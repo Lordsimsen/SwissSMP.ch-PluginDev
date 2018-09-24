@@ -9,6 +9,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.material.Colorable;
 
 public class BlockUtil {
 	public static Block getClosest(Location location, double range, Material...materials){
@@ -49,5 +50,17 @@ public class BlockUtil {
 			}
 		}
 		return result;
+	}
+	public static String getWebColor(Block block){
+		switch(block.getType()){
+		case AIR: return "transparent";
+		case STONE: return "#888888";
+		case WOOD: return "#D2AE7E";
+		case DIRT: return "#70594A";
+		default:{
+			if(block.getState().getData() instanceof Colorable) return ((Colorable)block.getState().getData()).getColor().toString().toLowerCase();
+			return "pink";
+		}
+		}
 	}
 }
