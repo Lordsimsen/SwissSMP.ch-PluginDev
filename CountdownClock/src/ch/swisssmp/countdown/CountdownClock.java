@@ -102,6 +102,7 @@ public class CountdownClock implements Runnable {
 			if(clock.position.getWorld()!=world) continue;
 			clockSection = clocksSection.createSection("clock_"+index);
 			clock.save(clockSection);
+			index++;
 		}
 		File clocksFile = CountdownClock.getCountdownClocksFile(world);
 		if(!clocksFile.getParentFile().exists()){
