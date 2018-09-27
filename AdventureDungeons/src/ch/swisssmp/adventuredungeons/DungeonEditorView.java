@@ -1,6 +1,7 @@
 package ch.swisssmp.adventuredungeons;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,16 +23,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.utils.InventoryUtil;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Position;
+import ch.swisssmp.utils.SwissSMPler;
 
 public class DungeonEditorView extends InventoryView implements Listener{
+	private static HashMap<Integer,DungeonEditorView> activeEditorViews = new HashMap<Integer,DungeonEditorView>();
+	
 	private final Dungeon dungeon;
 	private final Player player;
 	private final Inventory inventory;
 	
-	private String name;
 	private Position lobbyJoin;
 	private Position lobbyLeave;
 	
@@ -40,7 +44,6 @@ public class DungeonEditorView extends InventoryView implements Listener{
 		this.player = player;
 		this.inventory = Bukkit.createInventory(null, 9, dungeon.getName());
 		
-		this.name = dungeon.getName();
 		this.lobbyJoin = dungeon.getLobbyJoin();
 		this.lobbyLeave = dungeon.getLobbyLeave();
 		this.createEditorItems();
@@ -56,17 +59,14 @@ public class DungeonEditorView extends InventoryView implements Listener{
 		}
 		ItemStack cursor = event.getCursor();
 		if(cursor==null || cursor.getType()==Material.AIR || cursor==itemStack){
-			System.out.println("Cursor is null.");
-			ItemManager.refillInventorySlot(inventory, event.getSlot(), itemStack.clone());
+			InventoryUtil.refillInventorySlot(inventory, event.getSlot(), itemStack.clone());
 			switch(event.getSlot()){
-			case 0: itemStack.setItemMeta(this.createNamePickItem(this.name).getItemMeta());break;
-			case 1: itemStack.setItemMeta(this.createLobbyJoinPickItem(this.lobbyJoin).getItemMeta());break;
-			case 2: itemStack.setItemMeta(this.createLobbyLeavePickItem(this.lobbyLeave).getItemMeta());break;
+			case 0: itemStack.setItemMeta(this.createLobbyJoinPickItem(this.lobbyJoin).getItemMeta());break;
+			case 1: itemStack.setItemMeta(this.createLobbyLeavePickItem(this.lobbyLeave).getItemMeta());break;
 			default: event.setCancelled(true);return;
 			}
 		}
 		else{
-			System.out.println("Cursor is not null");
 			if(cursor.getType()!=itemStack.getType()){
 				event.setCancelled(true); 
 				return;
@@ -74,20 +74,13 @@ public class DungeonEditorView extends InventoryView implements Listener{
 			ItemStack template;
 			switch(event.getSlot()){
 			case 0:{
-				if(!cursor.hasItemMeta() || !cursor.getItemMeta().hasDisplayName()) return;
-				String name = cursor.getItemMeta().getDisplayName();
-				this.name = name;
-				template = this.createNameItem(name);
-				break;
-			}
-			case 1:{
 				Position position = ItemUtil.getPosition(cursor, "position");
 				if(position==null){event.setCancelled(true); return;}
 				this.lobbyJoin = position;
 				template = this.createLobbyJoinItem(position);
 				break;
 			}
-			case 2:{
+			case 1:{
 				Position position = ItemUtil.getPosition(cursor, "position");
 				if(position==null){event.setCancelled(true); return;}
 				this.lobbyLeave = position;
@@ -112,11 +105,11 @@ public class DungeonEditorView extends InventoryView implements Listener{
 	@EventHandler
 	private void onInventoryClose(InventoryCloseEvent event){
 		if(event.getView()!=this) return;
-		this.dungeon.setName(this.name);
 		this.dungeon.setLobbyJoin(this.lobbyJoin);
 		this.dungeon.setLobbyLeave(this.lobbyLeave);
 		this.dungeon.saveSettings();
 		HandlerList.unregisterAll(this);
+		DungeonEditorView.activeEditorViews.remove(this.dungeon.getDungeonId());
 	}
 
 	@Override
@@ -140,21 +133,8 @@ public class DungeonEditorView extends InventoryView implements Listener{
 	}
 	
 	private void createEditorItems(){
-		this.inventory.setItem(0, this.createNameItem(this.name));
-		this.inventory.setItem(1, this.createLobbyJoinItem(this.lobbyJoin));
-		this.inventory.setItem(2, this.createLobbyLeaveItem(this.lobbyLeave));
-	}
-	
-	private ItemStack createNameItem(String name){
-		CustomItemBuilder itemBuilder = new CustomItemBuilder();
-		itemBuilder.setDisplayName(name);
-		itemBuilder.setLore(Arrays.asList(
-				"Ändere den Namen",
-				"dieses Dungeons"
-				));
-		itemBuilder.setMaterial(Material.NAME_TAG);
-		itemBuilder.setAmount(1);
-		return itemBuilder.build();
+		this.inventory.setItem(0, this.createLobbyJoinItem(this.lobbyJoin));
+		this.inventory.setItem(1, this.createLobbyLeaveItem(this.lobbyLeave));
 	}
 	
 	private ItemStack createLobbyJoinItem(Position position){
@@ -193,16 +173,6 @@ public class DungeonEditorView extends InventoryView implements Listener{
 		return itemStack;
 	}
 	
-	private ItemStack createNamePickItem(String name){
-		ItemStack itemStack = this.createNameItem(name);
-		ItemMeta itemMeta = itemStack.getItemMeta();
-		itemMeta.setLore(Arrays.asList(
-				"Benenne den Dungeon"
-				));
-		itemStack.setItemMeta(itemMeta);
-		return itemStack;
-	}
-	
 	private ItemStack createLobbyJoinPickItem(Position position){
 		ItemStack itemStack = this.createLobbyJoinItem(position);
 		ItemMeta itemMeta = itemStack.getItemMeta();
@@ -220,6 +190,11 @@ public class DungeonEditorView extends InventoryView implements Listener{
 	}
 	
 	protected static DungeonEditorView open(Dungeon dungeon, Player player){
+		DungeonEditorView active = DungeonEditorView.activeEditorViews.get(dungeon.getDungeonId());
+		if(active!=null){
+			SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Wird bereits von "+active.player.getDisplayName()+ChatColor.RESET+ChatColor.RED+" bearbeitet.");
+			return null;
+		}
 		DungeonEditorView result = new DungeonEditorView(dungeon, player);
 		Bukkit.getPluginManager().registerEvents(result, AdventureDungeons.getInstance());
 		player.openInventory(result);

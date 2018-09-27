@@ -1,5 +1,6 @@
 package ch.swisssmp.adventuredungeons;
 
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.PlayerRenameItemEvent;
 import ch.swisssmp.utils.Position;
 
 public class EventListener implements Listener{
@@ -30,6 +32,16 @@ public class EventListener implements Listener{
 			}
 		}
 		event.setCancelled(true);
+	}
+	
+	@EventHandler
+	private void onItemRename(PlayerRenameItemEvent event){
+		int dungeon_id = ItemUtil.getInt(event.getItemStack(), "dungeon_id");
+		if(dungeon_id==0) return;
+		Dungeon dungeon = Dungeon.get(dungeon_id);
+		dungeon.setName(event.getNewName());
+		dungeon.saveSettings();
+		event.setName(ChatColor.LIGHT_PURPLE+event.getNewName());
 	}
 	
 	private void onDungeonTokenUse(PlayerInteractEvent event){

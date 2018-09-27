@@ -3,10 +3,8 @@ package ch.swisssmp.adventuredungeons;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
@@ -60,20 +58,5 @@ public class ItemManager {
 		result.add(ChatColor.GRAY+"Linksklick: Teleport");
 		result.add(ChatColor.GRAY+"Rechtsklick: Punkt setzen");
 		return result;
-	}
-	
-	/**
-	 * Waits one server tick to then set the slot to the defined ItemStack
-	 * @param inventory - The inventory to modify
-	 * @param slot - The slot to modify
-	 * @param itemStack - The ItemStack to put into the given slot
-	 */
-	protected static void refillInventorySlot(Inventory inventory, int slot, ItemStack itemStack){
-		if(itemStack==null) return;
-		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
-			public void run(){
-				inventory.setItem(slot, itemStack);
-			}
-		}, 1L);
 	}
 }

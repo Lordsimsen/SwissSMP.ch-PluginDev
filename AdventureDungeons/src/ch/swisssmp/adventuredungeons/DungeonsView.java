@@ -16,6 +16,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.InventoryUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
@@ -59,7 +60,7 @@ public class DungeonsView extends InventoryView implements Listener{
 			event.setCancelled(true);
 			return;
 		}
-		ItemManager.refillInventorySlot(inventory, event.getSlot(), itemStack.clone());
+		InventoryUtil.refillInventorySlot(inventory, event.getSlot(), itemStack.clone());
 		
 	}
 	

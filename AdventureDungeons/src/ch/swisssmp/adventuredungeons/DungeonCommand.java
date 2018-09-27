@@ -14,8 +14,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.utils.Position;
-
 public class DungeonCommand implements CommandExecutor{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
@@ -186,39 +184,6 @@ public class DungeonCommand implements CommandExecutor{
 			    		}
 			    		else{
 			    			sender.sendMessage("[AdventureDungeons] "+ChatColor.RED+"Konnte den Bearbeitungsmodus nicht beenden.");
-			    		}
-			    		return true;
-			    	}
-			    	case "respawn_position":{
-			    		if(args.length<7) return false;
-			    		try{
-			    			World world = Bukkit.getWorld(args[1]);
-			    			if(world==null){
-			    				sender.sendMessage("[AdventureDungeons] Welt '"+args[1]+"' nicht gefunden.");
-			    				return true;
-			    			}
-			    			double x = Double.parseDouble(args[2]);
-			    			double y = Double.parseDouble(args[3]);
-			    			double z = Double.parseDouble(args[4]);
-			    			float yaw = Float.parseFloat(args[5]);
-			    			float pitch = Float.parseFloat(args[6]);
-			    			Position position = new Position(x,y,z,yaw,pitch);
-				    		DungeonInstance instance = DungeonInstance.get(world);
-				    		if(instance==null){
-				    			sender.sendMessage("[AdventureDungeons] Instanz "+world.getName()+" nicht gefunden.");
-				    			return true;
-				    		}
-				    		instance.setRespawn(position);
-				    		if(args.length>7){
-				    			List<String> messageParts = new ArrayList<String>();
-				    			for(int i = 7; i < args.length; i++){
-				    				messageParts.add(args[i]);
-				    			}
-				    			instance.getPlayerManager().announce(String.join(" ", messageParts));
-				    		}
-			    		}
-			    		catch(Exception e){
-			    			return false;
 			    		}
 			    		return true;
 			    	}

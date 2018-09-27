@@ -11,7 +11,6 @@ import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
@@ -21,8 +20,6 @@ import ch.swisssmp.adventuredungeons.event.listener.EventListenerMaster;
 import ch.swisssmp.transformations.AreaState;
 import ch.swisssmp.transformations.TransformationArea;
 import ch.swisssmp.transformations.TransformationWorld;
-import ch.swisssmp.utils.Position;
-import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.WorldUtil;
 
 public class DungeonInstance{
@@ -41,9 +38,6 @@ public class DungeonInstance{
 	
 	private String background_music;
 	private long music_loop_time;
-	private final Random random = new Random();
-	
-	private Position respawnPosition;
 
 	private DungeonInstance(Dungeon dungeon, World world, Difficulty difficulty, int instance_id, long seed){
 		this.dungeon_id = dungeon.getDungeonId();
@@ -57,8 +51,13 @@ public class DungeonInstance{
 		this.transformationworld = TransformationWorld.get(world);
 		this.transformationworld.loadTransformations("dungeon_template_"+this.dungeon_id);
 		
-		if(Bukkit.getPluginManager().getPlugin("DungeonGenerator")!=null){
-			DungeonGeneratorHandler.generateDungeons(world, "dungeon_template_"+dungeon_id, this.seed);
+		try{
+			if(Bukkit.getPluginManager().getPlugin("DungeonGenerator")!=null){
+				DungeonGeneratorHandler.generateDungeons(world, "dungeon_template_"+dungeon_id, this.seed);
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 	
@@ -88,10 +87,6 @@ public class DungeonInstance{
 			Player player = Bukkit.getPlayer(UUID.fromString(player_uuid));
 			if(player!=null) MusicLoop.update(player);
 		}
-	}
-	
-	protected void setRespawn(Position position){
-		this.respawnPosition = position;
 	}
 	
 	public boolean isRunning(){
@@ -124,12 +119,8 @@ public class DungeonInstance{
 		return this.difficulty;
 	}
 	public Location getRespawnLocation(){
-		Position respawnPoint = this.respawnPosition.clone();
-		Vector random = this.random.insideUnitSphere().multiply(5);
-		respawnPoint.add(random.getX(), 0, random.getZ());
-		return respawnPoint.getLocation(this.getWorld());
+		return this.world.getSpawnLocation();
 	}
-	
 	public void delete(boolean graceful){
 		Bukkit.getPluginManager().callEvent(new DungeonEndEvent(this));
 		Dungeon dungeon = Dungeon.get(this.dungeon_id);
