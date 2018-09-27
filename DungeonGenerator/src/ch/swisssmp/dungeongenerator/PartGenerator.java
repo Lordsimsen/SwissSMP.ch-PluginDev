@@ -62,14 +62,14 @@ public class PartGenerator {
 			this.partCounts.put(part.getOriginal(), 1);
 		}
 		part.updateDistances();
-		this.remainingCycles = size*2;
+		this.remainingCycles = size*5;
 		PartGenerationMode mode = PartGenerationMode.FREE;
 		boolean isValid;
 		/*
 		 * Creates parts until it is no longer possible
 		 * As soon as remainingCycles is below 0 all new parts are preferrably closed
 		 */
-		while(pending.size()>0 && remainingCycles > -this.size*100){ //if remainingCycles is smaller than -100*size the system has failed that many times to fill unfinished parts, which is an indicator for an error in the process
+		while(pending.size()>0 && remainingCycles > 0){ //if remainingCycles is smaller than -100*size the system has failed that many times to fill unfinished parts, which is an indicator for an error in the process
 			part = pending.get(0);
 			this.generateObstructedParts(part.getGridPosition(), part.getFloor());
 			isValid = this.generateMissingNeighbours(part, mode);

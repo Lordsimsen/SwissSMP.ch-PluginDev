@@ -9,6 +9,7 @@ public enum PartType {
 	STAIRS(Material.EMERALD_BLOCK),
 	CHAMBER(Material.DIAMOND_BLOCK),
 	DOOR(Material.REDSTONE_BLOCK),
+	DEAD_END(Material.COAL_BLOCK),
 	FORK(Material.OBSIDIAN);
 	
 	private Material material;

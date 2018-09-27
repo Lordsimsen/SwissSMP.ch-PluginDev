@@ -12,8 +12,9 @@ import com.google.gson.JsonObject;
 
 public class LogEntryPartSelection extends LogEntry{
 
-	private final HashMap<PartType,Integer> distances;
-	private final Collection<PartType> validPartTypes;
+	private final PartGenerationMode mode;
+	private final Map<PartType,Integer> distances;
+	private final Map<PartType,String> validPartTypes;
 	private final Map<ProxyGeneratorPart,String> rejected;
 	private final Collection<ProxyGeneratorPart> available;
 	private final ProxyGeneratorPart selection;
@@ -22,8 +23,9 @@ public class LogEntryPartSelection extends LogEntry{
 	
 	private boolean detailedReport = false;
 	
-	protected LogEntryPartSelection(BlockVector gridPosition, DungeonFloor floor, HashMap<PartType,Integer> distances, Collection<PartType> validPartTypes, Map<ProxyGeneratorPart,String> rejected, Collection<ProxyGeneratorPart> available, ProxyGeneratorPart selection) {
+	protected LogEntryPartSelection(BlockVector gridPosition, DungeonFloor floor, PartGenerationMode mode, Map<PartType,Integer> distances, Map<PartType,String> validPartTypes, Map<ProxyGeneratorPart,String> rejected, Collection<ProxyGeneratorPart> available, ProxyGeneratorPart selection) {
 		super(gridPosition, floor);
+		this.mode = mode;
 		this.distances = new HashMap<PartType,Integer>(distances);
 		this.validPartTypes = validPartTypes;
 		this.rejected = rejected;
@@ -38,16 +40,17 @@ public class LogEntryPartSelection extends LogEntry{
 	@Override
 	protected JsonObject getLogData(){
 		JsonObject result = super.getLogData();
+		result.addProperty("mode", this.mode.toString());
 		JsonObject distancesData = new JsonObject();
 		for(Entry<PartType,Integer> entry : this.distances.entrySet()){
 			distancesData.addProperty(entry.getKey().toString(), entry.getValue());
 		}
 		result.add("distances", distancesData);
-		JsonArray typesArray = new JsonArray();
-		for(PartType partType : this.validPartTypes){
-			typesArray.add(partType.toString());
+		JsonObject typesInfo = new JsonObject();
+		for(Entry<PartType,String> partType : this.validPartTypes.entrySet()){
+			typesInfo.addProperty(partType.getKey().toString(), partType.getValue());
 		}
-		result.add("part_types", typesArray);
+		result.add("part_types", typesInfo);
 		if(detailedReport){
 			JsonArray rejectedArray = new JsonArray();
 			JsonObject rejectedEntry;

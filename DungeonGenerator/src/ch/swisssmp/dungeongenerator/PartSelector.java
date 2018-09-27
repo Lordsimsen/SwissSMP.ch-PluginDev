@@ -1,7 +1,6 @@
 package ch.swisssmp.dungeongenerator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -60,15 +59,21 @@ public class PartSelector {
 	protected GenerationPart getPart(GenerationPart previous, List<GenerationPart> otherNeighbours, PartGenerationMode mode){
 		this.updateNeighbours();
 		this.otherNeighbours = otherNeighbours;
-		Collection<PartType> validPartTypes = this.getValidPartTypes(previous);
-		ArrayList<ProxyGeneratorPart> candidates = this.findSuitableParts(mode, validPartTypes);
+		Map<PartType,String> validPartTypes = this.getValidPartTypes(previous);
+		ArrayList<ProxyGeneratorPart> candidates = this.findSuitableParts(mode, validPartTypes.keySet());
 		if(candidates.size()==0){
-			validPartTypes.add(PartType.CORRIDOR);
-			candidates = this.findSuitableParts(PartGenerationMode.FREE, validPartTypes);
+			LogEntryPartSelection logEntry = new LogEntryPartSelection(gridPosition, previous.getFloor(), mode, typeDistances, validPartTypes, rejected, new ArrayList<ProxyGeneratorPart>(), null);
+			logEntry.setCorridorLength(corridorLength);
+			this.partGenerator.addLogEntry(logEntry);
+			validPartTypes.put(PartType.CORRIDOR, "Korridor verlängern für mehr Platz");
+			for(PartType previousType : previous.getPartTypes()){
+				validPartTypes.put(previousType, "Vorheriges verlängern");
+			}
+			candidates = this.findSuitableParts(PartGenerationMode.FREE, validPartTypes.keySet());
 		}
 		if(candidates.size()==0){
 			//System.out.println("[DungeonGenerator] Could not find part at "+this.gridPosition.getBlockX()+", "+this.gridPosition.getBlockY()+", "+this.gridPosition.getBlockZ()+" ("+this.mode.toString()+") with signatures "+topSignature+", "+bottomSignature+", "+northSignature+", "+eastSignature+", "+southSignature+", "+westSignature);
-			LogEntryPartSelection logEntry = new LogEntryPartSelection(gridPosition, previous.getFloor(), typeDistances, validPartTypes, rejected, new ArrayList<ProxyGeneratorPart>(), null);
+			LogEntryPartSelection logEntry = new LogEntryPartSelection(gridPosition, previous.getFloor(), mode, typeDistances, validPartTypes, rejected, new ArrayList<ProxyGeneratorPart>(), null);
 			logEntry.setCorridorLength(corridorLength);
 			this.partGenerator.addLogEntry(logEntry);
 			return null;
@@ -83,7 +88,7 @@ public class PartSelector {
 		result.setNeighbour(eastPart, Direction.EAST);
 		result.setNeighbour(southPart, Direction.SOUTH);
 		result.setNeighbour(westPart, Direction.WEST);
-		LogEntryPartSelection logEntry = new LogEntryPartSelection(gridPosition, result.getFloor(), typeDistances, validPartTypes, rejected, candidates, part);
+		LogEntryPartSelection logEntry = new LogEntryPartSelection(gridPosition, result.getFloor(), mode, typeDistances, validPartTypes, rejected, candidates, part);
 		logEntry.setCorridorLength(corridorLength);
 		this.partGenerator.addLogEntry(logEntry);
 		return result;
@@ -171,41 +176,51 @@ public class PartSelector {
 		return this.typeDistances.containsKey(partType) ? this.typeDistances.get(partType) : 0;
 	}
 	
-	private Collection<PartType> getValidPartTypes(GenerationPart previous){
-		return new ArrayList<PartType>(Arrays.asList(PartType.values()));
-		/*
-		Collection<PartType> result = new ArrayList<PartType>();
+	private Map<PartType,String> getValidPartTypes(GenerationPart previous){
+		Map<PartType,String> result = new HashMap<PartType,String>();
 		int maxCorridorLength = this.partGenerator.getGenerator().getCorridorLength();
 		int maxChamberCount = this.partGenerator.getGenerator().getChamberCount();
 		int maxBranches = this.partGenerator.getGenerator().getBranchDensity();
-		result.add(PartType.GENERIC);
+		result.put(PartType.GENERIC, "Standard");
+		if(previous.getPartTypes().contains(PartType.CHAMBER)){
+			result.put(PartType.CHAMBER, "Kammer erweitern");
+		}
 		if(!previous.getPartTypes().contains(PartType.STAIRS) && previous.getFloor().getChamberCount()>=maxChamberCount){
-			result.add(PartType.STAIRS);
+			result.put(PartType.STAIRS, "Ebene abschliessen");
 			return result;
 		}
-		List<GenerationPart> corridor = this.getSimilarAttachedParts(previous, PartType.CORRIDOR, PartType.DOOR, PartType.FORK);
-		System.out.println("Korridor Grösse: "+corridor.size());
-		if(corridor.size()==0){
-			this.corridorLength = 0;
-			result.add(PartType.CORRIDOR);
+		else if(previous.getPartTypes().contains(PartType.STAIRS)){
+			result.put(PartType.STAIRS, "Treppe erweitern");
+			result.put(PartType.CORRIDOR, "Neue Ebene starten");
 		}
 		else{
-			GenerationPart closestToStart = this.getClosestToType(corridor, PartType.START);
-			this.corridorLength = previous.getDistance(PartType.START)-closestToStart.getDistance(PartType.START)+1;
-			this.partGenerator.addLogEntry(new LogEntryCorridorLengthCalculation(this.gridPosition, previous.getFloor(), corridor, closestToStart, this.corridorLength));
-			if(corridorLength>=maxCorridorLength){
-				result.add(PartType.CHAMBER);
+			List<GenerationPart> corridor = this.getSimilarAttachedParts(previous, PartType.CORRIDOR, PartType.DOOR, PartType.FORK);
+			System.out.println("Korridor Grösse: "+corridor.size());
+			if(corridor.size()==0){
+				this.corridorLength = 0;
+				result.put(PartType.CORRIDOR, "Korridor starten");
 			}
 			else{
-				result.add(PartType.CORRIDOR);
+				GenerationPart closestToStart = this.getClosestToType(corridor, PartType.START);
+				this.corridorLength = previous.getDistance(PartType.START)-closestToStart.getDistance(PartType.START)+1;
+				this.partGenerator.addLogEntry(new LogEntryCorridorLengthCalculation(this.gridPosition, previous.getFloor(), corridor, closestToStart, this.corridorLength));
+				if(corridorLength>=maxCorridorLength){
+					result.put(PartType.CHAMBER, "Kammer setzen");
+				}
+				else{
+					result.put(PartType.CORRIDOR, "Korridor erweitern");
+				}
 			}
 		}
-		if(result.contains(PartType.CORRIDOR)){
-			result.add(PartType.DOOR);
-			if(previous.getFloor().getForkCount()<maxBranches) result.add(PartType.FORK);
+		if(result.containsKey(PartType.CHAMBER)){
+			result.put(PartType.CORRIDOR, "Schliesse Kammer ab");
+			result.put(PartType.DEAD_END, "Beende diese Verzweigung");
+		}
+		if(result.containsKey(PartType.CORRIDOR)){
+			result.put(PartType.DOOR, "Variante von Korridor");
+			if(previous.getFloor().getForkCount()<maxBranches) result.put(PartType.FORK, "Variante von Korridor");
 		}
 		return result;
-		*/
 	}
 	
 	private ProxyGeneratorPart getRandomPart(Collection<ProxyGeneratorPart> parts){
