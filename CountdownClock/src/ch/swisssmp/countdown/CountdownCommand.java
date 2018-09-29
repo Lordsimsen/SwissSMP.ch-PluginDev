@@ -52,6 +52,28 @@ public class CountdownCommand implements CommandExecutor{
 			sender.sendMessage("[CountdownClock] Countdown gestartet.");
 			return true;
 		}
+		case "pause":{
+			if(args.length<2) return false;
+			CountdownClock clock = CountdownClock.get(args[1]);
+			if(clock==null){
+				sender.sendMessage("[CountdownClock] Countdown '"+args[1]+"' nicht gefunden.");
+				return true;
+			}
+			clock.pause();
+			sender.sendMessage("[CountdownClock] Countdown '"+clock.getName()+"' pausiert.");
+			return true;
+		}
+		case "resume":{
+			if(args.length<2) return false;
+			CountdownClock clock = CountdownClock.get(args[1]);
+			if(clock==null){
+				sender.sendMessage("[CountdownClock] Countdown '"+args[1]+"' nicht gefunden.");
+				return true;
+			}
+			clock.resume();
+			sender.sendMessage("[CountdownClock] Countdown '"+clock.getName()+"' fortgesetzt.");
+			return true;
+		}
 		case "stop":{
 			if(args.length<2) return false;
 			CountdownClock clock = CountdownClock.get(args[1]);

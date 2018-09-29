@@ -14,6 +14,8 @@ commands:
     usage: |
       /countdown reload §7- Lädt Einstellungen neu
       /countdown start [Name] [DD.MM.YYYY] [HH:MM:SS] [Material] (Material=Luft) §7- Startet einen neuen Countdown an deiner Position
+      /countdown pause [Name] §7- Pausiert einen Countdown
+      /countdown resume [Name] §7- Setzt einen Countdown fort
       /countdown stop [Name] §7- Stoppt einen Countdown
       /countdown list §7- Zeigt alle aktiven Countdowns in deiner Welt an
     permission: countdown.admin

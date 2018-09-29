@@ -25,6 +25,8 @@ public class CountdownClock implements Runnable {
 	private final Material gapMaterial;
 	private final long deadline;
 	
+	private boolean paused = false;
+	
 	private BukkitTask task;
 	
 	private CountdownClock(World world, ConfigurationSection dataSection){
@@ -59,6 +61,7 @@ public class CountdownClock implements Runnable {
 	
 	@Override
 	public void run() {
+		if(this.paused) return;
 		long remaining = deadline-System.currentTimeMillis();
 		NumberDisplay.buildTime(this.position, this.direction, this.numberMaterial, this.gapMaterial, remaining);
 		if(remaining<=0){
@@ -69,6 +72,14 @@ public class CountdownClock implements Runnable {
 	private void cancel(){
 		this.task.cancel();
 		clocks.remove(this.name.toLowerCase());
+	}
+	
+	protected void pause(){
+		this.paused = true;
+	}
+	
+	protected void resume(){
+		this.paused = false;
 	}
 	
 	protected void stop(){
