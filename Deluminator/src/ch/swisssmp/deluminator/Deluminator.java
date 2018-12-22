@@ -3,6 +3,7 @@ package ch.swisssmp.deluminator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.Targetable;
 
 public class Deluminator {
 	private static HashMap<String,Deluminator> deluminators = new HashMap<String,Deluminator>();
@@ -60,8 +63,13 @@ public class Deluminator {
 	}
 	
 	protected static Deluminator get(ItemStack itemStack){
+		String customEnum = CustomItems.getCustomEnum(itemStack);
+		if(customEnum==null || !customEnum.equals("DELUMINATOR")) return null;
 		String deluminator_id = ItemUtil.getString(itemStack, "deluminator_id");
-		if(deluminator_id==null) return null;
+		if(deluminator_id==null){
+			deluminator_id = UUID.randomUUID().toString();
+			ItemUtil.setString(itemStack, "deluminator_id", deluminator_id);
+		}
 		Deluminator result = deluminators.get(deluminator_id);
 		if(result==null){
 			result = new Deluminator();

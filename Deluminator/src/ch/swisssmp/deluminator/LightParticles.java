@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.Mathf;
+import ch.swisssmp.utils.Targetable;
 import ch.swisssmp.utils.splines.Spline3D;
 
 public class LightParticles implements Runnable {
