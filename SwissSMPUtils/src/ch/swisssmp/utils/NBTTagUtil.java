@@ -1,6 +1,6 @@
 package ch.swisssmp.utils;
 
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
 
 public class NBTTagUtil {
 	public static Position getPosition(NBTTagCompound nbtTag, String key){

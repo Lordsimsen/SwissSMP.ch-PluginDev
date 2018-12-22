@@ -44,10 +44,12 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Parrot;
+import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.PufferFish;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.ShulkerBullet;
@@ -59,6 +61,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.TippedArrow;
+import org.bukkit.entity.TropicalFish;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.WitherSkull;
@@ -89,7 +92,6 @@ public class EntityUtil {
 			else return;
 		}
 	}
-	@SuppressWarnings("deprecation")
 	public static Entity clone(Entity template, Location location){
 		if(template instanceof Hanging){
 			location.setX(Mathf.floorToInt(location.getX()));
@@ -102,7 +104,7 @@ public class EntityUtil {
 		try{
 			if(template instanceof FallingBlock){
 				//TODO change to 1.13 ways
-				target = location.getWorld().spawnFallingBlock(location, ((FallingBlock)template).getMaterial(), ((FallingBlock)template).getBlockData());
+				target = location.getWorld().spawnFallingBlock(location, ((FallingBlock)template).getBlockData());
 			}
 			else if(template instanceof Player){
 				//Cannot clone Players
@@ -234,12 +236,9 @@ public class EntityUtil {
 		if(template instanceof Parrot){
 			EntityUtil.cloneParrotSettings((Parrot)template, (Parrot)target);
 		}
-		//TODO unlock 1.13 capability
-		/*
 		if(template instanceof Phantom){
 			EntityUtil.clonePhantomSettings((Phantom)template, (Phantom)target);
 		}
-		*/
 		if(template instanceof Pig){
 			EntityUtil.clonePigSettings((Pig)template, (Pig)target);
 		}
@@ -249,12 +248,9 @@ public class EntityUtil {
 		if(template instanceof Projectile){
 			EntityUtil.cloneProjectileSettings((Projectile)template, (Projectile)target);
 		}
-		//TODO unlock 1.13 capability
-		/*
 		if(template instanceof PufferFish){
 			EntityUtil.clonePufferFishSettings((PufferFish)template, (PufferFish)target);
 		}
-		*/
 		if(template instanceof Rabbit){
 			EntityUtil.cloneRabbitSettings((Rabbit)template, (Rabbit)target);
 		}
@@ -291,12 +287,9 @@ public class EntityUtil {
 		if(template instanceof TNTPrimed){
 			EntityUtil.cloneTNTPrimedSettings((TNTPrimed)template, (TNTPrimed)target);
 		}
-		//TODO unlock 1.13 capability
-		/*
 		if(template instanceof TropicalFish){
 			EntityUtil.cloneTropicalFishSettings((TropicalFish)template, (TropicalFish)target);
 		}
-		*/
 		if(template instanceof Vehicle){
 			EntityUtil.cloneVehicleSettings((Vehicle)template, (Vehicle)target);
 		}
@@ -535,12 +528,9 @@ public class EntityUtil {
 	private static void cloneParrotSettings(Parrot template, Parrot target){
 		target.setVariant(template.getVariant());
 	}
-	//TODO unlock 1.13 capability
-	/*
 	private static void clonePhantomSettings(Phantom template, Phantom target){
 		target.setSize(template.getSize());
 	}
-	*/
 	private static void clonePigSettings(Pig template, Pig target){
 		target.setSaddle(template.hasSaddle());
 	}
@@ -552,12 +542,9 @@ public class EntityUtil {
 		target.setBounce(template.doesBounce());
 		target.setShooter(template.getShooter());
 	}
-	//TODO unlock 1.13 capability
-	/*
 	private static void clonePufferFishSettings(PufferFish template, PufferFish target){
 		target.setPuffState(template.getPuffState());
 	}
-	*/
 	private static void cloneRabbitSettings(Rabbit template, Rabbit target){
 		target.setRabbitType(template.getRabbitType());
 	}
@@ -601,20 +588,16 @@ public class EntityUtil {
 	private static void cloneTNTPrimedSettings(TNTPrimed template, TNTPrimed target){
 		target.setFuseTicks(template.getFuseTicks());
 	}
-	//TODO unlock 1.13 capability
-	/*
 	private static void cloneTropicalFishSettings(TropicalFish template, TropicalFish target){
 		target.setBodyColor(template.getBodyColor());
 		target.setPattern(template.getPattern());
 		target.setPatternColor(template.getPatternColor());
 	}
-	*/
 	private static void cloneVehicleSettings(Vehicle template, Vehicle target){
 		target.setVelocity(template.getVelocity());
 	}
 	private static void cloneVillagerSettings(Villager template, Villager target){
-		//TODO unlock 1.13 capabilities
-		//target.setCareer(template.getCareer(), false);
+		target.setCareer(template.getCareer(), false);
 		target.setProfession(template.getProfession());
 		target.setRiches(template.getRiches());
 	}

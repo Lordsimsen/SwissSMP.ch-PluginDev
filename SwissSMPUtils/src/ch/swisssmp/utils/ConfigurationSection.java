@@ -18,7 +18,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -109,7 +108,7 @@ public class ConfigurationSection{
 		result.shape(shape.toArray(shapeArray));
 		ConfigurationSection ingredientsSection = this.getConfigurationSection("ingredients");
 		for(String key : ingredientsSection.getKeys(false)){
-			MaterialData material = ingredientsSection.getMaterialData(key);
+			Material material = ingredientsSection.getMaterial(key);
 			result.setIngredient(key.toCharArray()[0], material);
 		}
 		return result;
@@ -126,7 +125,7 @@ public class ConfigurationSection{
 		for(String key : ingredientsSection.getKeys(false)){
 			ConfigurationSection ingredientSection = ingredientsSection.getConfigurationSection(key);
 			int count = ingredientSection.getInt("count");
-			MaterialData material = ingredientSection.getMaterialData(key);
+			Material material = ingredientSection.getMaterial(key);
 			result.addIngredient(count, material);
 		}
 		return result;
@@ -200,8 +199,8 @@ public class ConfigurationSection{
 			int amplifier = this.getInt("amplifier");
 			boolean ambient = this.getInt("ambient")==1;
 			boolean particles = this.getInt("particles")==1;
-			Color color = this.getColor("color");
-			return new PotionEffect(type, duration, amplifier, ambient, particles, color);
+			boolean icon = this.getInt("icon")==1;
+			return new PotionEffect(type, duration, amplifier, ambient, particles, icon);
 		}
 		catch(Exception e){
 			WebCore.debug("Unkown potion type "+typeName);
@@ -281,20 +280,6 @@ public class ConfigurationSection{
 			return null;
 		}
 	}
-
-	@SuppressWarnings("deprecation")
-	public MaterialData getMaterialData(String arg0){
-		try{
-			String[] parts = this.configurationSection.getString(arg0).split(":");
-			Material material = Material.valueOf(parts[0]);
-			byte data = 0;
-			if(parts.length>1) data = Byte.valueOf(parts[1]);
-			return new MaterialData(material, data);
-		}
-		catch(Exception e){
-			return null;
-		}
-	}
 	
 	public String getName() {
 		return configurationSection.getName();
@@ -305,7 +290,8 @@ public class ConfigurationSection{
 		if(enchantString.equals("ANY")){
 			return Enchantment.values()[ThreadLocalRandom.current().nextInt(Enchantment.values().length)];
 		}
-		return Enchantment.getByName(enchantString);
+		//TODO check if this actually works
+		return Enchantment.getByKey(NamespacedKey.minecraft(enchantString));
 	}
 	
 	public EnchantmentData getEnchantmentData(String arg0){

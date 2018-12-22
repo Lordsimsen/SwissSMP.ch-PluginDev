@@ -13,8 +13,8 @@ import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -23,8 +23,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.minecraft.server.v1_12_R1.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_12_R1.PlayerConnection;
+import net.minecraft.server.v1_13_R2.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_13_R2.PlayerConnection;
 
 public class CameraStudio extends JavaPlugin implements Listener {
 	public static JavaPlugin instance;

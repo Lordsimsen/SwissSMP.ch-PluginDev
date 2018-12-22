@@ -55,7 +55,7 @@ public class BlockUtil {
 		switch(block.getType()){
 		case AIR: return "transparent";
 		case STONE: return "#888888";
-		case WOOD: return "#D2AE7E";
+		case OAK_PLANKS: return "#D2AE7E";
 		case DIRT: return "#70594A";
 		default:{
 			if(block.getState().getData() instanceof Colorable) return ((Colorable)block.getState().getData()).getColor().toString().toLowerCase();

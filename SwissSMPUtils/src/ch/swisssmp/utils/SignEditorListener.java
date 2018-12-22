@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_13_R2.BlockPosition;
 
 public final class SignEditorListener implements Listener{
 

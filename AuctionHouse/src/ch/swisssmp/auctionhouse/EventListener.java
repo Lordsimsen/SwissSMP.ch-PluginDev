@@ -53,7 +53,7 @@ public class EventListener implements Listener{
 	private void onSignInteract(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		Block block = event.getClickedBlock();
-		if(block.getType()!=Material.WALL_SIGN && block.getType()!=Material.SIGN_POST) return;
+		if(block.getType()!=Material.WALL_SIGN && block.getType()!=Material.SIGN) return;
 		Sign sign = (Sign)block.getState();
 		if(!sign.getLine(1).equals("§5[Auktion]")) return;
 		String addon = sign.getLine(2);
