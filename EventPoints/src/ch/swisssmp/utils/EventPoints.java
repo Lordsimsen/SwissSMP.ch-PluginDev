@@ -1,16 +1,20 @@
 package ch.swisssmp.utils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.webcore.DataSource;
 
 public class EventPoints extends JavaPlugin{
 	protected static Logger logger;
@@ -18,10 +22,6 @@ public class EventPoints extends JavaPlugin{
 	protected static File dataFolder;
 	protected static EventPoints plugin;
 	protected static boolean debug;
-	
-	private static String signature = "§6Schoggi Taler";
-	
-	private static CustomItemBuilder eventPointBuilder;
 	
 	@Override
 	public void onEnable() {
@@ -31,35 +31,47 @@ public class EventPoints extends JavaPlugin{
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		this.getCommand("eventpoints").setExecutor(new EventPointCommand());
-		loadEventPointBuilder();
+		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 	}
 	
-	private static void loadEventPointBuilder(){
-		CustomItemBuilder eventPointBuilder = CustomItems.getCustomItemBuilder("EVENT_POINT");
-		if(eventPointBuilder==null){
-			logger.info("[EventPoints] Eventpunkt-Item konnte nicht geladen werden.");
-			return;
-		}
-		List<String> lore = new ArrayList<String>();
-		lore.add("§7Schoggi Taler erhälst");
-		lore.add("§7du an SwissSMP.ch");
-		lore.add("§7Minecraft-Events.");
-		eventPointBuilder.setLore(lore);
-		eventPointBuilder.setDisplayName(signature);
-		EventPoints.eventPointBuilder = eventPointBuilder;
+	public static CurrencyInfo getInfo(String currencyType){
+		return CurrencyInfo.get(currencyType);
 	}
 	
 	public static ItemStack getItem(int amount){
+		return EventPoints.getItem(amount, "EVENT_POINT");
+	}
+	
+	public static ItemStack getItem(int amount, String currencyType){
+		CustomItemBuilder eventPointBuilder = CustomItems.getCustomItemBuilder(currencyType);
+		if(eventPointBuilder==null) return new ItemStack(Material.AIR);
 		eventPointBuilder.setAmount(amount);
 		return eventPointBuilder.build();
 	}
 	
-	public static String getSignature(){
-		return signature;
+	public static void give(CommandSender sender, String playerName, int amount, String currencyType, String reason){
+		sender.sendMessage(DataSource.getResponse("players/change_wallet.php", new String[]{
+				"sender="+URLEncoder.encode(sender instanceof Player ? ((Player)sender).getName() : "Server"),
+				"player="+URLEncoder.encode(playerName),
+				"amount="+(amount),
+				"currency="+URLEncoder.encode(currencyType),
+				"reason="+URLEncoder.encode(reason)
+		}));
+	}
+	
+	public static void take(CommandSender sender, String playerName, int amount, String currencyType, String reason){
+		sender.sendMessage(DataSource.getResponse("players/change_wallet.php", new String[]{
+				"sender="+URLEncoder.encode(sender instanceof Player ? ((Player)sender).getName() : "Server"),
+				"player="+URLEncoder.encode(playerName),
+				"amount="+(-amount),
+				"currency="+URLEncoder.encode(currencyType),
+				"reason="+URLEncoder.encode(reason)
+		}));
 	}
 
 	@Override
 	public void onDisable() {
+		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}

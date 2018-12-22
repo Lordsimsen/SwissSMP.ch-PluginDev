@@ -1,12 +1,13 @@
 package ch.swisssmp.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import ch.swisssmp.webcore.DataSource;
 
 public class EventPointCommand implements CommandExecutor {
 
@@ -15,31 +16,38 @@ public class EventPointCommand implements CommandExecutor {
 		if(args==null || args.length==0) return false;
 		switch(args[0]){
 		case "give":{
-			if(args.length<3) return false;
+			if(args.length<5) return false;
 			if(!StringUtils.isNumeric(args[2])) return false;
 			String playerName = args[1];
 			int amount = Math.abs(Integer.parseInt(args[2]));
-			sender.sendMessage(DataSource.getResponse("players/event_points.php", new String[]{
-					"player="+URLEncoder.encode(playerName),
-					"amount="+amount
-			}));
+			String currencyType = args[3];
+			List<String> reasonParts = new ArrayList<String>();
+			for(int i = 4; i < args.length; i++){
+				reasonParts.add(args[i]);
+			}
+			String reason = String.join(" ", reasonParts);
+			EventPoints.give(sender, playerName, amount, currencyType, reason);
 			break;
 		}
 		case "take":{
-			if(args.length<3) return false;
+			if(args.length<5) return false;
 			if(!StringUtils.isNumeric(args[2])) return false;
 			String playerName = args[1];
 			int amount = Math.abs(Integer.parseInt(args[2]));
-			sender.sendMessage(DataSource.getResponse("players/event_points.php", new String[]{
-					"player="+URLEncoder.encode(playerName),
-					"amount="+-amount
-			}));
+			String currencyType = args[3];
+			List<String> reasonParts = new ArrayList<String>();
+			for(int i = 4; i < args.length; i++){
+				reasonParts.add(args[i]);
+			}
+			String reason = String.join(" ", reasonParts);
+			EventPoints.give(sender, playerName, amount, currencyType, reason);
 			break;
 		}
 		case "summon":{
 			if(!(sender instanceof Player)) return true;
+			String currencyType = args.length>1 ? args[1] : "EVENT_POINT";
 			Player player = (Player) sender;
-			player.getWorld().dropItem(player.getEyeLocation(), EventPoints.getItem(64));
+			player.getWorld().dropItem(player.getEyeLocation(), EventPoints.getItem(64, currencyType));
 			break;
 		}
 		default: return false;

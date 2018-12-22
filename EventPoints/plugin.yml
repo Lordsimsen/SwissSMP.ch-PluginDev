@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.EventPoints
-version: 1.0
+version: 1.1
 name: EventPoints
 author: detig_iii
 description: Verwaltet Eventpunkte
@@ -11,8 +11,8 @@ permissions:
 commands:
   eventpoints:
     usage: |
-      /eventpoints give [Spieler] [Menge]
-      /eventpoints take [Spieler] [Menge]
+      /eventpoints give [Spieler] [Menge] [Typ] [Grund]
+      /eventpoints take [Spieler] [Menge] [Typ] [Grund]
     description: Verwaltet Eventpunkte
     aliases: [ep,eventpoint]
     permission: eventpoints.admin
