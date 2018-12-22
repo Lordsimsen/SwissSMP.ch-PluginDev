@@ -1,5 +1,5 @@
 main: ch.swisssmp.shops.ShopManager
-version: 1.3
+version: 2.0
 name: Shops
 author: detig_iii
 description: Konfigurierbare Villager Shops
@@ -18,10 +18,7 @@ permissions:
 commands:
   shop:
     usage: |
-      /shop reload - Lädt alle Einstellungen neu
-      /shop reload shops - Aktualisiert alle Shops
-      /shop reload marketplaces - Aktualisiert alle Marktplätze
-      /shop reload agents - Aktualisiert alle Händler
       /shop create - Erstellt einen Shop an deiner Position
+      /shop info [Shop-ID] - Zeigt Informationen zu diesem Shop
     description: Diverse Admin-Befehle
     permission: shop.admin

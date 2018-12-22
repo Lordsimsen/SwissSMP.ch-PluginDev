@@ -1,21 +1,15 @@
 package ch.swisssmp.shops;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -24,46 +18,27 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.utils.VectorKey;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
 class Shop {
+	private static HashMap<Integer,Shop> shops = new HashMap<Integer, Shop>();
 	
-	private final ShoppingWorld shoppingWorld;
-	private final int marketplace_id;
 	private final int shop_id;
 	private String name;
 	private String owner_name;
 	private UUID owner_uuid;
 	private Profession profession;
-	private final List<Villager> agents;
 	private List<MerchantRecipe> recipes = new ArrayList<MerchantRecipe>();
 	
 	private boolean tradesAvailable;
 	private Player currentTradingPartner;
 	
-	//location
-	private int location_x;
-	private int location_y;
-	private int location_z;
-	
-	//agents
-	private List<Chunk> agentChunks;
-	
-	//chest
-	private int chest_x;
-	private int chest_y;
-	private int chest_z;
-	
-	private Shop(ShoppingWorld shoppingWorld, ConfigurationSection dataSection){
-		this.shoppingWorld = shoppingWorld;
-		this.marketplace_id = dataSection.getInt("marketplace_id");
+	private Shop(ConfigurationSection dataSection){
 		this.shop_id = dataSection.getInt("shop_id");
 		this.name = dataSection.getString("name");
 		this.owner_name = dataSection.getString("owner_name");
@@ -93,46 +68,6 @@ class Shop {
 				}
 			}
 		}
-		this.agents = new ArrayList<Villager>();
-		this.agentChunks = new ArrayList<Chunk>();
-		if(dataSection.contains("agents")){
-			World world = shoppingWorld.getWorld();
-			Location location;
-			ConfigurationSection agentsSection = dataSection.getConfigurationSection("agents");
-			for(String key : agentsSection.getKeys(false)){
-				ConfigurationSection agentSection = agentsSection.getConfigurationSection(key);
-				location = new Location(world, agentSection.getInt("x"), agentSection.getInt("y"), agentSection.getInt("z"));
-				if(!this.agentChunks.contains(location.getChunk())){
-					this.agentChunks.add(location.getChunk());
-				}
-			}
-		}
-		this.location_x = dataSection.getInt("location_x");
-		this.location_y = dataSection.getInt("location_y");
-		this.location_z = dataSection.getInt("location_z");
-		//register content chest
-		if(dataSection.contains("chest")){
-			ConfigurationSection chestSection = dataSection.getConfigurationSection("chest");
-			this.chest_x = chestSection.getInt("x");
-			this.chest_y = chestSection.getInt("y");
-			this.chest_z = chestSection.getInt("z");
-			
-			Block block = shoppingWorld.getWorld().getBlockAt(chest_x,chest_y,chest_z);
-			if(block.getState() instanceof Chest){
-				shoppingWorld.chestMap.put(new VectorKey(new Vector(this.chest_x, this.chest_y, this.chest_z)), this);
-				BlockFace[] neighbours = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
-				for(BlockFace neighbourFace : neighbours){
-					if(block.getRelative(neighbourFace).getType()==block.getType()){
-						shoppingWorld.chestMap.put(new VectorKey(block.getRelative(neighbourFace).getLocation().toVector()), this);
-					}
-				}
-			}
-			this.shoppingWorld.blockMap.put(new VectorKey(new Vector(this.location_x,this.location_y,this.location_z)), this);
-		}
-		Chest chest = this.getChest();
-		if(chest!=null) chest.setCustomName(this.name);
-		
-		this.updateAgents();
 	}
 	
 	protected String getOwnerName(){
@@ -141,21 +76,6 @@ class Shop {
 	
 	protected UUID getOwnerUUID(){
 		return this.owner_uuid;
-	}
-	
-	protected Location getLocation(){
-		int y = this.chest_y;
-		if(y==0) y = 64;
-		return new Location(this.shoppingWorld.getWorld(), this.chest_x, y, this.chest_z);
-	}
-	
-	protected Chest getChest(){
-		if(this.chest_y==0) return null;
-		Block block = this.shoppingWorld.getWorld().getBlockAt(this.chest_x,this.chest_y,this.chest_z);
-		if(block==null) return null;
-		if(!(block.getState() instanceof Chest)) 
-			return null;
-		return (Chest) block.getState();
 	}
 	
 	protected int getShopId(){
@@ -168,25 +88,8 @@ class Shop {
 	
 	protected void setName(String name){
 		this.name = name;
-		Chest chest = this.getChest();
-		if(chest!=null){
-			Bukkit.getScheduler().runTaskLater(ShopManager.plugin, new Runnable(){
-				public void run(){
-					chest.setCustomName(name);
-				}
-			}, 1L);
-			
-		}
 		this.updateShopSettings();
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "shop reload agents");
-	}
-	
-	protected int getMarketplaceId(){
-		return this.marketplace_id;
-	}
-	
-	protected Marketplace getMarketplace(){
-		return this.shoppingWorld.getMarketplace(this.marketplace_id);
 	}
 	
 	protected boolean hasTrades(){
@@ -203,99 +106,32 @@ class Shop {
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "shop reload agents");
 	}
 	
-	protected Villager[] getAgents(){
-		return this.agents.toArray(new Villager[this.agents.size()]);
-	}
-	
 	protected void spawnAgent(Location location){
 		ArmorStand armorStand = spawnArmorStand(this.shop_id, location);
-		spawnVillager(armorStand);
-		DataSource.getResponse("shop/spawn_agent.php", new String[]{
-			"shop_id="+this.shop_id,
-			"location[x]="+location.getBlockX(),
-			"location[y]="+(location.getBlockY()+1),
-			"location[z]="+location.getBlockZ()
-		});
-		this.updateAgents();
+		Villager villager = spawnVillager(armorStand);
+		this.updateAgent(villager);
 	}
 	
-	protected void removeAgent(Villager villager){
-		if(villager==null) return;
-		Location location = villager.getLocation();
-		DataSource.getResponse("shop/spawn_agent.php", new String[]{
-				"shop_id="+this.shop_id,
-				"location[x]="+location.getBlockX(),
-				"location[y]="+location.getBlockY(),
-				"location[z]="+location.getBlockZ()
-			});
-		if(villager.getVehicle()!=null){
-			villager.getVehicle().remove();
-		}
-		villager.remove();
-		this.findAgents();
-	}
-	
-	private void findAgents(){
-		this.agents.clear();
-		for(Chunk chunk : this.agentChunks){
-			//Bukkit.getLogger().info("Checking chunk "+chunk.getX()+","+chunk.getZ());
-			if(!chunk.isLoaded()) chunk.load();
-			for(Entity entity : chunk.getEntities()){
-				if(entity.getType()!=EntityType.ARMOR_STAND) continue;
-				ArmorStand armorStand = (ArmorStand) entity;
-				if(armorStand.getCustomName()==null) continue;
-				if(armorStand.getCustomName().equals("§rShop_"+this.shop_id)){
-					if(armorStand.getPassengers().size()==0){
-						armorStand.remove();
-						continue;
-					}
-					Villager villager = (Villager) armorStand.getPassengers().get(0);
-					if(!this.agents.contains(villager))
-						this.agents.add(villager);
-				}
-			}
-		}
-	}
-	
-	protected void updateAgents(){
-		this.findAgents();
+	protected void updateAgent(Villager villager){
 		//Bukkit.getLogger().info("[ShopManager] Shop "+this.name+" aktualisiert Agenten");
 		//update recipe counts
-		Chest chest = this.getChest();
-		if(chest!=null){
-			Inventory inventory = chest.getInventory();
-			tradesAvailable = false;
-			for(int i = 0; i < this.recipes.size(); i++){
-				MerchantRecipe recipe = recipes.get(i);
-				recipe.setUses(0);
-				recipe.setExperienceReward(false);
-				recipe.setMaxUses(ShopUtil.countTradeOwnerSide(recipe, inventory));
-				if(recipe.getMaxUses()>0){
-					tradesAvailable = true;
-				}
-			}
-		}
-		else{
-			tradesAvailable = this.recipes.size()>0;
-			for(int i = 0; i < this.recipes.size(); i++){
-				MerchantRecipe recipe = recipes.get(i);
-				recipe.setUses(0);
-				recipe.setExperienceReward(false);
-				recipe.setMaxUses(Integer.MAX_VALUE);
-			}
+		tradesAvailable = this.recipes.size()>0;
+		for(int i = 0; i < this.recipes.size(); i++){
+			MerchantRecipe recipe = recipes.get(i);
+			recipe.setUses(0);
+			recipe.setExperienceReward(false);
+			recipe.setMaxUses(Integer.MAX_VALUE);
 		}
 		//update agent configuration
-		for(Villager villager : this.agents){
-			if(this.tradesAvailable){
-				villager.setCustomName(this.name);
-			}
-			else{
-				villager.setCustomName(this.name+"§r (Ausverkauft!)");
-			}
-			villager.setCustomNameVisible(false);
-			villager.setProfession(this.profession);
-			villager.setRecipes(this.recipes);
+		if(this.tradesAvailable){
+			villager.setCustomName(this.name);
 		}
+		else{
+			villager.setCustomName(this.name+"§r (Ausverkauft!)");
+		}
+		villager.setCustomNameVisible(false);
+		villager.setProfession(this.profession);
+		villager.setRecipes(this.recipes);
 	}
 	
 	protected DyeColor getColor(){
@@ -354,13 +190,6 @@ class Shop {
 		itemStack = new ItemStack(Material.BARRIER);
 		itemMeta = itemStack.getItemMeta();
 		itemMeta.setDisplayName("§cHändler entfernen");
-		List<String> tooltip = new ArrayList<String>();
-		tooltip.add("§EVertrag wird zurückerstattet.");
-		tooltip.add("§7Shop und zugehörige");
-		tooltip.add("§7Vermittler in anderen");
-		tooltip.add("§7Städten werden entfernt.");
-		itemMeta.setLore(tooltip);
-		tooltip = null;
 		itemStack.setItemMeta(itemMeta);
 		editor.setItem(26, itemStack);
 		
@@ -373,10 +202,10 @@ class Shop {
 				editor.setItem(i+18, ingredients.get(1));
 			}
 		}
-		ShopEditor.open(this, player, player.openInventory(editor));
+		ShopEditor.open(this, villager, player, player.openInventory(editor));
 	}
 	
-	protected void setRecipes(List<MerchantRecipe> recipes){
+	protected void setRecipes(List<MerchantRecipe> recipes, Villager villager){
 		this.recipes = recipes;
 		try{
 			List<String> arguments = new ArrayList<String>();
@@ -404,44 +233,21 @@ class Shop {
 					String.join("&", arguments)
 			});
 			//Bukkit.getLogger().info("[ShopManager] Handel vom Shop "+this.getName()+" aktualisiert.");
-			this.updateAgents();
+			this.updateAgent(villager);
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	
-	protected void delete(){
+	protected void delete(Villager villager){
 		DataSource.getResponse("shop/delete.php", new String[]{
 				"shop_id="+this.shop_id	
 			});
-		this.shoppingWorld.shops.remove(this.shop_id);
-		for(Villager villager : this.agents.toArray(new Villager[this.agents.size()])){
-			if(villager.getVehicle()!=null){
-				villager.getVehicle().remove();
-			}
-			villager.remove();
+		if(villager.getVehicle()!=null){
+			villager.getVehicle().remove();
 		}
-		Chest chest = this.getChest();
-		if(chest!=null){
-			this.shoppingWorld.getWorld().getBlockAt(location_x, location_y, location_z).setType(this.getMarketplace().getAgentMarker());
-			chest.setCustomName(null);
-			if(chest.getInventory().getHolder() instanceof DoubleChest){
-				DoubleChest doubleChest = (DoubleChest)chest.getInventory().getHolder();
-				this.shoppingWorld.chestMap.remove(new VectorKey(((Chest)doubleChest.getLeftSide()).getLocation().toVector()));
-				this.shoppingWorld.chestMap.remove(new VectorKey(((Chest)doubleChest.getRightSide()).getLocation().toVector()));
-			}
-			else{
-				this.shoppingWorld.chestMap.remove(new VectorKey(new Vector(this.chest_x, this.chest_y, this.chest_z)));
-			}
-			this.shoppingWorld.blockMap.remove(new VectorKey(new Vector(this.location_x,this.location_y,this.location_z)));
-		}
-		this.shoppingWorld.chestMap.remove(new VectorKey(new Vector(this.chest_x, this.chest_y, this.chest_z)));
-		Bukkit.getScheduler().runTaskLater(ShopManager.plugin, new Runnable(){
-			public void run(){
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "shop reload");
-			}
-		}, 1L);
+		villager.remove();
 	}
 	
 	protected void setCurrentTradingPartner(Player player){
@@ -453,11 +259,6 @@ class Shop {
 	}
 	
 	//static stuff
-	
-	protected static Shop load(ShoppingWorld shoppingWorld, ConfigurationSection dataSection){
-		Shop shop = new Shop(shoppingWorld, dataSection);
-		return shop;
-	}
 	
 	private static ArmorStand spawnArmorStand(int shop_id, Location location){
 		ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(new Location(location.getWorld(), location.getX(),location.getY()-0.5, location.getZ()), EntityType.ARMOR_STAND);
@@ -476,39 +277,64 @@ class Shop {
 		return villager;
 	}
 	
-	public static Shop create(Player owner, int marketplace_id, Chest chest, Location location){
+	public static Shop create(Player owner, Location location){
 		String shopName = "§a"+owner.getName()+"s Shop";
-		int chest_x = (chest!=null) ? chest.getX() : location.getBlockX();
-		int chest_y = (chest!=null) ? chest.getY() : 0;
-		int chest_z = (chest!=null) ? chest.getZ() : location.getBlockZ();
 		YamlConfiguration yamlConfiguration;
 		yamlConfiguration = DataSource.getYamlResponse("shop/create.php", new String[]{
-				"world="+owner.getWorld().getName(),
-				"marketplace_id="+marketplace_id,
 				"player="+owner.getUniqueId(),
-				"name="+URLEncoder.encode(shopName),
-				"location[x]="+location.getBlockX(),
-				"location[y]="+location.getBlockY(),
-				"location[z]="+location.getBlockZ(),
-				"chest[x]="+chest_x,
-				"chest[y]="+chest_y,
-				"chest[z]="+chest_z,
+				"name="+URLEncoder.encode(shopName)
 		});
 		if(yamlConfiguration==null || !yamlConfiguration.contains("shop")){
 			owner.sendMessage("[§dMarktplatz§r] §cBeim Erstellen des Händlers ist ein Fehler aufgetreten.");
 			return null;
 		}
-		Shop shop = new Shop(ShoppingWorld.get(location.getWorld()), yamlConfiguration.getConfigurationSection("shop"));
-		shop.shoppingWorld.shops.put(shop.shop_id, shop);
+		Shop shop = new Shop(yamlConfiguration.getConfigurationSection("shop"));
+		shops.put(shop.shop_id, shop);
 		shop.spawnAgent(location);
-		if(shop.getChest()!=null){
-			location.getBlock().setType(shop.getMarketplace().getShopMarker());
+		return shop;
+	}
+	
+	protected static Shop get(Villager villager){
+		if(villager.getVehicle()==null){
+			return null;
 		}
-		Bukkit.getScheduler().runTaskLater(ShopManager.plugin, new Runnable(){
-			public void run(){
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "shop reload");
-			}
-		}, 1L);
+		if(villager.getVehicle().getType()!=EntityType.ARMOR_STAND){
+			Bukkit.getLogger().info("[ShopManager] Vehicle ist kein ArmorStand");
+			return null;
+		}
+		ArmorStand armorStand = (ArmorStand) villager.getVehicle();
+		if(armorStand.getCustomName()==null){
+			Bukkit.getLogger().info("[ShopManager] ArmorStand hat keinen CustomName");
+			return null;
+		}
+		String customName = armorStand.getCustomName();
+		if(!customName.contains("§rShop_")){
+			Bukkit.getLogger().info("[ShopManager] ArmorStand hat keine gültige Identifikation");
+			return null;
+		}
+		int shop_id = Integer.parseInt(customName.split("_")[1]);
+		Bukkit.getLogger().info("[ShopManager] Shop-ID ist "+shop_id);
+		return Shop.get(shop_id);
+	}
+	
+	protected static Shop get(int shop_id){
+		if(shops.containsKey(shop_id)) return shops.get(shop_id);
+		return Shop.load(shop_id);
+	}
+	
+	private static Shop load(int shop_id){
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("shop/load.php", new String[]{
+				"shop="+shop_id
+		});
+		if(yamlConfiguration==null || !yamlConfiguration.contains("shop")) return null;
+		return Shop.load(yamlConfiguration.getConfigurationSection("shop"));
+	}
+	
+	protected static Shop load(ConfigurationSection dataSection){
+		int shop_id = dataSection.getInt("shop_id");
+		if(shops.containsKey(shop_id)) return shops.get(shop_id);
+		Shop shop = new Shop(dataSection);
+		shops.put(shop_id,shop);
 		return shop;
 	}
 }

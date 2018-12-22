@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -24,6 +24,7 @@ import org.bukkit.scheduler.BukkitTask;
 class ShopEditor implements Listener{
 	
 	private final Shop shop;
+	private final Villager villager;
 	private final Player player;
 	private InventoryView inventoryView;
 	private final Inventory inventory;
@@ -34,8 +35,9 @@ class ShopEditor implements Listener{
 	private BukkitTask waitTimeoutTask = null;
 	private boolean closed = false;
 	
-	private ShopEditor(Shop shop, Player player, InventoryView inventoryView){
+	private ShopEditor(Shop shop, Villager villager, Player player, InventoryView inventoryView){
 		this.shop = shop;
+		this.villager = villager;
 		this.player = player;
 		this.inventoryView = inventoryView;
 		this.inventory = inventoryView.getTopInventory();
@@ -47,9 +49,9 @@ class ShopEditor implements Listener{
 		}
 		Bukkit.getPluginManager().registerEvents(this, ShopManager.plugin);
 	}
-	protected static ShopEditor open(Shop shop, Player player, InventoryView inventoryView){
+	protected static ShopEditor open(Shop shop, Villager villager, Player player, InventoryView inventoryView){
 		if(player==null || inventoryView==null) return null;
-		return new ShopEditor(shop, player, inventoryView);
+		return new ShopEditor(shop, villager, player, inventoryView);
 	}
 	
 	private void updateShopTrades(ItemStack[] newContents){
@@ -84,7 +86,7 @@ class ShopEditor implements Listener{
 				newRecipes.add(recipe);
 			}
 		}
-		this.shop.setRecipes(newRecipes);
+		this.shop.setRecipes(newRecipes, villager);
 	}
 	
 	protected void close(){
@@ -144,19 +146,7 @@ class ShopEditor implements Listener{
 		}
 		else if(event.getSlot()==26){
 			//delete
-			if(shop.getChest()!=null){
-				//if the shop works with a chest it's not an admin shop and therefore needs to refund its contract
-				ItemStack itemStack;
-				Location location = event.getView().getPlayer().getEyeLocation();
-				for(int i = 0; i < inventory.getSize(); i++){
-					if(i==8||i==17||i==26) continue;
-					itemStack = inventory.getItem(i);
-					if(itemStack==null) continue;
-					location.getWorld().dropItem(location, itemStack);
-				}
-				location.getWorld().dropItem(location, ShopManager.plugin.shopContractBuilder.build());
-			}
-			shop.delete();
+			shop.delete(villager);
 			event.setCancelled(true);
 			this.close();
 		}
@@ -172,7 +162,7 @@ class ShopEditor implements Listener{
 			public void run(){
 				shop.setName("§a"+event.getMessage());
 				close();
-				shop.openEditor(player, shop.getAgents().length>0 ? shop.getAgents()[0] : null);
+				shop.openEditor(player, villager);
 			}
 		}, 1L);
 		if(this.waitTimeoutTask!=null){

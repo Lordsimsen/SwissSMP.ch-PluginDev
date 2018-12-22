@@ -64,23 +64,15 @@ public class ShopManager extends JavaPlugin{
 	
 	protected CustomItemBuilder shopContractBuilder;
 	
-	protected HashMap<World,ShoppingWorld> worlds = new HashMap<World,ShoppingWorld>();
-	
 	@Override
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
-		//Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		this.getCommand("shop").setExecutor(new PlayerCommand());
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
-
-		Bukkit.getScheduler().runTaskLater(ShopManager.plugin, new Runnable(){
-			public void run(){
-				loadWorlds();
-				loadShopContract();
-			}
-		}, 1L);
+		
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
 	protected static boolean isShopContract(ItemStack itemStack){
@@ -90,44 +82,11 @@ public class ShopManager extends JavaPlugin{
 		if(!itemMeta.hasDisplayName()) return false;
 		return itemMeta.getDisplayName().equals("§EHändler-Vertrag");
 	}
-	
-	private void loadShopContract(){
-		CustomItemBuilder shopContract = CustomItems.getCustomItemBuilder("CONTRACT");
-		if(shopContract==null){
-			//Bukkit.getLogger().info("[ShopManager] Händler-Vertrag konnte nicht geladen werden.");
-			return;
-		}
-		shopContract.setAmount(1);
-		shopContract.setDisplayName("§EHändler-Vertrag");
-		List<String> lore = new ArrayList<String>();
-		lore.add("§7Platziert einen Händler.");
-		lore.add("§7Rechtsklick auf Kiste, danach");
-		lore.add("§7auf Stelle für den Händler.");
-		shopContract.setLore(lore);
-		this.shopContractBuilder = shopContract;
-		ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(ShopManager.plugin, "Händler-Vertrag"), shopContract.build());
-		recipe.shape(
-				"eee",
-				"drd",
-				"eee"
-				);
-		recipe.setIngredient('e', Material.EMERALD);
-		recipe.setIngredient('d', Material.DIAMOND);
-		recipe.setIngredient('r', Material.ROTTEN_FLESH);
-		Bukkit.getServer().addRecipe(recipe);
-	}
-	
-	protected void loadWorlds(){
-		worlds.clear();
-		for(World world : Bukkit.getWorlds()){
-			worlds.put(world, ShoppingWorld.load(world));
-		}
-	}
 
 	@Override
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
-		//Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 }

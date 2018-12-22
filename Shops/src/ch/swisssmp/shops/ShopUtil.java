@@ -7,23 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
 public class ShopUtil {
-	protected static int countTradeOwnerSide(MerchantRecipe recipe, Inventory storage){
-		ItemStack result = recipe.getResult();
-		int storageAvailability = 0;
-		for(int i = 0; i < storage.getSize(); i++){
-			ItemStack itemStack = storage.getItem(i);
-			if(itemStack==null) continue;
-			if(itemStack.isSimilar(result)){
-				storageAvailability+=itemStack.getAmount();
-			}
-		}
-		return (int)Math.floor(storageAvailability/(double)result.getAmount());
-	}
 	protected static int countTradeBuyerSide(MerchantRecipe recipe, ItemStack[] payment){
 		ItemStack price_1 = recipe.getIngredients().get(0);
 		ItemStack price_2 = null;
