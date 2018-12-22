@@ -32,7 +32,11 @@ public final class PlayerCommand implements CommandExecutor{
 		case "balance":{
 			if(!(sender instanceof Player)) return true;
 			Player player = (Player) sender;
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("players/balance.php", new String[]{"player="+URLEncoder.encode(player.getUniqueId().toString())});
+			String currencyType = (args!=null && args.length>0) ? args[0] : "EVENT_POINT";
+			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("players/balance.php", new String[]{
+					"player="+URLEncoder.encode(player.getUniqueId().toString()),
+					"currency="+URLEncoder.encode(currencyType)
+					});
 			if(yamlConfiguration==null) return true;
 			if(!yamlConfiguration.contains("message")) return true;
 			for(String line : yamlConfiguration.getStringList("message"))

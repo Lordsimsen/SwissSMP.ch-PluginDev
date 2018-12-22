@@ -39,10 +39,10 @@ commands:
     permission: smp.commands.help
     aliases: [hilfe]
   balance:
-    description: Zeigt deine Schoggitaler an
-    usage: /balance
+    description: Zeigt dein Vermögen an
+    usage: /balance (Währung)
     permission: smp.commands.balance
-    aliases: [eventpunkte,ep]
+    aliases: [eventpunkte]
   seen:
     description: Zeigt an wann ein Spieler zuletzt online war
     usage: /seen [player]

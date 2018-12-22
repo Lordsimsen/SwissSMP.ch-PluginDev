@@ -63,4 +63,8 @@ public final class SwissSMPUtils extends JavaPlugin{
 		yamlConfiguration.set("item", itemStack);
 		return Base64.encodeBase64URLSafeString(yamlConfiguration.saveToString().getBytes());
 	}
+	
+	public static PluginSender getPluginSender(){
+		return new PluginSender();
+	}
 }
