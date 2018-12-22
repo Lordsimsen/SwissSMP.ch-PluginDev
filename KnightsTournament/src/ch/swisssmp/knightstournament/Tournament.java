@@ -24,6 +24,7 @@ import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 import ch.swisssmp.utils.Random;
+import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.SwissSMPler;
 
 public class Tournament implements Listener{
@@ -173,7 +174,7 @@ public class Tournament implements Listener{
 		this.announce("Turnier startet", this.registeredPlayers.size()+" Teilnehmer");
 		this.arena.playBeginSound();
 		for(Player player : this.registeredPlayers){
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement grant "+player.getName()+" only swisssmp:events/knights_tournament/participate_in_tournament");
+			Bukkit.dispatchCommand(SwissSMPUtils.getPluginSender(), "advancement grant "+player.getName()+" only swisssmp:events/knights_tournament/participate_in_tournament");
 		}
 		return true;
 	}
@@ -188,7 +189,7 @@ public class Tournament implements Listener{
 					this.arena.playEndSound();
 					this.announce(player.getDisplayName(), "hat das Turnier gewonnen!");
 					if(this.registeredPlayers.size()>=8){
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement grant "+player.getName()+" only swisssmp:events/knights_tournament/win_tournament");
+						Bukkit.dispatchCommand(SwissSMPUtils.getPluginSender(), "advancement grant "+player.getName()+" only swisssmp:events/knights_tournament/win_tournament");
 					}
 					Location location = player.getLocation();
 					for(int i = 0; i < 10; i++){
