@@ -10,6 +10,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
@@ -153,9 +154,13 @@ public class CustomItems extends JavaPlugin{
 				break;
 			}
 			case "item_flags":{
-				ConfigurationSection itemFlagsSection = dataSection.getConfigurationSection("item_flags");
-				for(String itemFlagKey : itemFlagsSection.getKeys(false)){
-					customItemBuilder.addItemFlags(itemFlagsSection.getItemFlag(itemFlagKey));
+				for(String itemFlag : dataSection.getStringList("item_flags")){
+					try{
+						customItemBuilder.addItemFlags(ItemFlag.valueOf(itemFlag));
+					}
+					catch(Exception e){
+						Bukkit.getLogger().info("[CustomItems] Ungültige Item Flag "+itemFlag+"!");
+					}
 				}
 				break;
 			}
@@ -219,6 +224,14 @@ public class CustomItems extends JavaPlugin{
 				//if not declared but item_id is included the item builder will fetch linked data from the web-interface
 			case "probability":{
 				//probability can be used outside to add a chance of generating an item at all
+				break;
+			}
+			case "expiration_date":{
+				customItemBuilder.setExpirationDate(dataSection.getInt("expiration_date"));
+				break;
+			}
+			case "max_stack_size":{
+				customItemBuilder.setMaxStackSize(dataSection.getInt("max_stack_size"));
 				break;
 			}
 			default:{
@@ -296,5 +309,16 @@ public class CustomItems extends JavaPlugin{
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+	
+	public static void clearExpiredItems(Inventory inventory){
+		long currentTime = System.currentTimeMillis()/1000;
+		long expirationDate;
+		for(ItemStack itemStack : inventory){
+			if(itemStack==null) continue;
+			expirationDate = ItemUtil.getInt(itemStack, "expirationDate");
+			if(expirationDate==0 || expirationDate>currentTime) continue;
+			itemStack.setAmount(0);
+		}
 	}
 }

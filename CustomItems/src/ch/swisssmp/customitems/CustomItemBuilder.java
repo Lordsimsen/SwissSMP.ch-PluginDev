@@ -1,9 +1,12 @@
 package ch.swisssmp.customitems;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
@@ -42,6 +45,8 @@ public class CustomItemBuilder {
 	private int item_id = 0;
 	private int maxCustomDurability = 0;
 	private int customDurability = 0;
+	private long expirationDate = 0;
+	private int maxStackSize = 0;
 	
 	private double attackDamage = -1;
 	private double attackSpeed = -1f;
@@ -111,6 +116,14 @@ public class CustomItemBuilder {
 	public void setSkullOwner(String owner){
 		this.skullOwner = owner;
 	}
+	/**
+	 * Setzt wann der ItemStack aus Inventaren entfernt werden soll
+	 * @param expirationDate - Timestamp in Sekunden
+	 */
+	public void setExpirationDate(int expirationDate){
+		this.expirationDate = expirationDate;
+		this.useNMS = useNMS || expirationDate>0;
+	}
 	public void setCustomEnum(String customEnum){
 		this.useNMS = true;
 		this.customEnum = customEnum;
@@ -165,6 +178,9 @@ public class CustomItemBuilder {
 		this.useNMS = true;
 		this.customPotionColor = customPotionColor;
 	}
+	public void setMaxStackSize(int maxStackSize){
+		this.maxStackSize = maxStackSize;
+	}
 	/**
 	 * To check validity
 	 * @return
@@ -212,6 +228,14 @@ public class CustomItemBuilder {
 			itemMeta.setLocalizedName(this.localizedName);
 		}
 		if(this.lore.size()>0){
+			itemMeta.setLore(lore);
+		}
+		if(this.expirationDate>0){
+			List<String> lore = itemMeta.getLore();
+			if(lore==null) lore = new ArrayList<String>();
+			Date date = new Date(this.expirationDate*1000L);//Date expects millis, expirationDate is seconds
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+			lore.add(ChatColor.GRAY+"Ablaufdatum: "+dateFormat.format(date));
 			itemMeta.setLore(lore);
 		}
 		if(this.unbreakable!=itemMeta.isUnbreakable()){
@@ -302,6 +326,12 @@ public class CustomItemBuilder {
 			}
 			if(this.colorMap>0){
 				nbtTags.setInt("ColorMap", this.colorMap);
+			}
+			if(this.expirationDate>0){
+				nbtTags.setLong("expirationDate", this.expirationDate);
+			}
+			if(this.maxStackSize>0){
+				nbtTags.setInt("maxStackSize", this.maxStackSize);
 			}
 			NBTBase attributeModifiers = this.buildAttributeModifiers();
 			if(!attributeModifiers.isEmpty()){
