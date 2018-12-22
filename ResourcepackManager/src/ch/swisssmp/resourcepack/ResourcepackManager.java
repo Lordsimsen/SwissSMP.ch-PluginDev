@@ -10,6 +10,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ch.swisssmp.utils.URLEncoder;
+import ch.swisssmp.webcore.DataSource;
+
 public class ResourcepackManager extends JavaPlugin{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
@@ -17,8 +20,6 @@ public class ResourcepackManager extends JavaPlugin{
 	protected static ResourcepackManager plugin;
 	
 	protected static HashMap<Player,String> playerMap = new HashMap<Player,String>();
-	
-	private ResourcepackUpdater resourcepackUpdater;
 	
 	@Override
 	public void onEnable() {
@@ -32,13 +33,6 @@ public class ResourcepackManager extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
-		
-		if(Bukkit.getPluginManager().getPlugin("AdventureDungeons")!=null){
-			this.resourcepackUpdater = new AdventureResourcepackUpdater();
-		}
-		else{
-			this.resourcepackUpdater = new VanillaResourcepackUpdater();
-		}
 	}
 	
 	public static void setResourcepack(Player player, String resourcepack){
@@ -46,8 +40,13 @@ public class ResourcepackManager extends JavaPlugin{
 		if(playerMap.containsKey(player) && playerMap.get(player).equals(resourcepack))
 			return;
 		playerMap.remove(player);
+		if(resourcepack==null) return;
+		String url = DataSource.getResponse("resourcepack/get_url.php", new String[]{
+				"resourcepack="+URLEncoder.encode(resourcepack)
+		});
+		if(url==null || url.isEmpty()) return;
 		playerMap.put(player, resourcepack);
-		player.setResourcePack(resourcepack);
+		player.setResourcePack(url);
 	}
 	
 	public static String getResourcepack(Player player){
@@ -63,7 +62,11 @@ public class ResourcepackManager extends JavaPlugin{
 	}
 	
 	public static void updateResourcepack(Player player){
-		plugin.resourcepackUpdater.updateResourcepack(player);
+		PlayerResourcePackUpdateEvent event = new PlayerResourcePackUpdateEvent(player);
+		Bukkit.getPluginManager().callEvent(event);
+		String resourcepack = String.join("+", event.getComponents());
+		ResourcepackManager.setResourcepack(player, resourcepack);
+		
 	}
 
 	@Override
