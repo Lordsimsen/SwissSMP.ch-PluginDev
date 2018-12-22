@@ -203,7 +203,7 @@ public class BlockUtil {
 		Block max = BlockUtil.getMaxBlock(boundingBox);
 		Block imageBoxOrigin = BlockUtil.getFurthestValidBlock(min.getRelative(BlockFace.DOWN), BlockFace.DOWN, Material.IRON_BLOCK, 20);
 		if(imageBoxOrigin==null){
-			System.out.println("[DungeonGenerator] No Part Image found at "+min.getX()+","+min.getY()+","+min.getZ());
+			//System.out.println("[DungeonGenerator] No Part Image found at "+min.getX()+","+min.getY()+","+min.getZ());
 			return null;
 		}
 		int width = max.getX()-min.getX()-1;
