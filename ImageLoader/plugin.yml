@@ -1,0 +1,15 @@
+main: ch.swisssmp.imageloader.ImageLoaderPlugin
+version: 1.0
+api-version: 1.13
+name: ImageLoader
+author: detig_iii
+description: Erlaubt bedrucken von Map Items mit Bildern aus dem Internet
+permissions:
+  imageloader.admin:
+    description: Erlaubt Verwendung des Plugins
+    default: op
+commands:
+  imageloader:
+    usage: /imageloader load [URL] §7- Lädt ein Bild aus dem Internet auf die Karte in deiner Hand
+    description: Steuert den ImageLoader
+    permission: imageloader.admin
