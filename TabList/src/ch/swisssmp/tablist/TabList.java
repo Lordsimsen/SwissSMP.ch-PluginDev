@@ -11,6 +11,7 @@ import ch.swisssmp.utils.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -22,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.google.gson.JsonObject;
 
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import net.minecraft.server.v1_13_R2.IChatBaseComponent;
@@ -44,6 +46,9 @@ public class TabList extends JavaPlugin implements Listener{
 		logger = Logger.getLogger("Minecraft");
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		Bukkit.getPluginManager().registerEvents(this, this);
+		if(Bukkit.getPluginManager().getPlugin("PermissionManager")!=null){
+			Bukkit.getPluginManager().registerEvents(new PermissionsListener(), this);
+		}
 		Bukkit.getPluginCommand("tablist").setExecutor(new PlayerCommand());
 	}
 
@@ -54,11 +59,9 @@ public class TabList extends JavaPlugin implements Listener{
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
-	@EventHandler
+	@EventHandler(priority=EventPriority.MONITOR)
 	private void onPlayerJoin(PlayerJoinEvent event){
-		Player player = event.getPlayer();
-		configurePlayer(player);
-		event.setJoinMessage(ChatColor.RESET+"["+ChatColor.GREEN+"+"+ChatColor.RESET+"] "+player.getDisplayName());
+		event.setJoinMessage("");
 		//setPlayerlistFooter(player, "Livemap: map.swisssmp.ch:8188");
 	}
 	@EventHandler
@@ -69,22 +72,28 @@ public class TabList extends JavaPlugin implements Listener{
 	
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerChat(AsyncPlayerChatEvent event){
-		String displayName = event.getPlayer().getDisplayName();
-		if(displayName.contains("[Gast]")){
-			event.setFormat("%1$s"+ChatColor.RESET+ChatColor.GRAY+": "+ChatColor.RESET+"%2$s");
-		}
-		else{
-			event.setFormat(ChatColor.RESET+"[%1$s"+ChatColor.RESET+"] %2$s");
-		}
+		event.setFormat(ChatColor.RESET+"[%1$s"+ChatColor.RESET+"] %2$s");
 	}
 	
-	public static void configurePlayer(Player player){
-		if(player==null) return;
-		YamlConfiguration yamlConfiguration;
-			yamlConfiguration = DataSource.getYamlResponse("tablist/info.php", new String[]{
+	public static HTTPRequest configurePlayer(Player player){
+		return configurePlayer(player, false);
+	}
+	
+	public static HTTPRequest configurePlayer(Player player, boolean joining){
+		if(player==null) return null;
+		HTTPRequest request = DataSource.getResponse(plugin, "info.php", new String[]{
 				"player="+player.getUniqueId().toString(),
 				"name="+URLEncoder.encode(player.getName())
 			});
+		request.onFinish(()->{
+			configurePlayer(request.getYamlResponse(), player);
+			if(!joining) return;
+			Bukkit.broadcastMessage(ChatColor.RESET+"["+ChatColor.GREEN+"+"+ChatColor.RESET+"] "+player.getDisplayName());
+		});
+		return request;
+	}
+	
+	private static void configurePlayer(YamlConfiguration yamlConfiguration, Player player){
 		ConfigurationSection headerSection = yamlConfiguration.getConfigurationSection("header");
 		String header = getChatString(headerSection);
 		ConfigurationSection footerSection = yamlConfiguration.getConfigurationSection("footer");

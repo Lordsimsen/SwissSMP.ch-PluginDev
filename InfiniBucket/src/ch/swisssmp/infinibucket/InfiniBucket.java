@@ -1,8 +1,8 @@
 package ch.swisssmp.infinibucket;
 
 import java.util.Arrays;
-import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
@@ -20,21 +20,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class InfiniBucket extends JavaPlugin implements Listener{
 	public ItemMeta infinibucketmeta;
-	public Logger logger;
 	public ItemStack infinibucket;
 	public Server server;
 	private NamespacedKey namespacedKey;
 	
 	public void onEnable() {
 		PluginDescriptionFile pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		server = getServer();
 		namespacedKey = new NamespacedKey(this, "Wasserversorgung");
@@ -43,9 +40,7 @@ public class InfiniBucket extends JavaPlugin implements Listener{
 		createRecipe();
 	}
 	public void createRecipe(){
-		logger = Logger.getLogger("Minecraft");
-		MaterialData mat_data = new MaterialData(Material.WATER_BUCKET);
-		infinibucket = mat_data.toItemStack(1);
+		infinibucket = new ItemStack(Material.WATER_BUCKET);
 		ItemMeta meta = infinibucket.getItemMeta();
 		meta.addEnchant(Enchantment.ARROW_INFINITE, 1, false);
 		meta.setDisplayName("InfiniBucket");
@@ -54,15 +49,14 @@ public class InfiniBucket extends JavaPlugin implements Listener{
 		infinibucket.setItemMeta(infinibucketmeta);
 		ShapedRecipe bucket = new ShapedRecipe(namespacedKey, infinibucket);
 		bucket.shape(" e "," w "," b ");
-		bucket.setIngredient('e', Material.EYE_OF_ENDER);
+		bucket.setIngredient('e', Material.ENDER_EYE);
 		bucket.setIngredient('w', Material.POTION);
 		bucket.setIngredient('b', Material.BUCKET);
 		server.addRecipe(bucket);
-		logger.info("Custom Recipe has been created");
 	}
 	public void onDisable() {
 		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
     @EventHandler(ignoreCancelled=true)
     public void craftItem(PrepareItemCraftEvent event) {
@@ -104,7 +98,7 @@ public class InfiniBucket extends JavaPlugin implements Listener{
         if(isInfiniBucket)
         {
         	if(!player.hasPermission("infinibucket.use")){
-        		player.sendMessage("Du hast keine Macht über diesen Eimer!");
+        		player.sendMessage("Du hast keine Macht ï¿½ber diesen Eimer!");
             	event.setCancelled(true);
         	}
         	else{

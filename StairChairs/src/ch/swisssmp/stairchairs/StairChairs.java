@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,7 +16,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class StairChairs extends JavaPlugin{
-	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
 	protected static File dataFolder;
 	protected static StairChairs plugin;
@@ -30,11 +28,10 @@ public class StairChairs extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
 	protected static void removeUnusedArmorStands(List<Entity> entities){
@@ -71,6 +68,6 @@ public class StairChairs extends JavaPlugin{
 		entityMap.clear();
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 }

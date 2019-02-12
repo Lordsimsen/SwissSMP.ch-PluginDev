@@ -5,6 +5,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected.Half;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.Slab.Type;
+import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -19,11 +25,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.material.MaterialData;
-import org.bukkit.material.Stairs;
-import org.bukkit.material.Step;
-import org.bukkit.material.TrapDoor;
-import org.bukkit.material.WoodenStep;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
@@ -46,9 +47,9 @@ public class EventListener implements Listener {
 		location.add(0, -1.15, 0);
 		if(block.getState().getData() instanceof Stairs){
 			Stairs stairs = (Stairs)block.getState().getData();
-			if(stairs.isInverted()) return;
+			if(stairs.getHalf()==Half.TOP) return;
 			double offset = 0.2;
-			switch(stairs.getDescendingDirection()){
+			switch(stairs.getFacing()){
 			case NORTH:
 				location = location.add(0, 0, -offset);
 				location.setDirection(new Vector(0,0,-1));
@@ -69,7 +70,7 @@ public class EventListener implements Listener {
 				return;
 			}
 		}
-		else if(block.getState().getData() instanceof Step || block.getState().getData() instanceof WoodenStep){
+		else if(block.getState().getData() instanceof Slab){
 			Vector direction = new Vector(0, 0, 0);
 			Block north = block.getRelative(BlockFace.NORTH);
 			Block east = block.getRelative(BlockFace.EAST);
@@ -117,15 +118,12 @@ public class EventListener implements Listener {
 	}
 	
 	private static boolean isChair(Block block){
-		MaterialData blockData = block.getState().getData();
+		BlockData blockData = block.getBlockData();
 		if(blockData instanceof Stairs){
-			return !((Stairs)blockData).isInverted();
+			return ((Stairs)blockData).getHalf()!=Half.TOP;
 		}
-		else if(blockData instanceof Step){
-			return !((Step)blockData).isInverted();
-		}
-		else if(blockData instanceof WoodenStep){
-			return !((WoodenStep)blockData).isInverted();
+		else if(blockData instanceof Slab){
+			return ((Slab)blockData).getType()!=Type.TOP;
 		}
 		return false;
 	}
@@ -137,26 +135,23 @@ public class EventListener implements Listener {
 				material == Material.ITEM_FRAME ||
 				material == Material.PAINTING ||
 				material == Material.TORCH ||
-				material == Material.REDSTONE_TORCH_OFF ||
-				material == Material.REDSTONE_TORCH_ON);
+				material == Material.REDSTONE_TORCH ||
+				material == Material.REDSTONE_WALL_TORCH);
 	}
 	
 	private static boolean isTable(Block block){
-		MaterialData blockData = block.getState().getData();
+		BlockData blockData = block.getBlockData();
 		if(blockData instanceof Stairs){
-			return ((Stairs)blockData).isInverted();
+			return ((Stairs)blockData).getHalf()!=Half.TOP;
 		}
-		else if(blockData instanceof Step){
-			return ((Step)blockData).isInverted();
-		}
-		else if(blockData instanceof WoodenStep){
-			return ((WoodenStep)blockData).isInverted();
+		else if(blockData instanceof Slab){
+			return ((Slab)blockData).getType()!=Type.TOP;
 		}
 		else if(blockData instanceof TrapDoor){
-			return ((TrapDoor)blockData).isInverted() && !((TrapDoor)blockData).isOpen();
+			return ((TrapDoor)blockData).getHalf()!=Half.TOP && !((TrapDoor)blockData).isOpen();
 		}
 		else if(block.getType().toString().contains("FENCE")) return true;
-		else if(block.getType()==Material.COBBLE_WALL) return true;
+		else if(block.getType()==Material.COBBLESTONE_WALL) return true;
 		else return false;
 	}
 	

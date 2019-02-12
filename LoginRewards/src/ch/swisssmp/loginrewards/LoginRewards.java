@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class LoginRewards extends JavaPlugin{
 	protected static Logger logger;
@@ -39,9 +40,15 @@ public class LoginRewards extends JavaPlugin{
 	}
 	
 	protected static void trigger(Player player){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("players/trigger_rewards.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(plugin, "trigger_rewards.php", new String[]{
 				"player_uuid="+player.getUniqueId().toString()
 		});
+		request.onFinish(()->{
+			trigger(request.getYamlResponse(), player);
+		});
+	}
+	
+	private static void trigger(YamlConfiguration yamlConfiguration, Player player){
 		if(yamlConfiguration==null || !yamlConfiguration.contains("message")) return;
 		for(String line : yamlConfiguration.getStringList("message")){
 			SwissSMPler.get(player).sendRawMessage(line);
@@ -49,6 +56,6 @@ public class LoginRewards extends JavaPlugin{
 	}
 	
 	protected static void reset(){
-		DataSource.getResponse("players/reset_rewards.php");
+		DataSource.getResponse(plugin, "reset_rewards.php");
 	}
 }

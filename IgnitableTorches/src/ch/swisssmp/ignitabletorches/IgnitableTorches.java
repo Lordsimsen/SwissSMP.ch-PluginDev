@@ -43,7 +43,7 @@ public class IgnitableTorches extends JavaPlugin{
 			Directional directional = (Directional) block.getState().getData();
 			direction = directional.getFacing();
 		}
-		block.setTypeIdAndData(Material.TORCH.getId(), IgnitableTorches.getFacingByte(direction), false);
+		block.setBlockData(Bukkit.createBlockData(Material.TORCH), false);
 	}
 	
 	private static byte getFacingByte(BlockFace face){

@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class PlayerCommand implements CommandExecutor{
 
@@ -21,22 +22,24 @@ public class PlayerCommand implements CommandExecutor{
 		Player player = (Player) sender;
 		switch(label){
 		case "spawn":{
-			YamlConfiguration yamlConfiguration;
-			yamlConfiguration = DataSource.getYamlResponse("spawn/world_spawn.php", new String[]{
+			HTTPRequest request = DataSource.getResponse(SpawnManager.getInstance(), "world_spawn.php", new String[]{
 					"world="+URLEncoder.encode(player.getWorld().getName())
 			});
-			if(yamlConfiguration==null) return true;
-			Location location = yamlConfiguration.getLocation("spawnpoint");
-			if(location!=null){
-				player.teleport(location);
-			}
+			request.onFinish(()->{
+				YamlConfiguration yamlConfiguration = request.getYamlResponse();
+				if(yamlConfiguration==null) return;
+				Location location = yamlConfiguration.getLocation("spawnpoint");
+				if(location!=null){
+					player.teleport(location);
+				}
+			});
 			break;
 		}
 		case "settemplespawn":{
 			if(args==null || args.length<1) return false;
 			World world = player.getWorld();
 			Location location = player.getLocation();
-			String response = DataSource.getResponse("spawn/set_temple_spawn.php", new String[]{
+			HTTPRequest request = DataSource.getResponse(SpawnManager.getInstance(), "set_temple_spawn.php", new String[]{
 				"city="+URLEncoder.encode(args[0]),
 				"world="+URLEncoder.encode(world.getName()),
 				"x="+(int)Math.round(location.getX()),
@@ -45,11 +48,13 @@ public class PlayerCommand implements CommandExecutor{
 				"pitch="+location.getPitch(),
 				"yaw="+location.getYaw()
 			});
-			player.sendMessage(response);
-			break;
+			request.onFinish(()->{
+				if(!request.getResponse().isEmpty()) player.sendMessage(request.getResponse());
+			});
+			
+			return true;
 		}
 		}
 		return true;
 	}
-
 }
