@@ -1,5 +1,6 @@
 main: ch.swisssmp.worldguardmanager.WorldGuardManager
-version: 1.0
+version: 1.1
+api-version: 1.13
 name: WorldGuardManager
 author: detig_iii
 description: Manage WorldGuard from the web interface

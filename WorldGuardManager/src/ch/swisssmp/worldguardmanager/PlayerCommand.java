@@ -11,7 +11,7 @@ public class PlayerCommand implements CommandExecutor{
 		if(args==null || args.length<1) return false;
 		switch(args[0]){
 		case "reload":{
-			WorldGuardManager.plugin.UpdateWorldGuardInfos();
+			WorldGuardManager.updateWorldGuardInfos();
 			sender.sendMessage("[WorldGuardManager] Regionen aktualisiert.");
 			break;
 		}

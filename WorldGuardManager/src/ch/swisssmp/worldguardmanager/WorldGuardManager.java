@@ -1,11 +1,9 @@
 package ch.swisssmp.worldguardmanager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -13,41 +11,55 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.RequestMethod;
 
 public class WorldGuardManager extends JavaPlugin{
-	protected static Logger logger;
-	protected static PluginDescriptionFile pdfFile;
-	protected static File dataFolder;
-	protected static WorldGuardManager plugin;
+	private static PluginDescriptionFile pdfFile;
+	private static WorldGuardManager plugin;
 	
 	@Override
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
 		
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("worldguardmanager").setExecutor(playerCommand);
 		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		Plugin worldguardplugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
 		if(plugin == null || !(worldguardplugin instanceof WorldGuardPlugin)){
-			logger.info("WorldGuard not found, WorldGuardManager exiting...");
+			Bukkit.getLogger().info("WorldGuard not found, WorldGuardManager exiting...");
 			onDisable();
 		}
-		UpdateWorldGuardInfos();
+		updateWorldGuardInfos();
+	}
+
+	@Override
+	public void onDisable() {
+		PluginDescriptionFile pdfFile = getDescription();
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
-	public void UpdateWorldGuardInfos(){
+	public static RegionManager getRegionManager(World world){
+		WorldGuardPlatform platform = WorldGuard.getInstance().getPlatform();
+		com.sk89q.worldedit.world.World worldEditWorld = platform.getWorldByName(world.getName());
+		RegionContainer container = platform.getRegionContainer();
+		RegionManager regionManager = container.get(worldEditWorld);
+		return regionManager;
+	}
+	
+	public static void updateWorldGuardInfos(){
 			List<String> informations;
 			
 			List<World> worlds = Bukkit.getWorlds();
@@ -68,7 +80,7 @@ public class WorldGuardManager extends JavaPlugin{
 				if(worldName.contains("instance")) continue;
 				informations = new ArrayList<String>();
 				informations.add("world="+worldName);
-				regionManager = WorldGuardPlugin.inst().getRegionManager(world);
+				regionManager = WorldGuardManager.getRegionManager(world);
 				regions = regionManager.getRegions();
 				for(Entry<String,ProtectedRegion> regionEntry : regions.entrySet()){
 					regionName = URLEncoder.encode(regionEntry.getKey());
@@ -90,15 +102,13 @@ public class WorldGuardManager extends JavaPlugin{
 				}
 				
 				infoArray = new String[informations.size()];
-				
-				DataSource.getResponse("world/region_info.php", informations.toArray(infoArray), RequestMethod.POST);
-				logger.info("Region info for "+worldName+" updated.");
+				informations.toArray(infoArray);
+				DataSource.getResponse(WorldGuardManager.getInstance(), "region_info.php", infoArray, RequestMethod.POST);
+				Bukkit.getLogger().info("[WorldGuardManager] Region info for "+worldName+" updated.");
 			}
 	}
-
-	@Override
-	public void onDisable() {
-		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	
+	public static WorldGuardManager getInstance(){
+		return plugin;
 	}
 }
