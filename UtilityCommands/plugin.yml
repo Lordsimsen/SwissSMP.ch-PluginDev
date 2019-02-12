@@ -1,0 +1,67 @@
+main: ch.swisssmp.utils.UtilityCommands
+version: 1.1
+api-version: 1.13
+name: UtilityCommands
+author: detig_iii
+description: Steuert allgemeine Befehle
+permissions:
+  smp.commands.help:
+    description: Erlaubt Verwendung des Befehls /help
+    default: true
+  smp.commands.seen:
+    description: Erlaubt Verwendung des Befehls /seen
+    default: true
+  smp.commands.list:
+    description: Erlaubt Verwendung des Befehls /list
+    default: true
+  smp.commands.worlds:
+    description: Erlaubt Verwendung des Befehls /worlds
+    default: op
+  smp.commands.hauptstadt:
+    description: Erlaubt die Verwendung von /hauptstadt
+    default: op
+  smp.commands.list:
+    description: Erlaubt Verwendung des Befehls /list
+    default: true
+  smp.commands.more:
+    description: Erlaubt Verwendung des Befehls /more
+    default: op
+  smp.commands.amount:
+    description: Erlaubt Verwendung des Befehls /amount
+    default: op
+commands:
+  help:
+    description: Zeigt die Hilfe an
+    usage: /help
+    permission: smp.commands.help
+    aliases: [hilfe]
+  seen:
+    description: Zeigt an wann ein Spieler zuletzt online war
+    usage: /seen [player]
+    permission: smp.commands.seen
+    aliases: [gesehen]
+  list:
+    description: Zeigt alle aktuellen Spieler auf dem Server an
+    usage: /list
+    permission: smp.commands.list
+  hauptstadt:
+    description: Zeigt und ändert deine Hauptstadt (für Doppelbürger)
+    usage: /hauptstadt (Stadtname) - Bsp. /hauptstadt Spawnstadt
+    permission: smp.commands.hauptstadt
+  more:
+    description: Füllt den Stack in deiner Hand auf oder gibt dir einen zweiten desselben
+    usage: /more
+    permission: smp.commands.more
+    aliases: [mehr]
+  amount:
+    description: Setzt den Stack in deiner Hand auf die angegebene Menge
+    usage: /amount [Anzahl]
+    permission: smp.commands.amount
+    aliases: [menge]
+  rename:
+    description: Gib dem Item in deiner Hand einen neuen Namen
+    usage: /rename [name]
+    permission: smp.commands.rename
+  choose:
+    description: Entscheide bei einer Anfrage
+    usage: /choose [ID der Anfrage] [Auswahl]
