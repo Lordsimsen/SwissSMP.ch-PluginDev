@@ -19,6 +19,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class Portals extends JavaPlugin implements Listener{
 	protected static Logger logger;
@@ -51,10 +52,16 @@ public class Portals extends JavaPlugin implements Listener{
 			return;
 		}
 		Player player = event.getPlayer();
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("portals/portal.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(plugin, "portal.php", new String[]{
 			"portal="+regionName,
 			"player="+player.getUniqueId().toString()
 		});
+		request.onFinish(()->{
+			onPortalEnter(request.getYamlResponse(), player);
+		});
+	}
+	
+	private void onPortalEnter(YamlConfiguration yamlConfiguration, Player player){
 		if(yamlConfiguration==null) return;
 		if(yamlConfiguration.contains("message")){
 			player.sendMessage(yamlConfiguration.getString("message"));
