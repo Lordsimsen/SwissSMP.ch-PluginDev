@@ -1,7 +1,8 @@
 main: ch.swisssmp.addonabnahme.AddonAbnahme
-version: 1.2
+version: 2.1
+api-version: 1.13
 name: AddonAbnahme
-depend: [WebCore]
+depend: [WebCore,CitySystem,NPCs]
 permissions:
   addonabnahme.admin:
     description: Erlaubt die Administration von Addon-Abnahmen
@@ -10,10 +11,11 @@ permissions:
     description: Erlaubt die Anmeldung eines Addons
     default: false
 commands:
-  AddonSign:
-    description: Modifiziert Addon-Schilder
-    usage: |
-           Usage:
-           /AddonSign update [addon_instance_id]
-           /AddonSign clear [x] [y] [z]
+  addon:
+    description: Hauptbefehl zur Verwaltung von Addons
+    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    permission: addonabnahme.admin
+  addon reload:
+    description: Aktualisiert Guides
+    usage: "Verwendung: /<command> <subcommand>"
     permission: addonabnahme.admin
