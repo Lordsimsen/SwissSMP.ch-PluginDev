@@ -1,5 +1,6 @@
 main: ch.swisssmp.resourcepack.ResourcepackManager
-version: 1.5
+version: 1.7
+api-version: 1.13
 name: ResourcepackManager
 author: detig_iii
 description: Organisiert Resourcepack-Zuweisungen

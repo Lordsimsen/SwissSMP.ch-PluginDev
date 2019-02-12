@@ -1,5 +1,6 @@
 package ch.swisssmp.resourcepack;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -11,6 +12,7 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class EventListener implements Listener{
 	@EventHandler(ignoreCancelled=true)
@@ -33,21 +35,20 @@ public class EventListener implements Listener{
 		else if(event.getStatus()==Status.DECLINED){
 			event.getPlayer().setInvulnerable(false);
 			ResourcepackManager.playerMap.remove(event.getPlayer());
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("resourcepack/declined.php", new String[]{
+			HTTPRequest request = DataSource.getResponse(ResourcepackManager.getInstance(), "declined.php", new String[]{
 				"player="+event.getPlayer().getUniqueId()	
 			});
-			if(yamlConfiguration.contains("message")){
-				event.getPlayer().sendMessage(yamlConfiguration.getString("message"));
-			}
+			request.onFinish(()->{
+				YamlConfiguration yamlConfiguration = request.getYamlResponse();
+				if(yamlConfiguration.contains("message")){
+					event.getPlayer().sendMessage(yamlConfiguration.getString("message"));
+				}
+			});
 		}
 		else if(event.getStatus()==Status.SUCCESSFULLY_LOADED || event.getStatus()==Status.FAILED_DOWNLOAD){
 			event.getPlayer().setInvulnerable(false);
 			if(event.getStatus()==Status.FAILED_DOWNLOAD){
-				DataSource.getResponse("server/alerts.php", new String[]{
-						"plugin=ResourcepackManager",
-						"player="+event.getPlayer().getUniqueId(),
-						"message=Resourcepack "+URLEncoder.encode(ResourcepackManager.playerMap.get(event.getPlayer()))+" konnte nicht geladen werden."
-					});
+				Bukkit.getLogger().info("[ResourcepackManager] Resourcepack "+URLEncoder.encode(ResourcepackManager.playerMap.get(event.getPlayer()))+" konnte bei "+event.getPlayer().getName()+" nicht geladen werden.");
 				ResourcepackManager.playerMap.remove(event.getPlayer());
 			}
 		}

@@ -1,8 +1,6 @@
 package ch.swisssmp.resourcepack;
 
-import java.io.File;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -12,12 +10,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class ResourcepackManager extends JavaPlugin{
-	protected static Logger logger;
-	protected static PluginDescriptionFile pdfFile;
-	protected static File dataFolder;
-	protected static ResourcepackManager plugin;
+	private static PluginDescriptionFile pdfFile;
+	private static ResourcepackManager plugin;
 	
 	protected static HashMap<Player,String> playerMap = new HashMap<Player,String>();
 	
@@ -25,14 +22,13 @@ public class ResourcepackManager extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
 		
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("resourcepack").setExecutor(playerCommand);
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
 	public static void setResourcepack(Player player, String resourcepack){
@@ -41,12 +37,15 @@ public class ResourcepackManager extends JavaPlugin{
 			return;
 		playerMap.remove(player);
 		if(resourcepack==null) return;
-		String url = DataSource.getResponse("resourcepack/get_url.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(ResourcepackManager.getInstance(), "get_url.php", new String[]{
 				"resourcepack="+URLEncoder.encode(resourcepack)
 		});
-		if(url==null || url.isEmpty()) return;
-		playerMap.put(player, resourcepack);
-		player.setResourcePack(url);
+		request.onFinish(()->{
+			String url = request.getResponse();
+			if(url==null || url.isEmpty()) return;
+			playerMap.put(player, resourcepack);
+			player.setResourcePack(url);
+		});
 	}
 	
 	public static String getResourcepack(Player player){
@@ -73,6 +72,10 @@ public class ResourcepackManager extends JavaPlugin{
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+	
+	public static ResourcepackManager getInstance(){
+		return plugin;
 	}
 }
