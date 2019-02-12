@@ -1,0 +1,6 @@
+name: WGRegionEvents
+version: 1.2
+api-version: 1.13
+main: com.mewin.WGRegionEvents.WGRegionEventsPlugin
+depend: [WorldGuard]
+authors: [mewin,detig_iii]
