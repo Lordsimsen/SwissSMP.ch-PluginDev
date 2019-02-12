@@ -1,0 +1,8 @@
+main: ch.swisssmp.farm.CropFarmerPlugin
+version: 1.0
+api-version: 1.13
+name: CropFarmer
+permissions:
+  cropfarm.use:
+    description: Erlaubt die Verwendung der Farm
+    default: op
