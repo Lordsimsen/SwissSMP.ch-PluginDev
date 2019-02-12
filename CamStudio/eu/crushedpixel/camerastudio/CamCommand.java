@@ -25,7 +25,7 @@ public class CamCommand implements CommandExecutor {
 
 	public static HashMap<UUID, List<Location>> points = new HashMap<UUID, List<Location>>();
 	private static String prefix = CameraStudio.prefix;
-	final static int previewTime = CameraStudio.instance.getConfig().getInt("preview-time");
+	final static int previewTime = CameraStudio.getInstance().getConfig().getInt("preview-time");
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = null;
@@ -36,7 +36,7 @@ public class CamCommand implements CommandExecutor {
 			return true;
 		}
 
-		if (player!=null && !CameraStudio.instance.getConfig().getStringList("allowed-gamemodes")
+		if (player!=null && !CameraStudio.getInstance().getConfig().getStringList("allowed-gamemodes")
 				.contains(player.getGameMode().toString()) && !player.hasPermission("camerastudio.override-gamemode")) {
 			player.sendMessage(prefix + ChatColor.RED + "Du kannst diesen Befehl nicht in diesem GameMode verwenden.");
 			return true;
@@ -65,7 +65,7 @@ public class CamCommand implements CommandExecutor {
 				locs = new ArrayList<Location>();
 			}
 
-			int maxPoints = new Integer(CameraStudio.instance.getConfig().getInt("maximum-points"));
+			int maxPoints = new Integer(CameraStudio.getInstance().getConfig().getInt("maximum-points"));
 
 			if (player.isOp()) {
 				maxPoints = Integer.MAX_VALUE;
@@ -197,7 +197,7 @@ public class CamCommand implements CommandExecutor {
 			if(!player.hasPermission("camerastudio.admin")){
 				return true;
 			}
-			CameraStudio.instance.reloadConfig();
+			CameraStudio.getInstance().reloadConfig();
 			sender.sendMessage(prefix + ChatColor.YELLOW + "Konfiguration neu geladen!");
 			return true;
 		}
@@ -358,7 +358,7 @@ public class CamCommand implements CommandExecutor {
 					index++;
 				}
 
-				DataSource.getResponse("camera_studio/save_path.php", new String[]{
+				DataSource.getResponse(CameraStudio.getInstance(), "save_path.php", new String[]{
 					"name="+URLEncoder.encode(name),
 					String.join("&", locationLines)
 				});
@@ -384,7 +384,7 @@ public class CamCommand implements CommandExecutor {
 			}
 			if(args.length<1) return false;
 			YamlConfiguration yamlConfiguration;
-			yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_path.php", new String[]{
+			yamlConfiguration = DataSource.getYamlResponse(CameraStudio.getInstance(), "load_path.php", new String[]{
 					"name="+URLEncoder.encode(args[0])	
 				});
 			if(yamlConfiguration==null || !yamlConfiguration.contains("path")){

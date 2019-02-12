@@ -42,7 +42,7 @@ public class CameraPath {
 	}
 	
 	public static CameraPath load(int path_id,World world){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_path.php", new String[]{
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(CameraStudio.getInstance(), "load_path.php", new String[]{
 			"path="+path_id	
 		});
 		if(yamlConfiguration==null || !yamlConfiguration.contains("path"))return null;

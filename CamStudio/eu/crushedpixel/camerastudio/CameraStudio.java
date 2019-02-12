@@ -27,7 +27,7 @@ import net.minecraft.server.v1_13_R2.PacketPlayOutMapChunk;
 import net.minecraft.server.v1_13_R2.PlayerConnection;
 
 public class CameraStudio extends JavaPlugin implements Listener {
-	public static JavaPlugin instance;
+	private static CameraStudio instance;
 	static String prefix = ChatColor.AQUA + "[" + ChatColor.DARK_AQUA + "CP" + ChatColor.AQUA + "CameraStudio] "
 			+ ChatColor.GREEN;
 	static HashSet<UUID> travelling = new HashSet<UUID>();
@@ -298,4 +298,7 @@ public class CameraStudio extends JavaPlugin implements Listener {
 		}, 2L);
 	}
 
+	public static CameraStudio getInstance(){
+		return instance;
+	}
 }

@@ -3,6 +3,7 @@ main: eu.crushedpixel.camerastudio.CameraStudio
 authors: [CrushredPixel, chrismin13, detig_iii]
 version: 1.4.7
 api-version: 1.13
+depend: [CommandScheduler]
 commands:
   cam:
     description: Hauptbefehl für CPCameraStudio

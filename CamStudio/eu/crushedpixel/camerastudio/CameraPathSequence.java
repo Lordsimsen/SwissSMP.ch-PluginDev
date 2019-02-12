@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import ch.swisssmp.commandscheduler.CommandScheduler;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -53,22 +54,18 @@ public class CameraPathSequence {
 		if(player==null) return;
 		GameMode originalGameMode = player.getGameMode();
 		Location startLocation = player.getLocation();
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("commands/schedule_player_join.php", new String[]{
-			"player_uuid="+player.getUniqueId(),
-			"commands[]=tp "+player.getName()+" "+startLocation.getBlockX()+" "+startLocation.getBlockY()+" "+startLocation.getBlockZ(),
-			"commands[]=gamemode "+originalGameMode.name()+" "+player.getName()
-		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("schedule_id")){
+		int schedule_id = CommandScheduler.schedulePlayerJoin(player.getUniqueId(), new String[]{
+				"tp "+player.getName()+" "+startLocation.getBlockX()+" "+startLocation.getBlockY()+" "+startLocation.getBlockZ(),
+				"gamemode "+originalGameMode.name()+" "+player.getName()
+			});
+		if(schedule_id<0){
 			Bukkit.getLogger().info("[CamStudio] Could not start sequence "+this.name+" for player "+player.getName()+" because fallback commands could not be scheduled.");
 			return;
 		}
-		int schedule_id = yamlConfiguration.getInt("schedule_id");
 		player.setGameMode(GameMode.SPECTATOR);
 		this.runSequence(player,0, new Runnable(){
 			public void run(){
-				DataSource.getResponse("commands/remove_player_join.php", new String[]{
-					"schedule_id="+schedule_id	
-				});
+				CommandScheduler.removePlayerJoin(schedule_id);
 				player.setGameMode(originalGameMode);
 				player.teleport(startLocation);
 				CameraStudio.loadChunkArea(player,startLocation.getBlockX()>>4,startLocation.getBlockZ()>>4,10);
@@ -98,7 +95,7 @@ public class CameraPathSequence {
 	}
 	
 	public static CameraPathSequence load(int sequence_id){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_sequence.php", new String[]{
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(CameraStudio.getInstance(), "load_sequence.php", new String[]{
 				"sequence="+sequence_id
 		});
 		if(yamlConfiguration==null || !yamlConfiguration.contains("sequence")) return null;
@@ -107,7 +104,7 @@ public class CameraPathSequence {
 	
 	public static CameraPathSequence load(String name){
 		YamlConfiguration yamlConfiguration;
-		yamlConfiguration = DataSource.getYamlResponse("camera_studio/load_sequence.php", new String[]{
+		yamlConfiguration = DataSource.getYamlResponse(CameraStudio.getInstance(), "load_sequence.php", new String[]{
 				"name="+URLEncoder.encode(name)
 		});
 		if(yamlConfiguration==null || !yamlConfiguration.contains("sequence")) return null;
