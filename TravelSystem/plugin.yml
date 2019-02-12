@@ -1,0 +1,37 @@
+main: ch.swisssmp.travel.TravelSystem
+version: 1.51
+api-version: 1.13
+name: TravelSystem
+author: detig_iii
+description: Ermöglicht Reisen zwischen beliebigen Punkten
+depend: [WebCore,NPCs,CustomEditorAPI,WaypointAPI]
+softdepend: [ResourcepackManager]
+permissions:
+  travelsystem.admin:
+    description: Erlaubt die Verwaltung des Plugins
+    default: op
+  travelsystem.use:
+    description: Erlaubt die Verwendung des Plugins
+    default: true
+commands:
+  travelworld:
+    description: Hauptbefehl zur Verwaltung von Reisewelten
+    permission: travelsystem.admin
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+    default: op
+  travelstation:
+    description: Hauptbefehl zur Verwaltung von Reisestationen
+    usage: /<command> <subcommand> [Argumente]
+    permission: travelsystem.admin
+    permission-message: Du hast keine Berechtigung für diesen Befehl.
+    default: op
+  travelstation create:
+    description: Erstellt eine Reisestation
+    usage: "Verwendung: /<command> [Name]"
+    permission: travelsystem.admin
+    default: op
+  travelstations:
+    description: Öffnet die Stationsübersicht deiner momentanen Welt
+    permission: travelsystem.admin
+    usage: /<command> (-world)
+    default: op
