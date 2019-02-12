@@ -5,14 +5,17 @@ import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.utils.Random;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NBTTagList;
+import net.minecraft.server.v1_13_R2.NBTBase;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagList;
 
 public class RandomItemUtil {
 	private static Random random = new Random();
@@ -25,7 +28,7 @@ public class RandomItemUtil {
 	}
 	public static ItemStack buildItemStack(ItemStack template, Random random, double chanceOverride){
 		//extract nbt data from the template
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(template);
+		net.minecraft.server.v1_13_R2.ItemStack nmsStack = CraftItemStack.asNMSCopy(template);
 		NBTTagCompound nbtTag = nmsStack.getTag();
 		//if there is nothing to randomize simply return a copy of the template
 		if(nbtTag==null || !nbtTag.hasKey("randomize")) return template.clone();
@@ -55,7 +58,7 @@ public class RandomItemUtil {
 			resultNBTData.set("AttributeModifiers", attributeModifiers);
 		}
 		//if nbt data was created add it to the resulting itemstack
-		if(resultNBTData.c().size()>0){
+		if(resultNBTData.getKeys().size()>0){
 			RandomItemUtil.setNBTData(result, resultNBTData);
 		}
 		//remove randomizeDescription from result
@@ -100,7 +103,9 @@ public class RandomItemUtil {
 	private static void randomizeDurability(ItemStack itemStack, Random random, NBTTagCompound dataSection){
 		short min = dataSection.getShort("min");
 		short max = dataSection.getShort("max");
-		itemStack.setDurability((short)(random.nextInt(max-min)+min));
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		if(!(itemMeta instanceof Damageable)) return;
+		((Damageable)itemMeta).setDamage(random.nextInt(max-min)+min);
 	}
 	
 	private static void randomizeEnchantments(ItemStack itemStack, Random random, NBTTagCompound dataSection){
@@ -109,9 +114,9 @@ public class RandomItemUtil {
 		Enchantment enchantment;
 		int min;
 		int max;
-		for(String key : dataSection.c()){
+		for(String key : dataSection.getKeys()){
 			enchantmentSection = dataSection.getCompound(key);
-			enchantment = Enchantment.getByName(enchantmentSection.getString("enchantment"));
+			enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentSection.getString("enchantment")));
 			if(enchantment==null) continue;
 			min = enchantmentSection.getInt("min");
 			max = enchantmentSection.getInt("max");
@@ -172,10 +177,11 @@ public class RandomItemUtil {
 	}
 	
 	private static void clearAttribute(NBTTagList attributeModifiers, String attribute){
-		NBTTagCompound tag;
 		List<Integer> removeIndexes = new ArrayList<Integer>();
 		for(int i = 0; i < attributeModifiers.size(); i++){
-			tag = attributeModifiers.get(i);
+			NBTBase baseTag = attributeModifiers.get(i);
+			if(!(baseTag instanceof NBTTagCompound)) continue;
+			NBTTagCompound tag = (NBTTagCompound)baseTag;
 			if(!tag.hasKey("AttributeName")) continue;
 			if(!tag.getString("AttributeName").equals(attribute)) continue;
 			removeIndexes.add(i);
@@ -188,12 +194,12 @@ public class RandomItemUtil {
 	}
 	
 	private static NBTTagCompound getNBTData(ItemStack itemStack){
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_13_R2.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 		return nmsStack.getTag();
 	}
 	
 	private static void setNBTData(ItemStack itemStack, NBTTagCompound nbtTag){
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_13_R2.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 		nmsStack.setTag(nbtTag);
 		itemStack.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
 	}
@@ -226,7 +232,7 @@ public class RandomItemUtil {
 			lore.add("Verzauberungen:");
 			NBTTagCompound enchantments = randomizeData.getCompound("enchantments");
 			NBTTagCompound enchantmentData;
-			for(String key : enchantments.c()){
+			for(String key : enchantments.getKeys()){
 				enchantmentData = enchantments.getCompound(key);
 				lore.add(ChatColor.GRAY+"- "+enchantmentData.getString("enchantment")+" ("+ChatColor.WHITE+(enchantmentData.getInt("min")+"-"+enchantmentData.getInt("max")+")"+ChatColor.GRAY+": "+ChatColor.GREEN+enchantmentData.getDouble("chance")+"%"));
 			}

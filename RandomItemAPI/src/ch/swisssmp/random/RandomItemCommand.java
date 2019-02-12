@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.utils.Mathf;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
 
 public class RandomItemCommand implements CommandExecutor{
 
@@ -29,7 +30,7 @@ public class RandomItemCommand implements CommandExecutor{
 		if(itemStack==null){
 			sender.sendMessage("[RandomItemAPI] Nimm zuerst ein Item in deine Haupthand.");
 		}
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_13_R2.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 		NBTTagCompound nbtTag = nmsStack.getTag();
 		if(nbtTag==null) nbtTag = new NBTTagCompound();
 		NBTTagCompound randomizeData = nbtTag.hasKey("randomize") ? nbtTag.getCompound("randomize") : new NBTTagCompound();
@@ -102,21 +103,21 @@ public class RandomItemCommand implements CommandExecutor{
 			}
 			else if(args.length<4){
 				if(randomizeData.hasKey("enchantments")){
-					enchantment = Enchantment.getByName(args[1]);
+					enchantment = Enchantment.getByKey(NamespacedKey.minecraft(args[1]));
 					if(enchantment==null){
 						sender.sendMessage("[RandomItemAPI] Verzauberung '"+args[1]+"' nicht gefunden.");
 						return true;
 					}
 					NBTTagCompound enchantmentsSection = randomizeData.getCompound("enchantments");
 					NBTTagCompound enchantmentSection;
-					List<String> indexes = new ArrayList<String>(enchantmentsSection.c());
+					List<String> indexes = new ArrayList<String>(enchantmentsSection.getKeys());
 					Collections.reverse(indexes);
 					for(String key : indexes){
 						enchantmentSection = enchantmentsSection.getCompound(key);
-						if(!enchantmentSection.getString("enchantment").equals(enchantment.getName())) continue;
+						if(!enchantmentSection.getString("enchantment").equals(enchantment.getKey().getKey())) continue;
 						enchantmentsSection.remove(key);
 					}
-					if(enchantmentsSection.c().size()>0){
+					if(enchantmentsSection.getKeys().size()>0){
 						randomizeData.set("enchantments", enchantmentsSection);
 					}
 					else{
@@ -132,7 +133,7 @@ public class RandomItemCommand implements CommandExecutor{
 				min = Integer.parseInt(args[2]);
 				max = Integer.parseInt(args[3]);
 				chance = Double.parseDouble(args[4])*0.01;
-				enchantment = Enchantment.getByName(args[1]);
+				enchantment = Enchantment.getByKey(NamespacedKey.minecraft(args[1]));
 				if(enchantment==null){
 					sender.sendMessage("[RandomItemAPI] Verzauberung '"+args[1]+"' nicht gefunden.");
 					return true;
@@ -142,7 +143,7 @@ public class RandomItemCommand implements CommandExecutor{
 				min = Integer.parseInt(args[1]);
 				max = min;
 				chance = Double.parseDouble(args[3]);
-				enchantment = Enchantment.getByName(args[2]);
+				enchantment = Enchantment.getByKey(NamespacedKey.minecraft(args[2]));
 				if(enchantment==null){
 					sender.sendMessage("[RandomItemAPI] Verzauberung '"+args[2]+"' nicht gefunden.");
 					return true;
@@ -151,11 +152,11 @@ public class RandomItemCommand implements CommandExecutor{
 			NBTTagCompound enchantmentsSection = randomizeData.hasKey("enchantments") ? randomizeData.getCompound("enchantments") : new NBTTagCompound();
 			if((min<=0 && max<= 0) || (min==max && chance>=1)){
 				NBTTagCompound enchantmentSection;
-				List<String> indexes = new ArrayList<String>(enchantmentsSection.c());
+				List<String> indexes = new ArrayList<String>(enchantmentsSection.getKeys());
 				Collections.reverse(indexes);
 				for(String key : indexes){
 					enchantmentSection = enchantmentsSection.getCompound(key);
-					if(!enchantmentSection.getString("enchantment").equals(enchantment.getName())) continue;
+					if(!enchantmentSection.getString("enchantment").equals(enchantment.getKey().getKey())) continue;
 					enchantmentsSection.remove(key);
 				}
 			}
@@ -164,10 +165,10 @@ public class RandomItemCommand implements CommandExecutor{
 				randomizeEnchantment.setInt("min", Math.max(1, Math.min(min,max)));
 				randomizeEnchantment.setInt("max", Math.max(1, Math.max(min,max)));
 				randomizeEnchantment.setDouble("chance", Mathf.clamp01(chance));
-				randomizeEnchantment.setString("enchantment", enchantment.getName());
-				enchantmentsSection.set("enchantment_"+enchantmentsSection.c().size(), randomizeEnchantment);
+				randomizeEnchantment.setString("enchantment", enchantment.getKey().getKey());
+				enchantmentsSection.set("enchantment_"+enchantmentsSection.getKeys().size(), randomizeEnchantment);
 			}
-			if(enchantmentsSection.c().size()>0){
+			if(enchantmentsSection.getKeys().size()>0){
 				randomizeData.set("enchantments", enchantmentsSection);
 			}
 			else if(randomizeData.hasKey("enchantments")) randomizeData.remove("enchantments");
@@ -281,7 +282,7 @@ public class RandomItemCommand implements CommandExecutor{
 		case "nothing":
 		case "reset":
 		case "clear":{
-			for(String key : randomizeData.c()){
+			for(String key : randomizeData.getKeys()){
 				randomizeData.remove(key);
 			}
 			break;
@@ -292,13 +293,13 @@ public class RandomItemCommand implements CommandExecutor{
 		catch(Exception e){
 			return false;
 		}
-		if(randomizeData.c().size()>0){
+		if(randomizeData.getKeys().size()>0){
 			nbtTag.set("randomize", randomizeData);
 		}
 		else if(nbtTag.hasKey("randomize")){
 			nbtTag.remove("randomize");
 		}
-		if(nbtTag.c().size()>0){
+		if(nbtTag.getKeys().size()>0){
 			nmsStack.setTag(nbtTag);
 		}
 		else if(nmsStack.hasTag()) nmsStack.setTag(null);
