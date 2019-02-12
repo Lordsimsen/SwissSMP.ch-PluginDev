@@ -2,15 +2,13 @@ package ch.swisssmp.world;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,13 +17,15 @@ import ch.swisssmp.utils.FileUtil;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
-import ch.swisssmp.webcore.FTPConnection;
+import ch.swisssmp.world.border.WorldBorderCommand;
+import ch.swisssmp.world.border.WorldBorderManager;
 
 public class WorldManager extends JavaPlugin{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
 	protected static WorldManager plugin;
-	protected static HashMap<String,WorldBorder> worldBorders = new HashMap<String,WorldBorder>();
+	
+	private Collection<WorldData> worldsData = new ArrayList<WorldData>();
 	
 	@Override
 	public void onEnable() {
@@ -33,17 +33,21 @@ public class WorldManager extends JavaPlugin{
 		pdfFile = getDescription();
 		logger = Logger.getLogger("Minecraft");
 		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
-		
-		Bukkit.getPluginCommand("worldmanager").setExecutor(new PlayerCommand());
+		Bukkit.getPluginCommand("world").setExecutor(new WorldCommand());
 		Bukkit.getPluginCommand("worlds").setExecutor(new WorldsCommand());
+		Bukkit.getPluginCommand("worldborder").setExecutor(new WorldBorderCommand());
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		if(Bukkit.getPluginManager().getPlugin("WorldGuard")!=null) Bukkit.getPluginManager().registerEvents(new WorldGuardHandler(), this);
 		
 		WorldManager.loadWorlds();
-		WorldBorderChecker worldBorder = new WorldBorderChecker();
-		worldBorder.runTaskTimer(this, 0, 100L);
+		WorldBorderManager.startBorderChecker();
+		
+		if(Bukkit.getPluginManager().getPlugin("ResourcepackManager")!=null){
+			Bukkit.getPluginManager().registerEvents(new ResourcepackListener(), this);
+		}
+		
+		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
 	@Override
@@ -81,8 +85,8 @@ public class WorldManager extends JavaPlugin{
 		Bukkit.getLogger().info("[WorldManager] Lade Welt "+worldName);
 		//Load World Settings
 		YamlConfiguration yamlConfiguration = WorldManager.getWorldSettings(worldName);
-		if(yamlConfiguration==null){
-			throw new NullPointerException("[WorldManager] Kann Welt "+worldName+" nicht laden, fehlende Konfigurationsdatei settings.yml im Welt-Ordner.");
+		if(yamlConfiguration==null || !yamlConfiguration.contains("world")){
+			throw new NullPointerException("[WorldManager] Kann Welt "+worldName+" nicht laden, fehlende oder ungültige Konfigurationsdatei settings.yml im Welt-Ordner.");
 		}
 		if(yamlConfiguration.contains("load") && !yamlConfiguration.getBoolean("load")){
 			Bukkit.unloadWorld(worldName, true);
@@ -100,7 +104,7 @@ public class WorldManager extends JavaPlugin{
 	public static boolean unloadWorld(String worldName){
 		Bukkit.getLogger().info("[WorldManager] Deaktiviere Welt "+worldName);
 		if(Bukkit.unloadWorld(worldName, false)){
-			DataSource.getResponse("world/unload.php", new String[]{
+			DataSource.getResponse(plugin, "unload.php", new String[]{
 					"world="+URLEncoder.encode(worldName)
 			});
 			return true;
@@ -108,157 +112,47 @@ public class WorldManager extends JavaPlugin{
 		else return false;
 	}
 	
-	/**
-	 * Uploads a World to the FTP Server
-	 * @param sender - The responsible Entity for this transaction
-	 * @param worldName - The local World Folder to be uploaded
-	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
-	 */
-	public static WorldTransferObserver uploadWorld(CommandSender sender, String worldName){
-		return WorldManager.uploadWorld(sender, worldName, worldName);
-	}
-
-	/**
-	 * Uploads a World to the FTP Server
-	 * @param sender - The responsible Entity for this transaction
-	 * @param worldName - The local World Folder to be uploaded
-	 * @param overrideWorldName - The name of the World Folder on the remote Server
-	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
-	 */
-	public static WorldTransferObserver uploadWorld(CommandSender sender, String worldName, String overrideWorldName){
-		WorldUpload worldUpload = new WorldUpload(worldName,overrideWorldName);
-		WorldTransferObserver result = WorldTransferObserver.run(sender, worldName, worldUpload);
-		Thread uploadThread = new Thread(worldUpload);
-		uploadThread.start();
-		return result;
-	}
-	
-	/**
-	 * Downloads a World from the FTP Server
-	 * @param sender - The responsible Entity for this transaction
-	 * @param worldName - The remote World Folder to be downloaded
-	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
-	 */
-	public static WorldTransferObserver downloadWorld(CommandSender sender, String worldName){
-		return WorldManager.downloadWorld(sender, worldName, worldName);
-	}
-
-	/**
-	 * Downloads a World from the FTP Server
-	 * @param sender - The responsible Entity for this transaction
-	 * @param worldName - The remote World Folder to be downloaded
-	 * @param overrideWorldName - The name of the World Folder on the local Server
-	 * @return A <code>WorldTransferTask</code> reporting the status of the upload to the sender
-	 */
-	public static WorldTransferObserver downloadWorld(CommandSender sender, String worldName, String overrideWorldName){
-		WorldDownload worldDownload = new WorldDownload(worldName,overrideWorldName);
-		File packedDirectory = new File(WorldManager.getTempFolder(), overrideWorldName);
-		WorldTransferObserver result = WorldTransferObserver.run(sender, overrideWorldName, worldDownload);
-		result.addImmediateOnFinishListener(()->{
-			WorldManager.unpackWorld(worldName, overrideWorldName, packedDirectory);
-		});
-		Thread downloadThread = new Thread(worldDownload);
-		downloadThread.start();
-		return result;
-	}
-	
-	/**
-	 * Returns <code>true</code> if a World with the given worldName exists
-	 * @param worldName - The worldName to look for
-	 * @return <code>true</code> if a World on the local Server exists;
-	 *         <code>false</code> otherwise
-	 */
-	public static boolean localWorldExists(String worldName){
-		File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
-		return worldDirectory.exists();
-	}
-
-	/**
-	 * Returns <code>true</code> if a World with the given worldName exists
-	 * @param worldName - The worldName to look for
-	 * @return <code>true</code> if a World on the FTP Server exists;
-	 *         <code>false</code> otherwise
-	 */
-	public static boolean remoteWorldExists(String worldName){
-		return FTPConnection.fileExists("worlds/"+worldName+".zip");
-	}
-	
-	/**
-	 * Gets the WorldBorder associated with a World
-	 * @param worldName - The name of the World to look for
-	 * @return A <code>WorldBorder</code> if found;
-	 *         <code>null</code> otherwise
-	 */
-	public static WorldBorder getWorldBorder(String worldName){
-		return WorldManager.worldBorders.get(worldName);
-	}
-	
-	protected static File getTempFolder(){
-		return new File(WorldManager.plugin.getDataFolder(), "temp");
-	}
-	
 	protected static YamlConfiguration getWorldSettings(String worldName){
-		File localSettingsFile = new File(Bukkit.getWorldContainer(), worldName+"/settings.yml");
-		YamlConfiguration yamlConfiguration = null;
-		if(localSettingsFile.exists()){
-			yamlConfiguration = YamlConfiguration.loadConfiguration(localSettingsFile);
+		for(WorldData data : plugin.worldsData){
+			if(!data.getWorld().getName().equals(worldName)) continue;
+			return data.getSettings();
 		}
-		if(yamlConfiguration==null || !yamlConfiguration.contains("world")){
-			yamlConfiguration = DataSource.getYamlResponse("world/load.php", new String[]{
-					"world="+URLEncoder.encode(worldName)
-			});
+		
+		File settingsFile = WorldManager.getSettingsFile(worldName);
+		if(!settingsFile.exists())return null;
+		
+		return YamlConfiguration.loadConfiguration(settingsFile);
+	}
+	
+	protected static WorldData loadWorldSettings(World world){
+		WorldData worldData = new WorldData(world);
+		worldData.loadSettings();
+		plugin.worldsData.add(worldData);
+		File settingsFile = WorldManager.getSettingsFile(world.getName());
+		if(!settingsFile.exists()) worldData.saveSettings();
+		return worldData;
+	}
+	
+	protected static void unloadWorldSettings(World world){
+		WorldData worldData = WorldManager.getWorldData(world);
+		plugin.worldsData.remove(worldData);
+	}
+	
+	protected static WorldData getWorldData(World world){
+		for(WorldData data : plugin.worldsData){
+			if(data.getWorld()==world) return data;
 		}
-		if(yamlConfiguration==null || !yamlConfiguration.contains("world")) return null;
-		return yamlConfiguration;
+		return WorldManager.loadWorldSettings(world);
 	}
 	
 	/**
 	 * Creates a settings.yml in the World Directory (This is done for convenience's sake when the World Folder is transferred between servers)
 	 * @param world - The World to save the settings for
 	 */
-	protected static void saveWorldSettings(World world){
-		String spawnRadius = world.getGameRuleValue("spawnRadius");
-		world.setGameRuleValue("spawnRadius", "0");
-		Location spawnLocation = world.getSpawnLocation();
-		world.setGameRuleValue("spawnRadius", spawnRadius);
-		YamlConfiguration yamlConfiguration = new YamlConfiguration();
-		ConfigurationSection dataSection = yamlConfiguration.createSection("world");
-		dataSection.set("environment", world.getEnvironment().toString());
-		dataSection.set("generate_structures", world.canGenerateStructures());
-		dataSection.set("seed", world.getSeed());
-		dataSection.set("world_type", world.getWorldType().toString());
-		dataSection.set("spawn_x", spawnLocation.getX());
-		dataSection.set("spawn_y", spawnLocation.getY());
-		dataSection.set("spawn_z", spawnLocation.getZ());
-		dataSection.set("time", world.getTime());
-		ConfigurationSection gamerulesSection = dataSection.createSection("gamerules");
-		for(String gamerule : world.getGameRules()){
-			gamerulesSection.set(gamerule, world.getGameRuleValue(gamerule));
-		}
-		WorldBorder worldBorder = WorldManager.worldBorders.get("world_border");
-		if(worldBorder!=null){
-			ConfigurationSection worldBorderSection = dataSection.createSection("world_border");
-			worldBorderSection.set("center_x", worldBorder.getCenterX());
-			worldBorderSection.set("center_z", worldBorder.getCenterZ());
-			worldBorderSection.set("radius", worldBorder.getRadius());
-			worldBorderSection.set("wrap", worldBorder.doWrap());
-			worldBorderSection.set("margin", worldBorder.getMargin());
-		}
-		yamlConfiguration.save(new File(world.getWorldFolder(),"settings.yml"));
-	}
-	
-	/**
-	 * Packs a World Directory into a package containing the World Directory and associated Plugin Files (e.g. WorldGuard region data)
-	 * @param worldName - The name of the World to be packed
-	 * @param overrideWorldName - The name of the packed World
-	 * @param packedDirectory - The Directory to pack into
-	 */
-	protected static void packWorld(String worldName, String overrideWorldName, File packedDirectory){
-		File worldDirectory = new File(Bukkit.getWorldContainer(),overrideWorldName);
-		File packedWorldDirectory = new File(packedDirectory,"World/"+worldName);
-		packedWorldDirectory.mkdirs();
-		FileUtil.copyDirectory(worldDirectory, packedWorldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
-		Bukkit.getPluginManager().callEvent(new WorldPackEvent(worldName,packedDirectory));
+	public static void saveWorldSettings(World world){
+		Bukkit.getLogger().info("[WorldManager] Save settings for "+world.getName());
+		WorldData worldData = WorldManager.getWorldData(world);
+		worldData.saveSettings();
 	}
 	
 	/**
@@ -295,26 +189,22 @@ public class WorldManager extends JavaPlugin{
 		Bukkit.getLogger().info("[WorldManager] Welt "+worldName+" gelöscht.");
 	}
 	
-	/**
-	 * Unpacks a World package containing the World Directory and associated Plugin Files (e.g. WorldGuard region data)
-	 * @param worldName - The name of the World to be unpacked
-	 * @param overrideWorldName - The name of the World after unpacking
-	 * @param packedDirectory - The Directory to unpack from
-	 */
-	private static void unpackWorld(String worldName, String overrideWorldName, File packedDirectory){
-		File packedWorldDirectory = new File(packedDirectory,"World/"+worldName);
-		File worldDirectory = new File(Bukkit.getWorldContainer(),overrideWorldName);
-		FileUtil.copyDirectory(packedWorldDirectory, worldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
-		try{
-			Bukkit.getPluginManager().callEvent(new WorldUnpackEvent(overrideWorldName,packedDirectory));
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			return;
-		}
-		Bukkit.getLogger().info("[WorldManager] Unpacking of World "+worldName+" finished.");
-		Bukkit.getScheduler().runTaskLater(WorldManager.plugin, ()->{
-			FileUtil.deleteRecursive(packedDirectory);
-		}, 5L);
+	public static String getDisplayName(World world){
+		YamlConfiguration yamlConfiguration = WorldManager.getWorldSettings(world.getName());
+		if(yamlConfiguration==null) return world.getName();
+		ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection("world");
+		return dataSection.contains("display_name") ? dataSection.getString("display_name") : world.getName();
+	}
+	
+	public static File getPluginDirectory(Plugin plugin, World world){
+		return new File(world.getWorldFolder(),"plugindata/"+plugin.getDataFolder().getName());
+	}
+	
+	protected static File getSettingsFile(String worldName){
+		return new File(Bukkit.getWorldContainer(), worldName+"/settings.yml");
+	}
+	
+	public static WorldManager getInstance(){
+		return plugin;
 	}
 }

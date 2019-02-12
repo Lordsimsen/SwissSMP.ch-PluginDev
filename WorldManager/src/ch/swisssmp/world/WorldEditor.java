@@ -94,11 +94,13 @@ public class WorldEditor extends InventoryView implements Listener{
 	}
 	
 	private void generateWorld() throws NullPointerException{
-		World world = Bukkit.createWorld(new WorldCreator(this.worldName)
+		WorldCreator creator = new WorldCreator(this.worldName)
 				.environment(this.environment)
 				.generateStructures(this.generate_structures)
 				.type(this.worldType)
-				.seed(StringUtils.isNumeric(this.seed) ? Long.valueOf(this.seed) : this.seed.hashCode()));
+				.seed(StringUtils.isNumeric(this.seed) ? Long.valueOf(this.seed) : this.seed.hashCode());
+		
+		World world = Bukkit.createWorld(creator);
 		if(world==null){
 			throw new NullPointerException("[WorldManager] Konnte Welt "+this.worldName+" nicht generieren.");
 		}
@@ -111,6 +113,7 @@ public class WorldEditor extends InventoryView implements Listener{
 			}
 		}
 		player.sendMessage("[WorldManager] "+ChatColor.GREEN+"Welt "+this.worldName+" generiert.");
+		player.teleport(world.getSpawnLocation());
 	}
 	
 	private void closeNextTick(){
@@ -207,7 +210,7 @@ public class WorldEditor extends InventoryView implements Listener{
 		ItemStack itemStack;
 		String displayName;
 		if(this.generate_structures){
-			itemStack = new ItemStack(Material.SMOOTH_BRICK);
+			itemStack = new ItemStack(Material.STONE_BRICKS);
 			displayName = ChatColor.GREEN+"Generiere Strukturen";
 		}
 		else{
@@ -226,10 +229,10 @@ public class WorldEditor extends InventoryView implements Listener{
 		switch(this.worldType){
 		case NORMAL:
 			itemStack = new ItemStack(Material.GRASS);
-			displayName = ChatColor.GREEN+"Normal";
+			displayName = ChatColor.GREEN+"Normale Biome";
 			break;
 		case LARGE_BIOMES:
-			itemStack = new ItemStack(Material.LEAVES);
+			itemStack = new ItemStack(Material.OAK_LEAVES);
 			displayName = ChatColor.LIGHT_PURPLE+"Grosse Biome";
 			break;
 		case AMPLIFIED:
@@ -237,7 +240,7 @@ public class WorldEditor extends InventoryView implements Listener{
 			displayName = ChatColor.GREEN+"Zerklüftet";
 			break;
 		case FLAT:
-			itemStack = new ItemStack(Material.CARPET);
+			itemStack = new ItemStack(Material.GREEN_CARPET);
 			displayName = ChatColor.GREEN+"Flach";
 			break;
 		default:
@@ -253,7 +256,7 @@ public class WorldEditor extends InventoryView implements Listener{
 		CustomItemBuilder customItemBuilder = new CustomItemBuilder();
 		customItemBuilder.setDisplayName(ChatColor.WHITE+""+this.seed);
 		customItemBuilder.setAmount(1);
-		customItemBuilder.setMaterial(Material.SEEDS);
+		customItemBuilder.setMaterial(Material.WHEAT_SEEDS);
 		customItemBuilder.setLore(Arrays.asList("Der Seed bestimmt die","Form der Landschaft.","Zwei Welten mit dem gleichen","Seed sehen genau gleich aus."));
 		this.inventory.setItem(7, customItemBuilder.build());
 	}

@@ -1,5 +1,6 @@
 main: ch.swisssmp.world.WorldManager
-version: 2.0
+version: 2.31
+api-version: 1.13
 name: WorldManager
 author: detig_iii
 description: Lädt und verwaltet Welten
@@ -14,14 +15,72 @@ commands:
     description: Zeigt alle geladenen Welten
     usage: /worlds
     permission: worldmanager.admin
-  worldmanager:
+  world:
     description: Verwaltet das Plugin
-    usage: |
-      /worldmanager reload - Lädt und deaktiviert Welten
-      /worldmanager create [Welt] (Seed=Zufall) - Öffnet den Editor zum erstellen einer neuen Welt
-      /worldmanager load [Welt] - Lädt eine Welt
-      /worldmanager unload [Welt] - Deaktiviert eine Welt (ohne zu speichern!)
-      /worldmanager upload [Welt] - Lädt eine Welt auf den Austauschserver hoch
-      /worldmanager download [Welt] - Lädt eine Welt vom Austauschserver herunter
-      /worldmanager delete [Welt] - Löscht eine Welt von diesem Server
+    usage: "/<command> <subcommand> [Argumente]"
+    permission: worldmanager.admin
+  world reload:
+    description: Lädt und deaktiviert Welten
+    usage: "Verwendung: /<command> <subcommand>"
+    permission: worldmanager.admin
+  world create:
+    description: Öffnet den Editor zum erstellen einer neuen Welt
+    usage: "Verwendung: /<command> <subcommand> [Welt] (Seed=Zufall)"
+    permission: worldmanager.admin
+  world name:
+    description: Setzt den Anzeigename einer Welt
+    usage: "Verwendung: /<command> <subcommand> [Welt] [Anzeige-Name]"
+    permission: worldmanager.admin
+  world goto:
+    description: Teleportiert dich in eine Welt
+    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    permission: worldmanager.admin
+  world load:
+    description: Lädt eine Welt
+    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    permission: worldmanager.admin
+  world unload:
+    description: Deaktiviert eine Welt (ohne zu speichern!)
+    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    permission: worldmanager.admin
+  world upload:
+    description: Lädt eine Welt auf den Austauschserver hoch
+    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    permission: worldmanager.admin
+  world download:
+    description: Lädt eine Welt vom Austauschserver herunter
+    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    permission: worldmanager.admin
+  world delete:
+    description: Löscht eine Welt von diesem Server
+    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    permission: worldmanager.admin
+    
+  worldborder:
+    description: Hauptbefehl um den Weltrand einzustellen
+    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    permission: worldmanager.admin
+  worldborder set:
+    description: Setzt den Radius
+    usage: "Verwendung: /<command> <subcommand> [Distanz]"
+    permission: worldmanager.admin
+  worldborder get:
+    description: Zeigt Informationen zum Weltrand an
+    usage: "Verwendung: /<command> <subcommand>"
+    permission: worldmanager.admin
+  worldborder center:
+    description: Setzt das Zentrum
+    usage: "Verwendung: /<command> <subcommand>"
+    permission: worldmanager.admin
+  worldborder wrap:
+    description: Stellt ein ob die Welt rund ist
+    usage: "Verwendung: /<command> <subcommand> [true|false]"
+    permission: worldmanager.admin
+  worldborder margin:
+    description: Stellt die Warnzone ein
+    usage: "Verwendung: /<command> <subcommand> [Distanz]"
+    permission: worldmanager.admin
+  worldborder clear:
+    description: Entfernt den Weltrand
+    usage: "Verwendung: /<command> <subcommand>"
     permission: worldmanager.admin

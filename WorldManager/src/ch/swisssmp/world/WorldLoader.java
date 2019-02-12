@@ -10,22 +10,28 @@ import org.bukkit.World.Environment;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.FileUtil;
+import ch.swisssmp.world.border.WorldBorder;
+import ch.swisssmp.world.border.WorldBorderManager;
 
 public class WorldLoader {
 	protected static World load(String worldName, ConfigurationSection dataSection){
-		//Load World Border
-		WorldBorder worldBorder = null;
-		if(dataSection.contains("world_border")){
-			if(WorldManager.worldBorders.containsKey(worldName)) WorldManager.worldBorders.remove(worldName);
-			worldBorder = WorldBorder.create(dataSection.getConfigurationSection("world_border"));
-			WorldManager.worldBorders.put(worldName, worldBorder);
-		}
+		//Clear old World Border
+		WorldBorderManager.removeWorldBorder(worldName);
 		//Load Bukkit World
-		World existing = Bukkit.getWorld(worldName);
-		if(existing!=null){
-			WorldLoader.applyWorldBorder(existing, worldBorder);
-			return existing;
+		World result = Bukkit.getWorld(worldName);
+		if(result==null){
+			result = WorldLoader.createWorld(worldName, dataSection);
 		}
+		if(dataSection.contains("world_border")){
+			//Load World Border
+			WorldBorder worldBorder = WorldBorder.create(dataSection.getConfigurationSection("world_border"));
+			//Apply World Border
+			WorldBorderManager.setWorldBorder(worldName, worldBorder);
+		}
+		return result;
+	}
+	
+	private static World createWorld(String worldName, ConfigurationSection dataSection){
 		//Copy Advancements
 		WorldLoader.copyDefaultAdvancements(worldName);
 		//Make World Creator
@@ -41,21 +47,8 @@ public class WorldLoader {
 		}
 		//Set Spawn
 		result.setSpawnLocation(dataSection.getInt("spawn_x"), dataSection.getInt("spawn_y"), dataSection.getInt("spawn_z"));
-		//Apply World Border
-		WorldLoader.applyWorldBorder(result, worldBorder);
+		
 		return result;
-	}
-	
-	private static void applyWorldBorder(World world, WorldBorder worldBorder){
-		//Apply World Border
-		if(worldBorder!=null && !worldBorder.doWrap()){
-			world.getWorldBorder().setCenter(worldBorder.getCenterX(), worldBorder.getCenterZ());
-			world.getWorldBorder().setSize(worldBorder.getRadius()*2);
-			world.getWorldBorder().setWarningDistance(worldBorder.getMargin());
-		}
-		else if(worldBorder!=null && worldBorder.doWrap()){
-			world.getWorldBorder().reset();
-		}
 	}
 	
 	private static WorldCreator getWorldCreator(String worldName, ConfigurationSection dataSection){
@@ -63,7 +56,8 @@ public class WorldLoader {
 		result.environment(Environment.valueOf(dataSection.getString("environment")));
 		result.generateStructures(dataSection.getBoolean("generate_structures"));
 		result.seed(dataSection.getLong("seed"));
-		result.type(WorldType.valueOf(dataSection.getString("world_type")));
+		WorldType worldType = WorldType.valueOf(dataSection.getString("world_type"));
+		result.type(worldType);
 		return result;
 	}
 	
@@ -73,6 +67,7 @@ public class WorldLoader {
 	 */
 	private static void copyDefaultAdvancements(String worldName){
 		File mainWorldAdvancementsFile = new File(Bukkit.getWorldContainer(), Bukkit.getWorlds().get(0).getName()+"/data/advancements");
+		if(!mainWorldAdvancementsFile.exists()) return;
 		File worldAdvancementsFile = new File(Bukkit.getWorldContainer(), worldName+"/data/advancements");
 		if(worldAdvancementsFile.exists()){
 			FileUtil.deleteRecursive(worldAdvancementsFile);
@@ -85,10 +80,12 @@ public class WorldLoader {
 	 * @param world - The world to apply the gamerules to
 	 * @param gamerulesSection - A ConfigurationSection with gamerules and associated values
 	 */
+	@SuppressWarnings("deprecation")
 	private static void applyGameRules(World world, ConfigurationSection gamerulesSection){
-		for(String gamerule : gamerulesSection.getKeys(false)){
-			if(!world.setGameRuleValue(gamerule, gamerulesSection.getString(gamerule))){
-				Bukkit.getLogger().info("[WorldManager] Gamerule "+gamerule+" für Welt "+world.getName()+" konnte nicht auf "+gamerulesSection.getString(gamerule)+" gesetzt werden.");
+		for(String gameruleName : gamerulesSection.getKeys(false)){
+			String value = gamerulesSection.getString(gameruleName);
+			if(!world.setGameRuleValue(gameruleName, value)){
+				Bukkit.getLogger().info("[WorldManager] Gamerule "+gameruleName+" für Welt "+world.getName()+" konnte nicht auf "+value+" gesetzt werden.");
 			}
 		}
 	}
