@@ -239,7 +239,6 @@ public class DungeonGenerator implements SessionOwner{
 				if(itemStack==null || !itemStack.hasItemMeta()) continue;
 				if(ItemUtil.getInt(itemStack, "generator_id")!=this.generator_id) continue;
 				itemStack.setItemMeta(tokenStack.getItemMeta());
-				itemStack.setDurability(tokenStack.getDurability());
 			}
 		}
 	}
@@ -457,6 +456,6 @@ public class DungeonGenerator implements SessionOwner{
 		arguments.add("data="+Base64.encodeBase64URLSafeString(jsonData.toString().getBytes()));
 		String[] argumentsArray = new String[arguments.size()];
 		arguments.toArray(argumentsArray);
-		DataSource.getResponse("dungeons/inspect_generator.php", argumentsArray);
+		DataSource.getResponse(DungeonGeneratorPlugin.getInstance(), "inspect_generator.php", argumentsArray);
 	}
 }

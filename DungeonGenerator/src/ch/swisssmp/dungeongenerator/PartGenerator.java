@@ -249,7 +249,7 @@ public class PartGenerator {
 		String[] argumentsArray = new String[arguments.size()];
 		arguments.toArray(argumentsArray);
 		Thread thread = new Thread(()->{
-			DataSource.getResponse("dungeons/upload_generator_log.php",argumentsArray);
+			DataSource.getResponse(DungeonGeneratorPlugin.getInstance(), "upload_generator_log.php",argumentsArray);
 		});
 		thread.start();
 	}

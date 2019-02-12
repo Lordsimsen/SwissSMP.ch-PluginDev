@@ -1,5 +1,6 @@
 main: ch.swisssmp.dungeongenerator.DungeonGeneratorPlugin
-version: 1.0
+version: 1.1
+api-version: 1.13
 name: DungeonGenerator
 author: detig_iii
 description: Generiert prozedurale Dungeons aufgrund von gitterbasierten Teilstücken

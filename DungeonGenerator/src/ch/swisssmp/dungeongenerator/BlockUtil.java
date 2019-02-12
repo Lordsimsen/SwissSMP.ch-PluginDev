@@ -11,13 +11,10 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.material.Colorable;
-import org.bukkit.material.MaterialData;
-import org.bukkit.material.Wood;
 import org.bukkit.util.BlockVector;
 
 public class BlockUtil {
-	private static Collection<Material> ignoreTypes = Arrays.asList(Material.AIR,Material.SIGN_POST,Material.WALL_SIGN,Material.BARRIER);
+	private static Collection<Material> ignoreTypes = Arrays.asList(Material.AIR,Material.SIGN,Material.WALL_SIGN,Material.BARRIER);
 	
 	public static String getSignature(World world, BlockVector from, BlockVector to){
 		String result = "";
@@ -95,16 +92,7 @@ public class BlockUtil {
 	}
 	public static String getBlockIdentifier(Block block, int index){
 		if(ignoreTypes.contains(block.getType())) return "";
-		MaterialData materialData = block.getState().getData();
-		if(materialData instanceof Colorable){
-			return index+"-"+block.getType()+"-"+((Colorable)materialData).getColor()+".";
-		}
-		else if(materialData instanceof Wood){
-			return index+"-"+block.getType()+"-"+((Wood)materialData).getSpecies()+".";
-		}
-		else{
-			return index+"-"+block.getType()+".";
-		}
+		return index+"-"+block.getType()+".";
 	}
 	
 	public static Collection<Block> getBox(Block position){

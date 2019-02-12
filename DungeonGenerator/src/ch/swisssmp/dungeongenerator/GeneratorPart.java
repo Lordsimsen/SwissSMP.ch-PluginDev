@@ -19,17 +19,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
+import com.sk89q.worldedit.EditSession.ReorderMode;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldguard.WorldGuard;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.EntityUtil;
@@ -138,8 +139,8 @@ public class GeneratorPart{
 		try{
 			position = this.adjustPastePosition(position, rotation);
 			LocalSession session = WorldEdit.getInstance().getSessionManager().get(this.generator);
-			@SuppressWarnings("deprecation")
-			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitUtil.getLocalWorld(world), -1);
+			com.sk89q.worldedit.world.World worldeditWorld = WorldGuard.getInstance().getPlatform().getWorldByName(world.getName());
+			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(worldeditWorld, -1);
 			this.copyToClipboard(session, editSession);
 			this.rotateClipboard(session, rotation*90);
 			this.pasteClipboard(session, editSession, position);
@@ -293,15 +294,16 @@ public class GeneratorPart{
 	}
 	
 	private void copyToClipboard(LocalSession session, EditSession editSession) throws WorldEditException{
-		com.sk89q.worldedit.Vector from = new com.sk89q.worldedit.Vector(this.template_x, this.template_y, this.template_z);
-		com.sk89q.worldedit.Vector to = new com.sk89q.worldedit.Vector(this.template_x+this.generator.getPartSizeXZ()-1, this.template_y+this.generator.getPartSizeY()-1, this.template_z+this.generator.getPartSizeXZ()-1);
+		BlockVector3 from = BlockVector3.at(this.template_x, this.template_y, this.template_z);
+		BlockVector3 to = BlockVector3.at(this.template_x+this.generator.getPartSizeXZ()-1, this.template_y+this.generator.getPartSizeY()-1, this.template_z+this.generator.getPartSizeXZ()-1);
 		CuboidRegion selection = new CuboidRegion(from,to);
 		BlockArrayClipboard clipboard = new BlockArrayClipboard(selection);
 		clipboard.setOrigin(from);
-		ForwardExtentCopy copy = new ForwardExtentCopy(editSession, selection, clipboard, new Vector(this.template_x,this.template_y,this.template_z));
+		ForwardExtentCopy copy = new ForwardExtentCopy(editSession, selection, clipboard, BlockVector3.at(this.template_x,this.template_y,this.template_z));
 		copy.setCopyingEntities(false);
 		Operations.complete(copy);
-		session.setClipboard(new ClipboardHolder(clipboard, editSession.getWorld().getWorldData()));
+		ClipboardHolder holder = new ClipboardHolder(clipboard);
+		session.setClipboard(holder);
 	}
 	
 	/*
@@ -316,16 +318,16 @@ public class GeneratorPart{
 	}
 	
 	private void pasteClipboard(LocalSession session, EditSession editSession, BlockVector position) throws WorldEditException{
-		editSession.enableQueue();
+		editSession.setReorderMode(ReorderMode.MULTI_STAGE);
 		ClipboardHolder holder = session.getClipboard();
-        Vector to = new Vector(position.getBlockX(),position.getBlockY(),position.getBlockZ());
+		BlockVector3 to = BlockVector3.at(position.getBlockX(),position.getBlockY(),position.getBlockZ());
         Operation operation = holder
-                .createPaste(editSession, editSession.getWorld().getWorldData())
+                .createPaste(editSession)
                 .to(to)
                 .ignoreAirBlocks(true)
                 .build();
         Operations.completeLegacy(operation);
-		editSession.flushQueue();
+		editSession.flushSession();
 	}
 	
 	private void copyEntities(World world, BlockVector toPosition, int rotation){
