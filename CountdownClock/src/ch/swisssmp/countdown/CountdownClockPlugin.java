@@ -1,7 +1,6 @@
 package ch.swisssmp.countdown;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -11,9 +10,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class CountdownClockPlugin extends JavaPlugin{
-	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
 	protected static CountdownClockPlugin plugin;
 	
@@ -23,13 +22,12 @@ public class CountdownClockPlugin extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		Bukkit.getPluginCommand("countdown").setExecutor(new CountdownCommand());
 		CountdownClockPlugin.loadNumberTemplates();
 		CountdownClock.loadAll();
 		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
 	@Override
@@ -37,7 +35,7 @@ public class CountdownClockPlugin extends JavaPlugin{
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);
 		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
 	protected static boolean[] getNumberTemplate(long number){
@@ -50,7 +48,13 @@ public class CountdownClockPlugin extends JavaPlugin{
 	}
 	
 	private static void loadNumberTemplates(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("clock/get_number_templates.php");
+		HTTPRequest request = DataSource.getResponse(plugin, "get_number_templates.php");
+		request.onFinish(()->{
+			loadNumberTemplates(request.getYamlResponse());
+		});
+	}
+	
+	private static void loadNumberTemplates(YamlConfiguration yamlConfiguration){
 		if(yamlConfiguration==null || !yamlConfiguration.contains("numbers")) return;
 		plugin.numberTemplates = yamlConfiguration.getConfigurationSection("numbers");
 	}

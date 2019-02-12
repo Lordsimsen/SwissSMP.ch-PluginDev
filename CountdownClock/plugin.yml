@@ -1,6 +1,7 @@
 main: ch.swisssmp.countdown.CountdownClockPlugin
-version: 1.0
-name: CountdownPlugin
+version: 1.2
+api-version: 1.13
+name: CountdownClock
 author: detig_iii
 depend: [WebCore]
 description: Zeigt eine grosse automatisierte Uhr
