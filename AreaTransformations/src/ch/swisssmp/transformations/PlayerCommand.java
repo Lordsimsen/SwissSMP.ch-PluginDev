@@ -79,14 +79,14 @@ public class PlayerCommand implements CommandExecutor{
 	    			}
 	    		}
 	    		else{
-	    			File oldFile = new File(AreaTransformations.plugin.getDataFolder(), "/schematics/" + schematicName);
+	    			File oldFile = new File(AreaTransformations.getInstance().getDataFolder(), "/schematics/" + schematicName);
 	    			if(oldFile.exists())
 	    				oldFile.delete();
 	    			action = "DELETE";
 	    			location = player.getLocation();
 	    		}
 	    		
-    			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/editor.php", new String[]{
+    			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(AreaTransformations.getInstance(), "editor.php", new String[]{
 	    			"transformation="+transformation_id,
 	    			"schematic="+schematicName,
 	    			"action="+action,

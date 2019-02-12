@@ -45,7 +45,7 @@ public class TransformationWorld{
 		//initialize
 		try{
 			this.world_name = world;
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
+			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(AreaTransformations.getInstance(), "get.php", new String[]{
 					"world="+world
 			});
 			if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;

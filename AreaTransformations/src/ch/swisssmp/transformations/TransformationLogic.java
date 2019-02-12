@@ -10,9 +10,6 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.material.MaterialData;
-import org.bukkit.material.PressureSensor;
-import org.bukkit.material.Redstone;
 import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -36,7 +33,7 @@ public class TransformationLogic implements Listener{
 			valueMap.put(new VectorKey(vector), b);
 		}
 		this.world = world;
-		Bukkit.getPluginManager().registerEvents(this, AreaTransformations.plugin);
+		Bukkit.getPluginManager().registerEvents(this, AreaTransformations.getInstance());
 	}
 	
 	private boolean apply(Location exclude, boolean excludedIsTrue){
@@ -177,17 +174,7 @@ public class TransformationLogic implements Listener{
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public Integer getCurrent(Block block){
-		MaterialData data = block.getState().getData();
-		if(data instanceof Redstone){
-			if(((Redstone)data).isPowered()) return 15;
-			return 0;
-		}
-		else if(data instanceof PressureSensor){
-			if(((PressureSensor)data).isPressed()) return 15;
-			return 0;
-		}
-		return (int) data.getData();
+		return block.getBlockPower();
 	}
 }
