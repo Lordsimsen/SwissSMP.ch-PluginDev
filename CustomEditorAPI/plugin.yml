@@ -1,0 +1,7 @@
+main: ch.swisssmp.editor.CustomEditorAPI
+version: 1.31
+api-version: 1.13
+name: CustomEditorAPI
+author: detig_iii
+description: Erlaubt anderen Plugins Verwendung von standardisierten Inventar-Menüs
+depend: [SwissSMPUtils,CustomItems]
