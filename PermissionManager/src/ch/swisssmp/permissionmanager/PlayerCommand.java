@@ -10,6 +10,7 @@ import ch.swisssmp.commandscheduler.CommandScheduler;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 import net.md_5.bungee.api.ChatColor;
 
 public class PlayerCommand implements CommandExecutor{
@@ -70,11 +71,14 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission user [user]");
 							return true;
 						}
-						YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/user_info.php", new String[]{"user="+URLEncoder.encode(args[1])});
-						if(yamlConfiguration==null) return true;
-						if(!yamlConfiguration.contains("message")) return true;
-						for(String line : yamlConfiguration.getStringList("message"))
-							sender.sendMessage(line);
+						HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "user_info.php", new String[]{"user="+URLEncoder.encode(args[1])});
+						request.onFinish(()->{
+							YamlConfiguration yamlConfiguration = request.getYamlResponse();
+							if(yamlConfiguration==null) return;
+							if(!yamlConfiguration.contains("message")) return;
+							for(String line : yamlConfiguration.getStringList("message"))
+								sender.sendMessage(line);
+						});
 						break;
 					}
 					case "city":{
@@ -82,11 +86,14 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission city [city]");
 							return true;
 						}
-						YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/city_info.php", new String[]{"city="+URLEncoder.encode(args[1])});
-						if(yamlConfiguration==null) return true;
-						if(!yamlConfiguration.contains("message")) return true;
-						for(String line : yamlConfiguration.getStringList("message"))
-							sender.sendMessage(line);
+						HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "city_info.php", new String[]{"city="+URLEncoder.encode(args[1])});
+						request.onFinish(()->{
+							YamlConfiguration yamlConfiguration = request.getYamlResponse();
+							if(yamlConfiguration==null) return;
+							if(!yamlConfiguration.contains("message")) return;
+							for(String line : yamlConfiguration.getStringList("message"))
+								sender.sendMessage(line);
+						});
 						break;
 					}
 					case "rank":{
@@ -94,11 +101,14 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission rank [rank]");
 							return true;
 						}
-						YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("permissions/rank_info.php", new String[]{"rank="+URLEncoder.encode(args[1])});
-						if(yamlConfiguration==null) return true;
-						if(!yamlConfiguration.contains("message")) return true;
-						for(String line : yamlConfiguration.getStringList("message"))
-							sender.sendMessage(line);
+						HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "rank_info.php", new String[]{"rank="+URLEncoder.encode(args[1])});
+						request.onFinish(()->{
+							YamlConfiguration yamlConfiguration = request.getYamlResponse();
+							if(yamlConfiguration==null) return;
+							if(!yamlConfiguration.contains("message")) return;
+							for(String line : yamlConfiguration.getStringList("message"))
+								sender.sendMessage(line);
+						});
 						break;
 					}
 				}
@@ -110,11 +120,14 @@ public class PlayerCommand implements CommandExecutor{
 				if(sender instanceof Player){
 					senderName = ((Player)sender).getUniqueId().toString();
 				}
-				sender.sendMessage(DataSource.getResponse("permissions/promote.php", new String[]{
+				HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "promote.php", new String[]{
 						"user="+URLEncoder.encode(user),
 						"promoter="+URLEncoder.encode(senderName)
-				}));
-				CommandScheduler.runCommands();
+				});
+				request.onFinish(()->{
+					sender.sendMessage(request.getResponse());
+					CommandScheduler.runCommands();
+				});
 				break;
 			}
 			case "demote":{
@@ -123,11 +136,14 @@ public class PlayerCommand implements CommandExecutor{
 				if(sender instanceof Player){
 					senderName = ((Player)sender).getUniqueId().toString();
 				}
-				sender.sendMessage(DataSource.getResponse("permissions/demote.php", new String[]{
+				HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "demote.php", new String[]{
 						"user="+URLEncoder.encode(user),
 						"promoter="+URLEncoder.encode(senderName)
-				}));
-				CommandScheduler.runCommands();
+				});
+				request.onFinish(()->{
+					sender.sendMessage(request.getResponse());
+					CommandScheduler.runCommands();
+				});
 				break;
 			}
 		}
