@@ -1,0 +1,16 @@
+package ch.swisssmp.warehouse;
+
+public enum MaterialGroup {
+	BANNER,
+	BED,
+	CARPET,
+	CONCRETE,
+	CONCRETE_POWDER,
+	GLAZED_TERRACOTTA,
+	SHULKER_BOX,
+	STAINED_GLASS,
+	STAINED_GLASS_PANE,
+	TERRACOTTA,
+	WALL_BANNER,
+	WOOL;
+}

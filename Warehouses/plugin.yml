@@ -1,0 +1,19 @@
+main: ch.swisssmp.warehouse.WarehousesPlugin
+version: 1.1
+api-version: 1.13
+name: Warehouses
+author: detig_iii
+description: Ermöglicht automatisierte Lagersysteme
+depend: [CustomItems,CustomEditorAPI]
+permissions:
+  warehouse.use:
+    description: Erlaubt die Verwendung des Plugins
+    default: op
+  warehouse.admin:
+    description: Erlaubt Administration des Plugins
+    default: op
+commands:
+  warehousetool:
+    description: Gibt dir einen Lager-Konfigurator
+    usage: "Verwendung: /<command>"
+    permission: warehouse.admin
