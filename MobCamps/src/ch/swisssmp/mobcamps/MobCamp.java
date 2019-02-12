@@ -18,7 +18,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.sqlite.util.StringUtils;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
@@ -169,7 +168,7 @@ public class MobCamp {
 				index++;
 			}
 		}
-		DataSource.getResponse("camps/save_camp.php", new String[]{
+		DataSource.getResponse(MobCamps.getInstance(), "save_camp.php", new String[]{
 			"id="+this.camp_id,
 			"name="+URLEncoder.encode(name),
 			"spawn_radius="+this.spawnRadius,
@@ -209,9 +208,11 @@ public class MobCamp {
 	private List<Entity> spawnEntitySlot(int index, Location center){
 		List<Entity> result = new ArrayList<Entity>();
 		ItemStack spawnEggTemplate = this.contents.getItem(index);
-		if(spawnEggTemplate==null || spawnEggTemplate.getType()!=Material.MONSTER_EGG) return result;
+		if(spawnEggTemplate==null) return result;
 		ItemStack spawnEgg = RandomItemUtil.buildItemStack(spawnEggTemplate);
-		EntityType entityType = ((SpawnEggMeta)spawnEgg.getItemMeta()).getSpawnedType();
+		if(spawnEgg==null) return result;
+		EntityType entityType = MobCamps.getEntityType(spawnEgg.getType());
+		if(entityType==null) return result;
 		World world = center.getWorld();
 		List<ItemStack> equipment;
 		Entity spawned;
@@ -273,7 +274,6 @@ public class MobCamp {
 				camp_id = ItemUtil.getInt(itemStack, "mob_camp");
 				if(camp_id!=this.camp_id) continue;
 				itemStack.setItemMeta(tokenStack.getItemMeta());
-				itemStack.setDurability(tokenStack.getDurability());
 			}
 		}
 	}
@@ -296,7 +296,7 @@ public class MobCamp {
 	}
 	
 	private static MobCamp load(String[] params){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("camps/get_camp.php", params);
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(MobCamps.getInstance(), "get_camp.php", params);
 		if(yamlConfiguration==null || !yamlConfiguration.contains("camp")) return null;
 		return new MobCamp(yamlConfiguration.getConfigurationSection("camp"));
 	}

@@ -1,5 +1,6 @@
 main: ch.swisssmp.mobcamps.MobCamps
-version: 1.0
+version: 1.1
+api-version: 1.13
 name: MobCamps
 author: detig_iii
 description: Ermöglicht MobCamps mit Ingame Editor, welche in Welten mit der Gamerule doMobCampSawning auf true selbständig Mobs spawnen

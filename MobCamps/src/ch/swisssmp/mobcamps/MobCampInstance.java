@@ -6,14 +6,12 @@ import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.bukkit.scheduler.BukkitTask;
 
 public class MobCampInstance implements Runnable{
@@ -79,6 +77,7 @@ public class MobCampInstance implements Runnable{
 		this.entity.remove();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void updateState(){
 		if(this.entity.getWorld().getGameRuleValue("doMobCampSpawning").toLowerCase().equals("true")){
 			if(this.task==null) this.task = Bukkit.getScheduler().runTaskTimer(MobCamps.plugin, this, 100, 200);
@@ -95,11 +94,9 @@ public class MobCampInstance implements Runnable{
 		for(Entity passenger : this.entity.getPassengers()){
 			passenger.remove();
 		}
-		EntityType displayType;
 		Inventory contents = this.mobCamp.getContents();
-		int firstEggIndex = contents.first(Material.MONSTER_EGG);
-		if(firstEggIndex>=0) displayType = ((SpawnEggMeta)contents.getItem(firstEggIndex).getItemMeta()).getSpawnedType();
-		else displayType = EntityType.ZOMBIE;
+		EntityType displayType = MobCamps.getFirstEggType(contents);
+		if(displayType==null) displayType = EntityType.ZOMBIE;
 		Entity display = this.entity.getWorld().spawnEntity(this.entity.getLocation(), displayType);
 		display.setCustomName("§a"+this.mobCamp.getName());
 		display.setCustomNameVisible(false);

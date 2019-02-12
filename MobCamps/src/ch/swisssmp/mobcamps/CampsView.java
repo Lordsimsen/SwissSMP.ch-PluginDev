@@ -36,7 +36,7 @@ public class CampsView extends InventoryView implements Listener {
 	}
 	
 	private void createLootTableTokens(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("camps/list_camps.php");
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(MobCamps.getInstance(), "list_camps.php");
 		if(yamlConfiguration==null || !yamlConfiguration.contains("mob_camps")){
 			this.player.sendMessage("[MobCamps] "+ChatColor.RED+"Konnte Camps nicht anzeigen.");
 			return;
