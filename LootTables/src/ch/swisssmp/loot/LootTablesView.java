@@ -36,7 +36,7 @@ public class LootTablesView extends InventoryView implements Listener {
 	}
 	
 	private void createLootTableTokens(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("loot/list_tables.php");
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(LootTables.getInstance(), "list_tables.php");
 		if(yamlConfiguration==null || !yamlConfiguration.contains("loot_tables")){
 			this.player.sendMessage("[LootTables] "+ChatColor.RED+"Konnte Beutetabellen nicht anzeigen.");
 			return;
@@ -54,7 +54,7 @@ public class LootTablesView extends InventoryView implements Listener {
 		if(event.getView()!=this || event.getClickedInventory()!=this.inventory) return;
 		ItemStack itemStack = this.inventory.getItem(event.getSlot());
 		if(itemStack==null){
-			Bukkit.getScheduler().runTaskLater(LootTables.plugin, ()->{
+			Bukkit.getScheduler().runTaskLater(LootTables.getInstance(), ()->{
 				inventory.setItem(event.getSlot(), null);
 			}, 1L);
 			return;
@@ -106,7 +106,7 @@ public class LootTablesView extends InventoryView implements Listener {
 	
 	protected static LootTablesView open(Player player){
 		LootTablesView result = new LootTablesView(player);
-		Bukkit.getPluginManager().registerEvents(result, LootTables.plugin);
+		Bukkit.getPluginManager().registerEvents(result, LootTables.getInstance());
 		player.openInventory(result);
 		return result;
 	}

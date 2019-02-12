@@ -15,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.PlayerRenameItemEvent;
 import ch.swisssmp.utils.Random;
@@ -121,5 +122,11 @@ public class EventListener implements Listener {
 		lootTable.setName(event.getNewName());
 		event.setName(lootTable.getDisplayName());
 		lootTable.updateTokens();
+	}
+	
+	@EventHandler
+	private void onResourcepackReload(PlayerResourcePackUpdateEvent event){
+		if(!event.getPlayer().hasPermission("loottables.admin")) return;
+		event.addComponent("loot_editor");
 	}
 }

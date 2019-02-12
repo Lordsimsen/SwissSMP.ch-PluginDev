@@ -55,7 +55,7 @@ public class LootTable {
 		name = name.replace(" ", "_");
 		this.name = name;
 		loadedTables.put(this.name,this);
-		DataSource.getResponse("loot/edit_table_name.php", new String[]{
+		DataSource.getResponse(LootTables.getInstance(), "edit_table_name.php", new String[]{
 				"id="+this.loot_table_id,
 				"name="+URLEncoder.encode(this.name)
 		});
@@ -72,7 +72,7 @@ public class LootTable {
 	
 	public void setLootType(LootType lootType){
 		this.lootType = lootType;
-		DataSource.getResponse("loot/edit_table_loot_type.php", new String[]{
+		DataSource.getResponse(LootTables.getInstance(), "edit_table_loot_type.php", new String[]{
 				"id="+this.loot_table_id,
 				"loot_type="+URLEncoder.encode(this.lootType.toString())
 		});
@@ -81,7 +81,7 @@ public class LootTable {
 	
 	public void setChance(double chance){
 		this.chance = Mathf.clamp01(chance);
-		DataSource.getResponse("loot/edit_table_chance.php", new String[]{
+		DataSource.getResponse(LootTables.getInstance(), "edit_table_chance.php", new String[]{
 				"id="+this.loot_table_id,
 				"chance="+this.chance
 		});
@@ -101,7 +101,7 @@ public class LootTable {
 			this.min_rolls = -1;
 			this.max_rolls = -1;
 		}
-		DataSource.getResponse("loot/edit_table_rolls.php", new String[]{
+		DataSource.getResponse(LootTables.getInstance(), "edit_table_rolls.php", new String[]{
 				"id="+this.loot_table_id,
 				"min_rolls="+this.min_rolls,
 				"max_rolls="+this.max_rolls
@@ -180,7 +180,7 @@ public class LootTable {
 			arguments.add("items["+i+"][slot]="+i);
 			arguments.add("items["+i+"][item]="+SwissSMPUtils.encodeItemStack(this.items[i]));
 		}
-		DataSource.getResponse("loot/edit_table_items.php", new String[]{
+		DataSource.getResponse(LootTables.getInstance(), "edit_table_items.php", new String[]{
 			"id="+this.loot_table_id,
 			"slots="+this.items.length,
 			StringUtils.join(arguments, "&")
@@ -206,7 +206,7 @@ public class LootTable {
 	
 	public void remove(){
 		loadedTables.remove(this.name.toLowerCase());
-		DataSource.getResponse("loot/remove_table.php", new String[]{
+		DataSource.getResponse(LootTables.getInstance(), "remove_table.php", new String[]{
 				"id="+this.loot_table_id
 		});
 	}
@@ -214,7 +214,6 @@ public class LootTable {
 	public void updateToken(ItemStack itemStack){
 		ItemStack templateToken = this.getInventoryToken(1);
 		itemStack.setItemMeta(templateToken.getItemMeta());
-		itemStack.setDurability(templateToken.getDurability());
 	}
 	
 	public void updateTokens(){
@@ -223,7 +222,6 @@ public class LootTable {
 			for(ItemStack itemStack : player.getInventory()){
 				if(ItemUtil.getInt(itemStack, "loot_table")!=this.loot_table_id) continue;
 				itemStack.setItemMeta(tokenStack.getItemMeta());
-				itemStack.setDurability(tokenStack.getDurability());
 			}
 		}
 	}
@@ -247,7 +245,7 @@ public class LootTable {
 		if(name==null || name.isEmpty()) return null;
 		if(loadedTables.containsKey(name.toLowerCase())) return loadedTables.get(name.toLowerCase());
 		YamlConfiguration yamlConfiguration;
-		yamlConfiguration = DataSource.getYamlResponse("loot/get_table.php", new String[]{
+		yamlConfiguration = DataSource.getYamlResponse(LootTables.getInstance(), "get_table.php", new String[]{
 			"name="+URLEncoder.encode(name),
 			"create_missing="+(createIfMissing?1:0)
 		});
@@ -260,7 +258,7 @@ public class LootTable {
 			if(lootTable.loot_table_id==loot_table_id) return lootTable;
 		}
 		YamlConfiguration yamlConfiguration;
-		yamlConfiguration = DataSource.getYamlResponse("loot/get_table.php", new String[]{
+		yamlConfiguration = DataSource.getYamlResponse(LootTables.getInstance(), "get_table.php", new String[]{
 			"id="+loot_table_id,
 			"create_missing=0"
 		});

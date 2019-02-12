@@ -64,7 +64,7 @@ public class LootTableEditor extends InventoryView implements Listener{
 	
 	public static LootTableEditor open(Player player, LootTable lootTable){
 		LootTableEditor editor = new LootTableEditor(player,lootTable);
-		Bukkit.getPluginManager().registerEvents(editor, LootTables.plugin);
+		Bukkit.getPluginManager().registerEvents(editor, LootTables.getInstance());
 		editor.open();
 		return editor;
 	}
