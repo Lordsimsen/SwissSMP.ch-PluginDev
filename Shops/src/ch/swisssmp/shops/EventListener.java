@@ -1,37 +1,44 @@
 package ch.swisssmp.shops;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.VillagerAcquireTradeEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.Recipe;
 
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.npc.NPCInstance;
+import ch.swisssmp.npc.event.NPCEditorOpenEvent;
+import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
+import ch.swisssmp.shops.editor.ShopEditor;
 import ch.swisssmp.utils.CurrencyInfo;
 import ch.swisssmp.utils.EventPoints;
-import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
 
 public class EventListener implements Listener{
+	
+	@EventHandler
+	private void onVillagerAcquireTrade(VillagerAcquireTradeEvent event){
+		NPCInstance npc = NPCInstance.get(event.getEntity());
+		if(npc==null) return;
+		Shop shop = Shop.get(npc);
+		if(shop==null) return;
+		event.setCancelled(true);
+	}
+	
 	@EventHandler
 	private void onTrade(InventoryClickEvent event){
 		if(event.getView().getType()!=InventoryType.MERCHANT) return;
@@ -55,9 +62,13 @@ public class EventListener implements Listener{
 		if(shop==null) return;
 		if(merchantInventory.getItem(2)==null) return;
 		MerchantRecipe recipe = merchantInventory.getSelectedRecipe();
-		Trade trade = new Trade(shop, recipe, villager, (Player) event.getWhoClicked(), event.getView());
-		if(trade.isResultCurrency() && event.isShiftClick()){
+		Trade trade = new Trade(shop, recipe, (Player) event.getWhoClicked(), event.getView());
+		if(trade.isIngredientCurrency() && event.isShiftClick()){
 			event.setCancelled(true); //prevent player from making a mistake
+			return;
+		}
+		if(event.getClick()!=ClickType.LEFT && event.getClick()!=ClickType.RIGHT){
+			event.setCancelled(true);
 			return;
 		}
 		int playerCanBuy = ShopUtil.countTradeBuyerSide(recipe, merchantInventory.getContents());
@@ -66,54 +77,32 @@ public class EventListener implements Listener{
 	}
 	
 	@EventHandler
-	private void onPlayerInteractEntity(PlayerInteractEntityEvent event){
-		if(event.getRightClicked().getType()!=EntityType.VILLAGER){
+	private void onPlayerInteractEntity(PlayerInteractNPCEvent event){
+		if(event.getHand()!=EquipmentSlot.HAND){
+			event.setCancelled(true);
+		}
+		if(event.getNPC().getEntity().getType()!=EntityType.VILLAGER){
 			//Bukkit.getLogger().info("[ShopManager] Kein Villager");
 			return;
 		}
-		Villager villager = (Villager)event.getRightClicked();
-		Shop shop = Shop.get(villager);
+		Shop shop = Shop.get(event.getNPC());
 		if(shop==null){
 			//Bukkit.getLogger().info("[ShopManager] Kein Shop");
 			return;
 		}
-		if(event.getPlayer().isSneaking()){
-			//Bukkit.getLogger().info("[ShopManager] Spieler schleicht");
-			if(shop.getOwnerUUID().equals(event.getPlayer().getUniqueId()) || event.getPlayer().hasPermission("shop.admin")){
-				event.setCancelled(true);
-				shop.openEditor(event.getPlayer(), villager);
-				//Bukkit.getLogger().info("[ShopManager] Öffne Editor");
-			}
-			else{
-				event.setCancelled(true);
-				SwissSMPler.get(event.getPlayer()).sendActionBar("§cKeine Berechtigung.");
-			}
+		if(event.getPlayer().isSneaking() && event.getPlayer().hasPermission("shop.admin")){
+			return;
 		}
-		else{
-			if(event.getHand()!=EquipmentSlot.HAND){
-				event.setCancelled(true);
-			}
-			if(shop.getCurrentTradingPartner()==null || shop.getCurrentTradingPartner() == event.getPlayer()){
-				shop.updateAgent(villager);
-				if(shop.hasTrades()){
-					Entity vehicle = villager.getVehicle();
-					Location location = vehicle.getLocation();
-					Location playerLocation = event.getPlayer().getLocation();
-					//location = location.setDirection(direction);
-					float angle = (float) Math.toDegrees(Math.atan2(playerLocation.getZ() - location.getZ(), playerLocation.getX() - location.getX()))-90;
-					if(angle<0) angle+=360;
-					location = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ(), angle, 0);
-					vehicle.eject();
-					vehicle.teleport(location);
-					vehicle.addPassenger(villager);
-					shop.setCurrentTradingPartner(event.getPlayer());
-				}
-			}
-			else{
-				SwissSMPler.get(event.getPlayer()).sendActionBar("§cShop besetzt");
-				event.setCancelled(true);
-			}
-		}
+
+		event.setCancelled(true);
+		event.setPreventDefault(false);
+	}
+	
+	@EventHandler
+	private void onNPCEditor(NPCEditorOpenEvent event){
+		Shop shop = Shop.get(event.getNPC());
+		if(shop==null) return;
+		event.getEditors().add(new ShopEditor(event.getView(), shop));
 	}
 	
 	@EventHandler
@@ -128,31 +117,21 @@ public class EventListener implements Listener{
 		MerchantRecipe recipe = villager.getRecipe(0);
 		ItemStack itemStack = recipe.getIngredients().get(0);
 		String customEnum = CustomItems.getCustomEnum(itemStack);
-		if(customEnum==null) return;
+		if(customEnum==null){
+			return;
+		}
 		CurrencyInfo currencyInfo = EventPoints.getInfo(customEnum);
-		if(currencyInfo==null || !currencyInfo.getCurrencyType().equals(customEnum)) return;
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("players/balance.php", new String[]{
-			"player="+URLEncoder.encode(event.getPlayer().getUniqueId().toString()),
-			"currency="+URLEncoder.encode(currencyInfo.getCurrencyType())
-		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("balance")) return;
-		int balance = Math.min(64, yamlConfiguration.getInt("balance"));
-		Bukkit.getScheduler().runTaskLater(ShopManager.plugin, new Runnable(){
+		if(currencyInfo==null || !currencyInfo.getCurrencyType().equals(customEnum)){
+			return;
+		}
+		int balance = EventPoints.getBalance(event.getPlayer().getUniqueId().toString(), currencyInfo.getCurrencyType());
+		int displayBalance = Math.min(64, balance);
+		Bukkit.getScheduler().runTaskLater(ShopsPlugin.plugin, new Runnable(){
 			public void run(){
-				ItemStack eventPoints = currencyInfo.getItem(balance);
+				ItemStack eventPoints = currencyInfo.getItem(displayBalance);
 				merchantInventory.setItem(0, eventPoints);
 			}
 		}, 1L);
-	}
-	
-	@EventHandler
-	private void onPrepareItemCraft(PrepareItemCraftEvent event){
-		if(event.getRecipe()==null) return;
-		Recipe recipe = event.getRecipe();
-		if(recipe.getResult()==null) return;
-		ItemStack result = recipe.getResult();
-		if(!ShopManager.isShopContract(result)) return;
-		if(!event.getView().getPlayer().hasPermission("shop.craft")) event.getInventory().setResult(null);
 	}
 	
 	@EventHandler
@@ -172,9 +151,5 @@ public class EventListener implements Listener{
 			if(currencyInfo==null || !currencyInfo.getCurrencyType().equals(customEnum)) continue;
 			inventory.setItem(i, null);
 		}
-		Villager villager = (Villager) inventory.getHolder();
-		Shop shop = Shop.get(villager);
-		if(shop==null) return;
-		shop.setCurrentTradingPartner(null);
 	}
 }

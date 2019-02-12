@@ -1,10 +1,11 @@
-main: ch.swisssmp.shops.ShopManager
-version: 2.0
+main: ch.swisssmp.shops.ShopsPlugin
+version: 2.11
+api-version: 1.13
 name: Shops
 author: detig_iii
 description: Konfigurierbare Villager Shops
 load: startup
-depend: [WebCore,WorldGuard]
+depend: [WebCore,WorldGuard,EventPoints]
 permissions: 
   shop.admin:
     default: op
@@ -17,8 +18,10 @@ permissions:
     description: Erlaubt das Erstellen und Verwalten von Shops
 commands:
   shop:
-    usage: |
-      /shop create - Erstellt einen Shop an deiner Position
-      /shop info [Shop-ID] - Zeigt Informationen zu diesem Shop
-    description: Diverse Admin-Befehle
+    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    description: Hauptbefehl zur Verwaltung von Shops
+    permission: shop.admin
+  shop create:
+    usage: "Verwendung: /<command> <subcommand>"
+    description: Erstellt einen Shop an deiner Position
     permission: shop.admin
