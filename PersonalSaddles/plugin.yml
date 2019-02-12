@@ -1,0 +1,14 @@
+main: ch.swisssmp.personalsaddles.PersonalSaddlesPlugin
+version: 1.0
+api-version: 1.13
+name: PersonalSaddles
+author: detig_iii
+description: Crafte private Sattel zum Schutz deiner Pferde
+depends: [CustomItems]
+permissions:
+  personalsaddle.craft:
+    description: Erlaubt das Crafting von persönlichen Sätteln
+    default: op
+  personalsaddle.admin:
+    description: Erlaubt Administration des Plugins
+    default: op
