@@ -1,0 +1,20 @@
+main: ch.swisssmp.npc.NPCs
+version: 1.11
+api-version: 1.13
+name: NPCs
+author: detig_iii
+description: Ermöglicht anderen Plugins Verwendung von NPCs
+depend: [CustomItems]
+permissions:
+  npc.admin:
+    description: Erlaubt Verwaltung von NPCs
+    default: op
+commands:
+  npc:
+    description: Hauptbefehl zur Verwaltung von NPCs
+    usage: "/<command> <subcommand> [Argumente]"
+    permission: npc.admin
+  npc create:
+    description: Erstellt einen NPC an deiner Position
+    usage: "/<command> <subcommand> [Typ]"
+    permission: npc.admin

@@ -54,3 +54,29 @@ local.properties
 
 # Code Recommenders
 .recommenders/
+LampControl/src/cz/ceph/lampcontrol/workers/SwitchMaterial.java
+LampControl/src/cz/ceph/lampcontrol/workers/SwitchBlock.java
+LampControl/src/cz/ceph/lampcontrol/workers/GetBlock.java
+LampControl/src/cz/ceph/lampcontrol/utils/VersionChecker.java
+LampControl/src/cz/ceph/lampcontrol/utils/SoundPlayer.java
+LampControl/src/cz/ceph/lampcontrol/utils/ChatWriter.java
+LampControl/src/cz/ceph/lampcontrol/localization/Localization.java
+LampControl/src/cz/ceph/lampcontrol/listeners/LampListener.java
+LampControl/src/cz/ceph/lampcontrol/LampControl.java
+LampControl/src/cz/ceph/lampcontrol/events/ReflectPlayerInteractEvent.java
+LampControl/src/cz/ceph/lampcontrol/events/ReflectEvent.java
+LampControl/src/cz/ceph/lampcontrol/config/MainConfig.java
+LampControl/src/cz/ceph/lampcontrol/config/BaseConfiguration.java
+LampControl/src/cz/ceph/lampcontrol/commands/ReloadCommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/OnCommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/OffCommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/ListMaterialsDev.java
+LampControl/src/cz/ceph/lampcontrol/commands/HelpCommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/core/RegisterCommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/core/IRegexCommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/core/ICommandHandler.java
+LampControl/src/cz/ceph/lampcontrol/commands/core/ICommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/core/IBasicCommand.java
+LampControl/src/cz/ceph/lampcontrol/commands/core/CommandHandler.java
+LampControl/src/cz/ceph/lampcontrol/commands/core/CommandException.java
+LampControl/src/cz/ceph/lampcontrol/commands/ControlCommand.java
