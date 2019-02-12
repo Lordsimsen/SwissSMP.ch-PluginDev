@@ -29,7 +29,7 @@ public class EventListener implements Listener{
 	@EventHandler
 	private void onLanternIgnite(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
-		if(event.getItem()==null || event.getItem().getType()!=Material.CARROT_STICK) return;
+		if(event.getItem()==null || event.getItem().getType()!=Material.CARROT_ON_A_STICK) return;
 		ItemStack itemStack = event.getItem();
 		String customEnum = CustomItems.getCustomEnum(itemStack);
 		if(customEnum==null || !customEnum.equals("FLYING_LANTERN")) return;

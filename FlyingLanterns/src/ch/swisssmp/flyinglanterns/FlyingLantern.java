@@ -52,7 +52,7 @@ public class FlyingLantern implements Runnable{
 	public void drop(){
 		ItemStack itemStack = FlyingLanterns.getFlyingLantern();
 		this.entity.getWorld().dropItem(this.getLocation(), itemStack);
-		this.entity.getWorld().playSound(this.getLocation(), Sound.ENTITY_ITEMFRAME_REMOVE_ITEM, 10, 1);
+		this.entity.getWorld().playSound(this.getLocation(), Sound.ENTITY_ITEM_FRAME_REMOVE_ITEM, 10, 1);
 		this.remove();
 	}
 
@@ -135,7 +135,7 @@ public class FlyingLantern implements Runnable{
 		armorStand.setInvulnerable(true);
 		armorStand.setSmall(true);
 		Bukkit.getScheduler().runTaskLater(FlyingLanterns.plugin, new Runnable(){public void run(){armorStand.teleport(locationClone);}}, 1L);
-		locationClone.getWorld().playSound(locationClone, Sound.BLOCK_CLOTH_PLACE, 5, 1);
+		locationClone.getWorld().playSound(locationClone, Sound.BLOCK_WOOL_PLACE, 5, 1);
 		return FlyingLantern.load(armorStand);
 	}
 	
