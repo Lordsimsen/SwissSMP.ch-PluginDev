@@ -24,6 +24,8 @@ import org.bukkit.projectiles.ProjectileSource;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
+import ch.swisssmp.webcore.RequestMethod;
 
 public class DeathMessages extends JavaPlugin implements Listener{
 	protected static Logger logger;
@@ -91,7 +93,8 @@ public class DeathMessages extends JavaPlugin implements Listener{
 					arguments.add("arguments[block]="+block.getType());
 			}
 		}
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("players/death.php", arguments.toArray(new String[arguments.size()]));
+		HTTPRequest request = DataSource.getResponse(plugin, "death.php", arguments.toArray(new String[arguments.size()]), RequestMethod.POST_SYNC);
+		YamlConfiguration yamlConfiguration = request.getYamlResponse();
 		if(yamlConfiguration==null) return;
 		if(yamlConfiguration.contains("message")){
 			event.setDeathMessage(yamlConfiguration.getString("message"));
