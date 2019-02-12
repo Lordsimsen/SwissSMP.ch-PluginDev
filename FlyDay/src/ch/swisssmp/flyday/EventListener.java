@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class EventListener implements Listener{
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerJoin(PlayerJoinEvent event){
+		Bukkit.getLogger().info("[FlyDay] Prüfe ob Flyday ist");
 		Bukkit.getScheduler().runTaskLater(FlyDay.plugin, new Runnable(){
 			public void run(){
 				FlyDay.updatePlayer(event.getPlayer());
@@ -18,6 +19,7 @@ public class EventListener implements Listener{
 	
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerChangedWorld(PlayerChangedWorldEvent event){
+		Bukkit.getLogger().info("[FlyDay] Prüfe ob Flyday ist");
 		Bukkit.getScheduler().runTaskLater(FlyDay.plugin, new Runnable(){
 			public void run(){
 				FlyDay.updatePlayer(event.getPlayer(), false);
