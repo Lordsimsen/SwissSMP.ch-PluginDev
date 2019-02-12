@@ -3,7 +3,6 @@ package ch.swisssmp.craftbank;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,7 +23,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPler;
@@ -33,7 +35,7 @@ import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
 public class CraftBank extends JavaPlugin implements Listener{
-	public static Logger logger;
+	public static CraftBank plugin;
 	public static Server server;
 	public static PluginDescriptionFile pdfFile;
 	public static File dataFolder;
@@ -42,8 +44,7 @@ public class CraftBank extends JavaPlugin implements Listener{
 	@Override
 	public void onEnable() {
 		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		server = getServer();
 		
@@ -67,7 +68,9 @@ public class CraftBank extends JavaPlugin implements Listener{
 		SwissSMPler player = SwissSMPler.get(event.getPlayer());
 		String[] lines = event.getLines();
 		Location location = player.getLocation();
-		List<String> regionIds = WorldGuardPlugin.inst().getRegionManager(player.getWorld()).getApplicableRegionsIDs(new com.sk89q.worldedit.Vector(location.getX(), location.getY(), location.getZ()));
+		WorldGuardPlatform platform = WorldGuard.getInstance().getPlatform();
+		RegionManager regionManager = platform.getRegionContainer().get(platform.getWorldByName(player.getWorld().getName()));
+		List<String> regionIds = regionManager.getApplicableRegionsIDs(BlockVector3.at(location.getX(), location.getY(), location.getZ()));
 		List<String> arguments = new ArrayList<String>();
 		for(String regionId : regionIds){
 			arguments.add("regions[]="+URLEncoder.encode(regionId));
@@ -77,7 +80,7 @@ public class CraftBank extends JavaPlugin implements Listener{
 		}
 		arguments.add("player="+player.getUniqueId().toString());
 		String[] args = new String[arguments.size()];
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("bank/sign.php", arguments.toArray(args));
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(plugin, "sign.php", arguments.toArray(args));
 		if(yamlConfiguration==null) return;
 		if(yamlConfiguration.contains("sign")){
 			ConfigurationSection linesSection = yamlConfiguration.getConfigurationSection("sign");
@@ -185,14 +188,14 @@ public class CraftBank extends JavaPlugin implements Listener{
 	}
 	public YamlConfiguration getUserAccount(SwissSMPler player, int transfer){
 		if(player==null) return null;
-		return DataSource.getYamlResponse("bank/edit_account.php", new String[]{
+		return DataSource.getYamlResponse(plugin, "edit_account.php", new String[]{
 				"player="+player.getUniqueId().toString(),
 				"transfer="+transfer
 		});
 	}
 	public static boolean isBanksign(Block block){
         Material material = block.getType();
-        if(material != Material.WALL_SIGN && material != Material.SIGN_POST) {
+        if(material != Material.WALL_SIGN && material != Material.SIGN) {
         	return false;
         }
         Sign sign = (Sign) block.getState();
@@ -207,6 +210,6 @@ public class CraftBank extends JavaPlugin implements Listener{
 	public void onDisable() {
 		HandlerList.unregisterAll((JavaPlugin)this);
 		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 }

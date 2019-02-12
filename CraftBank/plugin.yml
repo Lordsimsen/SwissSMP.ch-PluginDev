@@ -1,5 +1,6 @@
 main: ch.swisssmp.craftbank.CraftBank
-version: 1.3
+version: 1.4
+api-version: 1.13
 name: CraftBank
 author: detig_iii
 description: Erlaubt speichern von Erfahrungspunkten in einem virtuellen Bankkonto
