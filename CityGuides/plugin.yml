@@ -1,0 +1,23 @@
+main: ch.swisssmp.cityguides.CityGuidesPlugin
+version: 1.0
+api-version: 1.13
+name: CityGuides
+author: detig_iii
+description: Ermöglicht Stadt Guides, welche Informationen über eine Stadt anzeigen und Hilfe bieten
+depend: [CitySystem,NPCs,CustomEditorAPI,WebCore,SwissSMPUtils]
+permissions:
+  cityguides.craft:
+    description: Erlaubt Crafting von Guides
+    default: op
+  cityguides.admin:
+    description: Erlaubt Administration des Plugins
+    default: op
+commands:
+  cityguide:
+    description: Hauptbefehl
+    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    permission: cityguides.admin
+  cityguide create:
+    description: Erstellt einen Guide
+    usage: "Verwendung: /<command> <subcommand> [Guide-ID]"
+    permission: cityguides.admin
