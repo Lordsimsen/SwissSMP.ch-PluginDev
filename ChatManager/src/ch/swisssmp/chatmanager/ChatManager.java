@@ -1,7 +1,5 @@
 package ch.swisssmp.chatmanager;
 
-import java.util.logging.Logger;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -19,7 +17,7 @@ import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 
 public class ChatManager extends JavaPlugin implements Listener{
-	private static Logger logger;
+	private static ChatManager plugin;
 	private static Server server;
 	private static PluginDescriptionFile pdfFile;
 	
@@ -27,9 +25,9 @@ public class ChatManager extends JavaPlugin implements Listener{
 	
 	@Override
 	public void onEnable() {
+		plugin = this;
 		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 		
 		server = getServer();
 		
@@ -40,7 +38,7 @@ public class ChatManager extends JavaPlugin implements Listener{
 	@Override
 	public void onDisable() {
 		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
 	@EventHandler(ignoreCancelled=true)
@@ -49,7 +47,7 @@ public class ChatManager extends JavaPlugin implements Listener{
 		String name = event.getPlayer().getName();
 		String world = event.getPlayer().getWorld().getName();
 		String message = "joined";
-		DataSource.getResponse("chat_notifications/chat.php", new String[]{
+		DataSource.getResponse(plugin, "chat.php", new String[]{
 			"player_uuid="+URLEncoder.encode(player_uuid),
 			"name="+URLEncoder.encode(name),
 			"world="+URLEncoder.encode(world),
@@ -63,7 +61,7 @@ public class ChatManager extends JavaPlugin implements Listener{
 		String name = event.getPlayer().getName();
 		String world = event.getPlayer().getWorld().getName();
 		String message = "quit";
-		DataSource.getResponse("chat_notifications/chat.php", new String[]{
+		DataSource.getResponse(plugin, "chat.php", new String[]{
 			"player_uuid="+URLEncoder.encode(player_uuid),
 			"name="+URLEncoder.encode(name),
 			"world="+URLEncoder.encode(world),
@@ -77,7 +75,7 @@ public class ChatManager extends JavaPlugin implements Listener{
 		String name = event.getPlayer().getName();
 		String world = event.getPlayer().getWorld().getName();
 		String message = event.getMessage();
-		DataSource.getResponse("chat_notifications/chat.php", new String[]{
+		DataSource.getResponse(plugin, "chat.php", new String[]{
 			"player_uuid="+URLEncoder.encode(player_uuid),
 			"name="+URLEncoder.encode(name),
 			"world="+URLEncoder.encode(world),
@@ -119,7 +117,7 @@ public class ChatManager extends JavaPlugin implements Listener{
 				String name = event.getPlayer().getName();
 				String world = event.getPlayer().getWorld().getName();
 				message = extractMessage(message);
-				DataSource.getResponse("chat_notifications/chat.php", new String[]{
+				DataSource.getResponse(plugin, "chat.php", new String[]{
 					"player_uuid="+URLEncoder.encode(player_uuid),
 					"name="+URLEncoder.encode(name),
 					"world="+URLEncoder.encode(world),
@@ -135,5 +133,9 @@ public class ChatManager extends JavaPlugin implements Listener{
 	    int offset = messageParts[0].length()+messageParts[1].length()+1;
 	    if(command.length()<=offset) return "";
 	    return command.substring(offset);
+	}
+	
+	public static ChatManager getInstance(){
+		return plugin;
 	}
 }

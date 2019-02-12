@@ -35,7 +35,7 @@ public class PlayerChat implements CommandExecutor {
 			String player_uuid = name;
 			String world = "web";
 			args[0] = "";
-			DataSource.getResponse("chat_notifications/chat.php", new String[]{
+			DataSource.getResponse(ChatManager.getInstance(), "chat.php", new String[]{
 				"player_uuid="+player_uuid,
 				"name="+name,
 				"world="+world,
