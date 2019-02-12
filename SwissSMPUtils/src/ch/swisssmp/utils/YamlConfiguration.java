@@ -46,4 +46,7 @@ public class YamlConfiguration extends ConfigurationSection{
 			e.printStackTrace();
 		}
 	}
+	public String saveToString(){
+		return ((org.bukkit.configuration.file.YamlConfiguration)this.configurationSection).saveToString();
+	}
 }

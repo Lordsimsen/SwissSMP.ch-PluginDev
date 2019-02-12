@@ -74,4 +74,19 @@ public final class Mathf{
 		double t = (c.clone().subtract(a)).dot(b.clone().subtract(a))/line_dist;
 		return c.clone().subtract((b.clone().subtract(a).multiply(t)).add(a)).lengthSquared();
 	}
+
+	/**
+	 * @param value - The value to wrap
+	 * @param step - The limit to wrap
+	 * @return The wrapped value between 0 (inclusive) and <code>step</code> (exclusive)
+	 */
+	public static int wrap(int value, int step){
+		while(value<0){
+			value+=step;
+		}
+		while(value>=step){
+			value-=step;
+		}
+		return value;
+	}
 }

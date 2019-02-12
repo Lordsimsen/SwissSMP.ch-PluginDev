@@ -1,6 +1,5 @@
 package ch.swisssmp.utils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
@@ -26,6 +25,5 @@ public final class SignEditorListener implements Listener{
 		Reflections.setDeclaredField(tileEntity, "isEditable", true);
 		Reflections.setDeclaredField(tileEntity, Reflections.ver().startsWith("v1_7") ? "k" : "h", Reflections.getHandle(p));  
 		Reflections.sendPacket(p,  Reflections.getPacket("PacketPlayOutOpenSignEditor", new BlockPosition(s.getX(), s.getY(), s.getZ())));
-		Bukkit.getLogger().info("[DungeonGenerator] Open Sign Editor");
 	}
 }

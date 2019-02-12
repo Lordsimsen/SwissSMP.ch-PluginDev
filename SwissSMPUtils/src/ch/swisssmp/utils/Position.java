@@ -40,8 +40,11 @@ public class Position {
 	}
 	
 	public double getX(){return this.x;}
+	public int getBlockX(){return Mathf.floorToInt(x);}
 	public double getY(){return this.y;}
+	public int getBlockY(){return Mathf.floorToInt(y);}
 	public double getZ(){return this.z;}
+	public int getBlockZ(){return Mathf.floorToInt(z);}
 	public float getYaw(){return this.yaw;}
 	public float getPitch(){return this.pitch;}
 

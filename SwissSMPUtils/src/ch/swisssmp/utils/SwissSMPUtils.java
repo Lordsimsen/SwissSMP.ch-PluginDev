@@ -25,17 +25,6 @@ public final class SwissSMPUtils extends JavaPlugin{
 		logger = Logger.getLogger("Minecraft");
 		
 		//Bukkit.resetRecipes();
-
-		PlayerCommand playerCommand = new PlayerCommand();
-		this.getCommand("help").setExecutor(playerCommand);
-		this.getCommand("balance").setExecutor(playerCommand);
-		this.getCommand("seen").setExecutor(playerCommand);
-		this.getCommand("list").setExecutor(playerCommand);
-		this.getCommand("more").setExecutor(playerCommand);
-		this.getCommand("amount").setExecutor(playerCommand);
-		this.getCommand("hauptstadt").setExecutor(playerCommand);
-		this.getCommand("choose").setExecutor(playerCommand);
-		this.getCommand("rename").setExecutor(new RenameCommand());
 		
 		Bukkit.getPluginManager().registerEvents(new SignEditorListener(), this);
 		

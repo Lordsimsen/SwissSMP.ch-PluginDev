@@ -273,11 +273,12 @@ public class ConfigurationSection{
 	}
 
 	public Material getMaterial(String arg0){
+		String material_name = configurationSection.getString(arg0);
 		try{
-			return Material.valueOf(configurationSection.getString(arg0));
+			return Material.valueOf(material_name);
 		}
 		catch(Exception e){
-			return null;
+			return Material.matchMaterial(material_name);
 		}
 	}
 	
@@ -291,7 +292,7 @@ public class ConfigurationSection{
 			return Enchantment.values()[ThreadLocalRandom.current().nextInt(Enchantment.values().length)];
 		}
 		//TODO check if this actually works
-		return Enchantment.getByKey(NamespacedKey.minecraft(enchantString));
+		return Enchantment.getByKey(NamespacedKey.minecraft(enchantString.toLowerCase()));
 	}
 	
 	public EnchantmentData getEnchantmentData(String arg0){
@@ -422,5 +423,9 @@ public class ConfigurationSection{
 	public boolean isConfigurationSection(String arg0){
 		if(!this.contains(arg0)) return false;
 		return this.configurationSection.get(arg0) instanceof org.bukkit.configuration.ConfigurationSection;
+	}
+	
+	public void remove(String arg0){
+		this.configurationSection.set(arg0, null);
 	}
 }
