@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class EventPointCommand implements CommandExecutor {
 
@@ -47,7 +49,12 @@ public class EventPointCommand implements CommandExecutor {
 			if(!(sender instanceof Player)) return true;
 			String currencyType = args.length>1 ? args[1] : "EVENT_POINT";
 			Player player = (Player) sender;
-			player.getWorld().dropItem(player.getEyeLocation(), EventPoints.getItem(64, currencyType));
+			ItemStack itemStack = EventPoints.getItem(64, currencyType);
+			if(itemStack==null || itemStack.getType()==Material.AIR || itemStack.getAmount()==0){
+				sender.sendMessage(EventPoints.getPrefix()+"Konnte den ItemStack nicht generieren.");
+				return true;
+			}
+			player.getWorld().dropItem(player.getEyeLocation(), itemStack);
 			break;
 		}
 		default: return false;

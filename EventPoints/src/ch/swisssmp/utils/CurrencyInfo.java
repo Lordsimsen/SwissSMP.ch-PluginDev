@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
+import ch.swisssmp.webcore.RequestMethod;
 
 public class CurrencyInfo {
 	private static HashMap<String,CurrencyInfo> loadedCurrencies = new HashMap<String,CurrencyInfo>();
@@ -46,9 +48,10 @@ public class CurrencyInfo {
 		for(String key : loadedCurrencies.keySet()){
 			if(key.toLowerCase().startsWith(currencyType.toLowerCase())) return loadedCurrencies.get(key);
 		}
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("players/get_currency_info.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(EventPoints.getInstance(), "get_currency_info.php", new String[]{
 				"currency="+URLEncoder.encode(currencyType)
-		});
+		}, RequestMethod.POST_SYNC);
+		YamlConfiguration yamlConfiguration = request.getYamlResponse();
 		if(yamlConfiguration==null || !yamlConfiguration.contains("info")) return null;
 		CurrencyInfo result = new CurrencyInfo(yamlConfiguration.getConfigurationSection("info"));
 		loadedCurrencies.put(result.name.toLowerCase(), result);

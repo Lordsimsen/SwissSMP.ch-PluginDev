@@ -1,5 +1,6 @@
 main: ch.swisssmp.utils.EventPoints
-version: 1.1
+version: 1.3
+api-version: 1.13
 name: EventPoints
 author: detig_iii
 description: Verwaltet Eventpunkte
@@ -8,6 +9,9 @@ permissions:
   eventpoints.admin:
     default: op
     description: Erlaubt die Steuerung des Plugins
+  smp.commands.balance:
+    description: Erlaubt Verwendung des Befehls /balance
+    default: true
 commands:
   eventpoints:
     usage: |
@@ -16,3 +20,8 @@ commands:
     description: Verwaltet Eventpunkte
     aliases: [ep,eventpoint]
     permission: eventpoints.admin
+  balance:
+    description: Zeigt dein Vermögen an
+    usage: /balance (Währung)
+    permission: smp.commands.balance
+    aliases: [eventpunkte]
