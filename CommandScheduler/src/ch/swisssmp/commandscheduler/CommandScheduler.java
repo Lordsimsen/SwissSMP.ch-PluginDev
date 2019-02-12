@@ -17,6 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class CommandScheduler extends JavaPlugin implements Listener{
 	private static Logger logger;
@@ -60,9 +61,15 @@ public class CommandScheduler extends JavaPlugin implements Listener{
 	
 	private void runScheduledPlayerJoinCommands(Player player){
 		if(!player.isOnline()) return;
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("commands/get_player_join.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(plugin, "get_player_join.php", new String[]{
 				"player_uuid="+player.getUniqueId()
 		});
+		request.onFinish(()->{
+			runScheduledPlayerJoinCommands(player, request.getYamlResponse());
+		});
+	}
+	
+	private void runScheduledPlayerJoinCommands(Player player, YamlConfiguration yamlConfiguration){
 		if(yamlConfiguration==null || !yamlConfiguration.contains("commands")) return;
 		for(String command : yamlConfiguration.getStringList("commands")){
 			Bukkit.getLogger().info("Performing command "+command);
@@ -90,8 +97,29 @@ public class CommandScheduler extends JavaPlugin implements Listener{
 		}, 20L*timeoutSeconds);
 	}
 	
+	public static void schedulePlayerJoin(UUID player_uuid, String... commands){
+		String[] args = new String[commands.length+1];
+		args[0] = "player_uuid="+player_uuid.toString();
+		for(int i = 0; i < commands.length; i++){
+			args[i+1] = commands[i];
+		}
+		DataSource.getResponse(plugin, "schedule_player_join.php", args);
+	}
+	
+	public static void removePlayerJoin(int schedule_id){
+		DataSource.getResponse(plugin, "remove_player_join.php", new String[]{
+				"schedule_id="+schedule_id	
+			});
+	}
+	
 	public static void runCommands(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("commands/commands.php");
+		HTTPRequest request = DataSource.getResponse(plugin, "commands.php");
+		request.onFinish(()->{
+			runCommands(request.getYamlResponse());
+		});
+	}
+	
+	private static void runCommands(YamlConfiguration yamlConfiguration){
 		if(yamlConfiguration==null){
 			Bukkit.getLogger().info("Commands couldn't be fetched. Trying again in "+timeoutSeconds+" seconds.");
 			return;
