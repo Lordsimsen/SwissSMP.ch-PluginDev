@@ -30,7 +30,7 @@ public class EventListener implements Listener {
 	private void onBlockInteract(PlayerInteractEvent event){
 		if(event.getPlayer().getGameMode()==GameMode.SPECTATOR) return;
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
-		if(event.getClickedBlock().getType()!=Material.WALL_SIGN && event.getClickedBlock().getType()!=Material.SIGN_POST) return;
+		if(event.getClickedBlock().getType()!=Material.WALL_SIGN && event.getClickedBlock().getType()!=Material.SIGN) return;
 
 		BlockState state = event.getClickedBlock().getState();
 		if(!(state instanceof Sign))
