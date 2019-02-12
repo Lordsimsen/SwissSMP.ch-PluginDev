@@ -1,0 +1,14 @@
+main: ch.swisssmp.stalker.Stalker
+version: 1.0
+name: Stalker
+author: detig_iii
+description: Zeichnet Ereignisse auf
+permissions:
+  stalker.admin:
+    description: Erlaubt Steuerung des Plugins
+    default: op
+commands:
+  search:
+    description: Hauptbefehl
+    usage: /search - Schaltet die Suche an und ab, Resultate sind im Web-Tool
+    permission: stalker.admin
