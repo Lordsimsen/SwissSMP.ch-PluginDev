@@ -40,7 +40,7 @@ public class EventListener implements Listener{
 	
 	public EventListener(){
 		validDummyTypes.add(Material.HAY_BLOCK);
-		validDummyTypes.add(Material.WOOD);
+		validDummyTypes.add(Material.OAK_PLANKS);
 		validDummyTypes.add(Material.STONE);
 		validDummyTypes.add(Material.IRON_BLOCK);
 		validDummyTypes.add(Material.GOLD_BLOCK);
@@ -53,7 +53,7 @@ public class EventListener implements Listener{
 		ItemStack result = event.getInventory().getResult();
 		if(result==null)return;
 		//Bukkit.getLogger().info("[Archery] There is a result");
-		if(result.getType()!=Material.ARROW && result.getType()!=Material.WOOD_SWORD) return;
+		if(result.getType()!=Material.ARROW && result.getType()!=Material.WOODEN_SWORD) return;
 		//Bukkit.getLogger().info("[Archery] Result is an arrow or a wood_sword");
 		String customEnum = CustomItems.getCustomEnum(result);
 		if(customEnum==null) return;
@@ -110,14 +110,14 @@ public class EventListener implements Listener{
 		if(customEnum!=null){
 			if(ItemManager.getItemStack(customEnum)==null)return;
 			Arrow arrow = (Arrow)event.getProjectile();
-			if(!customEnum.equals("MULTI_ARROW")) arrow.setMetadata("arrow_type", new FixedMetadataValue(Archery.plugin, customEnum));
+			if(!customEnum.equals("MULTI_ARROW")) arrow.setMetadata("arrow_type", new FixedMetadataValue(Archery.getInstance(), customEnum));
 			ArrowManager.onArrowShoot(event, arrow, customEnum);
 			if(player.getGameMode()!=GameMode.CREATIVE) ArrowManager.ensureArrowConsumption(event.getBow(),arrow,arrowStack, customEnum);
 			//Bukkit.getLogger().info("[Archery] Shot arrow is "+customEnum);
 		}
 		ItemStack quiverStack = ItemManager.getQuiver(playerInventory);
 		if(quiverStack==null)return;
-		Bukkit.getScheduler().runTaskLater(Archery.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
 			public void run(){
 				QuiverManager.refillFromQuiver(quiverStack, arrowStack);
 			}
@@ -233,7 +233,7 @@ public class EventListener implements Listener{
 	private void onPlayerInteract(PlayerInteractEvent event){
 		if((event.getAction()!=Action.RIGHT_CLICK_AIR && event.getAction()!=Action.RIGHT_CLICK_BLOCK)) return;
 		ItemStack itemStack = event.getItem();
-		if(itemStack==null || itemStack.getType()!=Material.WOOD_SWORD) return;
+		if(itemStack==null || itemStack.getType()!=Material.WOODEN_SWORD) return;
 		String customEnum = CustomItems.getCustomEnum(itemStack);
 		if(customEnum==null || !customEnum.equals("QUIVER"))return;
 		ItemStack offhand = event.getPlayer().getInventory().getItemInOffHand();

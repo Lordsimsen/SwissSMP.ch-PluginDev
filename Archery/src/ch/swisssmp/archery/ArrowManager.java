@@ -13,6 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Arrow.PickupStatus;
@@ -23,6 +24,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.projectiles.ProjectileSource;
@@ -36,7 +39,7 @@ public class ArrowManager {
 		List<MetadataValue> metadataValues = arrow.getMetadata("arrow_type");
 		MetadataValue arrowTypeValue = null;
 		for(MetadataValue metadataValue : metadataValues){
-			if(metadataValue.getOwningPlugin()!=Archery.plugin) continue;
+			if(metadataValue.getOwningPlugin()!=Archery.getInstance()) continue;
 			arrowTypeValue = metadataValue;
 			break;
 		}
@@ -90,13 +93,16 @@ public class ArrowManager {
 				applyDamage = random.nextDouble()<(100/(bow.getItemMeta().getEnchantLevel(Enchantment.DURABILITY)+1));
 			}
 			if(applyDamage){
-				short newDurability = (short) (bow.getDurability()+bowDurabilityDamage); //watch it, getDurability should be called getDamage because 0 means fully repaired
-				bow.setDurability(newDurability);
+				ItemMeta itemMeta = bow.getItemMeta();
+				Damageable damageable = (Damageable) itemMeta;
+				int newDurability = damageable.getDamage()+bowDurabilityDamage; //watch it, getDurability should be called getDamage because 0 means fully repaired
+				damageable.setDamage(newDurability);
+				bow.setItemMeta(itemMeta);
 			}
 		}
 		if(addParticles){
 			ArrowParticles arrowParticles = new ArrowParticles(arrow,particleColor);
-			final BukkitTask task = Bukkit.getScheduler().runTaskTimer(Archery.plugin, arrowParticles, 0, 1);
+			final BukkitTask task = Bukkit.getScheduler().runTaskTimer(Archery.getInstance(), arrowParticles, 0, 1);
 			arrowParticles.setTask(task);
 		}
 	}
@@ -116,7 +122,7 @@ public class ArrowManager {
 			return;
 		}
 		if(allowPickup){
-			Bukkit.getScheduler().runTaskLater(Archery.plugin, new Runnable(){
+			Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
 				public void run(){
 					arrow.setPickupStatus(PickupStatus.ALLOWED);
 				}
@@ -148,7 +154,7 @@ public class ArrowManager {
 		int defensePoints;
 		int toughness;
 		switch(dummyType){
-		case WOOD:
+		case OAK_PLANKS:
 			defensePoints = 7;
 			toughness = 0;
 			break;
@@ -195,7 +201,7 @@ public class ArrowManager {
 	private static void onBurstArrowHit(ProjectileHitEvent event, Arrow arrow){
 		if(event.getHitEntity()==null){
 			//Arrow did not hit anything and is retrievable
-			arrow.setMetadata("arrow_type", new FixedMetadataValue(Archery.plugin,"BURST_ARROW"));
+			arrow.setMetadata("arrow_type", new FixedMetadataValue(Archery.getInstance(),"BURST_ARROW"));
 			return;
 		}
 		Vector forward = arrow.getVelocity().setY(0).normalize();
@@ -208,12 +214,12 @@ public class ArrowManager {
 		final Arrow arrow_1 = ArrowManager.spawnArrow(source, from, forward.clone().subtract(left).multiply(speed), PickupStatus.DISALLOWED);
 		final Arrow arrow_2 = ArrowManager.spawnArrow(source, from, forward.clone().add(left).multiply(-speed), PickupStatus.DISALLOWED);
 		final Arrow arrow_3 = ArrowManager.spawnArrow(source, from, forward.clone().subtract(left).multiply(-speed), PickupStatus.DISALLOWED);
-		FixedMetadataValue arrowTypeValue = new FixedMetadataValue(Archery.plugin,"BURST_ARROW_THORN");
+		FixedMetadataValue arrowTypeValue = new FixedMetadataValue(Archery.getInstance(),"BURST_ARROW_THORN");
 		arrow_0.setMetadata("arrow_type", arrowTypeValue);
 		arrow_1.setMetadata("arrow_type", arrowTypeValue);
 		arrow_2.setMetadata("arrow_type", arrowTypeValue);
 		arrow_3.setMetadata("arrow_type", arrowTypeValue);
-		Bukkit.getScheduler().runTaskLater(Archery.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
 			public void run(){
 				arrow_0.setShooter(shooter);
 				arrow_1.setShooter(shooter);
@@ -224,7 +230,7 @@ public class ArrowManager {
 	}
 	
 	private static void onBurstArrowThornHit(ProjectileHitEvent event,Arrow arrow){
-		Bukkit.getScheduler().runTaskLater(Archery.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
 			public void run(){
 				arrow.remove();
 			}
@@ -233,18 +239,19 @@ public class ArrowManager {
 	
 	private static void onTorchArrowHit(ProjectileHitEvent event, Arrow arrow){
 		if(event.getHitBlock()!=null){
-			Bukkit.getScheduler().runTaskLater(Archery.plugin, new Runnable(){
-				@SuppressWarnings("deprecation")
+			Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
+				//@SuppressWarnings("deprecation")
 				public void run(){
+
 					BlockFace relative = event.getHitBlock().getFace(arrow.getLocation().getBlock());
 					if(relative==null)return;
-					byte data;
+					//byte data;
 					switch(relative){
 					case EAST:
 					case EAST_NORTH_EAST:
 					case EAST_SOUTH_EAST:
 						relative = BlockFace.EAST;
-						data = 1;
+						//data = 1;
 						break;
 					case NORTH:
 					case NORTH_EAST:
@@ -252,7 +259,7 @@ public class ArrowManager {
 					case NORTH_NORTH_WEST:
 					case NORTH_WEST:
 						relative = BlockFace.NORTH;
-						data = 4;
+						//data = 4;
 						break;
 					case SOUTH:
 					case SOUTH_EAST:
@@ -260,23 +267,27 @@ public class ArrowManager {
 					case SOUTH_SOUTH_WEST:
 					case SOUTH_WEST:
 						relative = BlockFace.SOUTH;
-						data = 3;
+						//data = 3;
 						break;
 					case WEST:
 					case WEST_NORTH_WEST:
 					case WEST_SOUTH_WEST:
 						relative = BlockFace.WEST;
-						data = 2;
+						//data = 2;
 						break;
 					case UP:
 						relative = BlockFace.UP;
-						data = 5;
+						//data = 5;
 						break;
 					default:return;
 					}
 					Block torchedBlock = event.getHitBlock().getRelative(relative);
 					if(torchedBlock.getType()!=Material.AIR) return;
-					torchedBlock.setTypeIdAndData(Material.TORCH.getId(),data,false);
+					BlockData blockData = Bukkit.createBlockData(Material.TORCH);
+					
+					torchedBlock.setBlockData(blockData,false);
+					
+					//torchedBlock.setTypeIdAndData(Material.TORCH.getId(),data,false);
 					arrow.remove();
 				}
 			}, 1L);
@@ -317,7 +328,7 @@ public class ArrowManager {
 		else{
 			target = arrow;
 		}
-		BukkitTask task = Bukkit.getScheduler().runTaskTimer(Archery.plugin, new Runnable(){
+		BukkitTask task = Bukkit.getScheduler().runTaskTimer(Archery.getInstance(), new Runnable(){
 			Vector offset = new Vector(0,target.getHeight()/2,0);
 			Random random = new Random();
 			Location location;
@@ -332,7 +343,7 @@ public class ArrowManager {
 				target.getWorld().spawnParticle(Particle.REDSTONE, location.getX(),location.getY(),location.getZ(),0,this.r,this.g,this.b,1);
 			}
 		}, 0, 1l);
-		Bukkit.getScheduler().runTaskLater(Archery.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
 			public void run(){
 				if(target==arrow)arrow.remove();
 				task.cancel();

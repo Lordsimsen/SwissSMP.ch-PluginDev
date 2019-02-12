@@ -57,16 +57,16 @@ public class ItemManager {
 		String customEnum;
 		if(inventory instanceof PlayerInventory){
 			PlayerInventory playerInventory = (PlayerInventory)inventory;
-			if(playerInventory.getItemInMainHand()!=null && playerInventory.getItemInMainHand().getType()==Material.WOOD_SWORD){
+			if(playerInventory.getItemInMainHand()!=null && playerInventory.getItemInMainHand().getType()==Material.WOODEN_SWORD){
 				customEnum = CustomItems.getCustomEnum(playerInventory.getItemInMainHand());
 				if(customEnum!=null && customEnum.equals("QUIVER")) return playerInventory.getItemInMainHand();
 			}
-			else if(playerInventory.getItemInOffHand()!=null && playerInventory.getItemInOffHand().getType()==Material.WOOD_SWORD){
+			else if(playerInventory.getItemInOffHand()!=null && playerInventory.getItemInOffHand().getType()==Material.WOODEN_SWORD){
 				customEnum = CustomItems.getCustomEnum(playerInventory.getItemInOffHand());
 				if(customEnum!=null && customEnum.equals("QUIVER")) return playerInventory.getItemInOffHand();
 			}
 		}
-		HashMap<Integer,? extends ItemStack> quiverSearchResult = inventory.all(Material.WOOD_SWORD);
+		HashMap<Integer,? extends ItemStack> quiverSearchResult = inventory.all(Material.WOODEN_SWORD);
 		for(ItemStack itemStack : quiverSearchResult.values()){
 			if(!itemStack.getItemMeta().isUnbreakable()) continue;
 			customEnum = CustomItems.getCustomEnum(itemStack);
@@ -101,7 +101,7 @@ public class ItemManager {
 		quiverBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		quiver = quiverBuilder.build();
 		quiver.setAmount(1);
-		ShapedRecipe quiverRecipe = new ShapedRecipe(new NamespacedKey(Archery.plugin,"quiver"), quiver);
+		ShapedRecipe quiverRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"quiver"), quiver);
 		quiverRecipe.shape("sil"," li","l s");
 		quiverRecipe.setIngredient('s', Material.STRING);
 		quiverRecipe.setIngredient('i', Material.IRON_INGOT);
@@ -114,7 +114,7 @@ public class ItemManager {
 		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1026);
 		ironArrow = arrowBuilder.build();
 		ironArrow.setAmount(2);
-		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.plugin,"iron_arrow"), ironArrow);
+		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"iron_arrow"), ironArrow);
 		arrowRecipe.shape(" n "," s "," f ");
 		arrowRecipe.setIngredient('n', Material.IRON_NUGGET);
 		arrowRecipe.setIngredient('s', Material.STICK);
@@ -127,7 +127,7 @@ public class ItemManager {
 		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1027);
 		burstArrow = arrowBuilder.build();
 		burstArrow.setAmount(4);
-		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.plugin,"burst_arrow"), burstArrow);
+		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"burst_arrow"), burstArrow);
 		arrowRecipe.shape(" a ","aca"," a ");
 		arrowRecipe.setIngredient('a', Material.ARROW);
 		arrowRecipe.setIngredient('c', Material.CACTUS);
@@ -139,7 +139,7 @@ public class ItemManager {
 		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1028);
 		torchArrow = arrowBuilder.build();
 		torchArrow.setAmount(1);
-		ShapelessRecipe arrowRecipe = new ShapelessRecipe(new NamespacedKey(Archery.plugin,"torch_arrow"), torchArrow);
+		ShapelessRecipe arrowRecipe = new ShapelessRecipe(new NamespacedKey(Archery.getInstance(),"torch_arrow"), torchArrow);
 		arrowRecipe.addIngredient(1, Material.ARROW);
 		arrowRecipe.addIngredient(1, Material.TORCH);
 		Bukkit.getServer().addRecipe(arrowRecipe);
@@ -150,7 +150,7 @@ public class ItemManager {
 		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1029);
 		multiArrow = arrowBuilder.build();
 		multiArrow.setAmount(1);
-		ShapelessRecipe arrowRecipe = new ShapelessRecipe(new NamespacedKey(Archery.plugin,"multi_arrow"), multiArrow);
+		ShapelessRecipe arrowRecipe = new ShapelessRecipe(new NamespacedKey(Archery.getInstance(),"multi_arrow"), multiArrow);
 		arrowRecipe.addIngredient(3, Material.ARROW);
 		arrowRecipe.addIngredient(1, Material.STRING);
 		Bukkit.getServer().addRecipe(arrowRecipe);
@@ -161,7 +161,7 @@ public class ItemManager {
 		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1030);
 		flameArrow = arrowBuilder.build();
 		flameArrow.setAmount(4);
-		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.plugin,"flame_arrow"), flameArrow);
+		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"flame_arrow"), flameArrow);
 		arrowRecipe.shape(" a ","aba"," a ");
 		arrowRecipe.setIngredient('a', Material.ARROW);
 		arrowRecipe.setIngredient('b', Material.BLAZE_POWDER);
@@ -173,7 +173,7 @@ public class ItemManager {
 		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1031);
 		explosiveArrow = arrowBuilder.build();
 		explosiveArrow.setAmount(4);
-		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.plugin,"explosive_arrow"), explosiveArrow);
+		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"explosive_arrow"), explosiveArrow);
 		arrowRecipe.shape(" a ","ata"," a ");
 		arrowRecipe.setIngredient('a', Material.ARROW);
 		arrowRecipe.setIngredient('t', Material.TNT);
@@ -185,7 +185,7 @@ public class ItemManager {
 		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1032);
 		vampireArrow = arrowBuilder.build();
 		vampireArrow.setAmount(4);
-		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.plugin,"vampire_arrow"), vampireArrow);
+		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"vampire_arrow"), vampireArrow);
 		arrowRecipe.shape(" a ","ana"," a ");
 		arrowRecipe.setIngredient('a', Material.ARROW);
 		arrowRecipe.setIngredient('n', Material.NETHER_WART_BLOCK);

@@ -29,7 +29,7 @@ public class QuiverView extends InventoryView implements Listener{
 		this.quiver = quiver;
 		this.openQuiverInventory();
 		this.fillQuiverInventory();
-		Bukkit.getPluginManager().registerEvents(this, Archery.plugin);
+		Bukkit.getPluginManager().registerEvents(this, Archery.getInstance());
 		views.put(player, this);
 	}
 	
@@ -46,7 +46,7 @@ public class QuiverView extends InventoryView implements Listener{
 	}
 	
 	private void saveQuiverInventory(){
-		Bukkit.getScheduler().runTaskLater(Archery.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
 			public void run(){
 				QuiverManager.setQuiverContents(quiver, quiverInventory.getContents());
 			}

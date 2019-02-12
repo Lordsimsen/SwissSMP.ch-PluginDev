@@ -8,13 +8,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.customitems.CustomItems;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
 
 public class QuiverManager {
 	protected static void openQuiver(Player player, ItemStack quiver){
@@ -22,7 +22,7 @@ public class QuiverManager {
 	}
 	
 	protected static ItemStack[] getQuiverContents(ItemStack quiver){
-		net.minecraft.server.v1_12_R1.ItemStack craftStack = CraftItemStack.asNMSCopy(quiver);
+		net.minecraft.server.v1_13_R2.ItemStack craftStack = CraftItemStack.asNMSCopy(quiver);
 		NBTTagCompound nbtData = craftStack.getTag();
 		ItemStack[] result = new ItemStack[QuiverManager.getQuiverSize()];
 		if(nbtData.hasKey("contents")){
@@ -65,7 +65,7 @@ public class QuiverManager {
 	}
 	
 	protected static void setQuiverContents(ItemStack quiver, ItemStack[] contents){
-		net.minecraft.server.v1_12_R1.ItemStack craftStack = CraftItemStack.asNMSCopy(quiver);
+		net.minecraft.server.v1_13_R2.ItemStack craftStack = CraftItemStack.asNMSCopy(quiver);
 		NBTTagCompound nbtData = craftStack.getTag();
 		NBTTagCompound contentsSection = new NBTTagCompound();
 		NBTTagCompound contentSection;
