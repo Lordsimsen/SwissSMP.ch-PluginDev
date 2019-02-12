@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -140,54 +139,6 @@ public class InventoryHandler {
 		ItemStack itemStack = slotStack.clone();
 		itemStack.setAmount(maxStackSize);
 		view.setCursor(itemStack);
-	}
-	
-	/**
-	 * Moves slot from bottom to top inventory and vise versa (stack where possible)
-	 */
-	private static void handleInventoryShiftClick(InventoryView view, ItemStack slotStack, int maxStackSize, Inventory clickedInventory, int slot){
-		Inventory toInventory = view.getTopInventory()!=clickedInventory ? view.getTopInventory() : view.getBottomInventory();
-		int transferredAmount;
-		ItemStack itemStack;
-		for(int i = 0; i < toInventory.getSize(); i++){
-			itemStack = toInventory.getItem(i);
-			if(itemStack==null || itemStack.getType()==Material.AIR || !itemStack.isSimilar(slotStack)) continue;
-			transferredAmount = Math.min(maxStackSize-itemStack.getAmount(), slotStack.getAmount());
-			itemStack.setAmount(itemStack.getAmount()+transferredAmount);
-			slotStack.setAmount(slotStack.getAmount()-transferredAmount);
-			if(slotStack.getAmount()==0) return;
-		}
-		if(slotStack.getAmount()==0) return;
-		int emptySlot = toInventory.firstEmpty();
-		if(emptySlot<0) return;
-		toInventory.setItem(emptySlot, slotStack);
-		Inventory fromInventory = view.getTopInventory()==clickedInventory ? view.getTopInventory() : view.getBottomInventory();
-		fromInventory.setItem(slot, null);
-	}
-	
-	/**
-	 * Moves slot from hotbar to inventory and vise versa (stack where possible)
-	 */
-	private static void handlePlayerInventoryShiftClick(InventoryView view, ItemStack slotStack, int maxStackSize, Inventory clickedInventory, int slot){
-		int transferredAmount;
-		ItemStack itemStack;
-		int step = (slot<9) ? 1 : -1;
-		int firstEmpty = -1;
-		for(int i = (slot<9) ? 36 : 0; (slot<9) ? i>=9 : i<9; i+=step){
-			itemStack = clickedInventory.getItem(i);
-			if((itemStack==null || itemStack.getType()==Material.AIR) && firstEmpty<0){
-				firstEmpty = i;
-			}
-			if(itemStack==null || itemStack.getType()==Material.AIR || !itemStack.isSimilar(slotStack)) continue;
-			transferredAmount = Math.min(maxStackSize-itemStack.getAmount(), slotStack.getAmount());
-			itemStack.setAmount(itemStack.getAmount()+transferredAmount);
-			slotStack.setAmount(slotStack.getAmount()-transferredAmount);
-			if(slotStack.getAmount()==0) return;
-		}
-		if(slotStack.getAmount()==0) return;
-		if(firstEmpty<0) return;
-		clickedInventory.setItem(firstEmpty, slotStack);
-		clickedInventory.setItem(slot, null);
 	}
 	
 	/**

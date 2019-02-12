@@ -4,24 +4,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import ch.swisssmp.utils.EnchantmentData;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
-import net.minecraft.server.v1_12_R1.NBTBase;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NBTTagList;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagList;
 
 public class CustomItemBuilder {
 	//itemStack
@@ -36,7 +36,7 @@ public class CustomItemBuilder {
 	private ArrayList<ItemFlag> itemFlags = new ArrayList<ItemFlag>();
 	private List<String> lore = new ArrayList<String>();
 	private boolean unbreakable = false;
-	private String skullOwner = "";
+	private UUID skullOwner = null;
 	
 	//nms stuff
 	private boolean useNMS = false;
@@ -62,6 +62,7 @@ public class CustomItemBuilder {
 	
 	public CustomItemBuilder(){
 	}
+	
 	public void setMaterial(Material material){
 		this.material = material;
 	}
@@ -113,7 +114,7 @@ public class CustomItemBuilder {
 	public void setUnbreakable(boolean unbreakable){
 		this.unbreakable = unbreakable;
 	}
-	public void setSkullOwner(String owner){
+	public void setSkullOwner(UUID owner){
 		this.skullOwner = owner;
 	}
 	/**
@@ -124,24 +125,33 @@ public class CustomItemBuilder {
 		this.expirationDate = expirationDate;
 		this.useNMS = useNMS || expirationDate>0;
 	}
+	
 	public void setCustomEnum(String customEnum){
-		this.useNMS = true;
+		this.setCustomEnum(customEnum, null);
+	}
+	
+	protected void setCustomEnum(String customEnum, CustomMaterialTemplate template){
 		this.customEnum = customEnum;
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("items/material_builder.php", new String[]{
-				"enum="+this.customEnum
-		});
-		if(yamlConfiguration!=null){
-			Material material = yamlConfiguration.getMaterial("material");
-			if(material!=null) this.setMaterial(material);
-			this.setDurability((short)yamlConfiguration.getInt("durability"));
+		if(this.customEnum==null) return;
+		if(this.material==null){
+			if(template==null){
+				template = CustomMaterialTemplate.get(customEnum);
+			}
+			if(template!=null){
+				Material material = template.getMaterial();
+				if(material!=null) this.setMaterial(material);
+				this.setDurability(template.getDurability());
+			}
 		}
 		if(this.durability!=0 && !this.customEnum.isEmpty()){
+			this.useNMS = true;
 			this.unbreakable = true;
 			if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
 			}
 		}
 	}
+	
 	public void setItemId(int item_id){
 		this.useNMS = true;
 		this.item_id = item_id;
@@ -207,14 +217,15 @@ public class CustomItemBuilder {
 				if(itemMeta.hasEnchant(enchantmentData.getEnchantment())){
 					itemMeta.removeEnchant(enchantmentData.getEnchantment());
 				}
-				Bukkit.getLogger().info("[CustomItems] Füge Enchantment "+enchantmentData.getEnchantment().getName()+" hinzu.");
+				Bukkit.getLogger().info("[CustomItems] Füge Enchantment "+enchantmentData.getEnchantment().toString()+" hinzu.");
 				itemMeta.addEnchant(enchantmentData.getEnchantment(), enchantmentData.getLevel(), enchantmentData.getIgnoreLevelRestriction());
 			}
 		}
 		if(itemMeta instanceof SkullMeta){
 			SkullMeta skullMeta = (SkullMeta) itemMeta;
-			if(!this.skullOwner.isEmpty()){
-				skullMeta.setOwner(this.skullOwner);
+			if(this.skullOwner!=null){
+				OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(skullOwner);
+				skullMeta.setOwningPlayer(offlinePlayer);
 			}
 		}
 		for(ItemFlag itemFlag : this.itemFlags){
@@ -240,6 +251,9 @@ public class CustomItemBuilder {
 		}
 		if(this.unbreakable!=itemMeta.isUnbreakable()){
 			itemMeta.setUnbreakable(this.unbreakable);
+		}
+		if(itemMeta instanceof Damageable){
+			((Damageable)itemMeta).setDamage(durability);
 		}
 		return itemMeta;
 	}
@@ -293,13 +307,12 @@ public class CustomItemBuilder {
 		}
 		ItemStack result = new ItemStack(material);
 		result.setAmount(amount);
-		if(this.durability!=0) result.setDurability(durability);
 		this.update(result);
 		return result;
 	}
 	public void update(ItemStack itemStack){
 		if(useNMS){
-			net.minecraft.server.v1_12_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
+			net.minecraft.server.v1_13_R2.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
 			NBTTagCompound nbtTags;
 			if(craftItemStack.hasTag())
 				nbtTags = craftItemStack.getTag();
@@ -333,7 +346,7 @@ public class CustomItemBuilder {
 			if(this.maxStackSize>0){
 				nbtTags.setInt("maxStackSize", this.maxStackSize);
 			}
-			NBTBase attributeModifiers = this.buildAttributeModifiers();
+			NBTTagList attributeModifiers = this.buildAttributeModifiers();
 			if(!attributeModifiers.isEmpty()){
 				nbtTags.set("AttributeModifiers", attributeModifiers);
 			}

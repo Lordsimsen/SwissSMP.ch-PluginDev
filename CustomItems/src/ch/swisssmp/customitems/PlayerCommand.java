@@ -7,27 +7,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import net.minecraft.server.v1_12_R1.NBTBase;
-import net.minecraft.server.v1_12_R1.NBTTagByte;
-import net.minecraft.server.v1_12_R1.NBTTagByteArray;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NBTTagDouble;
-import net.minecraft.server.v1_12_R1.NBTTagFloat;
-import net.minecraft.server.v1_12_R1.NBTTagInt;
-import net.minecraft.server.v1_12_R1.NBTTagIntArray;
-import net.minecraft.server.v1_12_R1.NBTTagList;
-import net.minecraft.server.v1_12_R1.NBTTagLong;
-import net.minecraft.server.v1_12_R1.NBTTagShort;
-import net.minecraft.server.v1_12_R1.NBTTagString;
+import net.minecraft.server.v1_13_R2.NBTBase;
+import net.minecraft.server.v1_13_R2.NBTTagByteArray;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagIntArray;
+import net.minecraft.server.v1_13_R2.NBTTagList;
 
 public class PlayerCommand implements CommandExecutor {
 
@@ -43,21 +37,11 @@ public class PlayerCommand implements CommandExecutor {
 			}
 			CustomItemBuilder customItemBuilder;
 			Player player = (Player) sender;
-			if(StringUtils.isNumeric(args[1])){
-				if(args.length>2 && StringUtils.isNumeric(args[2])){
-					customItemBuilder = CustomItems.getCustomItemBuilder(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
-				}
-				else{
-					customItemBuilder = CustomItems.getCustomItemBuilder(Integer.parseInt(args[1]));
-				}
+			if(args.length>2 && StringUtils.isNumeric(args[2])){
+				customItemBuilder = CustomItems.getCustomItemBuilder(args[1], Integer.parseInt(args[2]));
 			}
 			else{
-				if(args.length>2 && StringUtils.isNumeric(args[2])){
-					customItemBuilder = CustomItems.getCustomItemBuilder(args[1], Integer.parseInt(args[2]));
-				}
-				else{
-					customItemBuilder = CustomItems.getCustomItemBuilder(args[1]);
-				}
+				customItemBuilder = CustomItems.getCustomItemBuilder(args[1]);
 			}
 			if(customItemBuilder==null){
 				sender.sendMessage("[CustomItems] Konnte den ItemBuilder nicht generieren.");
@@ -91,7 +75,7 @@ public class PlayerCommand implements CommandExecutor {
 				name = itemStack.getType().name();
 			}
 			sender.sendMessage("[CustomItems] Analysiere "+name);
-			net.minecraft.server.v1_12_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
+			net.minecraft.server.v1_13_R2.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
 			if(craftItemStack.hasTag()){
 				NBTTagCompound nbtTags = craftItemStack.getTag();
 				this.displayNBTTagCompound(nbtTags, player, 0);
@@ -144,6 +128,28 @@ public class PlayerCommand implements CommandExecutor {
 			}
 			return true;
 		}
+		case "uploaddata":{
+			CustomItems.uploadData();
+			return true;
+		}
+		case "reload":{
+			CustomItems.reload();
+			sender.sendMessage("[CustomItems] Items & Materialien aktualisiert.");
+			return true;
+		}
+		case "view":{
+			if(!(sender instanceof Player)){
+				return true;
+			}
+			Inventory inventory = Bukkit.createInventory(null, 54, "CustomItems");
+			for(CustomItemTemplate template : CustomItemTemplates.templates.values()){
+				CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(template.getCustomEnum(), 1);
+				inventory.addItem(itemBuilder.build());
+			}
+			Player player = (Player) sender;
+			player.openInventory(inventory);
+			return true;
+		}
 		default:
 			return false;
 		}
@@ -167,36 +173,13 @@ public class PlayerCommand implements CommandExecutor {
 		}
 		else{
 			String variableName = this.getOffset(depth)+(!label.trim().isEmpty()?label+": ":"- ");
-			if(tag instanceof NBTTagByte){
-				player.sendMessage(variableName+((NBTTagByte)tag).g());
-			}
-			else if(tag instanceof NBTTagDouble){
-				player.sendMessage(variableName+((NBTTagDouble)tag).asDouble());
-			}
-			else if(tag instanceof NBTTagFloat){
-				player.sendMessage(variableName+((NBTTagFloat)tag).i());
-			}
-			else if(tag instanceof NBTTagInt){
-				player.sendMessage(variableName+((NBTTagInt)tag).e());
-			}
-			else if(tag instanceof NBTTagLong){
-				player.sendMessage(variableName+((NBTTagLong)tag).d());
-			}
-			else if(tag instanceof NBTTagShort){
-				player.sendMessage(variableName+((NBTTagShort)tag).f());
-			}
-			else if(tag instanceof NBTTagString){
-				player.sendMessage(variableName+((NBTTagString)tag).c_());
-			}
-			else{
-				player.sendMessage(variableName+tag.toString());
-			}
+			player.sendMessage(variableName+tag.asString());
 		}
 	}
 	
 	private void displayNBTTagCompound(NBTTagCompound compound, Player player, int depth){
 		NBTBase tag;
-		for(String key : compound.c()){
+		for(String key : compound.getKeys()){
 			tag = compound.get(key);
 			this.displayNBTTag(key,tag, player, depth+1);
 		}
@@ -205,7 +188,7 @@ public class PlayerCommand implements CommandExecutor {
 	private void displayNBTTagList(NBTTagList list, Player player, int depth){
 		NBTBase tag;
 		for(int i = 0; i < list.size(); i++){
-			tag = list.i(i);
+			tag = list.get(i);
 			this.displayNBTTag(i+"", tag, player, depth+1);
 		}
 	}

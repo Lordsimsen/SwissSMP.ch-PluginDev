@@ -1,9 +1,10 @@
 package ch.swisssmp.customitems;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Logger;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
@@ -20,15 +21,17 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.EnchantmentData;
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 
 public class CustomItems extends JavaPlugin{
-	protected static Logger logger;
-	protected static PluginDescriptionFile pdfFile;
+	private static PluginDescriptionFile pdfFile;
 	protected static File dataFolder;
 	protected static CustomItems plugin;
 	
@@ -36,14 +39,26 @@ public class CustomItems extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
 		
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("customitems").setExecutor(playerCommand);
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		reload();
 		
+		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+	}
+
+	@Override
+	public void onDisable() {
+		HandlerList.unregisterAll(this);
+		PluginDescriptionFile pdfFile = getDescription();
+		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+	
+	protected static void reload(){
+		CustomMaterialTemplates.load();
+		CustomItemTemplates.load();
 	}
 	
 	public static String getCustomEnum(ItemStack itemStack){
@@ -52,54 +67,52 @@ public class CustomItems extends JavaPlugin{
 	}
 	
 	public static CustomItemBuilder getCustomItemBuilder(String custom_enum){
-		return CustomItems.getCustomItemBuilder("items/material_builder.php", new String[]{
-				"enum="+custom_enum
-		});
+		return CustomItems.getCustomItemBuilder(custom_enum, 1);
 	}
 	
 	public static CustomItemBuilder getCustomItemBuilder(String custom_enum, int amount){
-		return CustomItems.getCustomItemBuilder("items/material_builder.php", new String[]{
-				"enum="+custom_enum,
-				"amount="+amount
-		});
-	}
-	
-	public static CustomItemBuilder getCustomItemBuilder(int item_id){
-		return CustomItems.getCustomItemBuilder("items/item_builder.php", new String[]{
-				"item="+item_id
-		});
-	}
-	
-	public static CustomItemBuilder getCustomItemBuilder(int item_id, int amount){
-		return CustomItems.getCustomItemBuilder("items/item_builder.php", new String[]{
-				"item="+item_id,
-				"amount="+amount
-		});
-	}
-	
-	public static CustomItemBuilder getCustomItemBuilder(String url, String[] arguments){
-		return getCustomItemBuilder(DataSource.getYamlResponse(url, arguments));
+		IBuilderTemplate template = CustomItemTemplate.get(custom_enum);
+		if(template==null) template = CustomMaterialTemplate.get(custom_enum);
+		if(template==null) return null;
+		ConfigurationSection dataSection = template.getData();
+		CustomItemBuilder result = new CustomItemBuilder();
+		if(template instanceof CustomMaterialTemplate){
+			result.setCustomEnum(dataSection.getString("custom_enum"), (CustomMaterialTemplate) template);
+		}
+		else{
+			result.setCustomEnum(dataSection.getString("custom_enum"));
+		}
+		getCustomItemBuilder(dataSection, result);
+		result.setAmount(amount);
+		return result;
 	}
 	
 	public static CustomItemBuilder getCustomItemBuilder(ConfigurationSection dataSection){
+		int amount = dataSection.contains("amount") ? dataSection.getInt("amount") : 1;
+		return getCustomItemBuilder(dataSection, amount);
+	}
+	
+	public static CustomItemBuilder getCustomItemBuilder(ConfigurationSection dataSection, int amount){
 		if(dataSection==null) return null;
-		if(dataSection.contains("item_id") && !dataSection.contains("signature")){
-			YamlConfiguration baseSection = DataSource.getYamlResponse("items/item_builder.php", new String[]{
-					"item="+dataSection.getInt("item_id")
-			});
-			if(baseSection!=null){
-				for(String key : baseSection.getKeys(false)){
-					if(!dataSection.contains(key)){
-						dataSection.set(key, baseSection.get(key));
-					}
-				}
-			}
+		CustomItemBuilder customItemBuilder;
+		if(dataSection.contains("custom_enum")){
+			customItemBuilder = getCustomItemBuilder(dataSection.getString("custom_enum"));
 		}
-		CustomItemBuilder customItemBuilder = new CustomItemBuilder();
+		else{
+			customItemBuilder = new CustomItemBuilder();
+		}
+		if(customItemBuilder==null) return null;
+		getCustomItemBuilder(dataSection, customItemBuilder);
+		customItemBuilder.setAmount(amount);
+		return customItemBuilder;
+	}
+	
+	public static CustomItemBuilder getCustomItemBuilder(ConfigurationSection dataSection, CustomItemBuilder customItemBuilder){
+		if(dataSection==null) return customItemBuilder;
 		for(String key : dataSection.getKeys(false)){
 			switch(key.toLowerCase()){
 			case "custom_enum":{
-				customItemBuilder.setCustomEnum(dataSection.getString("custom_enum"));
+				//should already be applied
 				break;
 			}
 			case "material":{
@@ -214,7 +227,13 @@ public class CustomItems extends JavaPlugin{
 				break;
 			}
 			case "skull_owner":{
-				customItemBuilder.setSkullOwner(dataSection.getString("skull_owner"));
+				try{
+					UUID owner = UUID.fromString(dataSection.getString("skull_owner"));
+					customItemBuilder.setSkullOwner(owner);
+				}
+				catch(Exception e){
+					(new Exception("Invalid Skull Owner: "+dataSection.getString("skull_owner"))).printStackTrace();
+				}
 				break;
 			}
 			//these properties do not matter to the generation of the item builder
@@ -235,13 +254,14 @@ public class CustomItems extends JavaPlugin{
 				break;
 			}
 			default:{
-				logger.info("[CustomItems] Unkown item property '"+key+"'");
+				Bukkit.getLogger().info("[CustomItems] Unkown item property '"+key+"'");
 				break;
 			}
 			}
 		}
-		if(customItemBuilder.getMaterial()==null){
+		if(customItemBuilder.getMaterial()==null || customItemBuilder.getMaterial()==Material.AIR){
 			Bukkit.getLogger().info("[CustomItems] ItemBuilder konnte nicht abgeschlossen werden, da kein Material angegeben wurde.");
+			Bukkit.getLogger().info(dataSection.toString());
 			return null;
 		}
 		return customItemBuilder;
@@ -303,13 +323,6 @@ public class CustomItems extends JavaPlugin{
 		}
 		return true;
 	}
-
-	@Override
-	public void onDisable() {
-		HandlerList.unregisterAll(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
-	}
 	
 	public static void clearExpiredItems(Inventory inventory){
 		long currentTime = System.currentTimeMillis()/1000;
@@ -320,5 +333,47 @@ public class CustomItems extends JavaPlugin{
 			if(expirationDate==0 || expirationDate>currentTime) continue;
 			itemStack.setAmount(0);
 		}
+	}
+	
+	protected static void uploadData(){
+		Material[] materials = Material.values();
+		JsonObject data = new JsonObject();
+		JsonArray materialsArray = new JsonArray();
+		for(int i = 0; i < materials.length; i++){
+			Material material = materials[i];
+			JsonObject materialSection = new JsonObject();
+			materialSection.addProperty("namespace", URLEncoder.encode(material.getKey().getNamespace()));
+			materialSection.addProperty("key", URLEncoder.encode(material.getKey().getKey()));
+			materialSection.addProperty("name", URLEncoder.encode(material.name()));
+			materialSection.addProperty("max_durability", material.getMaxDurability());
+			materialSection.addProperty("max_stack_size", material.getMaxStackSize());
+			materialSection.addProperty("type", (material.isBlock() ? "block" : "item"));
+			String group;
+			if(material.isEdible()){
+				group = "FOOD";
+			}
+			else if(material.isFuel()){
+				group = "FUEL";
+			}
+			else if(material.isInteractable()){
+				group = "INTERACTABLE";
+			}
+			else if(material.isRecord()){
+				group = "RECORD";
+			}
+			else{
+				group = "";
+			}
+			materialSection.addProperty("group", group);
+			materialsArray.add(materialSection);
+		}
+		data.add("items", materialsArray);
+		DataSource.getResponse(CustomItems.getInstance(), "upload_material_data.php", new String[]{
+				"data="+Base64.encodeBase64URLSafeString(data.toString().getBytes())
+		});
+	}
+	
+	public static CustomItems getInstance(){
+		return plugin;
 	}
 }
