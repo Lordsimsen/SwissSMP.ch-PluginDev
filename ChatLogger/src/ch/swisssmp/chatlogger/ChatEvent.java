@@ -54,6 +54,7 @@ public class ChatEvent implements Listener{
 		Boolean isGuest = false;
 		Boolean match = false;
 		String message = event.getMessage();
+		String messageLowerCase = message.toLowerCase();
 		Player player = event.getPlayer();
 		isGuest = !player.hasPermission("steve.teach");
 
@@ -61,7 +62,7 @@ public class ChatEvent implements Listener{
 
 
 		for (Pattern p : patterns){
-			Matcher matcher = p.matcher(message);
+			Matcher matcher = p.matcher(messageLowerCase);
 
 			if (matcher.find()){
 				match = true;
@@ -73,19 +74,19 @@ public class ChatEvent implements Listener{
 
 		try(FileWriter fw = new FileWriter(plugin.getDataFolder()+ File.separator + "ChatLog.txt", true);BufferedWriter bw = new BufferedWriter(fw);PrintWriter out = new PrintWriter(bw))
 			{
-			plugin.getServer().broadcastMessage("test1");
+			//plugin.getServer().broadcastMessage("test1");
 				if (!message.toLowerCase().contains("steve")){
 					if (!isGuest && !match ){
 						out.println(message);
 						plugin.clm.increaseNumberOfLinesByOne();
-						plugin.getServer().broadcastMessage("test2");
+						//plugin.getServer().broadcastMessage("test2");
 					}
-					else if(isGuest)plugin.getServer().broadcastMessage("test guest");
-					else if(match)plugin.getServer().broadcastMessage("test match");
+					//else if(isGuest)plugin.getServer().broadcastMessage("test guest");
+					//else if(match)plugin.getServer().broadcastMessage("test match");
 				}
 				else{
 
-					plugin.getServer().broadcastMessage("test3");
+					//plugin.getServer().broadcastMessage("test3");
 					int n = plugin.clm.getNumberOfLines();
 					int currentLineNumber = plugin.clm.getRandomNumber(n);			
 	

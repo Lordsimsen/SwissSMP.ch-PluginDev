@@ -1,0 +1,15 @@
+StringsToIgnore:
+  - nazi
+  - hallo
+  - hoi
+  - sali
+  - grüezi
+  - hey
+  - hai
+  - schwanz
+  - dick
+  - scheiss
+  - penis
+  - br(ü|ue)st
+  - vagina
+  - f[aoui]ck
