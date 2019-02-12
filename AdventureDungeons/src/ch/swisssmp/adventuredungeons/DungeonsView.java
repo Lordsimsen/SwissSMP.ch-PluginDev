@@ -31,7 +31,7 @@ public class DungeonsView extends InventoryView implements Listener{
 	}
 	
 	private void createDungeonTokens(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("dungeons/get_dungeons.php");
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(AdventureDungeons.getInstance(), "get_dungeons.php");
 		if(yamlConfiguration==null || !yamlConfiguration.contains("dungeons")){
 			this.player.sendMessage("[AdventureDungeons] "+ChatColor.RED+"Konnte Dungeons nicht anzeigen.");
 			return;

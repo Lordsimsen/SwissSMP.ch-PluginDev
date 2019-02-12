@@ -1,4 +1,4 @@
-package ch.swisssmp.world;
+package ch.swisssmp.world.border;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -9,7 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class WorldBorderChecker extends BukkitRunnable{
+class WorldBorderChecker extends BukkitRunnable{
 
 	String worldName;
 	WorldBorder worldBorder;
@@ -32,9 +32,8 @@ public class WorldBorderChecker extends BukkitRunnable{
 	public void run() {
 		for(Player player : Bukkit.getOnlinePlayers()){
 			worldName = player.getWorld().getName();
-			worldBorder = WorldManager.getWorldBorder(worldName);
-			if(worldBorder==null) continue;
-			if(!worldBorder.doWrap()) continue;
+			worldBorder = WorldBorderManager.getWorldBorder(worldName);
+			if(worldBorder==null || !worldBorder.doWrap()) continue;
 			outOfBounds = false;
 			north = false;
 			east = false;
@@ -83,7 +82,7 @@ public class WorldBorderChecker extends BukkitRunnable{
 					}
 				}
 				while(block.getY()<block.getWorld().getMaxHeight()-1 && (block.getType()!=Material.AIR || block.getRelative(BlockFace.UP).getType()!=Material.AIR)){
-					if(block.getType()==Material.STATIONARY_LAVA || block.getType()==Material.LAVA){
+					if(block.getType()==Material.LAVA){
 						if(worldBorder.doWrap()){
 							if(north){
 								block = block.getRelative(BlockFace.SOUTH);

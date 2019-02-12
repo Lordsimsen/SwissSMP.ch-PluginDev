@@ -1,9 +1,10 @@
 main: ch.swisssmp.adventuredungeons.AdventureDungeons
-version: 4.0
+version: 4.1
+api-version: 1.13
 name: AdventureDungeons
 author: detig_iii
 description: Dungeons in Minecraft ohne Mods
-depend: [WorldGuard,WebCore,AreaTransformations]
+depend: [WorldGuard,WebCore,AreaTransformations,WorldGuardManager]
 softdepend: [DungeonGenerator]
 load: startup
 permissions: 

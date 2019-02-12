@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,7 +13,7 @@ import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Position;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
 
 public class ItemManager {
 	/**
@@ -24,7 +24,7 @@ public class ItemManager {
 	 */
 	public static int getDungeonId(ItemStack itemStack){
 		if(itemStack==null) return -1;
-		net.minecraft.server.v1_12_R1.ItemStack nbtStack = CraftItemStack.asNMSCopy(itemStack);
+		net.minecraft.server.v1_13_R2.ItemStack nbtStack = CraftItemStack.asNMSCopy(itemStack);
 		if(!nbtStack.hasTag()) return -1;
 		NBTTagCompound nbtTag = nbtStack.getTag();
 		if(!nbtTag.hasKey("dungeon_id")) return -1;

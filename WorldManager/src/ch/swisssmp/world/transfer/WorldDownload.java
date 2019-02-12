@@ -1,4 +1,4 @@
-package ch.swisssmp.world;
+package ch.swisssmp.world.transfer;
 
 import ch.swisssmp.webcore.FTPConnection;
 
@@ -10,6 +10,6 @@ public class WorldDownload extends WorldTransfer {
 
 	@Override
 	public void run() {
-		this.statusObserver = FTPConnection.download("worlds/"+worldName+".zip", WorldManager.getTempFolder().getPath(), true);
+		this.statusObserver = FTPConnection.download("worlds/"+worldName+".zip", WorldTransferManager.getTempFolder().getPath(), true);
 	}
 }

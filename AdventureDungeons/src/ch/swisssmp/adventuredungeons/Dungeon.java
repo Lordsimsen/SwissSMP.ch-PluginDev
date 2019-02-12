@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -15,8 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -28,7 +30,8 @@ import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.world.WorldEditor;
 import ch.swisssmp.world.WorldManager;
-import ch.swisssmp.world.WorldTransferObserver;
+import ch.swisssmp.world.transfer.WorldTransferObserver;
+import ch.swisssmp.worldguardmanager.WorldGuardManager;
 
 public class Dungeon{
 	private static int auto_increment = 0;
@@ -132,8 +135,8 @@ public class Dungeon{
 				worldEditor.onWorldGenerate((World newWorld)->{
 					this.applyGamerules(newWorld, Difficulty.EASY, false);
 					WorldGuardPlugin.inst().reloadConfig();
-					for(ProtectedRegion protectedRegion : WorldGuardPlugin.inst().getRegionManager(newWorld).getRegions().values()){
-						protectedRegion.setFlag(DefaultFlag.PASSTHROUGH, StateFlag.State.ALLOW);
+					for(ProtectedRegion protectedRegion : WorldGuardManager.getRegionManager(newWorld).getRegions().values()){
+						protectedRegion.setFlag(Flags.PASSTHROUGH, StateFlag.State.ALLOW);
 					};
 					this.initiateEditor(player);
 				});
@@ -208,7 +211,7 @@ public class Dungeon{
 	}
 	
 	protected void saveSettings(){
-		DataSource.getResponse("dungeons/save_dungeon_settings.php", new String[]{
+		DataSource.getResponse(AdventureDungeons.getInstance(), "save_dungeon_settings.php", new String[]{
 			"id="+dungeon_id,
 			"name="+URLEncoder.encode(this.name),
 			this.lobby_join.getURLString("lobby_join"),
@@ -237,18 +240,18 @@ public class Dungeon{
 				dungeon_id = ItemUtil.getInt(itemStack, "dungeon_id");
 				if(this.dungeon_id!=dungeon_id) continue;
 				itemStack.setItemMeta(tokenStack.getItemMeta());
-				itemStack.setDurability(tokenStack.getDurability());
 			}
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void applyGamerules(World world, Difficulty difficulty, boolean isInstance){
-		world.setGameRuleValue("doMobSpawning", "false");
-		world.setGameRuleValue("doDaylightCycle", "false");
-		world.setGameRuleValue("doWeatherCycle", "false");
-		world.setGameRuleValue("doFireTick", "false");
-		world.setGameRuleValue("mobGriefing", "false");
-		world.setGameRuleValue("keepInventory", "false");
+		world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+		world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+		world.setGameRule(GameRule.DO_WEATHER_CYCLE,false);
+		world.setGameRule(GameRule.DO_FIRE_TICK, false);
+		world.setGameRule(GameRule.MOB_GRIEFING, false);
+		world.setGameRule(GameRule.KEEP_INVENTORY, false);
 		if(isInstance){
 			world.setGameRuleValue("doMobCampSpawning", "true");
 			for(Entry<String,String> gamerule : this.gamerules.entrySet()){
@@ -284,8 +287,9 @@ public class Dungeon{
 			return;
 		}
 		WorldGuardPlugin.inst().reloadConfig();
-		for(ProtectedRegion protectedRegion : WorldGuardPlugin.inst().getRegionManager(world).getRegions().values()){
-			protectedRegion.setFlag(DefaultFlag.PASSTHROUGH, StateFlag.State.ALLOW);
+		RegionManager regionManager = WorldGuardManager.getRegionManager(world);
+		for(ProtectedRegion protectedRegion : regionManager.getRegions().values()){
+			protectedRegion.setFlag(Flags.PASSTHROUGH, StateFlag.State.ALLOW);
 		};
 		this.applyGamerules(world, difficulty, true);
 		DungeonInstance dungeonInstance = DungeonInstance.create(instance_id, this, difficulty, world, random.nextLong());
@@ -328,7 +332,7 @@ public class Dungeon{
 	}
 	
 	private static Dungeon load(String[] args){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("dungeons/get_dungeon.php", args);
+		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(AdventureDungeons.getInstance(), "get_dungeon.php", args);
 		if(yamlConfiguration==null || !yamlConfiguration.contains("dungeon")){
 			Bukkit.getLogger().info("[AdventureDungeons] Konnte den Dungeon ("+StringUtils.join(args,", ")+") nicht laden.");
 			return null;

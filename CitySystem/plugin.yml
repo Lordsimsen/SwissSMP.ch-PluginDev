@@ -1,0 +1,43 @@
+main: ch.swisssmp.city.CitySystemPlugin
+version: 1.1
+api-version: 1.13
+name: CitySystem
+author: detig_iii
+description: Erlaubt Spielern ingame Verwaltung ihrer Städte
+depend: [SwissSMPUtils,WebCore,CustomItems,CustomEditorAPI,NPCs]
+permissions:
+  citysystem.found:
+    description: Erlaubt Gründung einer neuen Stadt
+    default: op
+  citysystem.join:
+    description: Erlaubt dir, einer Stadt als Bürger beizutreten
+    default: op
+  citysystem.spectate:
+    description: Erlaubt dir, Zeremonien als Zuschauer bezuwohnen
+    default: true
+  citysystem.admin:
+    description: Erlaubt Verwaltung des Plugins
+    default: op
+commands:
+  cities:
+    description: Zeigt alle Städte an
+    usage: "Verwendung: /<command>"
+    permission: citysystem.admin
+    aliases: [city]
+  cities reload:
+    description: Lädt alle Städte neu
+    usage: "Verwendung: /<command> reload"
+    permission: citysystem.admin
+  cities delete:
+    description: Löscht eine Stadt und alle zugehörigen Addons
+    usage: "Verwendung: /<command> delete [Stadt]"
+    permission: citysystem.admin
+  cities ring:
+    description: Erstellt einen Siegelring
+    usage: "Verwendung: /<command> ring [Stadt] (Besitzer) [Typ]"
+    permission: citysystem.admin
+  zuschauen:
+    description: Teleportiert dich als Zuschauer zur zuletzt gestarteten Zeremonie
+    usage: "Verwendung: /<command>"
+    permission: citysystem.spectate
+    aliases: [spectate]

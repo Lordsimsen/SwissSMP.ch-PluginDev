@@ -90,7 +90,6 @@ public class DungeonEditorView extends InventoryView implements Listener{
 			default: event.setCancelled(true);return;
 			}
 			cursor.setItemMeta(template.getItemMeta());
-			cursor.setDurability(template.getDurability());
 			itemStack.setAmount(0);
 		}
 		

@@ -83,7 +83,7 @@ public class EventListenerPlayer extends EventListenerBasic{
 		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
 		ItemStack itemStack = event.getItem();
 		if(itemStack==null) return;
-		if(itemStack.getType()==Material.FIREWORK) event.setUseItemInHand(Result.DENY);
+		if(itemStack.getType()==Material.FIREWORK_ROCKET) event.setUseItemInHand(Result.DENY);
 	}
 	
 	@EventHandler(ignoreCancelled=true)

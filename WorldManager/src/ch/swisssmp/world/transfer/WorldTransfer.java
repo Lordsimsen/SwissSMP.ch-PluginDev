@@ -1,4 +1,4 @@
-package ch.swisssmp.world;
+package ch.swisssmp.world.transfer;
 
 import ch.swisssmp.webcore.FTPStatus;
 

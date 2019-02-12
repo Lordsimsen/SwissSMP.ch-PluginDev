@@ -1,4 +1,4 @@
-package ch.swisssmp.world;
+package ch.swisssmp.world.transfer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.world.WorldManager;
 
 public class WorldTransferObserver implements Runnable {
 	
@@ -37,10 +38,10 @@ public class WorldTransferObserver implements Runnable {
 		if(this.transfer.getStatusObserver().isError()) sender.sendMessage("[WorldManager] "+this.transfer.getStatusObserver().getError());
 		else sender.sendMessage("[WorldManager] "+ChatColor.GREEN+"Welt '"+worldName+"' erfolgreich transferiert.");
 		for(Runnable runnable : this.onImmediateFinish){
-			Bukkit.getScheduler().runTaskLater(WorldManager.plugin, runnable, 1L);
+			Bukkit.getScheduler().runTaskLater(WorldManager.getInstance(), runnable, 1L);
 		}
 		for(Runnable runnable : this.onFinish){
-			Bukkit.getScheduler().runTaskLater(WorldManager.plugin, runnable, 5L);
+			Bukkit.getScheduler().runTaskLater(WorldManager.getInstance(), runnable, 5L);
 		}
 		task.cancel();
 	}
@@ -63,7 +64,7 @@ public class WorldTransferObserver implements Runnable {
 	
 	protected static WorldTransferObserver run(CommandSender sender, String worldName, WorldTransfer transfer){
 		WorldTransferObserver result = new WorldTransferObserver(sender, worldName, transfer);
-		BukkitTask task = Bukkit.getScheduler().runTaskTimer(WorldManager.plugin, result, 1, 1);
+		BukkitTask task = Bukkit.getScheduler().runTaskTimer(WorldManager.getInstance(), result, 1, 1);
 		result.task = task;
 		return result;
 	}
