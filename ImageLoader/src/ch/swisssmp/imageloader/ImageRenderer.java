@@ -25,6 +25,7 @@ public class ImageRenderer extends MapRenderer {
 	public void load(){
 		try {
 		image = ImageIO.read(new URL(url)); //should be initialized outside the render method
+		Bukkit.getLogger().info("[ImageLoader] Das Bild ist "+image.getWidth()+", "+image.getHeight()+" Pixel gross.");
 		} catch (IOException e) {
 			Bukkit.getLogger().info(ChatColor.RED + "[ImageLoader] Das Bild konnte nicht geladen werden. Bitte überprüfe den Pfad: "+url);
 		}

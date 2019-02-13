@@ -10,6 +10,6 @@ permissions:
     default: op
 commands:
   imageloader:
-    usage: /imageloader load [URL] §7- Lädt ein Bild aus dem Internet auf die Karte in deiner Hand
+    usage: imageloader load [URL] - LÃ¤dt ein Bild aus dem Internet auf die Karte in deiner Hand
     description: Steuert den ImageLoader
     permission: imageloader.admin
