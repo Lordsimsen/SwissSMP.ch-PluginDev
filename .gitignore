@@ -55,3 +55,4 @@ local.properties
 # Code Recommenders
 .recommenders/
 LampControl/
+.DS_Store
