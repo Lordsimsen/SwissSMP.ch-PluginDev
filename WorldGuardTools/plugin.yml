@@ -1,0 +1,12 @@
+main: ch.swisssmp.worldguardtools.WorldGuardToolsPlugin
+version: 1.0
+api-version: 1.13
+name: WorldGuardTools
+depend: [WorldGuard,NPCs,CustomItems,CustomEditorAPI]
+permissions:
+  worldguardtools.admin:
+    description: Erlaubt die Administration des Plugins
+    default: op
+  worldguardtools.use:
+    description: Erlaubt Verwendung der Werkzeuge
+    default: false
