@@ -1,0 +1,14 @@
+main: ch.swisssmp.monuments.Monuments
+version: 1.0
+api-version: 1.13
+name: Monuments
+depend: [AddonAbnahme,CitySystem,NPCs,CustomEditorAPI,SwissSMPUtils]
+permissions:
+  monuments.admin:
+    description: Erlaubt die Administration des Plugins
+    default: op
+commands:
+  monument:
+    description: Hauptbefehl zur Verwaltung von Monumenten
+    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    permission: monuments.admin
