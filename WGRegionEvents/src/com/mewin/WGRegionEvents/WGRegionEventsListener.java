@@ -4,6 +4,7 @@ import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import com.mewin.WGRegionEvents.events.RegionLeftEvent;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
@@ -32,11 +33,10 @@ public class WGRegionEventsListener implements Listener
     
     private Map<Player, Set<ProtectedRegion>> playerRegions;
     
-    public WGRegionEventsListener(WGRegionEventsPlugin plugin, WorldGuard wgPlugin)
+    public WGRegionEventsListener(WGRegionEventsPlugin plugin, WorldGuard worldGuard)
     {
         this.plugin = plugin;
-        
-        platform = wgPlugin.getPlatform();
+        platform = worldGuard.getPlatform();
         regionContainer = platform.getRegionContainer();
         
         playerRegions = new HashMap<Player, Set<ProtectedRegion>>();
@@ -115,8 +115,7 @@ public class WGRegionEventsListener implements Listener
         }
         
         oldRegions = new HashSet<ProtectedRegion>(regions);
-        com.sk89q.worldedit.world.World world = platform.getWorldByName(to.getWorld().getName());
-        RegionManager rm = regionContainer.get(world);
+        RegionManager rm = regionContainer.get(BukkitAdapter.adapt(to.getWorld()));
         
         if (rm == null)
         {
