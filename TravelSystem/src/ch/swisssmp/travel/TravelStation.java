@@ -254,7 +254,7 @@ public class TravelStation {
 		Position to = destination.getOutsideAnchor();
 		if(from==null || to==null) return -1;
 		double distance = from.getLocation(this.getWorld()).distance(to.getLocation(destination.getWorld()));
-		return Mathf.ceilToInt(distance/40*20) ;
+		return Mathf.ceilToInt(Math.min(distance/40,180)*20) ;
 	}
 	
 	public void setTravelGuide(NPCInstance npc){

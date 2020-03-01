@@ -73,6 +73,7 @@ public class ArrivePhase extends Phase {
 	private void teleportAnimals(){
 		TravelStation destination = this.getJourney().getDestination();
 		Location location = destination.getWaypoint().getLocation(destination.getWorld());
+		location.setY(Math.ceil(location.getY()+0.2));
 		for(Entity entity : this.getJourney().getEntities()){
 			entity.teleport(location);
 		}

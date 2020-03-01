@@ -10,7 +10,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,9 +27,6 @@ import ch.swisssmp.travel.phase.Phase;
 import ch.swisssmp.travel.phase.PreparationPhase;
 import ch.swisssmp.travel.phase.TravelPhase;
 import ch.swisssmp.utils.SwissSMPler;
-import net.minecraft.server.v1_13_R2.BlockPosition;
-import net.minecraft.server.v1_13_R2.PacketPlayOutAnimation;
-import net.minecraft.server.v1_13_R2.PacketPlayOutBed;
 
 public class Journey implements Runnable, Listener {
 	
@@ -86,11 +82,14 @@ public class Journey implements Runnable, Listener {
 		Block block = event.getClickedBlock();
 		if(!(block.getBlockData() instanceof Bed)) return;
 		event.setCancelled(true);
-		Player player = event.getPlayer();
-		this.setSleeping(player, block);
+		//Player player = event.getPlayer();
+		this.skipTravel();
+		//this.setSleeping(player, block);
+		/*
 		if(this.sleeping.size()>=this.players.size()){
 			this.skipTravel();
 		}
+		*/
 	}
 	
 	@EventHandler
@@ -105,24 +104,18 @@ public class Journey implements Runnable, Listener {
 		this.currentPhase.onPlayerRespawn(event);
 	}
 	
+	/*
     private void setSleeping(Player player, Block block) {
-    	BlockPosition position = new BlockPosition(block.getX(),block.getY(),block.getZ());
-        PacketPlayOutBed bedpacket = new PacketPlayOutBed(((CraftPlayer) player).getHandle(), position);
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            ((CraftPlayer)p).getHandle().playerConnection.sendPacket(bedpacket);
-        }
+    	player.sleep(block.getLocation(), true);
         sleeping.add(player);
     }
+    */
     
     public void setWorldInstance(World world){
     	this.worldInstance = world;
     }
     
     public void exitBed(Player player) {
-        PacketPlayOutAnimation aniPacket = new PacketPlayOutAnimation(((CraftPlayer) player).getHandle(), 2);
-        for (Player o : Bukkit.getOnlinePlayers()) {
-            ((CraftPlayer) o).getHandle().playerConnection.sendPacket(aniPacket);
-        }
         sleeping.remove(player);
     }
 	

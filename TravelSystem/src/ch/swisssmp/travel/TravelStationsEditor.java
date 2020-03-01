@@ -10,19 +10,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import ch.swisssmp.utils.Mathf;
 
-public class TravelStationsEditor extends InventoryView implements Listener {
+public class TravelStationsEditor implements Listener {
 
 	private final Player player;
 	private final Inventory inventory;
-	private final PlayerInventory playerInventory;
+	
+	private InventoryView view;
 	
 	private TravelStationsEditor(Player player, World world){
 		this(player, TravelStations.get(world), "Stationen in "+world.getName().replace('_', ' '));
@@ -30,7 +29,6 @@ public class TravelStationsEditor extends InventoryView implements Listener {
 	
 	private TravelStationsEditor(Player player, Collection<TravelStation> stations, String label){
 		this.player = player;
-		this.playerInventory = player.getInventory();
 
 		int cellCount = Mathf.ceilToInt(stations.size() / 9f)*9;
 		this.inventory = Bukkit.createInventory(null, cellCount, label);
@@ -47,32 +45,16 @@ public class TravelStationsEditor extends InventoryView implements Listener {
 	
 	@EventHandler
 	private void onInventoryClose(InventoryCloseEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		HandlerList.unregisterAll(this);
 	}
 
-	@Override
-	public Inventory getBottomInventory() {
-		return this.playerInventory;
-	}
-
-	@Override
 	public HumanEntity getPlayer() {
 		return this.player;
 	}
-
-	@Override
-	public Inventory getTopInventory() {
-		return this.inventory;
-	}
-
-	@Override
-	public InventoryType getType() {
-		return InventoryType.CHEST;
-	}
 	
 	private void open(){
-		this.player.openInventory(this);
+		this.view = this.player.openInventory(this.inventory);
 	}
 	
 	public static TravelStationsEditor open(Player player, boolean showAll){

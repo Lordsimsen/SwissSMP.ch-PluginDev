@@ -20,31 +20,31 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.utils.Mathf;
 
-public class DestinationSelectionView extends InventoryView implements Listener {
+public class DestinationSelectionView implements Listener {
 
+	private final String label;
 	private final Player player;
 	private final Inventory inventory;
-	private final PlayerInventory playerInventory;
+	private InventoryView view;
 	
 	private final TravelStation start;
 	
 	private DestinationSelectionView(Player player,TravelStation start, HashMap<Integer,ItemStack> items, String label){
+		this.label = label;
 		this.player = player;
-		this.playerInventory = player.getInventory();
 
 		this.start = start;
 		
 		int highestSlot = Collections.max(items.keySet());
-		this.inventory = Bukkit.createInventory(null, Math.max(Mathf.ceilToInt(highestSlot / 9f),1) * 9, label);
+		int size = Math.max(Mathf.ceilToInt(highestSlot / 9f),1) * 9;
+		this.inventory = Bukkit.createInventory(null, size, this.label);
 		for(Entry<Integer,ItemStack> item : items.entrySet()){
 			inventory.setItem(item.getKey(), item.getValue());
 		}
@@ -55,7 +55,7 @@ public class DestinationSelectionView extends InventoryView implements Listener 
 	
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
-		if(event.getView()!=this || event.getClickedInventory()!=inventory) return;
+		if(event.getView()!=this.view || event.getClickedInventory()!=inventory) return;
 		event.setCancelled(true);
 		int slot = event.getSlot();
 		if(slot==8){
@@ -88,28 +88,12 @@ public class DestinationSelectionView extends InventoryView implements Listener 
 	
 	@EventHandler
 	private void onInventoryClose(InventoryCloseEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		HandlerList.unregisterAll(this);
 	}
 
-	@Override
-	public Inventory getBottomInventory() {
-		return this.playerInventory;
-	}
-
-	@Override
 	public HumanEntity getPlayer() {
 		return this.player;
-	}
-
-	@Override
-	public Inventory getTopInventory() {
-		return this.inventory;
-	}
-
-	@Override
-	public InventoryType getType() {
-		return InventoryType.CHEST;
 	}
 	
 	private void embarkNow(){
@@ -120,12 +104,13 @@ public class DestinationSelectionView extends InventoryView implements Listener 
 	}
 	
 	private void open(){
-		this.player.openInventory(this);
+		this.view = this.player.openInventory(this.inventory);
 	}
 	
 	private void closeLater(){
 		Bukkit.getScheduler().runTaskLater(TravelSystem.getInstance(), ()->{
-			close();
+			if(this.view==null) return;
+			this.view.close();
 		}, 1L);
 	}
 	

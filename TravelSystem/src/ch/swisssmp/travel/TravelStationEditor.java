@@ -3,11 +3,9 @@ package ch.swisssmp.travel;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
@@ -30,14 +28,9 @@ public class TravelStationEditor extends CustomEditorView {
 		super(player);
 		this.travelStation = travelStation;
 	}
-
-	@Override
-	protected Inventory createInventory() {
-		return Bukkit.createInventory(null, 18, this.travelStation.getName());
-	}
 	
 	@Override
-	protected Collection<EditorSlot> createSlots(){
+	protected Collection<EditorSlot> initializeEditor(){
 		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
 		World world = this.getPlayer().getWorld();
 		result.add(new TravelStationTypeSlot(this,0));
@@ -70,5 +63,15 @@ public class TravelStationEditor extends CustomEditorView {
 	@Override
 	protected void onInventoryClicked(InventoryClickEvent arg0) {
 		this.travelStation.updateTokens();
+	}
+
+	@Override
+	public String getTitle() {
+		return this.travelStation.getName();
+	}
+
+	@Override
+	protected int getInventorySize() {
+		return 18;
 	}
 }

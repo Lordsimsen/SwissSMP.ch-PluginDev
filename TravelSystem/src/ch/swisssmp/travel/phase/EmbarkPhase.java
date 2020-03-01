@@ -105,7 +105,9 @@ public class EmbarkPhase extends Phase {
 		World world = start.getWorld();
 		BoundingBox box = new BoundingBox(min.getX(),min.getY(),min.getZ(),max.getX()+1,max.getY()+1,max.getZ()+1);
 		for(Entity entity : world.getNearbyEntities(box)){
+			//System.out.println("Entity: "+entity.getType());
 			if(!(entity instanceof Animals)) continue;
+			//System.out.println("Teleport: "+entity.getType());
 			this.getJourney().join(entity);
 			Location location = this.getTeleportLocation(entity, destination);
 			entity.teleport(location);

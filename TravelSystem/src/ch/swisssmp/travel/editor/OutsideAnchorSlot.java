@@ -7,9 +7,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 
 import ch.swisssmp.travel.TravelStationEditor;
-import ch.swisssmp.utils.MarkerType;
+import ch.swisssmp.waypoints.MarkerType;
 import ch.swisssmp.utils.Position;
-import ch.swisssmp.utils.editor.WaypointSlot;
+import ch.swisssmp.waypoints.editor.WaypointSlot;
 
 public class OutsideAnchorSlot extends WaypointSlot {
 
