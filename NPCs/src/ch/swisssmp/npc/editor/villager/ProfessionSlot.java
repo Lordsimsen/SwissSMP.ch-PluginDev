@@ -3,6 +3,7 @@ package ch.swisssmp.npc.editor.villager;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Villager;
@@ -11,16 +12,25 @@ import org.bukkit.entity.Villager.Profession;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.SelectSlot;
+import ch.swisssmp.npc.NPCs;
 
 public class ProfessionSlot extends SelectSlot {
 
 	private final static Profession[] professions = new Profession[]{
-			Profession.BLACKSMITH,
-			Profession.BUTCHER,
 			Profession.FARMER,
-			Profession.LIBRARIAN,
 			Profession.NITWIT,
-			Profession.PRIEST
+			Profession.ARMORER,
+			Profession.BUTCHER,
+			Profession.CARTOGRAPHER,
+			Profession.CLERIC,
+			Profession.FISHERMAN,
+			Profession.FLETCHER,
+			Profession.LEATHERWORKER,
+			Profession.LIBRARIAN,
+			Profession.MASON,
+			Profession.SHEPHERD,
+			Profession.TOOLSMITH,
+			Profession.WEAPONSMITH,
 	};
 	
 	private final Villager villager;
@@ -47,7 +57,14 @@ public class ProfessionSlot extends SelectSlot {
 
 	@Override
 	protected void onValueChanged(int arg0) {
-		villager.setProfession(professions[arg0]);
+		Profession profession = professions[arg0];
+		System.out.println("Profession: "+profession);
+		villager.setVillagerLevel(5);
+		villager.setProfession(profession);
+		System.out.println("Applied Profession: "+villager.getProfession());
+		Bukkit.getScheduler().runTaskLater(NPCs.getInstance(), ()->{
+			System.out.println("Current Profession: "+villager.getProfession());
+		}, 2L);
 	}
 
 	@Override
@@ -79,11 +96,19 @@ public class ProfessionSlot extends SelectSlot {
 
 	private static String getLabel(Profession profession){
 		switch(profession){
-		case BLACKSMITH: return "Schmied";
+		case ARMORER: return "Rüstungsschmied";
 		case BUTCHER: return "Metzger";
+		case CARTOGRAPHER: return "Kartografe";
+		case CLERIC: return "Kleriker";
+		case FISHERMAN: return "Fischer";
+		case FLETCHER: return "Pfeilmacher";
+		case LEATHERWORKER: return "Lederhandwerker";
 		case LIBRARIAN: return "Gelehrter";
+		case MASON: return "Maurer";
 		case NITWIT: return "Nichtsnutz";
-		case PRIEST: return "Priester";
+		case SHEPHERD: return "Hirt";
+		case TOOLSMITH: return "Werkzeugschmied";
+		case WEAPONSMITH: return "Waffenschmied";
 		case FARMER:
 		default: return "Bauer";
 		}
@@ -91,13 +116,21 @@ public class ProfessionSlot extends SelectSlot {
 	
 	private static Material getMaterial(Profession profession){
 		switch(profession){
-		case BLACKSMITH: return Material.BLACK_WOOL;
+		case ARMORER: return Material.BLACK_WOOL;
 		case BUTCHER: return Material.RED_WOOL;
-		case FARMER: return Material.BROWN_WOOL;
-		case LIBRARIAN: return Material.WHITE_WOOL;
+		case CARTOGRAPHER: return Material.PINK_WOOL;
+		case CLERIC: return Material.PURPLE_WOOL;
+		case FISHERMAN: return Material.CYAN_WOOL;
+		case FLETCHER: return Material.LIGHT_GRAY_WOOL;
+		case LEATHERWORKER: return Material.BROWN_WOOL;
+		case LIBRARIAN: return Material.BLUE_WOOL;
+		case MASON: return Material.ORANGE_WOOL;
 		case NITWIT: return Material.GREEN_WOOL;
-		case PRIEST: return Material.PURPLE_WOOL;
-		default: return Material.PINK_WOOL;
+		case SHEPHERD: return Material.WHITE_WOOL;
+		case TOOLSMITH: return Material.YELLOW_WOOL;
+		case WEAPONSMITH: return Material.GRAY_WOOL;
+		case FARMER: return Material.LIME_WOOL;
+		default: return Material.MAGENTA_WOOL;
 		}
 	}
 }

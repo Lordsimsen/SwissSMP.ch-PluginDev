@@ -8,6 +8,7 @@ import org.bukkit.entity.Villager;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.npc.editor.villager.ProfessionSlot;
+import ch.swisssmp.npc.editor.villager.TypeSlot;
 
 public class VillagerEditor extends AbstractEditor {
 	
@@ -22,11 +23,12 @@ public class VillagerEditor extends AbstractEditor {
 	public Collection<EditorSlot> createSlots(int firstSlot){
 		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
 		result.add(new ProfessionSlot(this.getView(),firstSlot,this.villager));
+		result.add(new TypeSlot(this.getView(),firstSlot+1,this.villager));
 		return result;
 	}
 
 	@Override
 	public int getSlotCount() {
-		return 1;
+		return 2;
 	}
 }

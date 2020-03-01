@@ -2,15 +2,15 @@ package ch.swisssmp.npc.modules;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager;
-import org.bukkit.entity.Villager.Career;
 import org.bukkit.entity.Villager.Profession;
+import org.bukkit.entity.Villager.Type;
 
 import ch.swisssmp.npc.NPCInstance;
 
 public class VillagerModule extends AgeableModule {
 
 	private Profession profession;
-	private Career career;
+	private Type type;
 	
 	public void setProfession(Profession profession){
 		this.profession = profession;
@@ -20,12 +20,12 @@ public class VillagerModule extends AgeableModule {
 		return profession;
 	}
 	
-	public void setCareer(Career career){
-		this.career = career;
+	public void setVillagerType(Type type){
+		this.type = type;
 	}
 	
-	public Career getCareer(){
-		return career;
+	public Type getVillagerType(){
+		return type;
 	}
 	
 	@Override
@@ -35,7 +35,7 @@ public class VillagerModule extends AgeableModule {
 		if(!(visible instanceof Villager)) return;
 		Villager villager = (Villager) visible;
 		if(profession!=null) villager.setProfession(profession);
-		if(career!=null) villager.setCareer(career);
+		if(type!=null) villager.setVillagerType(type);
 	}
 
 }

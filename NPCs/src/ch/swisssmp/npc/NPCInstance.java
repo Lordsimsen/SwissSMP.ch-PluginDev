@@ -9,6 +9,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -68,13 +69,15 @@ public class NPCInstance {
 	}
 	
 	public void setYamlConfiguration(YamlConfiguration yamlConfiguration){
-		ItemStack itemStack = base.getChestplate();
+		EntityEquipment equipment = base.getEquipment();
+		ItemStack itemStack = equipment.getChestplate();
 		ItemUtil.setString(itemStack, "data", yamlConfiguration.saveToString());
-		base.setChestplate(itemStack);
+		equipment.setChestplate(itemStack);
 	}
 	
 	public YamlConfiguration getYamlConfiguration(){
-		ItemStack itemStack = base.getChestplate();
+		EntityEquipment equipment = base.getEquipment();
+		ItemStack itemStack = equipment.getChestplate();
 		if(itemStack==null) return null;
 		String dataString = ItemUtil.getString(itemStack, "data");
 		if(dataString==null) return null;
@@ -110,8 +113,9 @@ public class NPCInstance {
 		ArmorStand armorStand = createBase(entityType, location);
 		Entity visible = createVisible(location, entityType);
 		armorStand.addPassenger(visible);
+		EntityEquipment equipment = armorStand.getEquipment();
 		ItemStack itemStack = createNPCTag(npc_id);
-		armorStand.setChestplate(itemStack);
+		equipment.setChestplate(itemStack);
 		return new NPCInstance(npc_id, visible, armorStand);
 	}
 	
@@ -123,7 +127,8 @@ public class NPCInstance {
 			return null;
 		}
 		ArmorStand armorStand = (ArmorStand) entity;
-		ItemStack npcTag = armorStand.getChestplate();
+		EntityEquipment equipment = armorStand.getEquipment();
+		ItemStack npcTag = equipment.getChestplate();
 		String npcIdString = ItemUtil.getString(npcTag, "npc_id");
 		if(npcIdString==null){
 			return null;

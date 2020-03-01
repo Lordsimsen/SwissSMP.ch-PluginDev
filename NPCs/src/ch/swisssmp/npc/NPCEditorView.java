@@ -5,8 +5,6 @@ import java.util.Collection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
@@ -27,17 +25,16 @@ public class NPCEditorView extends CustomEditorView {
 		this.npc = npc;
 	}
 	
-	@Override
-	protected Inventory createInventory(){
+	protected Collection<AbstractEditor> initializeEditors(){
 		Collection<AbstractEditor> editors = Editors.get(this);
 		NPCEditorOpenEvent event = new NPCEditorOpenEvent(this,editors);
 		Bukkit.getPluginManager().callEvent(event);
-		this.editors = event.getEditors();
-		return Bukkit.createInventory(null, this.getInventorySize(this.editors), "NPC bearbeiten");
+		return event.getEditors();
 	}
 	
 	@Override
-	protected Collection<EditorSlot> createSlots(){
+	protected Collection<EditorSlot> initializeEditor(){
+		this.editors = this.initializeEditors();
 		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
 		int currentSlot = 0;
 		for(AbstractEditor editor : editors){
@@ -59,11 +56,6 @@ public class NPCEditorView extends CustomEditorView {
 		}
 		return this.calculateInventorySize(getRemappedSlot(slots));
 	}
-
-	@Override
-	public InventoryType getType() {
-		return InventoryType.CHEST;
-	}
 	
 	public static int getRemappedSlot(int relativeSlot){
 		int columns = 8;
@@ -75,5 +67,15 @@ public class NPCEditorView extends CustomEditorView {
 		NPCEditorView editor = new NPCEditorView(player,npc);
 		editor.open();
 		return editor;
+	}
+
+	@Override
+	public String getTitle() {
+		return "NPC bearbeiten";
+	}
+
+	@Override
+	protected int getInventorySize() {
+		return this.getInventorySize(this.editors);
 	}
 }
