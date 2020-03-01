@@ -89,4 +89,19 @@ public final class Mathf{
 		}
 		return value;
 	}
+
+	/**
+	 * @param value - The value to wrap
+	 * @param step - The limit to wrap
+	 * @return The wrapped value between 0 (inclusive) and <code>step</code> (exclusive)
+	 */
+	public static double wrap(double value, double step){
+		while(value<0){
+			value+=step;
+		}
+		while(value>=step){
+			value-=step;
+		}
+		return value;
+	}
 }

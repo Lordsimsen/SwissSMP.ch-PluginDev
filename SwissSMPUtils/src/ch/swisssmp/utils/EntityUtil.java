@@ -78,6 +78,7 @@ import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 import org.bukkit.potion.PotionEffect;
 
+@SuppressWarnings("deprecation")
 public class EntityUtil {
 	public static void equip(LivingEntity entity, Collection<ItemStack> itemStacks){
 		EntityEquipment equipment = entity.getEquipment();
@@ -103,7 +104,6 @@ public class EntityUtil {
 		Entity target;
 		try{
 			if(template instanceof FallingBlock){
-				//TODO change to 1.13 ways
 				target = location.getWorld().spawnFallingBlock(location, ((FallingBlock)template).getBlockData());
 			}
 			else if(template instanceof Player){
@@ -409,7 +409,8 @@ public class EntityUtil {
 	}
 	private static void cloneCreeperSettings(Creeper template, Creeper target){
 		target.setPowered(template.isPowered());
-		//TODO add 1.13 capabilities
+		target.setExplosionRadius(template.getExplosionRadius());
+		target.setMaxFuseTicks(template.getMaxFuseTicks());
 	}
 	private static void cloneDamageableSettings(Damageable template, Damageable target){
 		target.setHealth(template.getHealth());
@@ -425,7 +426,9 @@ public class EntityUtil {
 		target.setCarriedMaterial(template.getCarriedMaterial());
 	}
 	private static void cloneEnderSignalSettings(EnderSignal template, EnderSignal target){
-		//TODO add 1.13 capabilities
+		target.setDespawnTimer(template.getDespawnTimer());
+		target.setDropItem(template.getDropItem());
+		target.setTargetLocation(template.getTargetLocation());
 	}
 	private static void cloneEntityEquipment(EntityEquipment template, EntityEquipment target){
 		target.setBoots(template.getBoots().clone());
@@ -506,7 +509,6 @@ public class EntityUtil {
 		target.setRecipes(template.getRecipes());
 	}
 	private static void cloneMinecartSettings(Minecart template, Minecart target){
-		//TODO add 1.13 capabilities
 		target.setDamage(template.getDamage());
 		target.setDerailedVelocityMod(template.getDerailedVelocityMod());
 		target.setDisplayBlock(template.getDisplayBlock());
@@ -555,7 +557,6 @@ public class EntityUtil {
 		target.setTarget(template.getTarget());
 	}
 	private static void cloneSlimeSettings(Slime template, Slime target){
-		//TODO add 1.13 capability
 		target.setSize(template.getSize());
 	}
 	private static void cloneSnowmanSettings(Snowman template, Snowman target){
@@ -597,9 +598,10 @@ public class EntityUtil {
 		target.setVelocity(template.getVelocity());
 	}
 	private static void cloneVillagerSettings(Villager template, Villager target){
-		target.setCareer(template.getCareer(), false);
 		target.setProfession(template.getProfession());
-		target.setRiches(template.getRiches());
+		target.setVillagerType(template.getVillagerType());
+		target.setVillagerLevel(target.getVillagerLevel());
+		target.setVillagerExperience(target.getVillagerExperience());
 	}
 	private static void cloneWitherSkullSettings(WitherSkull template, WitherSkull target){
 		target.setCharged(template.isCharged());

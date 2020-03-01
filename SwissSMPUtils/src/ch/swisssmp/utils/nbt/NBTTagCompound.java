@@ -4,17 +4,17 @@ import ch.swisssmp.utils.Position;
 
 public class NBTTagCompound extends NBTBase {
 	
-	private final net.minecraft.server.v1_13_R2.NBTTagCompound nbtTag;
+	private final net.minecraft.server.v1_15_R1.NBTTagCompound nbtTag;
 	
 	public NBTTagCompound(){
-		this.nbtTag = new net.minecraft.server.v1_13_R2.NBTTagCompound();
+		this.nbtTag = new net.minecraft.server.v1_15_R1.NBTTagCompound();
 	}
 	
-	public NBTTagCompound(net.minecraft.server.v1_13_R2.NBTTagCompound nbtTag){
+	public NBTTagCompound(net.minecraft.server.v1_15_R1.NBTTagCompound nbtTag){
 		this.nbtTag = nbtTag;
 	}
 	
-	public net.minecraft.server.v1_13_R2.NBTTagCompound asNMS(){
+	public net.minecraft.server.v1_15_R1.NBTTagCompound asNMS(){
 		return nbtTag;
 	}
 	

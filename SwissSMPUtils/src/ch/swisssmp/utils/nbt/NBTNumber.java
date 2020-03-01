@@ -2,9 +2,9 @@ package ch.swisssmp.utils.nbt;
 
 public abstract class NBTNumber extends NBTBase {
 
-	private final net.minecraft.server.v1_13_R2.NBTNumber value;
+	private final net.minecraft.server.v1_15_R1.NBTNumber value;
 	
-	public NBTNumber(net.minecraft.server.v1_13_R2.NBTNumber value){
+	public NBTNumber(net.minecraft.server.v1_15_R1.NBTNumber value){
 		this.value = value;
 	}
 	

@@ -3,8 +3,8 @@ package ch.swisssmp.utils;
 import java.io.File;
 import java.util.logging.Logger;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
