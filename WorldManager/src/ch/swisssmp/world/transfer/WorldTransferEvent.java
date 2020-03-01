@@ -8,7 +8,8 @@ public abstract class WorldTransferEvent extends Event{
     protected final String worldName;
     protected final File packedDirectory;
     
-    protected WorldTransferEvent(String worldName, File packedDirectory){
+    protected WorldTransferEvent(String worldName, File packedDirectory, boolean isAsync){
+    	super(isAsync);
     	this.worldName = worldName;
     	this.packedDirectory = packedDirectory;
     }

@@ -12,8 +12,8 @@ import org.bukkit.event.HandlerList;
 public class WorldUnpackEvent extends WorldTransferEvent{
 	private static final HandlerList handlers = new HandlerList();
 	
-    protected WorldUnpackEvent(String worldName, File packedDirectory) {
-		super(worldName,packedDirectory);
+    protected WorldUnpackEvent(String worldName, File packedDirectory, boolean isAsync) {
+		super(worldName,packedDirectory, isAsync);
 	}
     
 	@Override

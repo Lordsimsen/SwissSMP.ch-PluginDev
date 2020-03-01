@@ -3,7 +3,7 @@ package ch.swisssmp.world;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -19,7 +19,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
@@ -32,12 +31,14 @@ import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.YamlConfiguration;
 
-public class WorldEditor extends InventoryView implements Listener{
+public class WorldEditor implements Listener{
 	private static Random random = new Random();
 	
 	private final String worldName;
 	private final Player player;
 	private final Inventory inventory;
+	
+	private InventoryView view;
 	
 	private Environment environment;
 	private boolean generate_structures;
@@ -117,12 +118,14 @@ public class WorldEditor extends InventoryView implements Listener{
 	}
 	
 	private void closeNextTick(){
-		Bukkit.getScheduler().runTaskLater(WorldManager.plugin, new Runnable(){public void run(){close();}}, 1L);
+		Bukkit.getScheduler().runTaskLater(WorldManager.plugin, new Runnable(){public void run(){
+			if(view!=null) view.close();
+			}}, 1L);
 	}
 	
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		event.setCancelled(true);
 		if(Bukkit.getWorld(this.worldName)!=null || event.getInventory()!=this.inventory){
 			if(event.getSlot()==8) this.closeNextTick();
@@ -139,7 +142,7 @@ public class WorldEditor extends InventoryView implements Listener{
 	
 	@EventHandler
 	private void onInventoryDrag(InventoryDragEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		event.setCancelled(true);
 	}
 	
@@ -148,25 +151,9 @@ public class WorldEditor extends InventoryView implements Listener{
 		if(event.getInventory()!=this.inventory) return;
 		HandlerList.unregisterAll(this);
 	}
-	
-	@Override
-	public Inventory getBottomInventory() {
-		return this.player.getInventory();
-	}
 
-	@Override
 	public HumanEntity getPlayer() {
 		return this.player;
-	}
-
-	@Override
-	public Inventory getTopInventory() {
-		return this.inventory;
-	}
-
-	@Override
-	public InventoryType getType() {
-		return InventoryType.CHEST;
 	}
 	
 	private void cycleEnvironment(){
@@ -280,7 +267,7 @@ public class WorldEditor extends InventoryView implements Listener{
 	public static WorldEditor open(String worldName, Player player){
 		WorldEditor result = new WorldEditor(worldName, player);
 		Bukkit.getPluginManager().registerEvents(result, WorldManager.plugin);
-		player.openInventory(result);
+		result.view = player.openInventory(result.inventory);
 		return result;
 	}
 }

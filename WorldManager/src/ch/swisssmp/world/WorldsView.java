@@ -14,7 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
@@ -23,10 +22,12 @@ import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.Mathf;
 
-public class WorldsView extends InventoryView implements Listener{
+public class WorldsView implements Listener{
 	
 	private final Player player;
 	private final Inventory inventory;
+	
+	private InventoryView view;
 	
 	private final List<String> worlds = new ArrayList<String>();
 	
@@ -69,7 +70,7 @@ public class WorldsView extends InventoryView implements Listener{
 	
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		event.setCancelled(true);
 		if(event.getClickedInventory()!=this.inventory || event.getSlot()>=this.worlds.size()) return;
 		WorldEditor.open(this.worlds.get(event.getSlot()), player);
@@ -77,40 +78,24 @@ public class WorldsView extends InventoryView implements Listener{
 	
 	@EventHandler
 	private void onInventoryDrag(InventoryDragEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		event.setCancelled(true);
 	}
 	
 	@EventHandler
 	private void onInventoryClose(InventoryCloseEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		HandlerList.unregisterAll(this);
 	}
-	
-	@Override
-	public Inventory getBottomInventory() {
-		return this.player.getInventory();
-	}
 
-	@Override
 	public HumanEntity getPlayer() {
 		return this.player;
 	}
-
-	@Override
-	public Inventory getTopInventory() {
-		return this.inventory;
-	}
-
-	@Override
-	public InventoryType getType() {
-		return InventoryType.CHEST;
-	}
 	
 	protected static WorldsView open(Player player){
-		WorldsView view = new WorldsView(player);
-		Bukkit.getPluginManager().registerEvents(view, WorldManager.plugin);
-		player.openInventory(view);
-		return view;
+		WorldsView result = new WorldsView(player);
+		Bukkit.getPluginManager().registerEvents(result, WorldManager.plugin);
+		result.view = player.openInventory(result.inventory);
+		return result;
 	}
 }

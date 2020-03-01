@@ -46,7 +46,7 @@ public class WorldTransferManager {
 		File worldDirectory = new File(Bukkit.getWorldContainer(),overrideWorldName);
 		FileUtil.copyDirectory(packedWorldDirectory, worldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
 		try{
-			Bukkit.getPluginManager().callEvent(new WorldUnpackEvent(overrideWorldName,packedDirectory));
+			Bukkit.getPluginManager().callEvent(new WorldUnpackEvent(overrideWorldName,packedDirectory,false));
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -69,7 +69,7 @@ public class WorldTransferManager {
 		File packedWorldDirectory = new File(packedDirectory,"World/"+worldName);
 		packedWorldDirectory.mkdirs();
 		FileUtil.copyDirectory(worldDirectory, packedWorldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
-		Bukkit.getPluginManager().callEvent(new WorldPackEvent(worldName,packedDirectory));
+		Bukkit.getPluginManager().callEvent(new WorldPackEvent(worldName,packedDirectory,true));
 	}
 	
 	/**
