@@ -1,0 +1,6 @@
+main: ch.swisssmp.text.RawTextBuilderAPI
+version: 1.0
+api-version: 1.13
+name: RawTextBuilderAPI
+author: detig_iii
+description: Standardisiert Erstellen von Rohtext-Nachrichten
