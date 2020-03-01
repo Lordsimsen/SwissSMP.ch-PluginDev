@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -12,7 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -21,37 +19,31 @@ import org.bukkit.inventory.PlayerInventory;
 import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.utils.Mathf;
 
-public abstract class CustomEditorView extends InventoryView implements Listener {
+public abstract class CustomEditorView implements Listener {
 
 	private final Player player;
 	private Inventory inventory;
-	private final PlayerInventory playerInventory;
+	
+	private InventoryView view;
 	
 	private Collection<EditorSlot> slots;
 	
 	protected CustomEditorView(Player player){
 		this.player = player;
-		this.playerInventory = player.getInventory();
 	}
 
 	protected int calculateInventorySize(int requiredSlots){
 		return Mathf.ceilToInt(requiredSlots/9f) * 9;
 	}
 	
-	protected abstract Collection<EditorSlot> createSlots();
-	
-	private void createItems(){
-		for(EditorSlot slot : this.slots){
-			try{
-				slot.createItem();
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
-		}
+	private Inventory createInventory(){
+		int size = getInventorySize();
+		return Bukkit.createInventory(null, calculateInventorySize(size), this.getTitle());
 	}
 	
-	protected abstract Inventory createInventory();
+	protected abstract int getInventorySize();
+	
+	protected abstract Collection<EditorSlot> initializeEditor();
 	
 	protected EditorSlot getSlot(int inventorySlot){
 		for(EditorSlot slot : this.slots){
@@ -64,10 +56,28 @@ public abstract class CustomEditorView extends InventoryView implements Listener
 	protected boolean allowEmptySlotInteraction(){
 		return false;
 	}
+	
+	public Collection<EditorSlot> getSlots(){
+		return slots;
+	}
+	
+	public Inventory getTopInventory(){
+		return inventory;
+	}
+	
+	public PlayerInventory getBottomInventory(){
+		return this.player.getInventory();
+	}
+	
+	public ItemStack getCursor(){
+		return this.view!=null ? this.view.getCursor() : null;
+	}
+	
+	public abstract String getTitle();
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event){
-		if(event.getView()!=this || (event.getClickedInventory()!=this.inventory && !event.isShiftClick())) return;
+		if(event.getView()!=this.view || (event.getClickedInventory()!=this.inventory && !event.isShiftClick())) return;
 		EditorSlot editorSlot = this.getSlot(event.getSlot());
 		if(editorSlot==null){
 			event.setCancelled(!this.allowEmptySlotInteraction());
@@ -83,13 +93,13 @@ public abstract class CustomEditorView extends InventoryView implements Listener
 
 	@EventHandler
 	public void onInventoryDrag(InventoryDragEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		event.setCancelled(true);
 	}
 	
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event){
-		if(event.getView()!=this) return;
+		if(event.getView()!=this.view) return;
 		this.unregisterEvents();
 		onInventoryClosed(event);
 	}
@@ -101,24 +111,8 @@ public abstract class CustomEditorView extends InventoryView implements Listener
 		//just for overriding
 	}
 
-	@Override
-	public Inventory getBottomInventory() {
-		return this.playerInventory;
-	}
-
-	@Override
-	public HumanEntity getPlayer() {
+	public Player getPlayer() {
 		return this.player;
-	}
-
-	@Override
-	public Inventory getTopInventory() {
-		return this.inventory;
-	}
-
-	@Override
-	public InventoryType getType() {
-		return InventoryType.CHEST;
 	}
 	
 	private void unregisterEvents(){
@@ -127,28 +121,39 @@ public abstract class CustomEditorView extends InventoryView implements Listener
 	
 	protected void open(){
 		Bukkit.getPluginManager().registerEvents(this, CustomEditorAPI.getInstance());
-		this.inventory = this.createInventory();
-		if(this.inventory==null){
-			return;
-		}
 		try{
-			this.slots = this.createSlots();
+			this.slots = this.initializeEditor();
+			this.inventory = this.createInventory();
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			return;
 		}
 		this.createItems();
-		this.player.openInventory(this);
+		this.view = this.player.openInventory(this.inventory);
+	}
+	
+	protected void createItems(){
+		if(slots==null) return;
+		for(EditorSlot slot : this.slots){
+			try{
+				slot.createItem();
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public boolean isCursorEmpty(){
-		return this.getCursor()==null || this.getCursor().getType()==Material.AIR;
+		if(this.view==null) return true;
+		return this.view.getCursor()==null || this.view.getCursor().getType()==Material.AIR;
 	}
 	
 	public void clearCursorLater(){
+		if(this.view==null) return;
 		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
-			this.setCursor(null);
+			this.view.setCursor(null);
 		}, 1L);
 	}
 	
@@ -160,7 +165,8 @@ public abstract class CustomEditorView extends InventoryView implements Listener
 	
 	public void closeLater(){
 		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
-			close();
+			if(this.view==null) return;
+			this.view.close();
 		}, 1L);
 	}
 }
