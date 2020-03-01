@@ -1,4 +1,4 @@
-package ch.swisssmp.imageloader;
+package ch.swisssmp.mapimageloader;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
