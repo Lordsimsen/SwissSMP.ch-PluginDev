@@ -1,0 +1,7 @@
+main: ch.swisssmp.livemap.LivemapMarkerAPI
+version: 1.1
+api-version: 1.13
+name: LivemapMarkerAPI
+author: detig_iii
+description: Ermöglicht anderen Plugins Verwaltung von Livemap-Markern
+softdepend: [dynmap]
