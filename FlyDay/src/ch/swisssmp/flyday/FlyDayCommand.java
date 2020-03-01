@@ -51,7 +51,7 @@ public class FlyDayCommand implements CommandExecutor{
 			break;
 		}
 		case "off":{
-			String[] worlds = args.length>1 ? args[1].split(",") : new String[0];
+			String[] worlds = args.length>1 ? args[1].split(",") : new String[]{Bukkit.getWorlds().get(0).getName()};
 			ArrayList<String> arguments = new ArrayList<String>();
 			for(String world : worlds){
 				if(Bukkit.getWorld(world)==null){
@@ -60,7 +60,7 @@ public class FlyDayCommand implements CommandExecutor{
 				}
 				arguments.add("worlds[]="+URLEncoder.encode(world));
 			}
-			arguments.add("global_flight=1");
+			arguments.add("global_flight=0");
 			HTTPRequest request = DataSource.getResponse(FlyDay.getInstance(), "set.php", arguments.toArray(new String[arguments.size()]));
 			request.onFinish(()->{
 				Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "broadcast §aDer §EFlyDay§a ist nun vorbei.");

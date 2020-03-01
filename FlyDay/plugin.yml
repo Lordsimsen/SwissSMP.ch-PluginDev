@@ -1,9 +1,10 @@
 main: ch.swisssmp.flyday.FlyDay
-version: 1.5
+version: 1.7
 api-version: 1.13
 name: FlyDay
 author: detig_iii
 description: Vergibt an FlyDays automatisch Flug-Rechte
+softdepend: [Lift]
 permissions:
   flyday.admin:
     description: Erlaubt die Steuerung von FlyDay
@@ -18,4 +19,4 @@ commands:
     usage: |
       /flyday reload - Synchronisiert Flugrechte mit dem Web-Interface
       /flyday on [Welt,..] - Aktiviert Flugrechte in den angegebenen Welten
-      /flyday off - Deaktiviert Flugrechte
+      /flyday off (Welt,..] - Deaktiviert Flugrechte (in den angegebenen Welten)

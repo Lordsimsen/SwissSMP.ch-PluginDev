@@ -1,6 +1,7 @@
 package ch.swisssmp.flyday;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,6 +38,9 @@ public class FlyDay extends JavaPlugin{
 		this.getCommand("FlyDay").setExecutor(flyDayCommand);
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+		if(Bukkit.getPluginManager().isPluginEnabled("Lift")){
+			Bukkit.getPluginManager().registerEvents(new LiftHandler(), this);
+		}
 		updateState();
 	}
 	
@@ -73,30 +77,32 @@ public class FlyDay extends JavaPlugin{
 		}
 	}
 	
-	public static void updatePlayer(Player player){
-		updatePlayer(player, true);
-	}
-	
-	public static void updatePlayer(Player player, boolean gracePeriod){
+	public static void updatePlayer(Player player, UpdateFlag... flags){
 		if(player==null) return;
 		if(player.hasPermission("flyday.bypass")) return;
 		boolean flightPermitted = isFlightPermitted(player.getWorld());
 		if(flightPermitted==player.getAllowFlight()) return;
+		boolean gracePeriod = !Arrays.stream(flags).anyMatch(flag->flag==UpdateFlag.INSTANT||flag==UpdateFlag.QUIET);
 		if(!player.isOnGround() && !flightPermitted && gracePeriod){
 			player.sendMessage("[§cWarnung§r] §cDeine Flugrechte werden in 30 Sekunden deaktiviert.");
 			Bukkit.getScheduler().runTaskLater(FlyDay.plugin, new Runnable(){
 				public void run(){
-					updatePlayer(player, false);
+					updatePlayer(player, UpdateFlag.INSTANT);
 				}
 			}, 30*20L);
 		}
 		else{
-			setFlightPermissions(player, flightPermitted);
+			setFlightPermissions(player, flightPermitted, flags);
 		}
 	}
 	
-	private static void setFlightPermissions(Player player, boolean flightPermitted){
+	private static void setFlightPermissions(Player player, boolean flightPermitted, UpdateFlag... flags){
 		player.setAllowFlight(flightPermitted);
+		boolean quiet = Arrays.stream(flags).anyMatch(flag->flag==UpdateFlag.QUIET);
+		if(quiet){
+			if(!flightPermitted) player.setFlying(false);
+			return;
+		}
 		player.setFlying(flightPermitted);
 		if(flightPermitted){
 			player.sendMessage("[§EFlyDay§r] §aFlug-Rechte aktiviert.");

@@ -22,7 +22,7 @@ public class EventListener implements Listener{
 		Bukkit.getLogger().info("[FlyDay] Prüfe ob Flyday ist");
 		Bukkit.getScheduler().runTaskLater(FlyDay.plugin, new Runnable(){
 			public void run(){
-				FlyDay.updatePlayer(event.getPlayer(), false);
+				FlyDay.updatePlayer(event.getPlayer(), UpdateFlag.INSTANT);
 			}
 		}, 5L);
 	}
