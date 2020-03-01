@@ -1,55 +1,66 @@
 package ch.swisssmp.spleef;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
  
-import com.sk89q.worldedit.CuboidClipboard;
-import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EmptyClipboardException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.data.DataException;
-import com.sk89q.worldedit.schematic.SchematicFormat;
+import com.sk89q.worldedit.command.util.AsyncCommandBuilder;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.transform.Transform;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.session.PasteBuilder;
+import com.sk89q.worldedit.util.io.Closer;
 
-@SuppressWarnings("deprecation")
 public class SchematicUtil {
  
 	public static Location save(Player player, String schematicName) {
         try {
 			Bukkit.dispatchCommand(player, "/copy"); 
-            File schematic = new File(Spleef.dataFolder, "/schematics/" + schematicName + ".schematic");
+            File schematic = new File(Spleef.getInstance().getDataFolder(), "/schematics/" + schematicName + ".schematic");
             schematic.getParentFile().mkdirs();
             WorldEditPlugin wep = Spleef.worldEditPlugin;
  
             LocalSession localSession = wep.getSession(player);
             ClipboardHolder selection = localSession.getClipboard();
-            EditSession editSession = wep.createEditSession(player);
  
-            Vector min = selection.getClipboard().getMinimumPoint();
-            Vector max = selection.getClipboard().getMaximumPoint();
+            BlockVector3 min = selection.getClipboard().getMinimumPoint();
+            BlockVector3 max = selection.getClipboard().getMaximumPoint();
+            Region region = new CuboidRegion(max.subtract(min).add(BlockVector3.at(1, 1, 1)), min);
  
-            editSession.enableQueue();
-            CuboidClipboard clipboard = new CuboidClipboard(max.subtract(min).add(new Vector(1, 1, 1)), min);
-            clipboard.copy(editSession);
-            SchematicFormat.MCEDIT.save(clipboard, schematic);
-            editSession.flushQueue();
+            Clipboard clipboard = new BlockArrayClipboard(region);
+            clipboard.commit();
+            ClipboardFormat format = BuiltInClipboardFormat.MCEDIT_SCHEMATIC;
+            SchematicSaveTask task = new SchematicSaveTask(player, schematic, format, selection, true);
+            AsyncCommandBuilder.wrap(task, BukkitAdapter.adapt(player));
             return new Location(player.getWorld(), min.getX(), min.getY(), min.getZ());
-        } catch (IOException | DataException ex) {
-            ex.printStackTrace();
-            player.sendMessage(ChatColor.RED+"Fehler beim Speichern. Der Dateiname '"+schematicName+"' scheint ungültig zu sein.");
-            return null;
         } catch (EmptyClipboardException ex) {
-            player.sendMessage(ChatColor.RED+"Deine Auswahl ist leer. Wähle zuerst einen Bereich.");
+            player.sendMessage(ChatColor.RED+"Deine Auswahl ist leer. Wï¿½hle zuerst einen Bereich.");
+            return null;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            player.sendMessage(ChatColor.RED+"Fehler beim Speichern. Der Dateiname '"+schematicName+"' scheint ungï¿½ltig zu sein.");
             return null;
         }
     }
@@ -57,35 +68,104 @@ public class SchematicUtil {
 	public static boolean paste(String schematicName, Location pasteLoc) {
         try {
         	String fileName = "/schematics/" + schematicName + ".schematic";
-        	Spleef.info("Loading schematic from "+fileName);
-            File file = new File(Spleef.dataFolder, fileName);
+        	Debug.Log("Loading schematic from "+fileName);
+            File file = new File(Spleef.getInstance().getDataFolder(), fileName);
             if(!file.exists()){
-            	Spleef.info("Couldn't load "+fileName);
+            	Debug.Log("Couldn't load "+fileName);
             	return false;
             }
             if(pasteLoc==null){
-            	Spleef.debug("The location to paste the schematic is invalid.");
+            	Debug.Log("The location to paste the schematic is invalid.");
             	return false;
             }
             if(pasteLoc.getWorld()==null){
-            	Spleef.debug("The world to paste the schematic is invalid.");
+            	Debug.Log("The world to paste the schematic is invalid.");
             	return false;
             }
-            EditSession editSession = new EditSession(new BukkitWorld(pasteLoc.getWorld()), 999999999);
-            editSession.enableQueue();
- 
-            SchematicFormat schematic = SchematicFormat.getFormat(file);
-            CuboidClipboard clipboard = schematic.load(file);
- 
-            clipboard.paste(editSession, BukkitUtil.toVector(pasteLoc), false);
-            editSession.flushQueue();
+            
+            ClipboardFormat format = BuiltInClipboardFormat.MCEDIT_SCHEMATIC;
+            SchematicLoadTask task = new SchematicLoadTask(null, file, format);
+            ClipboardHolder holder = task.call();
+            BlockVector3 origin = BlockVector3.at(pasteLoc.getBlockX(), pasteLoc.getBlockY(), pasteLoc.getBlockZ());
+            holder.getClipboard().setOrigin(origin);
+            PasteBuilder paste = holder.createPaste(holder.getClipboard());
+            paste.build();
             return true;
-        } catch (DataException | IOException ex) {
+        } catch (MaxChangedBlocksException ex) {
             ex.printStackTrace();
             return false;
-        } catch (MaxChangedBlocksException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return false;
         }
     }
+
+    private static class SchematicSaveTask implements Callable<Void> {
+        private final Player player;
+        private final File file;
+        private final ClipboardFormat format;
+        private final ClipboardHolder holder;
+        private final boolean overwrite;
+
+        SchematicSaveTask(Player player, File file, ClipboardFormat format, ClipboardHolder holder, boolean overwrite) {
+            this.player = player;
+            this.file = file;
+            this.format = format;
+            this.holder = holder;
+            this.overwrite = overwrite;
+        }
+
+        @Override
+        public Void call() throws Exception {
+            Clipboard clipboard = holder.getClipboard();
+            Transform transform = holder.getTransform();
+            Clipboard target;
+
+            // If we have a transform, bake it into the copy
+            if (transform.isIdentity()) {
+                target = clipboard;
+            } else {
+                FlattenedClipboardTransform result = FlattenedClipboardTransform.transform(clipboard, transform);
+                target = new BlockArrayClipboard(result.getTransformedRegion());
+                target.setOrigin(clipboard.getOrigin());
+                Operations.completeLegacy(result.copyTo(target));
+            }
+
+            try (Closer closer = Closer.create()) {
+                FileOutputStream fos = closer.register(new FileOutputStream(file));
+                BufferedOutputStream bos = closer.register(new BufferedOutputStream(fos));
+                ClipboardWriter writer = closer.register(format.getWriter(bos));
+                writer.write(target);
+
+                Debug.Log(player.getName() + " saved " + file.getCanonicalPath() + (overwrite ? " (overwriting previous file)" : ""));
+            }
+            return null;
+        }
+    }
+
+    private static class SchematicLoadTask implements Callable<ClipboardHolder> {
+        private final Player player;
+        private final File file;
+        private final ClipboardFormat format;
+
+        SchematicLoadTask(Player player, File file, ClipboardFormat format) {
+            this.player = player;
+            this.file = file;
+            this.format = format;
+        }
+
+        @Override
+        public ClipboardHolder call() throws Exception {
+            try (Closer closer = Closer.create()) {
+                FileInputStream fis = closer.register(new FileInputStream(file));
+                BufferedInputStream bis = closer.register(new BufferedInputStream(fis));
+                ClipboardReader reader = closer.register(format.getReader(bis));
+
+                Clipboard clipboard = reader.read();
+                Debug.Log(player.getName() + " loaded " + file.getCanonicalPath());
+                return new ClipboardHolder(clipboard);
+            }
+        }
+    }
+
 }

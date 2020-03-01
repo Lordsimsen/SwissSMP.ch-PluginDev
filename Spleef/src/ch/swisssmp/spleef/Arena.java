@@ -2,6 +2,8 @@ package ch.swisssmp.spleef;
 
 import ch.swisssmp.spleef.Spleef;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
+
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.util.ArrayList;
@@ -104,7 +106,7 @@ public class Arena implements Listener{
         this.deathMessages = messagesSection.getStringList("death");
         this.winMessages = messagesSection.getStringList("win");
         
-        Bukkit.getPluginManager().registerEvents(this, Spleef.plugin);
+        Bukkit.getPluginManager().registerEvents(this, Spleef.getInstance());
         arenas.put(this.arena_id, this);
     }
     
@@ -139,7 +141,7 @@ public class Arena implements Listener{
         }
         
         block.setType(Material.AIR);
-        block.getWorld().playEffect(block.getLocation(), Effect.TILE_BREAK, material.getId());
+        block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, material.getId());
     }
     
     @EventHandler(ignoreCancelled = true)
@@ -197,7 +199,7 @@ public class Arena implements Listener{
             if(countDownTask == null) 
             {
             	isPreparationPhase = true;
-                countDownTask = Bukkit.getScheduler().runTaskLater(Spleef.plugin, new Runnable() {
+                countDownTask = Bukkit.getScheduler().runTaskLater(Spleef.getInstance(), new Runnable() {
                     @Override
                     public void run() {
                     	isPreparationPhase = false;
@@ -237,10 +239,10 @@ public class Arena implements Listener{
     }
     
     private void reportPlayers(){
-        Spleef.debug("Reporting joined players");
+        Debug.Log("Reporting joined players");
         for(UUID uuid : player_uuids){
         	try{
-        		Spleef.info(Bukkit.getPlayer(uuid).getName());
+        		Debug.Log(Bukkit.getPlayer(uuid).getName());
         	}
         	catch(Exception e){}
         }
@@ -311,7 +313,7 @@ public class Arena implements Listener{
             player.sendTitle(String.valueOf(i), "");
         }
         
-        countDownTask = Bukkit.getScheduler().runTaskLater(Spleef.plugin, new Runnable() {
+        countDownTask = Bukkit.getScheduler().runTaskLater(Spleef.getInstance(), new Runnable() {
             @Override
             public void run() {
                 countDownTask = null;
@@ -342,7 +344,7 @@ public class Arena implements Listener{
             return;
         this.reportPlayers();
         
-        Bukkit.getScheduler().runTaskLater(Spleef.plugin, new Runnable() {
+        Bukkit.getScheduler().runTaskLater(Spleef.getInstance(), new Runnable() {
             @Override
             public void run() {
                 prepareGame();
@@ -401,11 +403,21 @@ public class Arena implements Listener{
         }
         arenas.clear();
         
-        YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("spleef/arenas.php");
+        HTTPRequest request = DataSource.getResponse(Spleef.getInstance(), "spleef/arenas.php");
         
-        if(yamlConfiguration == null)
-            return;
-        
+        request.onFinish(()->{
+        	YamlConfiguration yamlConfiguration = new YamlConfiguration();
+        	try{
+        		yamlConfiguration.loadFromString(request.getResponse());
+        		loadArenas(yamlConfiguration);
+        	}
+        	catch(Exception e){
+        		Debug.Log(e);
+        	}
+        });
+    }
+    
+    private static void loadArenas(YamlConfiguration yamlConfiguration){
         for(String key : yamlConfiguration.getKeys(false))
         {
             new Arena(yamlConfiguration.getConfigurationSection(key));

@@ -33,8 +33,8 @@ public class PlayerCommand implements CommandExecutor{
                 break;
                 
             case "debug":
-                Spleef.debug = !Spleef.debug;
-                if(Spleef.debug)
+                Debug.active = !Debug.active;
+                if(Debug.active)
                         sender.sendMessage("[Spleef] Der Debug-Modus ist nun aktiviert.");
                 else
                     sender.sendMessage("[Spleef] Der Debug-Modus ist nun deaktiviert.");
@@ -78,7 +78,7 @@ public class PlayerCommand implements CommandExecutor{
             		return true;
             	}
             	Location saveLocation = SchematicUtil.save(player, schematicName);
-            	DataSource.getResponse("spleef/schematic_location.php", new String[]{
+            	DataSource.getResponse(Spleef.getInstance(), "spleef/schematic_location.php", new String[]{
             			"world="+saveLocation.getWorld().getName(),
             			"x="+saveLocation.getX(),
             			"y="+saveLocation.getY(),
