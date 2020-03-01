@@ -1,0 +1,6 @@
+main: ch.swisssmp.math.AlgorithmsPlugin
+version: 1.1
+api-version: 1.13
+name: Algorithms
+author: detig_iii
+description: Erlaubt anderen Plugins Verwendung von bekannten Algorithmen
