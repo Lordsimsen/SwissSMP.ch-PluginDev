@@ -1,8 +1,9 @@
 main: ch.swisssmp.addonabnahme.AddonAbnahme
-version: 2.1
+version: 2.4
 api-version: 1.13
 name: AddonAbnahme
 depend: [WebCore,CitySystem,NPCs]
+softdepend: [LivemapMarkerAPI]
 permissions:
   addonabnahme.admin:
     description: Erlaubt die Administration von Addon-Abnahmen

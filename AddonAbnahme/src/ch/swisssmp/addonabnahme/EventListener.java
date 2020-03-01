@@ -2,7 +2,6 @@ package ch.swisssmp.addonabnahme;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -32,7 +31,6 @@ public class EventListener implements Listener {
 	
 	@EventHandler
 	public void onSignChange(SignChangeEvent event){
-		if(event.getBlock().getType()!=Material.SIGN) return;
 		if(event.getBlock().getWorld()!=Bukkit.getWorlds().get(0)) return;
 		Player player = event.getPlayer();
 		String[] lines = event.getLines();

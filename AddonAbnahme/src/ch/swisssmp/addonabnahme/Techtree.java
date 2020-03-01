@@ -36,6 +36,12 @@ public class Techtree {
 		return null;
 	}
 	
+	public void loadIcons(){
+		for(AddonInfo addonInfo : addons.values()){
+			LivemapInterface.updateAddonIcon(addonInfo);
+		}
+	}
+	
 	public static Techtree get(String techtree_id){
 		return Techtrees.getTechtree(techtree_id);
 	}

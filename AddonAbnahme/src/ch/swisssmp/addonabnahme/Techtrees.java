@@ -29,6 +29,7 @@ public class Techtrees {
 		for(String key : techtreesSection.getKeys(false)){
 			ConfigurationSection techtreeSection = techtreesSection.getConfigurationSection(key);
 			Techtree techtree = new Techtree(techtreeSection);
+			techtree.loadIcons();
 			techtrees.put(techtree.getTechtreeId(), techtree);
 		}
 	}

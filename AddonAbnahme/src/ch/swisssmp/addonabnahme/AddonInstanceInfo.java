@@ -55,10 +55,10 @@ public class AddonInstanceInfo {
 		Profession profession;
 		switch(addonInfo.getCityLevel()){
 		case 0: profession = Profession.FARMER;break;
-		case 1: profession = Profession.BLACKSMITH;break;
+		case 1: profession = Profession.TOOLSMITH;break;
 		case 2: profession = Profession.NITWIT;break;
 		case 3: profession = Profession.LIBRARIAN;break;
-		case 4: profession = Profession.PRIEST;break;
+		case 4: profession = Profession.CLERIC;break;
 		default: profession = Profession.FARMER;
 		}
 		villager.setProfession(profession);

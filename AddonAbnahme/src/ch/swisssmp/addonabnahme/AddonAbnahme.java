@@ -13,7 +13,8 @@ public class AddonAbnahme extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		plugin = this;
-		
+
+		LivemapInterface.link();
 		this.getCommand("addon").setExecutor(new AddonCommand());
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
