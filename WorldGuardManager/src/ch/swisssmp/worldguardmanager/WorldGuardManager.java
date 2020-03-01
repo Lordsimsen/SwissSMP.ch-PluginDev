@@ -11,6 +11,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
@@ -53,9 +54,8 @@ public class WorldGuardManager extends JavaPlugin{
 	
 	public static RegionManager getRegionManager(World world){
 		WorldGuardPlatform platform = WorldGuard.getInstance().getPlatform();
-		com.sk89q.worldedit.world.World worldEditWorld = platform.getWorldByName(world.getName());
 		RegionContainer container = platform.getRegionContainer();
-		RegionManager regionManager = container.get(worldEditWorld);
+		RegionManager regionManager = container.get(BukkitAdapter.adapt(world));
 		return regionManager;
 	}
 	
