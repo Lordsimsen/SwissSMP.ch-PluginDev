@@ -10,7 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -20,8 +20,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import ch.swisssmp.utils.EnchantmentData;
-import net.minecraft.server.v1_13_R2.NBTTagCompound;
-import net.minecraft.server.v1_13_R2.NBTTagList;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagList;
 
 public class CustomItemBuilder {
 	//itemStack
@@ -232,7 +232,7 @@ public class CustomItemBuilder {
 			if(itemMeta.hasItemFlag(itemFlag)) continue;
 			itemMeta.addItemFlags(itemFlag);
 		}
-		if(!this.displayName.isEmpty()){
+		if(this.displayName!=null && !this.displayName.isEmpty()){
 			itemMeta.setDisplayName(this.displayName);
 		}
 		if(!this.localizedName.isEmpty()){
@@ -312,7 +312,7 @@ public class CustomItemBuilder {
 	}
 	public void update(ItemStack itemStack){
 		if(useNMS){
-			net.minecraft.server.v1_13_R2.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
+			net.minecraft.server.v1_15_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
 			NBTTagCompound nbtTags;
 			if(craftItemStack.hasTag())
 				nbtTags = craftItemStack.getTag();

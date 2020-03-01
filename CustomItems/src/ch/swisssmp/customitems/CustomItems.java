@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.FurnaceInventory;

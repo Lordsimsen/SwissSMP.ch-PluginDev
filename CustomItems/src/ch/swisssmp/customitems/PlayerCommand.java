@@ -2,12 +2,12 @@ package ch.swisssmp.customitems;
 
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.StringUtils;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.Inventory;
@@ -17,11 +17,11 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import net.minecraft.server.v1_13_R2.NBTBase;
-import net.minecraft.server.v1_13_R2.NBTTagByteArray;
-import net.minecraft.server.v1_13_R2.NBTTagCompound;
-import net.minecraft.server.v1_13_R2.NBTTagIntArray;
-import net.minecraft.server.v1_13_R2.NBTTagList;
+import net.minecraft.server.v1_15_R1.NBTBase;
+import net.minecraft.server.v1_15_R1.NBTTagByteArray;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagIntArray;
+import net.minecraft.server.v1_15_R1.NBTTagList;
 
 public class PlayerCommand implements CommandExecutor {
 
@@ -75,7 +75,7 @@ public class PlayerCommand implements CommandExecutor {
 				name = itemStack.getType().name();
 			}
 			sender.sendMessage("[CustomItems] Analysiere "+name);
-			net.minecraft.server.v1_13_R2.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
+			net.minecraft.server.v1_15_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
 			if(craftItemStack.hasTag()){
 				NBTTagCompound nbtTags = craftItemStack.getTag();
 				this.displayNBTTagCompound(nbtTags, player, 0);
@@ -194,11 +194,11 @@ public class PlayerCommand implements CommandExecutor {
 	}
 	
 	private void displayNBTTagByteArray(String label, NBTTagByteArray array, Player player, int depth){
-		player.sendMessage(this.getOffset(depth)+label+": ["+StringUtils.join(array.c(), ",")+"]");
+		player.sendMessage(this.getOffset(depth)+label+": ["+StringUtils.join(array.getBytes(), ",")+"]");
 	}
 	
 	private void displayNBTTagIntArray(String label, NBTTagIntArray array, Player player, int depth){
-		player.sendMessage(this.getOffset(depth)+label+": ["+StringUtils.join(array.d(), ",")+"]");
+		player.sendMessage(this.getOffset(depth)+label+": ["+StringUtils.join(array.getInts(), ",")+"]");
 	}
 	
 	private String getOffset(int depth){
