@@ -76,8 +76,13 @@ public class Master extends ChestItem {
 			Bukkit.getLogger().info(WarehousesPlugin.getPrefix()+"SlaveCollection for World "+world.getName()+" not found!");
 			return;
 		}
+		List<Slave> invalidSlaves = new ArrayList<Slave>();
 		for(Slave slave : this.slaves){
 			Inventory inventory = slave.getInventory();
+			if(inventory==null){
+				invalidSlaves.add(slave);
+				continue;
+			}
 			FilterSettings filterSettings = FilterSettings.combine(settings, slave.getFilterSettings());
 			boolean chestChanged = false;
 			for(ItemStack itemStack : items){
@@ -95,6 +100,9 @@ public class Master extends ChestItem {
 					SlaveChestsAnimationRoutine.addSlave(slave);
 				}, delay);
 			}
+		}
+		for(Slave slave : invalidSlaves){
+			this.removeSlave(slave);
 		}
 	}
 	

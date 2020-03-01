@@ -3,9 +3,7 @@ package ch.swisssmp.warehouse;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
@@ -24,12 +22,7 @@ public class MasterFilterView extends CustomEditorView {
 	}
 
 	@Override
-	protected Inventory createInventory() {
-		return Bukkit.createInventory(null, 9, "Verteilertruhe");
-	}
-
-	@Override
-	protected Collection<EditorSlot> createSlots() {
+	protected Collection<EditorSlot> initializeEditor() {
 		Collection<EditorSlot> slots = new ArrayList<EditorSlot>();
 		slots.add(new EnchantsSettingSlot(this,0,master.getFilterSettings()));
 		slots.add(new DamageSettingSlot(this,1,master.getFilterSettings()));
@@ -42,5 +35,15 @@ public class MasterFilterView extends CustomEditorView {
 		MasterFilterView result = new MasterFilterView(player, master);
 		result.open();
 		return result;
+	}
+
+	@Override
+	public String getTitle() {
+		return "Verteilertruhe";
+	}
+
+	@Override
+	protected int getInventorySize() {
+		return 9;
 	}
 }

@@ -2,10 +2,14 @@ package ch.swisssmp.warehouse.filters;
 
 import org.bukkit.DyeColor;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.warehouse.EnchantmentUtil;
 import ch.swisssmp.warehouse.MaterialGroup;
 import ch.swisssmp.warehouse.MaterialUtil;
+import ch.swisssmp.warehouse.PotionDataUtil;
 
 public class Filter {
 	
@@ -39,6 +43,23 @@ public class Filter {
 		else if(settings.color==FilterSetting.Any){
 			MaterialGroup a = MaterialUtil.getGroup(templateStack.getType());
 			if(a!=null && a==MaterialUtil.getGroup(itemStack.getType())) return true;
+		}
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		ItemMeta templateMeta = templateStack.getItemMeta();
+		if(settings.enchantments==FilterSetting.Exact){
+			if(!EnchantmentUtil.compare(templateMeta, itemMeta)) return false;
+		}
+		if(settings.potion==FilterSetting.Exact){
+			if(itemMeta instanceof PotionMeta && templateMeta instanceof PotionMeta){
+				PotionMeta templatePotionMeta = (PotionMeta) templateMeta;
+				PotionMeta itemPotionMeta = (PotionMeta) itemMeta;
+				if(!PotionDataUtil.compare(templatePotionMeta, itemPotionMeta)) return false;
+			}
+			DyeColor a = MaterialUtil.getColor(templateStack.getType());
+			if(a!=null){
+				if(a!=MaterialUtil.getColor(itemStack.getType())) return false;
+				if(MaterialUtil.getGroup(templateStack.getType())==MaterialUtil.getGroup(itemStack.getType())) return true;
+			}
 		}
 		if(templateStack.getType()!=itemStack.getType()) return false;
 		if(this.custom_enum!=null){

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -16,6 +15,7 @@ import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.warehouse.editor.ColorSettingSlot;
 import ch.swisssmp.warehouse.editor.DamageSettingSlot;
 import ch.swisssmp.warehouse.editor.EnchantsSettingSlot;
+import ch.swisssmp.warehouse.editor.PotionSettingSlot;
 import ch.swisssmp.warehouse.editor.RemoveSlaveSlot;
 import ch.swisssmp.warehouse.filters.Filter;
 
@@ -29,21 +29,22 @@ public class SlaveFilterView extends CustomEditorView {
 	}
 
 	@Override
-	protected Inventory createInventory() {
-		Inventory inventory = Bukkit.createInventory(null, 54, "Filter");
+	protected void createItems() {
+		super.createItems();
+		Inventory inventory = this.getTopInventory();
 		for(Filter filter : slave.getFilters()){
 			inventory.setItem(filter.getSlot(), filter.getTemplateStack());
 		}
-		return inventory;
 	}
 
 	@Override
-	protected Collection<EditorSlot> createSlots() {
+	protected Collection<EditorSlot> initializeEditor() {
 		Collection<EditorSlot> slots = new ArrayList<EditorSlot>();
 		slots.add(new RemoveSlaveSlot(this,8,slave));
 		slots.add(new EnchantsSettingSlot(this,17,slave.getFilterSettings()));
-		slots.add(new DamageSettingSlot(this,26,slave.getFilterSettings()));
-		slots.add(new ColorSettingSlot(this,35,slave.getFilterSettings()));
+		slots.add(new PotionSettingSlot(this,26,slave.getFilterSettings()));
+		slots.add(new DamageSettingSlot(this,35,slave.getFilterSettings()));
+		slots.add(new ColorSettingSlot(this,44,slave.getFilterSettings()));
 		return slots;
 	}
 	
@@ -78,5 +79,15 @@ public class SlaveFilterView extends CustomEditorView {
 		SlaveFilterView result = new SlaveFilterView(player, slave);
 		result.open();
 		return result;
+	}
+
+	@Override
+	public String getTitle() {
+		return "Filter";
+	}
+
+	@Override
+	protected int getInventorySize() {
+		return 54;
 	}
 }

@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
@@ -51,9 +52,9 @@ public class Slave extends ChestItem {
 			return false;
 		}
 		if(settings.enchantments==FilterSetting.Exclude && (itemStack.getItemMeta().hasEnchants() || itemStack.getType()==Material.ENCHANTED_BOOK)) return false;
-		else if(settings.enchantments==FilterSetting.Include && !itemStack.getItemMeta().hasEnchants() && itemStack.getType()!=Material.ENCHANTED_BOOK) return false;
+		else if(settings.enchantments==FilterSetting.Include && !itemStack.getItemMeta().hasEnchants() && (itemStack.getItemMeta() instanceof EnchantmentStorageMeta)) return false;
 		if(filters.size()==0){
-			return true;
+			return false;
 		}
 		for(Filter filter : this.filters){
 			if(filter.match(itemStack, settings)) return true;
