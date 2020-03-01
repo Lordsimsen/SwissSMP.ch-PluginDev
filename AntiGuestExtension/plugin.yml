@@ -1,0 +1,169 @@
+main: ch.swisssmp.antiguest.AntiGuestExtension
+version: 1.2
+api-version: 1.13
+name: AntiGuestExtension
+author: detig_iii
+description: Deckt Löcher im Schutz von AntiGuest
+depend: [SwissSMPUtils]
+permissions:
+  antiguest_extension.preventions.blocks.anvil:
+    description: Interaktion mit Ambossen
+    default: op
+  antiguest_extension.preventions.blocks.barrel:
+    description: Interaktion mit Fässern
+    default: op
+  antiguest_extension.preventions.blocks.beacon:
+    description: Interaktion mit Leuchtfeuern
+    default: op
+  antiguest_extension.preventions.blocks.beehive:
+    description: Interaktion mit Bienenstöcken
+    default: op
+  antiguest_extension.preventions.blocks.bee_nest:
+    description: Interaktion mit Bienennestern
+    default: op
+  antiguest_extension.preventions.blocks.blast_furnace:
+    description: Interaktion mit Schmelzöfen
+    default: op
+  antiguest_extension.preventions.blocks.campfire:
+    description: Interaktion mit Lagerfeuern
+    default: op
+  antiguest_extension.preventions.blocks.cartography_table:
+    description: Interaktion mit Kartentischen
+    default: op
+  antiguest_extension.preventions.blocks.chest:
+    description: Interaktion mit Truhen
+    default: op
+  antiguest_extension.preventions.blocks.comparator:
+    description: Interaktion mit Redstone-Komparatoren
+    default: op
+  antiguest_extension.preventions.blocks.composter:
+    description: Interaktion mit Kompostern
+    default: op
+  antiguest_extension.preventions.blocks.dispenser:
+    description: Interaktion mit Werfern
+    default: op
+  antiguest_extension.preventions.blocks.dropper:
+    description: Interaktion mit Spendern
+    default: op
+  antiguest_extension.preventions.blocks.enchanting_table:
+    description: Interaktion mit Zaubertischen
+    default: op
+  antiguest_extension.preventions.blocks.ender_chest:
+    description: Interaktion mit Endertruhen
+    default: op
+  antiguest_extension.preventions.blocks.end_portal_frame:
+    description: Interaktion mit Endportalrahmen
+    default: op
+  antiguest_extension.preventions.blocks.fletching_table:
+    description: Interaktion mit Bognertischen
+    default: op
+  antiguest_extension.preventions.blocks.furnace:
+    description: Interaktion mit Öfen
+    default: op
+  antiguest_extension.preventions.blocks.grindstone:
+    description: Interaktion mit Wetzsteinen
+    default: op
+  antiguest_extension.preventions.blocks.jukebox:
+    description: Interaktion mit Musikboxen
+    default: op
+  antiguest_extension.preventions.blocks.loom:
+    description: Interaktion mit Webstühlen
+    default: op
+  antiguest_extension.preventions.blocks.note_block:
+    description: Interaktion mit Notenblöcken
+    default: op
+  antiguest_extension.preventions.blocks.repeater:
+    description: Interaktion mit Redstone-Verstärkern
+    default: op
+  antiguest_extension.preventions.blocks.shulker_box:
+    description: Interaktion mit Shulkerkisten
+    default: op
+  antiguest_extension.preventions.blocks.smithing_table:
+    description: Interaktion mit Schmiedetischen
+    default: op
+  antiguest_extension.preventions.blocks.smoker:
+    description: Interaktion mit Räucheröfen
+    default: op
+  antiguest_extension.preventions.blocks.stone_cutter:
+    description: Interaktion mit Steinsägen
+    default: op
+  antiguest_extension.preventions.blocks.trapped_chest:
+    description: Interaktion mit Redstone-Truhen
+    default: op
+  antiguest_extension.preventions.blocks.*:
+    description: Basisberechtigung zur Interaktion mit Blöcken
+    default: op
+    children:
+      antiguest_extension.preventions.blocks.anvil: true
+      antiguest_extension.preventions.blocks.barrel: true
+      antiguest_extension.preventions.blocks.beacon: true 
+      antiguest_extension.preventions.blocks.beehive: true
+      antiguest_extension.preventions.blocks.bee_nest: true
+      antiguest_extension.preventions.blocks.blast_furnace: true
+      antiguest_extension.preventions.blocks.campfire: true
+      antiguest_extension.preventions.blocks.cartography_table: true
+      antiguest_extension.preventions.blocks.chest: true
+      antiguest_extension.preventions.blocks.comparator: true
+      antiguest_extension.preventions.blocks.composter: true
+      antiguest_extension.preventions.blocks.dispenser: true
+      antiguest_extension.preventions.blocks.dropper: true
+      antiguest_extension.preventions.blocks.enchanting_table: true
+      antiguest_extension.preventions.blocks.ender_chest: true
+      antiguest_extension.preventions.blocks.end_portal_frame: true
+      antiguest_extension.preventions.blocks.fletching_table: true
+      antiguest_extension.preventions.blocks.furnace: true
+      antiguest_extension.preventions.blocks.grindstone: true
+      antiguest_extension.preventions.blocks.jukebox: true
+      antiguest_extension.preventions.blocks.loom: true
+      antiguest_extension.preventions.blocks.note_block: true
+      antiguest_extension.preventions.blocks.repeater: true
+      antiguest_extension.preventions.blocks.shulker_box: true
+      antiguest_extension.preventions.blocks.smithing_table: true
+      antiguest_extension.preventions.blocks.smoker: true
+      antiguest_extension.preventions.blocks.stone_cutter: true
+      antiguest_extension.preventions.blocks.trapped_chest: true
+  antiguest_extension.preventions.entities.horse:
+    description: Interaktion mit Pferden
+    default: op
+  antiguest_extension.preventions.entities.item_frame:
+    description: Interaktion mit Rahmen
+    default: op
+  antiguest_extension.preventions.entities.pig:
+    description: Interaktion mit Schweinen
+    default: op
+  antiguest_extension.preventions.entities.villager:
+    description: Interaktion mit Dorfbewohnern
+    default: op
+  antiguest_extension.preventions.entities.*:
+    description: Basisberechtigung für Interaktion mit Entities
+    default: op
+    children:
+      antiguest_extension.preventions.entities.horse: true
+      antiguest_extension.preventions.entities.item_frame: true
+      antiguest_extension.preventions.entities.pig: true
+      antiguest_extension.preventions.entities.villager: true
+  antiguest_extension.preventions.armor_stand:
+    description: Interaktion mit Rüstungsständern
+    default: op
+  antiguest_extension.preventions.damage:
+    description: Schaden verursachen
+    default: op
+  antiguest_extension.preventions.lectern:
+    description: Bücher aus Lesepulten entfernen
+    default: op
+  antiguest_extension.preventions.*:
+    description: Alle erweiterten Berechtigungen
+    default: op
+    children:
+      antiguest_extension.preventions.blocks.*: true
+      antiguest_extension.preventions.entities.*: true
+      antiguest_extension.preventions.armor_stand: true
+      antiguest_extension.preventions.damage: true
+      antiguest_extension.preventions.lectern: true
+    
+    
+    
+    
+    
+    
+    
