@@ -1,9 +1,9 @@
-main: ch.swisssmp.utils.WaypointAPI
-version: 1.1
+main: ch.swisssmp.waypoints.WaypointAPI
+version: 1.4
 api-version: 1.13
 name: WaypointAPI
 author: detig_iii
-description: Ermöglicht erstellen von Wegpunkten als Items f�r Editorfenster in andere Plugins
+description: Ermöglicht erstellen von Wegpunkten als Items für Editorfenster in andere Plugins
 depend: [CustomItems]
 softdepend: [CustomEditorAPI]
 permissions:

@@ -1,4 +1,4 @@
-package ch.swisssmp.utils.editor;
+package ch.swisssmp.waypoints.editor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +11,9 @@ import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ValueSlot;
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.MarkerType;
 import ch.swisssmp.utils.Position;
-import ch.swisssmp.utils.WaypointAPI;
+import ch.swisssmp.waypoints.MarkerType;
+import ch.swisssmp.waypoints.WaypointAPI;
 
 public abstract class WaypointSlot extends ValueSlot {
 

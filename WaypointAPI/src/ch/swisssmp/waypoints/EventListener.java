@@ -1,4 +1,4 @@
-package ch.swisssmp.utils;
+package ch.swisssmp.waypoints;
 
 import java.util.List;
 
@@ -10,6 +10,10 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.Position;
+import ch.swisssmp.utils.SwissSMPler;
 
 public class EventListener implements Listener {
 	

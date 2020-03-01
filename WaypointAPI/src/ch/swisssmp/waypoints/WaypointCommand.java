@@ -1,4 +1,4 @@
-package ch.swisssmp.utils;
+package ch.swisssmp.waypoints;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -8,6 +8,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+
+import ch.swisssmp.utils.Position;
+import ch.swisssmp.utils.SwissSMPler;
 
 public class WaypointCommand implements CommandExecutor {
 	@Override

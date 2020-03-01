@@ -1,4 +1,4 @@
-package ch.swisssmp.utils;
+package ch.swisssmp.waypoints;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.Mathf;
+import ch.swisssmp.utils.Position;
 
 public class WaypointAPI extends JavaPlugin {
 

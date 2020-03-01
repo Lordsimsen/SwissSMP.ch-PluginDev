@@ -1,4 +1,4 @@
-package ch.swisssmp.utils;
+package ch.swisssmp.waypoints;
 
 public enum MarkerType {
 	RED,
