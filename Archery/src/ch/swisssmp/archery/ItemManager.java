@@ -97,7 +97,7 @@ public class ItemManager {
 	}
 	
 	private static void registerQuiver(){
-		CustomItemBuilder quiverBuilder = CustomItems.getCustomItemBuilder(1025);
+		CustomItemBuilder quiverBuilder = CustomItems.getCustomItemBuilder("QUIVER");
 		quiverBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		quiver = quiverBuilder.build();
 		quiver.setAmount(1);
@@ -111,7 +111,7 @@ public class ItemManager {
 	}
 	
 	private static void registerIronArrow(){
-		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1026);
+		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder("IRON_ARROW");
 		ironArrow = arrowBuilder.build();
 		ironArrow.setAmount(2);
 		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"iron_arrow"), ironArrow);
@@ -124,7 +124,7 @@ public class ItemManager {
 	}
 	
 	private static void registerBurstArrow(){
-		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1027);
+		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder("BURST_ARROW");
 		burstArrow = arrowBuilder.build();
 		burstArrow.setAmount(4);
 		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"burst_arrow"), burstArrow);
@@ -136,7 +136,7 @@ public class ItemManager {
 	}
 	
 	private static void registerTorchArrow(){
-		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1028);
+		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder("TORCH_ARROW");
 		torchArrow = arrowBuilder.build();
 		torchArrow.setAmount(1);
 		ShapelessRecipe arrowRecipe = new ShapelessRecipe(new NamespacedKey(Archery.getInstance(),"torch_arrow"), torchArrow);
@@ -147,7 +147,7 @@ public class ItemManager {
 	}
 	
 	private static void registerMultiArrow(){
-		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1029);
+		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder("MULTI_ARROW");
 		multiArrow = arrowBuilder.build();
 		multiArrow.setAmount(1);
 		ShapelessRecipe arrowRecipe = new ShapelessRecipe(new NamespacedKey(Archery.getInstance(),"multi_arrow"), multiArrow);
@@ -158,7 +158,7 @@ public class ItemManager {
 	}
 	
 	private static void registerFlameArrow(){
-		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1030);
+		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder("FLAME_ARROW");
 		flameArrow = arrowBuilder.build();
 		flameArrow.setAmount(4);
 		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"flame_arrow"), flameArrow);
@@ -170,7 +170,7 @@ public class ItemManager {
 	}
 	
 	private static void registerExplosiveArrow(){
-		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1031);
+		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder("EXPLOSIVE_ARROW");
 		explosiveArrow = arrowBuilder.build();
 		explosiveArrow.setAmount(4);
 		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"explosive_arrow"), explosiveArrow);
@@ -182,7 +182,7 @@ public class ItemManager {
 	}
 	
 	private static void registerVampireArrow(){
-		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder(1032);
+		CustomItemBuilder arrowBuilder = CustomItems.getCustomItemBuilder("VAMPIRE_ARROW");
 		vampireArrow = arrowBuilder.build();
 		vampireArrow.setAmount(4);
 		ShapedRecipe arrowRecipe = new ShapedRecipe(new NamespacedKey(Archery.getInstance(),"vampire_arrow"), vampireArrow);
