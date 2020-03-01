@@ -6,6 +6,7 @@ Prism-Bukkit-master/
 elixr/
 Prism-Bukkit/
 WebCore/
+dynmap-3.0/
 tmp/
 *.tmp
 *.bak
@@ -56,3 +57,7 @@ local.properties
 .recommenders/
 LampControl/
 .DS_Store
+
+# dynmap
+dynmap-master/
+dynmap/
