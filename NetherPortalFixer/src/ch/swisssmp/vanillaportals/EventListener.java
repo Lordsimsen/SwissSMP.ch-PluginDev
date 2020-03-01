@@ -38,7 +38,6 @@ public class EventListener implements Listener {
 			 * Spieler betritt Nether
 			 * Notiert informationen über den Eingangspunkt eines Reisenden
 			 */
-			event.getPortalTravelAgent().setSearchRadius(25);
 			Location rawLocation = event.getFrom();
 			event.setTo(new Location(toWorld, rawLocation.getX() / netherSizeRatio, rawLocation.getY(), rawLocation.getZ() / netherSizeRatio, rawLocation.getYaw(), rawLocation.getPitch()));
 			Bukkit.getScheduler().runTaskLater(NetherPortalFixer.getInstance(), ()->{
@@ -51,8 +50,14 @@ public class EventListener implements Listener {
 			 * Stellt bei der Rückreise sicher, dass der Reisende zu seinem Eingangspunkt gesetzt wird
 			 */
 			Location rawLocation = event.getFrom();
-			event.getPortalTravelAgent().setCanCreatePortal(false);
-			event.setTo(new Location(toWorld, rawLocation.getX() * netherSizeRatio, rawLocation.getY(), rawLocation.getZ() * netherSizeRatio));
+			Bukkit.getScheduler().runTaskLater(NetherPortalFixer.getInstance(), new Runnable(){
+				@Override
+				public void run(){
+					Location location = new Location(toWorld, rawLocation.getX() * netherSizeRatio, rawLocation.getY(), rawLocation.getZ() * netherSizeRatio);
+					event.getPlayer().teleport(location);
+				}
+			}, 1L);
+			event.setCancelled(true);
 			TravelFromNetherToMain(event);
 		}
 	}
@@ -100,7 +105,7 @@ public class EventListener implements Listener {
 	 */
 	@EventHandler
 	public void onPortalCreate(PortalCreateEvent event){
-		if(!event.getWorld().getName().equals(Bukkit.getWorlds().get(0).getName()+"_nether") || event.getReason()==CreateReason.OBC_DESTINATION) return;
+		if(!event.getWorld().getName().equals(Bukkit.getWorlds().get(0).getName()+"_nether") || event.getReason()!=CreateReason.NETHER_PAIR) return;
 		Location location = event.getBlocks().get(0).getLocation();
 		for(Entity entity : event.getWorld().getNearbyEntities(location, 15, 15, 15)){
 			if(!(entity instanceof Player)) continue;

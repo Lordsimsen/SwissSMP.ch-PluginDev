@@ -30,10 +30,15 @@ public class PlayerCommand implements CommandExecutor{
 				sender.sendMessage("/sign create [color] [text]");
 				break;
 			}
-			ChatColor color = ChatColor.valueOf(args[1]);
+			ChatColor color;
+			try{
+				color = ChatColor.valueOf(args[1]);
+			}
+			catch(Exception e){
+				color = ChatColor.WHITE;
+			}
 			String[] textParts = Arrays.copyOfRange(args, 2, args.length);
 			String text = String.join(" ", Arrays.asList(textParts));
-			if(color==null) color = ChatColor.WHITE;
 			Player player = (Player) sender;
 	        ArmorStand armorStand = (ArmorStand) player.getWorld().spawn(player.getLocation(), ArmorStand.class);
 	        armorStand.setVisible(false);

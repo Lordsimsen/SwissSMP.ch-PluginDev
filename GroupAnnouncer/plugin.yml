@@ -1,5 +1,5 @@
 main: ch.swisssmp.groupannouncer.GroupAnnouncer
-version: 1.1
+version: 1.2
 api-version: 1.13
 name: GroupAnnouncer
 author: detig_iii

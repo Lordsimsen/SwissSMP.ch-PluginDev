@@ -1,5 +1,5 @@
 main: ch.swisssmp.chatmanager.ChatManager
-version: 1.3
+version: 1.5
 api-version: 1.13
 name: ChatManager
 author: detig_iii
@@ -11,5 +11,4 @@ permissions:
 commands:
   chat:
     description: Sendet eine Chat Nachricht
-    default: op
     usage: /chat [Absender] [Nachricht]

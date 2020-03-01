@@ -1,5 +1,5 @@
 main: ch.swisssmp.commandscheduler.CommandScheduler
-version: 2.2
+version: 2.3
 api-version: 1.13
 name: CommandScheduler
 author: detig_iii

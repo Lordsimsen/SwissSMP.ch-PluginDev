@@ -22,6 +22,10 @@ public class PlayerChat implements CommandExecutor {
 		if(args.length<2) return false;
 		String name = args[0];
 		Player player = Bukkit.getPlayer(name);
+		if(sender instanceof Player){
+			Player playerSender = (Player) sender;
+			if(!playerSender.isOp() && playerSender!=player) return true;
+		}
 		List<String> messageParts = new LinkedList<String>(Arrays.asList(args));
 		messageParts.remove(0);
 		String rawMessage = String.join(" ", messageParts);
