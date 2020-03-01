@@ -3,11 +3,11 @@ package ch.swisssmp.city.ceremony.founding.phases;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

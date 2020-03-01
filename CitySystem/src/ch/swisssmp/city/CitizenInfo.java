@@ -69,7 +69,6 @@ public class CitizenInfo {
 			parent = UUID.fromString(dataSection.getString("parent_uuid"));
 		}
 		catch(Exception e){
-			e.printStackTrace();
 			parent = null;
 		}
 		return new CitizenInfo(playerInfo, rank, parent, role);

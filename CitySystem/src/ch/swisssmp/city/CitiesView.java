@@ -3,9 +3,7 @@ package ch.swisssmp.city;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 
 import ch.swisssmp.city.editor.CitySlot;
 import ch.swisssmp.editor.CustomEditorView;
@@ -22,12 +20,7 @@ public class CitiesView extends CustomEditorView {
 	}
 
 	@Override
-	protected Inventory createInventory() {
-		return Bukkit.createInventory(null, Mathf.ceilToInt(cities.size()/9f)*9, "Städte");
-	}
-
-	@Override
-	protected Collection<EditorSlot> createSlots() {
+	protected Collection<EditorSlot> initializeEditor() {
 		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
 		int slot = 0;
 		for(City city : cities){
@@ -43,5 +36,15 @@ public class CitiesView extends CustomEditorView {
 		CitiesView result = new CitiesView(player, cities);
 		result.open();
 		return result;
+	}
+
+	@Override
+	public String getTitle() {
+		return "Städte";
+	}
+
+	@Override
+	protected int getInventorySize() {
+		return Mathf.ceilToInt(cities.size()/9f)*9;
 	}
 }

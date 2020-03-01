@@ -32,7 +32,12 @@ public class City {
 		this.techtree_id = dataSection.getString("techtree_id");
 		this.name = dataSection.getString("name");
 		this.ringType = dataSection.getString("ring_type");
-		this.mayor = UUID.fromString(dataSection.getString("mayor"));
+		try{
+			this.mayor = UUID.fromString(dataSection.getString("mayor"));
+		}
+		catch(Exception e){
+			this.mayor = null;
+		}
 		ConfigurationSection citizensSection = dataSection.getConfigurationSection("citizens");
 		if(citizensSection!=null){
 			for(String key : citizensSection.getKeys(false)){

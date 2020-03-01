@@ -3,10 +3,8 @@ package ch.swisssmp.city;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.Inventory;
 
 import ch.swisssmp.city.editor.CitizenSlot;
 import ch.swisssmp.editor.CustomEditorView;
@@ -23,12 +21,7 @@ public class CityView extends CustomEditorView implements Listener {
 	}
 
 	@Override
-	protected Inventory createInventory() {
-		return Bukkit.createInventory(null, Mathf.ceilToInt(city.getCitizens().size()/9f)*9, city.getName());
-	}
-
-	@Override
-	protected Collection<EditorSlot> createSlots() {
+	protected Collection<EditorSlot> initializeEditor() {
 		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
 		int index = 0;
 		for(CitizenInfo citizen : city.getCitizens()){
@@ -36,6 +29,16 @@ public class CityView extends CustomEditorView implements Listener {
 			index++;
 		}
 		return result;
+	}
+
+	@Override
+	public String getTitle() {
+		return city.getName();
+	}
+
+	@Override
+	protected int getInventorySize() {
+		return Mathf.ceilToInt(city.getCitizens().size()/9f)*9;
 	}
 
 	public static CityView open(Player player, int city_id){

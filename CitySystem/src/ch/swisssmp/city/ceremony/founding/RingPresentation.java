@@ -7,6 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitTask;
@@ -76,10 +77,11 @@ public class RingPresentation implements Runnable {
 		hoverZ = location.getZ();
 		
 		ArmorStand result = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+		EntityEquipment equipment = result.getEquipment();
 		result.setVisible(false);
 		result.setInvulnerable(true);
 		result.setGravity(false);
-		result.setHelmet(itemStack);
+		equipment.setHelmet(itemStack);
 		result.setMetadata("interactable", new FixedMetadataValue(CitySystemPlugin.getInstance(), false));
 		
 		return result;
