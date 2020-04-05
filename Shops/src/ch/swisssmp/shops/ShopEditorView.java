@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -60,28 +58,6 @@ public class ShopEditorView extends CustomEditorView{
 	}
 
 	@Override
-	protected Inventory createInventory() {
-		Inventory inventory = Bukkit.createInventory(null, InventoryType.CHEST, this.shop.getName());
-		int column = 0;
-		for(MerchantRecipe recipe : this.shop.getVillager().getRecipes()){
-			inventory.setItem(column, recipe.getResult());
-			inventory.setItem(column+9, recipe.getIngredients().get(0));
-			if(recipe.getIngredients().size()>1){
-				inventory.setItem(column+18, recipe.getIngredients().get(1));
-			}
-			column++;
-		}
-		return inventory;
-	}
-
-	@Override
-	protected Collection<EditorSlot> createSlots() {
-		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
-		result.add(new NPCSlot(this,8,this.shop.getNPC()));
-		return result;
-	}
-
-	@Override
 	protected void onInventoryClosed(InventoryCloseEvent event) {
 		if(this.getTopInventory()==null) return;
 		this.updateShopTrades(this.getTopInventory().getContents());
@@ -94,5 +70,38 @@ public class ShopEditorView extends CustomEditorView{
 		ShopEditorView shopEditor = new ShopEditorView(shop,player);
 		shopEditor.open();
 		return shopEditor;
+	}
+
+	@Override
+	protected int getInventorySize() {
+		return 27;
+	}
+
+	@Override
+	protected Collection<EditorSlot> initializeEditor() {
+		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
+		result.add(new NPCSlot(this,8,this.shop.getNPC()));
+		return result;
+	}
+	
+	@Override
+	protected void createItems() {
+		super.createItems();
+
+		Inventory inventory = this.getTopInventory();
+		int column = 0;
+		for(MerchantRecipe recipe : this.shop.getVillager().getRecipes()){
+			inventory.setItem(column, recipe.getResult());
+			inventory.setItem(column+9, recipe.getIngredients().get(0));
+			if(recipe.getIngredients().size()>1){
+				inventory.setItem(column+18, recipe.getIngredients().get(1));
+			}
+			column++;
+		}
+	}
+
+	@Override
+	public String getTitle() {
+		return this.shop.getName()!=null && !shop.getName().isEmpty() ? this.shop.getName() : "Unbenannter Shop";
 	}
 }

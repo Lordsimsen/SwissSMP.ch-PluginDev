@@ -13,12 +13,14 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.PlayerInventory;
 
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.npc.NPCInstance;
@@ -37,6 +39,33 @@ public class EventListener implements Listener{
 		Shop shop = Shop.get(npc);
 		if(shop==null) return;
 		event.setCancelled(true);
+	}
+	
+	@EventHandler
+	private void onTradeSelect(TradeSelectEvent event) {
+		// clear currency items
+		MerchantInventory inventory = event.getInventory();
+		ItemStack item_0 = inventory.getItem(0)!=null ? inventory.getItem(0).clone() : null;
+		ItemStack item_1 = inventory.getItem(1)!=null ? inventory.getItem(1).clone() : null;
+		CurrencyInfo currency_0 = item_0!=null ? EventPoints.getInfo(item_0) : null;
+		CurrencyInfo currency_1 = item_1!=null ? EventPoints.getInfo(item_1) : null;
+		
+		Player player = (Player) event.getWhoClicked();
+		PlayerInventory playerInventory = player.getInventory();
+		MerchantRecipe recipe = event.getMerchant().getRecipe(event.getIndex());
+		
+		//this.updateCurrencyDisplay(player, inventory, recipe);
+		Bukkit.getScheduler().runTaskLater(ShopsPlugin.getInstance(), ()->{
+			if(currency_0!=null) {
+				playerInventory.remove(item_0);
+			}
+			if(currency_1!=null) {
+				playerInventory.remove(item_1);
+			}
+			if(event.isCancelled()) return;
+			this.updateCurrencyDisplay(player, inventory, recipe);
+		}, 2L);
+		
 	}
 	
 	@EventHandler
@@ -79,23 +108,26 @@ public class EventListener implements Listener{
 	@EventHandler
 	private void onPlayerInteractEntity(PlayerInteractNPCEvent event){
 		if(event.getHand()!=EquipmentSlot.HAND){
-			event.setCancelled(true);
+			// Bukkit.getLogger().info("[ShopManager] Nicht Haupthand");
+			return;
 		}
 		if(event.getNPC().getEntity().getType()!=EntityType.VILLAGER){
-			//Bukkit.getLogger().info("[ShopManager] Kein Villager");
+			// Bukkit.getLogger().info("[ShopManager] Kein Villager");
 			return;
 		}
 		Shop shop = Shop.get(event.getNPC());
 		if(shop==null){
-			//Bukkit.getLogger().info("[ShopManager] Kein Shop");
+			// Bukkit.getLogger().info("[ShopManager] Kein Shop");
 			return;
 		}
 		if(event.getPlayer().isSneaking() && event.getPlayer().hasPermission("shop.admin")){
+			// Bukkit.getLogger().info("[ShopManager] Erlaube NPC-Editor zu öffnen");
 			return;
 		}
 
 		event.setCancelled(true);
 		event.setPreventDefault(false);
+		// Bukkit.getLogger().info("[ShopManager] Öffne Shop");
 	}
 	
 	@EventHandler
@@ -114,22 +146,22 @@ public class EventListener implements Listener{
 		}
 		Villager villager = (Villager) merchantInventory.getHolder();
 		if(villager.getRecipeCount()==0) return;
-		MerchantRecipe recipe = villager.getRecipe(0);
-		ItemStack itemStack = recipe.getIngredients().get(0);
-		String customEnum = CustomItems.getCustomEnum(itemStack);
-		if(customEnum==null){
+		MerchantRecipe recipe = merchantInventory.getSelectedRecipe();
+		this.updateCurrencyDisplay((Player) event.getPlayer(), merchantInventory, recipe);
+	}
+	
+	private void updateCurrencyDisplay(Player player, MerchantInventory inventory, MerchantRecipe recipe) {
+		ItemStack itemStack = recipe!=null && recipe.getIngredients().size()>0 ? recipe.getIngredients().get(0) : null;
+		CurrencyInfo currencyInfo = EventPoints.getInfo(itemStack);
+		if(currencyInfo==null){
 			return;
 		}
-		CurrencyInfo currencyInfo = EventPoints.getInfo(customEnum);
-		if(currencyInfo==null || !currencyInfo.getCurrencyType().equals(customEnum)){
-			return;
-		}
-		int balance = EventPoints.getBalance(event.getPlayer().getUniqueId().toString(), currencyInfo.getCurrencyType());
+		int balance = EventPoints.getBalance(player.getUniqueId().toString(), currencyInfo.getCurrencyType());
 		int displayBalance = Math.min(64, balance);
 		Bukkit.getScheduler().runTaskLater(ShopsPlugin.plugin, new Runnable(){
 			public void run(){
 				ItemStack eventPoints = currencyInfo.getItem(displayBalance);
-				merchantInventory.setItem(0, eventPoints);
+				inventory.setItem(0, eventPoints);
 			}
 		}, 1L);
 	}

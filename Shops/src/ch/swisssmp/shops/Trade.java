@@ -7,7 +7,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
-import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.CurrencyInfo;
 import ch.swisssmp.utils.EventPoints;
 
@@ -58,9 +57,7 @@ public class Trade {
 	}
 	
 	private CurrencyInfo getCurrencyInfo(ItemStack itemStack){
-		String customEnum = (itemStack!=null) ? CustomItems.getCustomEnum(itemStack) : null;
-		if(customEnum==null) return null;
-		return EventPoints.getInfo(customEnum);
+		return EventPoints.getInfo(itemStack);
 	}
 	
 	private String getItemDescription(ItemStack itemStack){

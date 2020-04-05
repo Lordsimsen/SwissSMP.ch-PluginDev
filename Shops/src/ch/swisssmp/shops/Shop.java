@@ -45,8 +45,9 @@ public class Shop {
 	}
 	
 	protected void setRecipes(List<MerchantRecipe> recipes){
+		this.villager.setVillagerExperience(Integer.MAX_VALUE);
+		this.villager.setVillagerLevel(5);
 		this.villager.setRecipes(recipes);
-		this.villager.setRiches(Integer.MAX_VALUE);
 	}
 	
 	public static Shop create(Location location, Player owner){
