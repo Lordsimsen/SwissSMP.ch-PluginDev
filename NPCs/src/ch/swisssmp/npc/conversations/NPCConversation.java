@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,7 +21,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.npc.NPCs;
-import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
 import ch.swisssmp.npc.event.PlayerNPCConversationEvent;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.SwissSMPler;
@@ -45,6 +45,9 @@ public class NPCConversation implements Runnable, Listener {
 	private long currentTotalLineTime = 0;
 	private long maxCharacterTime = 2;
 	private long maxLineTime = 2;
+	
+	private boolean finished;
+	private boolean preventDefault = true;
 	
 	private long buildupTime = 20;
 	private float buildupProgress = 0;
@@ -71,15 +74,19 @@ public class NPCConversation implements Runnable, Listener {
 	
 	public void setLines(Collection<String> lines){
 		this.lines.clear();
-		this.lines.addAll(lines);
+		this.lines.addAll(lines.stream().map(l->unescapeString(l)).collect(Collectors.toList()));
 		this.resetTimes();
 	}
 	
 	public void addLine(String line){
 		if(line==null) return;
-		this.lines.add(line);
+		this.lines.add(unescapeString(line));
 		if(this.lines.size()>1) return;
 		this.resetTimes();
+	}
+	
+	private String unescapeString(String s) {
+		return s.replaceAll("\\\\(.{1})", "$1");
 	}
 	
 	public void removeLine(int index){
@@ -112,6 +119,14 @@ public class NPCConversation implements Runnable, Listener {
 		}
 	}
 	
+	public void setPreventDefaultOnLastInteraction(boolean preventDefault) {
+		this.preventDefault = preventDefault;
+	}
+	
+	public boolean preventDefaultOnLastInteraction() {
+		return this.preventDefault;
+	}
+	
 	public List<String> getLines(){
 		return new ArrayList<String>(this.lines);
 	}
@@ -135,19 +150,35 @@ public class NPCConversation implements Runnable, Listener {
 	
 	private void playSound(){
 		World world = this.npc.getEntity().getWorld();
-		world.playSound(this.npc.getEntity().getLocation(), Sound.ENTITY_VILLAGER_YES, SoundCategory.NEUTRAL, 1,1);
+		Sound sound;
+		switch(this.npc.getEntity().getType()) {
+		case VILLAGER:
+			sound = Sound.ENTITY_VILLAGER_YES;
+			break;
+		case BEE:
+			sound = Sound.ENTITY_BEE_LOOP;
+			break;
+		default:
+			try {
+				sound = Sound.valueOf("ENTITY_"+this.npc.getEntity().getType().toString()+"_AMBIENT");
+			}
+			catch(Exception e) {
+				sound = Sound.BLOCK_NOTE_BLOCK_PLING;
+			}
+			break;
+		}
+		world.playSound(this.npc.getEntity().getLocation(), sound, SoundCategory.NEUTRAL, 1,1);
 	}
 	
-	@EventHandler
-	public void onPlayerInteractNPC(PlayerInteractNPCEvent event){
-		if(event.getPlayer()!=this.player || !event.getNPC().getNPCId().equals(npc.getNPCId())) return;
-		event.setCancelled(true);
+	public void onInteract(){
 		if(this.buildupProgress<1){
 			this.buildupProgress = 1;
 			this.sendLine();
 			return;
 		}
-		if(this.currentLineTime<this.minLineTime) return;
+		if(this.currentLineTime<this.minLineTime) {
+			return;
+		}
 		PlayerNPCConversationEvent conversationEvent = new PlayerNPCConversationEvent(player, npc, this);
 		Bukkit.getPluginManager().callEvent(conversationEvent);
 		if(conversationEvent.isCancelled()){
@@ -155,6 +186,7 @@ public class NPCConversation implements Runnable, Listener {
 		}
 		this.removeLine(0);
 		this.playSound();
+		return;
 	}
 	
 	@EventHandler
@@ -211,19 +243,29 @@ public class NPCConversation implements Runnable, Listener {
 	}
 	
 	public void cancel(){
+		if(finished) return;
+
+		finished = true;
 		this.finish();
 	}
 	
 	private void complete(){
+		if(finished) return;
+		finished = true;
 		this.triggerListeners(completeListeners);
 		this.finish();
 	}
 	
 	private void finish(){
+		finished = true;
 		HandlerList.unregisterAll(this);
 		if(this.task!=null) this.task.cancel();
 		this.triggerListeners(finishListeners);
 		conversations.remove(player.getUniqueId());
+	}
+	
+	public boolean isFinished() {
+		return this.finished;
 	}
 	
 	private void triggerListeners(Collection<Runnable> runnables){
@@ -246,6 +288,10 @@ public class NPCConversation implements Runnable, Listener {
 	}
 
 	public static NPCConversation start(NPCInstance npc, Player player, long maxTimeout){
+		NPCConversation previous = get(player);
+		if(previous!=null && !previous.isFinished()) {
+			previous.cancel();
+		}
 		NPCConversation conversation = new NPCConversation(npc, player, maxTimeout);
 		conversation.task = Bukkit.getScheduler().runTaskTimer(NPCs.getInstance(), conversation, 0, 1);
 		Bukkit.getPluginManager().registerEvents(conversation, NPCs.getInstance());
@@ -257,5 +303,19 @@ public class NPCConversation implements Runnable, Listener {
 	public static NPCConversation get(Player player){
 		if(player==null) return null;
 		return conversations.get(player.getUniqueId());
+	}
+	
+	public static NPCConversation get(Player player, NPCInstance npc){
+		if(player==null) return null;
+		NPCConversation result = conversations.get(player.getUniqueId());
+		return result!=null && result.getNPC().getNPCId().equals(npc.getNPCId()) ? result : null;
+	}
+	
+	public static void clear() {
+		for(NPCConversation conversation : conversations.values()) {
+			conversation.cancel();
+		}
+		
+		conversations.clear();
 	}
 }

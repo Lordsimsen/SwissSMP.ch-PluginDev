@@ -6,8 +6,9 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
+import com.google.gson.JsonObject;
+
 import ch.swisssmp.npc.modules.FactoryModule;
-import ch.swisssmp.utils.YamlConfiguration;
 
 public class NPCFactory {
 	private String identifier;
@@ -15,7 +16,7 @@ public class NPCFactory {
 	private boolean displayNameVisible;
 	
 	private EntityType entityType;
-	private YamlConfiguration data;
+	private JsonObject data;
 	
 	private List<FactoryModule> modules = new ArrayList<FactoryModule>();
 	
@@ -35,8 +36,8 @@ public class NPCFactory {
 		displayNameVisible = alwaysVisible;
 	}
 	
-	public void setYamlConfiguration(YamlConfiguration yamlConfiguration){
-		this.data = yamlConfiguration;
+	public void setYamlConfiguration(JsonObject json){
+		this.data = json;
 	}
 	
 	public void addModule(FactoryModule module){
@@ -51,7 +52,7 @@ public class NPCFactory {
 			result.setNameVisible(displayNameVisible);
 		}
 		if(data!=null){
-			result.setYamlConfiguration(data);
+			result.setJsonData(data);
 		}
 		for(FactoryModule module : modules){
 			module.applyData(result);

@@ -6,6 +6,7 @@ import java.util.Collection;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.npc.NPCInstance;
+import ch.swisssmp.npc.editor.base.DialogSlot;
 import ch.swisssmp.npc.editor.base.NameSlot;
 import ch.swisssmp.npc.editor.base.NameVisibilitySlot;
 import ch.swisssmp.npc.editor.base.SilentSlot;
@@ -25,11 +26,12 @@ public class BaseConfiguration extends AbstractEditor {
 		result.add(new NameSlot(this.getView(),firstSlot,this.npc));
 		result.add(new NameVisibilitySlot(this.getView(),firstSlot+1,this.npc));
 		result.add(new SilentSlot(this.getView(),firstSlot+2,this.npc));
+		result.add(new DialogSlot(this.getView(),firstSlot+3,this.npc));
 		return result;
 	}
 
 	@Override
 	public int getSlotCount() {
-		return 3;
+		return 4;
 	}
 }

@@ -1,5 +1,7 @@
 package ch.swisssmp.npc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -9,9 +11,16 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.Villager.Profession;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -68,22 +77,53 @@ public class NPCInstance {
 		return this.visible.isSilent();
 	}
 	
-	public void setYamlConfiguration(YamlConfiguration yamlConfiguration){
+	public void setDialog(List<String> dialog) {
+		JsonObject json = this.getJsonData();
+		if(json==null) json = new JsonObject();
+		JsonArray dialogArray = new JsonArray();
+		for(String s : dialog) {
+			dialogArray.add(s);
+		}
+		json.add("dialog", dialogArray);
+		this.setJsonData(json);
+	}
+	
+	public List<String> getDialog(){
+		JsonObject json = this.getJsonData();
+		if(json==null) return null;
+		
+		JsonArray dialogArray = json.has("dialog") ? json.get("dialog").getAsJsonArray() : null;
+		if(dialogArray==null) return null;
+		
+		List<String> dialog = new ArrayList<String>();
+		for(JsonElement e : dialogArray) {
+			dialog.add(e.getAsString());
+		}
+		return dialog;
+	}
+	
+	public void setJsonData(JsonObject json){
 		EntityEquipment equipment = base.getEquipment();
 		ItemStack itemStack = equipment.getChestplate();
-		ItemUtil.setString(itemStack, "data", yamlConfiguration.saveToString());
+		ItemUtil.setString(itemStack, "data", json.toString());
 		equipment.setChestplate(itemStack);
 	}
 	
-	public YamlConfiguration getYamlConfiguration(){
+	public JsonObject getJsonData(){
 		EntityEquipment equipment = base.getEquipment();
 		ItemStack itemStack = equipment.getChestplate();
 		if(itemStack==null) return null;
 		String dataString = ItemUtil.getString(itemStack, "data");
 		if(dataString==null) return null;
-		YamlConfiguration result = new YamlConfiguration();
-		result.loadFromString(dataString);
-		return result;
+		try {
+			JsonParser parser = new JsonParser();
+			return parser.parse(dataString).getAsJsonObject();
+		}
+		catch(Exception e) {
+			YamlConfiguration result = new YamlConfiguration();
+			result.loadFromString(dataString);
+			return result.toJson().getAsJsonObject();
+		}
 	}
 	
 	public void teleport(Location location){
@@ -116,6 +156,14 @@ public class NPCInstance {
 		EntityEquipment equipment = armorStand.getEquipment();
 		ItemStack itemStack = createNPCTag(npc_id);
 		equipment.setChestplate(itemStack);
+		if(visible instanceof Villager) {
+			Villager villager = (Villager) visible;
+			villager.setProfession(Profession.NITWIT);
+			villager.setVillagerType(Villager.Type.PLAINS);
+			villager.setVillagerLevel(5);
+			villager.setVillagerExperience(Integer.MAX_VALUE);
+		}
+
 		return new NPCInstance(npc_id, visible, armorStand);
 	}
 	
@@ -166,7 +214,7 @@ public class NPCInstance {
 	private static Vector getBaseOffset(EntityType entityType){
 		switch(entityType){
 		case VILLAGER: return new Vector(0,-0.75,0);
-		default: return new Vector(0, 0.85f, 0);
+		default: return new Vector(0, -0.9f, 0);
 		}
 		
 	}

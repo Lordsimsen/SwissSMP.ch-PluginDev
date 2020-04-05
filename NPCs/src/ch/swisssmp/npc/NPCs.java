@@ -5,6 +5,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ch.swisssmp.npc.conversations.NPCConversation;
+
 public class NPCs extends JavaPlugin {
 	private static PluginDescriptionFile pdfFile;
 	private static NPCs plugin;
@@ -25,6 +27,7 @@ public class NPCs extends JavaPlugin {
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);
+		NPCConversation.clear();
 		PluginDescriptionFile pdfFile = getDescription();
 		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
