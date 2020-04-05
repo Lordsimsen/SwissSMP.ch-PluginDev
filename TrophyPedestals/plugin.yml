@@ -1,0 +1,11 @@
+main: ch.swisssmp.trophies.TrophyPedestalsPlugin
+version: 1.0
+api-version: 1.13
+name: TrophyPedestals
+author: detig_iii
+description: Ermöglicht craften und platzieren von Trophäensockeln
+depend: [PermissionManager,CustomItems]
+permissions:
+  trophypedestals.craft:
+    description: Ermöglicht craften von Sockeln
+    default: op
