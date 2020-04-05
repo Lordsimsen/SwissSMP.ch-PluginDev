@@ -1,5 +1,7 @@
 package ch.swisssmp.ageofempires;
 
+import java.util.Optional;
+
 import ch.swisssmp.utils.ConfigurationSection;
 
 public class TauntEntry {
@@ -29,5 +31,9 @@ public class TauntEntry {
 	public static TauntEntry get(ConfigurationSection dataSection) {
 		if(dataSection==null) return null;
 		return new TauntEntry(dataSection);
+	}
+	
+	public static Optional<TauntEntry> get(String key) {
+		return TauntEntries.get(key);
 	}
 }

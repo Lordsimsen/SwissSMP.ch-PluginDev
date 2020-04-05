@@ -17,6 +17,8 @@ public class AgeOfEmpiresTauntsPlugin extends JavaPlugin {
 		plugin = this;
 		pdfFile = getDescription();
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+		Bukkit.getPluginCommand("taunts").setExecutor(new PlayerCommand());
+		TauntEntries.reload();
 		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
@@ -30,5 +32,9 @@ public class AgeOfEmpiresTauntsPlugin extends JavaPlugin {
 	
 	public static AgeOfEmpiresTauntsPlugin getInstance(){
 		return plugin;
+	}
+	
+	public static String getPrefix() {
+		return "["+plugin.getName()+"]";
 	}
 }
