@@ -1,0 +1,30 @@
+main: ch.swisssmp.event.quarantine.QuarantineEventPlugin
+version: 1.15
+api-version: 1.13
+name: QuarantineEvent
+author: detig_iii
+description: Ermöglicht Durchführung von Quarantäne-Events
+depend: [SwissSMPUtils,CustomItems,ResourcepackManager,WorldManager,CustomEditorAPI,WaypointAPI,WorldEdit]
+permissions:
+  quarantine.admin:
+    description: Erlaubt Verwaltung des Plugins
+    default: op
+  quarantine.gamemaster:
+    description: Erlaubt Durchführung von Spielrunden
+    default: op
+  quarantine.participate:
+    description: Erlaubt Teilnahme an Spielrunden
+    default: true
+commands:
+  qarenas:
+    description: Verwalte Arenen
+    usage: "/<command>"
+    permission: quarantine.admin
+  qarena:
+    description: Verwalte eine Arena
+    usage: "/<command> <subcommand> [Arena-Id]"
+    permission: quarantine.admin
+  quarantine:
+    description: Steuere eine Spielrunde
+    usage: "/<command> <subcommand> [Arena-Id]"
+    permission: quarantine.gamemaster
