@@ -133,6 +133,12 @@ public abstract class CustomEditorView implements Listener {
 		this.view = this.player.openInventory(this.inventory);
 	}
 	
+	protected void recreateSlots() {
+		this.inventory.clear();
+		this.slots = this.initializeEditor();
+		this.createItems();
+	}
+	
 	protected void createItems(){
 		if(slots==null) return;
 		for(EditorSlot slot : this.slots){
