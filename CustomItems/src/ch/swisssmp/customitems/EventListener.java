@@ -1,5 +1,7 @@
 package ch.swisssmp.customitems;
 
+import java.util.Map;
+
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -15,22 +17,29 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
 import ch.swisssmp.utils.ItemUtil;
 
 public class EventListener implements Listener{
-	@EventHandler
+	@EventHandler(priority=EventPriority.LOWEST)
 	private void onPrepareItemCraft(PrepareItemCraftEvent event){
 		ItemStack itemStack = event.getInventory().getResult();
 		if(itemStack==null) return;
-		String customEnum = CustomItems.getCustomEnum(itemStack);
-		if(customEnum==null) return;
+		
+		// Bukkit.getLogger().info("CustomItems checking ingredients");
+		
 		Recipe recipe = event.getRecipe();
 		boolean allow;
 		if(recipe instanceof ShapedRecipe){
-			allow = CustomItems.checkIngredients((ShapedRecipe)recipe, event.getInventory());
+			ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
+			String[] shape = shapedRecipe.getShape();
+			String[] mirroredShape = getMirroredShape(shape);
+			Map<Character,RecipeChoice> ingredients = shapedRecipe.getChoiceMap();
+			allow = CustomItems.checkIngredients(shape, ingredients, event.getInventory());
+			if(!allow) allow = CustomItems.checkIngredients(mirroredShape, ingredients, event.getInventory());
 		}
 		else if(recipe instanceof ShapelessRecipe){
 			allow = CustomItems.checkIngredients((ShapelessRecipe)recipe, event.getInventory());
@@ -38,16 +47,20 @@ public class EventListener implements Listener{
 		else{
 			return;
 		}
+		// Bukkit.getLogger().info(allow ? "CustomItems allows this recipe" : "CustomItems denies this recipe");
 		if(!allow) event.getInventory().setResult(null);
 	}
+	
 	@EventHandler
 	private void onInventoryOpen(InventoryOpenEvent event){
 		CustomItems.clearExpiredItems(event.getInventory());
 	}
+	
 	@EventHandler
 	private void onPlayerJoin(PlayerJoinEvent event){
 		CustomItems.clearExpiredItems(event.getPlayer().getInventory());
 	}
+	
 	/**
 	 * Make custom items stackable when picking them up
 	 */
@@ -99,5 +112,19 @@ public class EventListener implements Listener{
 	@EventHandler
 	private void onInventoryDrag(InventoryDragEvent event){
 		InventoryHandler.handleInventoryDrag(event);
+	}
+	
+	private String[] getMirroredShape(String[] shape) {
+		String[] result = new String[shape.length];
+		for(int i = 0; i < shape.length; i++) {
+			String line = shape[i];
+			char[] reversed = new char[line.length()];
+			for(int j = 0; j < reversed.length; j++) {
+				reversed[j] = line.charAt(reversed.length-1-j);
+			}
+			result[i] = String.valueOf(reversed);
+		}
+		
+		return result;
 	}
 }

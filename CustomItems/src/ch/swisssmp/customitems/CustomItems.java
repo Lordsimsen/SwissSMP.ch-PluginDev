@@ -1,6 +1,7 @@
 package ch.swisssmp.customitems;
 
 import java.io.File;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -16,7 +17,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -133,6 +134,13 @@ public class CustomItems extends JavaPlugin{
 				customItemBuilder.setCustomDurability(dataSection.getInt("custom_durability"));
 				break;
 			}
+			case "custom_model_id":{
+				customItemBuilder.setCustomModelId(dataSection.getInt("custom_model_id"));
+				break;
+			}
+			case "use_custom_model_data_property":
+				customItemBuilder.setUseCustomModelDataProperty(dataSection.getBoolean("use_custom_model_data_property"));
+				break;
 			case "max_custom_durability":{
 				customItemBuilder.setMaxCustomDurability(dataSection.getInt("max_custom_durability"));
 				break;
@@ -267,36 +275,132 @@ public class CustomItems extends JavaPlugin{
 		return customItemBuilder;
 	}
 
-	
-	public static boolean checkIngredients(ShapedRecipe recipe, CraftingInventory inventory){
+	public static boolean checkIngredients(String[] shape, Map<Character,RecipeChoice> ingredients, CraftingInventory inventory){
 		//String ingredientCustomEnum;
-		ItemStack itemStack;
-		ItemStack ingredient;
 		ItemStack[] matrix = inventory.getMatrix();
-		for(int x = 0; x < 3; x++){
-			for(int y = 0; y < 3; y++){
-				itemStack = matrix[x+y*3];
-				if(itemStack==null) continue;
-				ingredient = recipe.getIngredientMap().get(recipe.getShape()[y].charAt(x));
-				if(ingredient==null) return false;
-				if(!itemStack.isSimilar(ingredient)) return false;
+		int height = shape.length;
+		int width = getShapeWidth(shape);
+
+		int recipeTop = getRecipeTop(shape);
+		int recipeLeft = getRecipeLeft(shape);
+		
+		int top = getTopRow(matrix);
+		int left = getLeftColumn(matrix);
+		
+		// Bukkit.getLogger().info(String.join(", ", shape));
+		
+		for(int y = top; y < top+height; y++){
+			for(int x = left; x < left+width; x++){
+				int recipeX = x-left+recipeLeft;
+				int recipeY = y-top+recipeTop;
+				ItemStack itemStack = matrix[x+y*3];
+				char c = recipeY<shape.length && recipeX < shape[recipeY].length() ? shape[recipeY].charAt(recipeX) : ' ';
+				if(c==' ' && itemStack==null) continue;
+				
+				if((c==' ' && itemStack!=null)) {
+					// Bukkit.getLogger().info("Slot should be "+c+", found "+(itemStack==null ? null : itemStack.getType()));
+					return false;
+				}
+				
+				RecipeChoice ingredient = ingredients.get(c);
+				if(ingredient==null) {
+					if(itemStack==null) continue;
+					// Bukkit.getLogger().info("Slot should empty, found "+itemStack.getType());
+					return false;
+				}
+				
+				if(itemStack==null) {
+					// Bukkit.getLogger().info("Slot should not be empty");
+					return false;
+				}
+				
+				if(!ingredient.test(itemStack)) {
+					// Bukkit.getLogger().info("Stacks are not similar");
+					return false;
+				}
+				
+				if((ingredient instanceof RecipeChoice.MaterialChoice) && (itemStack.getItemMeta().hasCustomModelData() || CustomItems.getCustomEnum(itemStack)!=null)) {
+					// Bukkit.getLogger().info("Provided stack contains CustomModelData");
+					return false;
+				}
 			}
 		}
 		return true;
 	}
 	
 	public static boolean checkIngredients(ShapelessRecipe recipe, CraftingInventory inventory){
-		outer:
+		
 		for(ItemStack ingredient : recipe.getIngredientList()){
+			boolean foundIngredient = false;
+			int customModelDataB = ingredient.getItemMeta().hasCustomModelData() ? ingredient.getItemMeta().getCustomModelData() : -1;
 			for(ItemStack itemStack : inventory.getMatrix()){
-				if(itemStack==null)continue;
-				if(itemStack.isSimilar(ingredient)){
-					continue outer;
+				if(itemStack==null) {
+					continue;
 				}
+				
+				if(!itemStack.isSimilar(ingredient)){
+					continue;
+				}
+				
+				int customModelDataA = itemStack.getItemMeta().hasCustomModelData() ? itemStack.getItemMeta().getCustomModelData() : -1;
+				if(customModelDataA!=customModelDataB) {
+					continue;
+				}
+				foundIngredient = true;
+				break;
 			}
+			if(foundIngredient) continue;
 			return false;
 		}
 		return true;
+	}
+	
+	private static int getShapeWidth(String[] shape) {
+		int max = 1;
+		for(int i = 0; i < shape.length; i++) {
+			max = Math.max(shape[i].trim().length(), max);
+		}
+		return max;
+	}
+	
+	private static int getTopRow(ItemStack[] matrix) {
+		for(int y = 0; y < 3; y++) {
+			for(int x = 0; x < 3; x++) {
+				ItemStack itemStack = matrix[y*3+x];
+				if(itemStack!=null) return y;
+			}
+		}
+		return 0;
+	}
+	
+	private static int getLeftColumn(ItemStack[] matrix) {
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				ItemStack itemStack = matrix[y*3+x];
+				if(itemStack!=null) return x;
+			}
+		}
+		return 0;
+	}
+	
+	private static int getRecipeTop(String[] shape) {
+		for(int y = 0; y < 3; y++) {
+			for(int x = 0; x < 3; x++) {
+				char c = shape[y].charAt(x);
+				if(c!=' ') return y;
+			}
+		}
+		return 0;
+	}
+	
+	private static int getRecipeLeft(String[] shape) {
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				char c = shape[y].charAt(x);
+				if(c!=' ') return x;
+			}
+		}
+		return 0;
 	}
 	
 	public static boolean checkIngredients(FurnaceRecipe recipe, FurnaceInventory inventory){

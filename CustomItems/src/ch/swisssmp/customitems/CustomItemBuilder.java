@@ -40,11 +40,13 @@ public class CustomItemBuilder {
 	
 	//nms stuff
 	private boolean useNMS = false;
+	private boolean useCustomModelDataProperty = false;
 	
 	private String customEnum = "";
 	private int item_id = 0;
 	private int maxCustomDurability = 0;
 	private int customDurability = 0;
+	private int customModelId = 0;
 	private long expirationDate = 0;
 	private int maxStackSize = 0;
 	
@@ -84,6 +86,13 @@ public class CustomItemBuilder {
 	}
 	public void setCustomDurability(int customDurability){
 		this.customDurability = customDurability;
+	}
+	public void setCustomModelId(int customModelId) {
+		this.customModelId = customModelId;
+		this.useCustomModelDataProperty = true;
+	}
+	public void setUseCustomModelDataProperty(boolean use) {
+		this.useCustomModelDataProperty = use;
 	}
 	public void addEnchantments(List<EnchantmentData> enchantments){
 		this.enchantments.addAll(enchantments);
@@ -140,21 +149,25 @@ public class CustomItemBuilder {
 			if(template!=null){
 				Material material = template.getMaterial();
 				if(material!=null) this.setMaterial(material);
+				this.item_id  = template.getItemId();
 				this.setDurability(template.getDurability());
+				this.customModelId = template.getCustomModelId();
+				this.useCustomModelDataProperty = template.useCustomModelDataProperty();
 			}
 		}
 		if(this.durability!=0 && !this.customEnum.isEmpty()){
 			this.useNMS = true;
-			this.unbreakable = true;
-			if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
+			this.unbreakable |= !this.useCustomModelDataProperty;
+			if(!this.useCustomModelDataProperty && !this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
 			}
 		}
 	}
 	
 	public void setItemId(int item_id){
-		this.useNMS = true;
 		this.item_id = item_id;
+		this.useNMS = true;
+		if(this.useCustomModelDataProperty) return;
 		this.unbreakable = true;
 		if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 			this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
@@ -251,6 +264,9 @@ public class CustomItemBuilder {
 		}
 		if(this.unbreakable!=itemMeta.isUnbreakable()){
 			itemMeta.setUnbreakable(this.unbreakable);
+		}
+		if(this.useCustomModelDataProperty) {
+			itemMeta.setCustomModelData(customModelId);
 		}
 		if(itemMeta instanceof Damageable){
 			((Damageable)itemMeta).setDamage(durability);
