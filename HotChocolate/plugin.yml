@@ -1,0 +1,11 @@
+main: ch.swisssmp.hotchocolate.HotChocolatePlugin
+version: 1.0
+api-version: 1.13
+name: HotChocolate
+author: detig_iii
+description: Ermöglicht craften von Heisser Schoggi, welche den Schlaftimer zurücksetzen kann
+depend: [CustomItems,ResourcepackManager]
+permissions: 
+  hotchocolate.craft:
+    default: op
+    description: Erlaubt craften von Heisser Schoggi und zugehörigen Zutaten
