@@ -34,6 +34,10 @@ public class EventPoints extends JavaPlugin{
 		return CurrencyInfo.get(currencyType);
 	}
 	
+	public static CurrencyInfo getInfo(ItemStack itemStack){
+		return CurrencyInfo.get(itemStack);
+	}
+	
 	public static ItemStack getItem(int amount){
 		return EventPoints.getItem(amount, "EVENT_POINT");
 	}

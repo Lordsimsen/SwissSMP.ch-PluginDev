@@ -57,6 +57,10 @@ public class EventPointCommand implements CommandExecutor {
 			player.getWorld().dropItem(player.getEyeLocation(), itemStack);
 			break;
 		}
+		case "reload":{
+			CurrencyInfo.clear();
+			break;
+		}
 		default: return false;
 		}
 		return true;

@@ -43,6 +43,11 @@ public class CurrencyInfo {
 		return this.itemBuilder.build();
 	}
 	
+	public static CurrencyInfo get(ItemStack itemStack) {
+		String customEnum = CustomItems.getCustomEnum(itemStack);
+		return customEnum!=null ? get(customEnum) : null;
+	}
+	
 	protected static CurrencyInfo get(String currencyType){
 		if(currencyType==null) return null;
 		for(String key : loadedCurrencies.keySet()){
@@ -57,5 +62,9 @@ public class CurrencyInfo {
 		loadedCurrencies.put(result.name.toLowerCase(), result);
 		loadedCurrencies.put(result.currency_enum.toLowerCase(), result);
 		return result;
+	}
+	
+	protected static void clear() {
+		loadedCurrencies.clear();
 	}
 }

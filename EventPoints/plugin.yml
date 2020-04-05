@@ -1,10 +1,10 @@
 main: ch.swisssmp.utils.EventPoints
-version: 1.4
+version: 1.5
 api-version: 1.13
 name: EventPoints
 author: detig_iii
 description: Verwaltet Eventpunkte
-depend: [WebCore]
+depend: [WebCore,CustomItems]
 permissions: 
   eventpoints.admin:
     default: op
@@ -17,6 +17,7 @@ commands:
     usage: |
       /eventpoints give [Spieler] [Menge] [Typ] [Grund]
       /eventpoints take [Spieler] [Menge] [Typ] [Grund]
+      /eventpoints reload
     description: Verwaltet Eventpunkte
     aliases: [ep,eventpoint]
     permission: eventpoints.admin
