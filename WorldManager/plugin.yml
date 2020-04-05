@@ -1,11 +1,11 @@
 main: ch.swisssmp.world.WorldManager
-version: 2.7
+version: 3.0
 api-version: 1.13
 name: WorldManager
 author: detig_iii
 description: Lädt und verwaltet Welten
 depend: [WebCore]
-softdepend: [WorldGuard]
+softdepend: [WorldGuard,WorldBorder]
 permissions:
   worldmanager.admin:
     description: Erlaubt die Verwaltung des Plugins
@@ -54,6 +54,14 @@ commands:
   world delete:
     description: Löscht eine Welt von diesem Server
     usage: "Verwendung: /<command> <subcommand> [Welt]"
+    permission: worldmanager.admin
+  world trim:
+    description: Löscht alle Chunks ausserhalb des Weltrands
+    usage:
+      - "Verwendung: /<command> <subcommand> [Welt] (Frequenz) (Rand)"
+      - "Argumente: "
+      - "Frequenz: Chunks pro Sekunde, Standard 5000"
+      - "Rand: Anzahl extra Blöcke über den Weltrand hinaus, Standard 208"
     permission: worldmanager.admin
     
   worldborder:

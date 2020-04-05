@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.world.border.WorldBorder;
+import ch.swisssmp.world.border.WorldBorderManager;
 import ch.swisssmp.world.transfer.WorldTransferManager;
 
 public class WorldCommand implements CommandExecutor {
@@ -114,6 +116,34 @@ public class WorldCommand implements CommandExecutor {
 			if(args.length<2) return false;
 			WorldManager.deleteWorld(args[1]);
 			sender.sendMessage("[WorldManager] Welt "+args[1]+" gelöscht.");
+			return true;
+		}
+		case "trim":{
+			if(args.length<2) return false;
+			String prefix = WorldManager.getPrefix();
+			if(!(sender instanceof Player)) {
+				sender.sendMessage(prefix+ChatColor.RED+" Kann nur ingame verwendet werden.");
+				return true;
+			}
+			String worldName = args[1];
+			World world = Bukkit.getWorld(worldName);
+			if(world==null) {
+				sender.sendMessage(prefix+ChatColor.RED+" Welt "+worldName+" nicht gefunden.");
+				return true;
+			}
+			WorldBorder worldBorder = WorldBorderManager.getWorldBorder(worldName);
+			if(worldBorder==null) {
+				sender.sendMessage(prefix+ChatColor.RED+" Welt "+worldName+" hat keinen Weltrand.");
+				return true;
+			}
+			List<String> params = new ArrayList<String>(args.length-2);
+			for(int i = 2; i < args.length; i++) {
+				params.add(args[i]);
+			}
+			if(WorldManager.trim((Player) sender, world,worldBorder, params)) {
+				return true;
+			}
+			sender.sendMessage(prefix+ChatColor.RED+" WorldBorder-Plugin benötigt.");
 			return true;
 		}
 		default: return false;

@@ -3,10 +3,13 @@ package ch.swisssmp.world;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -24,6 +27,7 @@ public class WorldManager extends JavaPlugin{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
 	protected static WorldManager plugin;
+	private WorldBorderPluginHandler worldBorderPluginHandler;
 	
 	private Collection<WorldData> worldsData = new ArrayList<WorldData>();
 	
@@ -38,7 +42,8 @@ public class WorldManager extends JavaPlugin{
 		Bukkit.getPluginCommand("worldborder").setExecutor(new WorldBorderCommand());
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
-		if(Bukkit.getPluginManager().getPlugin("WorldGuard")!=null) Bukkit.getPluginManager().registerEvents(new WorldGuardHandler(), this);
+		if(Bukkit.getPluginManager().getPlugin("WorldGuard")!=null) Bukkit.getPluginManager().registerEvents(new WorldGuardPluginHandler(), this);
+		if(Bukkit.getPluginManager().getPlugin("WorldBorder")!=null) worldBorderPluginHandler = WorldBorderPluginHandler.create();
 		
 		WorldManager.loadWorlds();
 		WorldBorderManager.startBorderChecker();
@@ -56,6 +61,16 @@ public class WorldManager extends JavaPlugin{
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+	
+	public static boolean trim(Player player, World world, ch.swisssmp.world.border.WorldBorder borderData, List<String> params) {
+		if(plugin.worldBorderPluginHandler==null) return false;
+		plugin.worldBorderPluginHandler.trim(player, world, borderData, params);
+		return true;
+	}
+	
+	public static String getPrefix() {
+		return ChatColor.RESET+"["+ChatColor.GRAY+plugin.getName()+ChatColor.RESET+"]";
 	}
 	
 	protected static void loadWorlds(){
