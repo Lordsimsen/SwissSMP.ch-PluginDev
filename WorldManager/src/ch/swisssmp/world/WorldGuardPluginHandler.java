@@ -11,7 +11,7 @@ import ch.swisssmp.utils.FileUtil;
 import ch.swisssmp.world.transfer.WorldPackEvent;
 import ch.swisssmp.world.transfer.WorldUnpackEvent;
 
-public class WorldGuardHandler implements Listener{
+public class WorldGuardPluginHandler implements Listener{
 	
 	@EventHandler
 	private void onWorldPack(WorldPackEvent event){

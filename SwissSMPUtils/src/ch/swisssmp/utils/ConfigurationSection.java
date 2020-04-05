@@ -1,9 +1,11 @@
 package ch.swisssmp.utils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -23,6 +25,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import ch.swisssmp.webcore.WebCore;
 
@@ -427,5 +434,66 @@ public class ConfigurationSection{
 	
 	public void remove(String arg0){
 		this.configurationSection.set(arg0, null);
+	}
+	public JsonElement toJson() {
+		if(this.configurationSection==null) return null;
+		JsonObject result = new JsonObject();
+		for(String key : this.configurationSection.getKeys(false)) {
+			Object value = this.configurationSection.get(key);
+			if(value instanceof ConfigurationSection) {
+				JsonElement sectionJson = this.getConfigurationSection(key).toJson();
+				if(sectionJson==null) continue;
+				result.add(key, sectionJson);
+				continue;
+			}
+			if(value instanceof String) {
+				result.add(key, new JsonPrimitive((String) value));
+				continue;
+			}
+			if(value instanceof Double) {
+				result.add(key, new JsonPrimitive((Double) value));
+				continue;
+			}
+			if(value instanceof Integer) {
+				result.add(key, new JsonPrimitive((Integer) value));
+				continue;
+			}
+			if(value instanceof Float) {
+				result.add(key, new JsonPrimitive((Float) value));
+				continue;
+			}
+			if(value instanceof Short) {
+				result.add(key, new JsonPrimitive((Short) value));
+				continue;
+			}
+			if(value instanceof Long) {
+				result.add(key, new JsonPrimitive((Long) value));
+				continue;
+			}
+			if(value instanceof Byte) {
+				result.add(key, new JsonPrimitive((Byte) value));
+				continue;
+			}
+			if(value instanceof Boolean) {
+				result.add(key, new JsonPrimitive((Boolean) value));
+				continue;
+			}
+			if(value instanceof Character) {
+				result.add(key, new JsonPrimitive((Character) value));
+				continue;
+			}
+			if(value instanceof Collection<?>) {
+				List<String> stringList = ((Collection<?>) value).stream().map(e->e.toString()).collect(Collectors.toList());
+				JsonArray jsonArray = new JsonArray();
+				for(String s : stringList) {
+					jsonArray.add(s);
+				}
+				result.add(key, jsonArray);
+				continue;
+			}
+			result.add(key, new JsonPrimitive(value.toString()));
+			
+		}
+		return result;
 	}
 }

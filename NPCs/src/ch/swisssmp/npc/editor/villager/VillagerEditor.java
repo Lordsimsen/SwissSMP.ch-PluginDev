@@ -1,4 +1,4 @@
-package ch.swisssmp.npc.editor;
+package ch.swisssmp.npc.editor.villager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,14 +7,13 @@ import org.bukkit.entity.Villager;
 
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
-import ch.swisssmp.npc.editor.villager.ProfessionSlot;
-import ch.swisssmp.npc.editor.villager.TypeSlot;
+import ch.swisssmp.npc.editor.AbstractEditor;
 
 public class VillagerEditor extends AbstractEditor {
 	
 	private Villager villager;
 	
-	protected VillagerEditor(CustomEditorView view, Villager villager) {
+	public VillagerEditor(CustomEditorView view, Villager villager) {
 		super(view);
 		this.villager = villager;
 	}	

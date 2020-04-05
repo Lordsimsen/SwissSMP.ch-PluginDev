@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
+import com.google.gson.JsonObject;
+
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.npc.NPCInstance;
@@ -18,7 +20,6 @@ import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Position;
-import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.world.WorldManager;
 
 public class TravelStation {
@@ -258,10 +259,11 @@ public class TravelStation {
 	}
 	
 	public void setTravelGuide(NPCInstance npc){
-		YamlConfiguration yamlConfiguration = new YamlConfiguration();
-		yamlConfiguration.set("travelstation", this.station_id.toString());
-		yamlConfiguration.set("name", npc.getName());
-		npc.setYamlConfiguration(yamlConfiguration);
+		JsonObject json = npc.getJsonData();
+		if(json==null) json = new JsonObject();
+		json.addProperty("travelstation", this.station_id.toString());
+		json.addProperty("name", npc.getName());
+		npc.setJsonData(json);
 	}
 	
 	public void prepareJourney(TravelStation destination){

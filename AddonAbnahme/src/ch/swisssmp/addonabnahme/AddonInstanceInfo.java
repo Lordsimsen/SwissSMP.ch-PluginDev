@@ -9,11 +9,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import ch.swisssmp.addonabnahme.AddonUnlockTrade.UnlockType;
 import ch.swisssmp.city.City;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.utils.YamlConfiguration;
 
 public class AddonInstanceInfo {
 	
@@ -35,11 +37,11 @@ public class AddonInstanceInfo {
 		npc.setIdentifier("addon_instance_guide");
 		npc.setSilent(true);
 		npc.setNameVisible(false);
-		YamlConfiguration yamlConfiguration = npc.getYamlConfiguration();
-		if(yamlConfiguration==null) yamlConfiguration = new YamlConfiguration();
-		yamlConfiguration.set("city_id", city.getId());
-		yamlConfiguration.set("addon_id", addonInfo.getAddonId());
-		npc.setYamlConfiguration(yamlConfiguration);
+		JsonObject json = npc.getJsonData();
+		if(json==null) json = new JsonObject();
+		json.add("city_id", new JsonPrimitive(city.getId()));
+		json.add("addon_id", new JsonPrimitive(addonInfo.getAddonId()));
+		npc.setJsonData(json);
 		if(state!=null){
 			npc.setName(state.getColor()+addonInfo.getName());
 		}
@@ -131,10 +133,10 @@ public class AddonInstanceInfo {
 	public static AddonInstanceInfo get(NPCInstance npc){
 		String identifier = npc.getIdentifier();
 		if(identifier==null || !identifier.equals("addon_instance_guide")) return null;
-		YamlConfiguration yamlConfiguration = npc.getYamlConfiguration();
-		if(yamlConfiguration==null || !yamlConfiguration.contains("city_id") || !yamlConfiguration.contains("addon_id")) return null;
-		int city_id = yamlConfiguration.getInt("city_id");
-		String addon_id = yamlConfiguration.getString("addon_id");
+		JsonObject json = npc.getJsonData();
+		if(json==null || !json.has("city_id") || !json.has("addon_id")) return null;
+		int city_id = json.get("city_id").getAsInt();
+		String addon_id = json.get("addon_id").getAsString();
 		return get(city_id, addon_id, true);
 	}
 	

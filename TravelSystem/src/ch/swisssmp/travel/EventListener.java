@@ -15,12 +15,13 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import com.google.gson.JsonObject;
+
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.PlayerRenameItemEvent;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.YamlConfiguration;
 
 public class EventListener implements Listener {
 	
@@ -57,9 +58,9 @@ public class EventListener implements Listener {
 	private void onPlayerInteractNPC(PlayerInteractNPCEvent event){
 		if(event.getHand()!=EquipmentSlot.HAND) return;
 		
-		YamlConfiguration yamlConfiguration = event.getNPC().getYamlConfiguration();
-		if(yamlConfiguration==null || !yamlConfiguration.contains("travelstation")) return;
-		String station_id = yamlConfiguration.getString("travelstation");
+		JsonObject json = event.getNPC().getJsonData();
+		if(json==null || !json.has("travelstation")) return;
+		String station_id = json.get("travelstation").getAsString();
 		TravelStation station = TravelStation.get(UUID.fromString(station_id));
 		if(station==null) return;
 		if(station.getJourney()!=null && !station.getJourney().getPlayers().contains(event.getPlayer())){

@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import com.google.gson.JsonObject;
+
 import net.minecraft.server.v1_15_R1.ChatMessageType;
 import net.minecraft.server.v1_15_R1.IChatBaseComponent;
 import net.minecraft.server.v1_15_R1.PacketPlayOutChat;
@@ -149,7 +151,9 @@ public final class SwissSMPler {
     public void sendActionBar(String message){
     	if(player==null || message==null) return;
         CraftPlayer craftPlayer = (CraftPlayer) player;
-        IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \"" + message + "\"}");
+        JsonObject json = new JsonObject();
+        json.addProperty("text", message);
+        IChatBaseComponent cbc = ChatSerializer.a(json.toString());
         PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc, ChatMessageType.GAME_INFO);
         ((CraftPlayer) craftPlayer).getHandle().playerConnection.sendPacket(ppoc);
     }
@@ -158,8 +162,12 @@ public final class SwissSMPler {
     	if(!player.isOnline())return;
         CraftPlayer craftplayer = (CraftPlayer) player;
         PlayerConnection connection = craftplayer.getHandle().playerConnection;
-        IChatBaseComponent titleJSON = ChatSerializer.a(("{'text': '" + title + "'}").replace("'", "\""));
-        IChatBaseComponent subtitleJSON = ChatSerializer.a(("{'text': '" + subtitle + "'}").replace("'", "\""));
+        JsonObject titleJson = new JsonObject();
+        titleJson.addProperty("text", title);
+        JsonObject subtitleJson = new JsonObject();
+        subtitleJson.addProperty("text", subtitle);
+        IChatBaseComponent titleJSON = ChatSerializer.a(titleJson.toString());
+        IChatBaseComponent subtitleJSON = ChatSerializer.a(subtitleJson.toString());
         PacketPlayOutTitle titlePacket = new PacketPlayOutTitle(EnumTitleAction.TITLE, titleJSON);
         PacketPlayOutTitle subtitlePacket = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitleJSON);
         connection.sendPacket(titlePacket);
