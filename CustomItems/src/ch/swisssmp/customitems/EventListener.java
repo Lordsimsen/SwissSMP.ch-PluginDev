@@ -34,6 +34,7 @@ public class EventListener implements Listener{
 		Recipe recipe = event.getRecipe();
 		boolean allow;
 		if(recipe instanceof ShapedRecipe){
+			// Bukkit.getLogger().info("Check Shaped");
 			ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
 			String[] shape = shapedRecipe.getShape();
 			String[] mirroredShape = getMirroredShape(shape);
@@ -42,6 +43,7 @@ public class EventListener implements Listener{
 			if(!allow) allow = CustomItems.checkIngredients(mirroredShape, ingredients, event.getInventory());
 		}
 		else if(recipe instanceof ShapelessRecipe){
+			// Bukkit.getLogger().info("Check Shapeless");
 			allow = CustomItems.checkIngredients((ShapelessRecipe)recipe, event.getInventory());
 		}
 		else{

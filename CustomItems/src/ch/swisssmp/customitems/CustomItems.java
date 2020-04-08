@@ -278,14 +278,16 @@ public class CustomItems extends JavaPlugin{
 	public static boolean checkIngredients(String[] shape, Map<Character,RecipeChoice> ingredients, CraftingInventory inventory){
 		//String ingredientCustomEnum;
 		ItemStack[] matrix = inventory.getMatrix();
+		int matrixDimensions = matrix.length==9 ? 3 : 2; // 3x3 or 2x2 grid
+		
 		int height = shape.length;
 		int width = getShapeWidth(shape);
 
 		int recipeTop = getRecipeTop(shape);
 		int recipeLeft = getRecipeLeft(shape);
 		
-		int top = getTopRow(matrix);
-		int left = getLeftColumn(matrix);
+		int top = getTopRow(matrix, matrixDimensions, matrixDimensions);
+		int left = getLeftColumn(matrix, matrixDimensions, matrixDimensions);
 		
 		// Bukkit.getLogger().info(String.join(", ", shape));
 		
@@ -293,7 +295,7 @@ public class CustomItems extends JavaPlugin{
 			for(int x = left; x < left+width; x++){
 				int recipeX = x-left+recipeLeft;
 				int recipeY = y-top+recipeTop;
-				ItemStack itemStack = matrix[x+y*3];
+				ItemStack itemStack = matrix[x+y*matrixDimensions];
 				char c = recipeY<shape.length && recipeX < shape[recipeY].length() ? shape[recipeY].charAt(recipeX) : ' ';
 				if(c==' ' && itemStack==null) continue;
 				
@@ -330,20 +332,21 @@ public class CustomItems extends JavaPlugin{
 	
 	public static boolean checkIngredients(ShapelessRecipe recipe, CraftingInventory inventory){
 		
-		for(ItemStack ingredient : recipe.getIngredientList()){
+		for(RecipeChoice choice : recipe.getChoiceList()){
+			
 			boolean foundIngredient = false;
-			int customModelDataB = ingredient.getItemMeta().hasCustomModelData() ? ingredient.getItemMeta().getCustomModelData() : -1;
+			boolean checkCustomModelData = choice instanceof RecipeChoice.MaterialChoice;
 			for(ItemStack itemStack : inventory.getMatrix()){
 				if(itemStack==null) {
 					continue;
 				}
 				
-				if(!itemStack.isSimilar(ingredient)){
+				if(!choice.test(itemStack)){
 					continue;
 				}
 				
 				int customModelDataA = itemStack.getItemMeta().hasCustomModelData() ? itemStack.getItemMeta().getCustomModelData() : -1;
-				if(customModelDataA!=customModelDataB) {
+				if(checkCustomModelData && customModelDataA>0) {
 					continue;
 				}
 				foundIngredient = true;
@@ -363,20 +366,20 @@ public class CustomItems extends JavaPlugin{
 		return max;
 	}
 	
-	private static int getTopRow(ItemStack[] matrix) {
-		for(int y = 0; y < 3; y++) {
-			for(int x = 0; x < 3; x++) {
-				ItemStack itemStack = matrix[y*3+x];
+	private static int getTopRow(ItemStack[] matrix, int rows, int columns) {
+		for(int y = 0; y < rows; y++) {
+			for(int x = 0; x < columns; x++) {
+				ItemStack itemStack = matrix[y*columns+x];
 				if(itemStack!=null) return y;
 			}
 		}
 		return 0;
 	}
 	
-	private static int getLeftColumn(ItemStack[] matrix) {
-		for(int x = 0; x < 3; x++) {
-			for(int y = 0; y < 3; y++) {
-				ItemStack itemStack = matrix[y*3+x];
+	private static int getLeftColumn(ItemStack[] matrix, int rows, int columns) {
+		for(int x = 0; x < columns; x++) {
+			for(int y = 0; y < rows; y++) {
+				ItemStack itemStack = matrix[y*columns+x];
 				if(itemStack!=null) return x;
 			}
 		}
@@ -384,8 +387,8 @@ public class CustomItems extends JavaPlugin{
 	}
 	
 	private static int getRecipeTop(String[] shape) {
-		for(int y = 0; y < 3; y++) {
-			for(int x = 0; x < 3; x++) {
+		for(int y = 0; y < shape.length; y++) {
+			for(int x = 0; x < shape[y].length(); x++) {
 				char c = shape[y].charAt(x);
 				if(c!=' ') return y;
 			}
@@ -395,7 +398,8 @@ public class CustomItems extends JavaPlugin{
 	
 	private static int getRecipeLeft(String[] shape) {
 		for(int x = 0; x < 3; x++) {
-			for(int y = 0; y < 3; y++) {
+			for(int y = 0; y < shape.length; y++) {
+				if(x>=shape[y].length()) continue;
 				char c = shape[y].charAt(x);
 				if(c!=' ') return x;
 			}
