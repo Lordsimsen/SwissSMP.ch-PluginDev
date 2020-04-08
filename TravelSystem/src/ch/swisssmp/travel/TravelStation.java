@@ -304,6 +304,11 @@ public class TravelStation {
 		return result;
 	}
 	
+	public void remove() {
+		TravelStations.remove(station_id);
+		TravelStations.save(world);
+	}
+	
 	private static void savePosition(ConfigurationSection dataSection, String label, Position position){
 		ConfigurationSection positionSection = dataSection.createSection(label);
 		positionSection.set("x", position.getX());

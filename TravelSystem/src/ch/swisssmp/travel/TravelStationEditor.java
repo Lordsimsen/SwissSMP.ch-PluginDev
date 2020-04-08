@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.travel.editor.CargoSlot;
+import ch.swisssmp.travel.editor.DeleteSlot;
 import ch.swisssmp.travel.editor.EditTemplateSlot;
 import ch.swisssmp.travel.editor.InsideAnchorSlot;
 import ch.swisssmp.travel.editor.OutsideAnchorSlot;
@@ -47,6 +48,7 @@ public class TravelStationEditor extends CustomEditorView {
 			result.add(new EditTemplateSlot(this,8));
 			result.add(new CargoSlot(this,9));
 		}
+		result.add(new DeleteSlot(this, 17, this.travelStation));
 		return result;
 	}
 	
