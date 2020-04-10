@@ -14,12 +14,15 @@ public class NetherPortalFixer extends JavaPlugin{
 		plugin = this;
 		pdfFile = getDescription();
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+		
 		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
 	@Override
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
+		Bukkit.getScheduler().cancelTasks(this);
+		PortalLinkCache.clear();
 		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
