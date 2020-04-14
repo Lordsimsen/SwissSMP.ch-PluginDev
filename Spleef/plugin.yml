@@ -1,6 +1,7 @@
 name: Spleef
 authors: [Nevac, detig_iii]
 version: 1.3
+api-version: 1.13
 description: Awesome Spleef SwissSMP.ch version!!!!!11einself
 
 main: ch.swisssmp.spleef.Spleef

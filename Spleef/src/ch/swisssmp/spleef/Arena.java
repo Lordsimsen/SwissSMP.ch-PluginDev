@@ -29,6 +29,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.RenderType;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -78,11 +83,18 @@ public class Arena implements Listener{
     protected boolean isRunning = false;
     private boolean isPreparationPhase = false;
     
+    private Scoreboard scoreboard;
+    private Objective objective;
+    
     public Arena(ConfigurationSection dataSection)
     {
-    	this.breakableMaterials.add(Material.SOUL_SAND);
-    	this.breakableMaterials.add(Material.PACKED_ICE);
-    	this.breakableMaterials.add(Material.OBSIDIAN);
+    	this.breakableMaterials.add(Material.GLOWSTONE);
+    	this.breakableMaterials.add(Material.GREEN_GLAZED_TERRACOTTA);
+    	this.breakableMaterials.add(Material.GREEN_TERRACOTTA);
+    	this.breakableMaterials.add(Material.BROWN_GLAZED_TERRACOTTA);
+    	this.breakableMaterials.add(Material.TERRACOTTA);
+    	this.breakableMaterials.add(Material.LIGHT_BLUE_GLAZED_TERRACOTTA);
+    	this.breakableMaterials.add(Material.CYAN_CONCRETE);
     	
         this.arena_id = dataSection.getInt("id");
         this.name = dataSection.getString("name");
@@ -105,12 +117,18 @@ public class Arena implements Listener{
         this.instructions = messagesSection.getStringList("instructions");
         this.deathMessages = messagesSection.getStringList("death");
         this.winMessages = messagesSection.getStringList("win");
+    }
+    
+    private void initialize() {
+        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        this.objective = scoreboard.registerNewObjective("score", "dummy", "Punkte", RenderType.INTEGER);
+        
+        objective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         
         Bukkit.getPluginManager().registerEvents(this, Spleef.getInstance());
         arenas.put(this.arena_id, this);
     }
     
-    @SuppressWarnings("deprecation")
 	@EventHandler(ignoreCancelled=true)
     private void onPlayerInteract(PlayerInteractEvent event){
         EquipmentSlot hand = event.getHand();
@@ -141,7 +159,7 @@ public class Arena implements Listener{
         }
         
         block.setType(Material.AIR);
-        block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, material.getId());
+        block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, material);
     }
     
     @EventHandler(ignoreCancelled = true)
@@ -175,7 +193,7 @@ public class Arena implements Listener{
         if(player==null) return;
         if(isRunning)
         {
-            player.sendActionBar(ChatColor.YELLOW + "Partie im Gange. Warte bis n�chste Runde.");
+            player.sendActionBar(ChatColor.YELLOW + "Partie läuft gerade. Warte bis nächste Runde.");
             return;
         }
         
@@ -186,6 +204,13 @@ public class Arena implements Listener{
         player.setInvulnerable(true);
         player.teleport(joinLocation.clone().add(randomPosition));
         player.sendActionBar(ChatColor.YELLOW + name + " betreten.");
+        Score score = objective.getScore(player.getName());
+        if(!score.isScoreSet()) {
+        	score.setScore(0);
+        }
+        Player bukkitPlayer = Bukkit.getPlayer(player.getUniqueId());
+        bukkitPlayer.setScoreboard(scoreboard);
+        
         for(String line : instructions)
         {
             player.sendMessage(ChatColor.RESET+"["+ChatColor.YELLOW+"Spleef"+ChatColor.RESET+"] "+line);
@@ -233,7 +258,7 @@ public class Arena implements Listener{
                 if(tempPlayer == null)
                     continue;
                 
-                tempPlayer.sendActionBar(ChatColor.RED + String.valueOf(player_uuids.size()) + ChatColor.YELLOW + " Spieler, mindestens "+ minPlayers + " f�r Start.");
+                tempPlayer.sendActionBar(ChatColor.RED + String.valueOf(player_uuids.size()) + ChatColor.YELLOW + " Spieler, mindestens "+ minPlayers + " für Start.");
             }
         }
     }
@@ -352,16 +377,22 @@ public class Arena implements Listener{
         }, this.preparationTime*20);
     }
     
-    protected void win(SwissSMPler player)
+    protected void win(SwissSMPler smpler)
     {
-        if(player == null)
+        if(smpler == null)
             return;
+        
+        Player player = Bukkit.getPlayer(smpler.getUniqueId());
+        if(player!=null) {
+        	Score score = objective.getScore(player.getName());
+        	score.setScore(score.getScore()+1);
+        }
         
         for(UUID uuid : player_uuids)
         {
-            if(uuid.equals(player.getUniqueId()))
+            if(uuid.equals(smpler.getUniqueId()))
             {
-                player.sendTitle("SIEG", ChatColor.GREEN + winMessages.get(random.nextInt(winMessages.size())));
+            	smpler.sendTitle("SIEG", ChatColor.GREEN + winMessages.get(random.nextInt(winMessages.size())));
                 continue;
             }
             
@@ -377,7 +408,11 @@ public class Arena implements Listener{
     
     private void resetField()
     {
-        SchematicUtil.paste(schematicName, schematicLocation);
+    	// Bukkit.getLogger().info("Reset Field! "+schematicName+", "+schematicLocation.getX()+", "+schematicLocation.getY()+", "+schematicLocation.getZ()+" in "+schematicLocation.getWorld().getName());
+        boolean result = SchematicUtil.paste(schematicName, schematicLocation);
+        if(!result) {
+        	Bukkit.getLogger().info("Reset failed!");
+        }
     }
     
     protected void resetGame()          //TODO: Bei command resetten
@@ -389,6 +424,12 @@ public class Arena implements Listener{
         {
             leave(SwissSMPler.get(player_uuids.get(0)));
         }
+    }
+    
+    protected void resetScores() {
+    	for(String entry : scoreboard.getEntries()) {
+    		scoreboard.resetScores(entry);
+    	}
     }
     
     // static stuff
@@ -403,24 +444,23 @@ public class Arena implements Listener{
         }
         arenas.clear();
         
-        HTTPRequest request = DataSource.getResponse(Spleef.getInstance(), "spleef/arenas.php");
+        HTTPRequest request = DataSource.getResponse(Spleef.getInstance(), "arenas.php");
         
         request.onFinish(()->{
-        	YamlConfiguration yamlConfiguration = new YamlConfiguration();
-        	try{
-        		yamlConfiguration.loadFromString(request.getResponse());
-        		loadArenas(yamlConfiguration);
-        	}
-        	catch(Exception e){
-        		Debug.Log(e);
-        	}
+        	YamlConfiguration yamlConfiguration = request.getYamlResponse();
+    		loadArenas(yamlConfiguration);
         });
     }
     
     private static void loadArenas(YamlConfiguration yamlConfiguration){
+    	if(yamlConfiguration==null) {
+    		Bukkit.getLogger().info("[Spleef] Arenen konnten nicht geladen werden.");
+    		return;
+    	}
         for(String key : yamlConfiguration.getKeys(false))
         {
-            new Arena(yamlConfiguration.getConfigurationSection(key));
+            Arena arena = new Arena(yamlConfiguration.getConfigurationSection(key));
+            arena.initialize();
         }
     }
     

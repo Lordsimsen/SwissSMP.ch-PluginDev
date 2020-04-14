@@ -56,6 +56,22 @@ public class PlayerCommand implements CommandExecutor{
             	sender.sendMessage("[Spleef] Arena "+arena_id+" zurückgesetzt.");
             	break;
             }
+            case "reset_score":
+            {
+            	if(args.length<2){
+            		sender.sendMessage("[Spleef] Bitte eine Arena-ID angeben.");
+            		return true;
+            	}
+            	int arena_id = Integer.parseInt(args[1]);
+            	Arena arena = Arena.get(arena_id);
+            	if(arena==null){
+            		sender.sendMessage("[Spleef] Arena "+args[1]+" nicht gefunden.");
+            		return true;
+            	}
+            	arena.resetScores();
+            	sender.sendMessage("[Spleef] Punkte zurückgesetzt.");
+            	break;
+            }
             	
             case "save":
             {
@@ -78,7 +94,7 @@ public class PlayerCommand implements CommandExecutor{
             		return true;
             	}
             	Location saveLocation = SchematicUtil.save(player, schematicName);
-            	DataSource.getResponse(Spleef.getInstance(), "spleef/schematic_location.php", new String[]{
+            	DataSource.getResponse(Spleef.getInstance(), "schematic_location.php", new String[]{
             			"world="+saveLocation.getWorld().getName(),
             			"x="+saveLocation.getX(),
             			"y="+saveLocation.getY(),
