@@ -262,10 +262,17 @@ public class CustomItems extends JavaPlugin{
 				break;
 			}
 			default:{
-				Bukkit.getLogger().info("[CustomItems] Unkown item property '"+key+"'");
+				// Bukkit.getLogger().info("[CustomItems] Unkown item property '"+key+"'");
 				break;
 			}
 			}
+		}
+		CreateCustomItemBuilderEvent event = new CreateCustomItemBuilderEvent(customItemBuilder, dataSection);
+		try {
+			Bukkit.getPluginManager().callEvent(event);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
 		}
 		if(customItemBuilder.getMaterial()==null || customItemBuilder.getMaterial()==Material.AIR){
 			Bukkit.getLogger().info("[CustomItems] ItemBuilder konnte nicht abgeschlossen werden, da kein Material angegeben wurde.");

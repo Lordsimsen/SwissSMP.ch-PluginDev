@@ -62,6 +62,8 @@ public class CustomItemBuilder {
 	
 	private String slot = "mainhand";
 	
+	private final List<CustomItemBuilderModifier> components = new ArrayList<CustomItemBuilderModifier>();
+	
 	public CustomItemBuilder(){
 	}
 	
@@ -125,6 +127,9 @@ public class CustomItemBuilder {
 	}
 	public void setSkullOwner(UUID owner){
 		this.skullOwner = owner;
+	}
+	public void addComponent(CustomItemBuilderModifier component) {
+		this.components.add(component);
 	}
 	/**
 	 * Setzt wann der ItemStack aus Inventaren entfernt werden soll
@@ -372,5 +377,13 @@ public class CustomItemBuilder {
 			}
 		}
 		itemStack.setItemMeta(buildItemMeta(itemStack));
+		for(CustomItemBuilderModifier c : components) {
+			try {
+				c.apply(itemStack);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
