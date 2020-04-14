@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.util.BoundingBox;
 
+import ch.swisssmp.npc.NPCs;
 import ch.swisssmp.travel.Journey;
 import ch.swisssmp.travel.PositionUtil;
 import ch.swisssmp.travel.TravelStation;
@@ -57,6 +58,7 @@ public class EmbarkPhase extends Phase {
 		observer = WorldTransferManager.downloadWorld(Bukkit.getConsoleSender(), travelWorldName, localWorldName);
 		observer.addOnFinishListener(()->{
 			this.world = WorldManager.loadWorld(localWorldName);
+			NPCs.unpack(world);
 			this.getJourney().setWorldInstance(world);
 			if(world==null){
 				this.getJourney().cancel();

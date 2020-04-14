@@ -82,8 +82,9 @@ public class Journey implements Runnable, Listener {
 		Block block = event.getClickedBlock();
 		if(!(block.getBlockData() instanceof Bed)) return;
 		event.setCancelled(true);
-		//Player player = event.getPlayer();
+		Player player = event.getPlayer();
 		this.skipTravel();
+		SwissSMPler.get(player).sendActionBar(ChatColor.GREEN+"Reise wird beendet...");
 		//this.setSleeping(player, block);
 		/*
 		if(this.sleeping.size()>=this.players.size()){
@@ -131,10 +132,8 @@ public class Journey implements Runnable, Listener {
 	}
 	
 	private void skipTravel(){
-		Bukkit.getScheduler().runTaskLater(TravelSystem.getInstance(), ()->{
-			if(!(this.currentPhase instanceof TravelPhase)) return;
-			this.currentPhase.setCompleted();
-		}, 60L);
+		if(!(this.currentPhase instanceof TravelPhase)) return;
+		this.currentPhase.setCompleted();
 	}
 	
 	private Phase getNextPhase(Phase currentPhase){

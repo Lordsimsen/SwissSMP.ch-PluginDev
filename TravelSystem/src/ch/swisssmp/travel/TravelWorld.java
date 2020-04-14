@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import ch.swisssmp.npc.NPCs;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.world.WorldManager;
 import ch.swisssmp.world.transfer.WorldTransferManager;
@@ -40,6 +41,7 @@ public class TravelWorld {
 		World world = WorldManager.loadWorld(worldName);
 		if(world==null) return;
 		loadedWorlds.add(world);
+		NPCs.unpack(world);
 		editTemplate(worldName, player);
 	}
 	
@@ -53,6 +55,7 @@ public class TravelWorld {
 	public static void endedit(World world, CommandSender sender){
 		if(!loadedWorlds.contains(world)) return;
 		loadedWorlds.remove(world);
+		NPCs.pack(world);
 		for(Player player : world.getPlayers()){
 			player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
 		}
