@@ -91,6 +91,7 @@ public class EventListener implements Listener{
 		if(shop==null) return;
 		if(merchantInventory.getItem(2)==null) return;
 		MerchantRecipe recipe = merchantInventory.getSelectedRecipe();
+		recipe.setMaxUses(Integer.MAX_VALUE);
 		Trade trade = new Trade(shop, recipe, (Player) event.getWhoClicked(), event.getView());
 		if(trade.isIngredientCurrency() && event.isShiftClick()){
 			event.setCancelled(true); //prevent player from making a mistake
@@ -101,6 +102,25 @@ public class EventListener implements Listener{
 			return;
 		}
 		int playerCanBuy = ShopUtil.countTradeBuyerSide(recipe, merchantInventory.getContents());
+		if(playerCanBuy==0) {
+			event.setCancelled(true);
+			return;
+		}
+
+		ItemStack product = merchantInventory.getItem(2);
+		ShopTradeEvent tradeEvent = new ShopTradeEvent(event.getView(), shop, recipe, product);
+		try {
+			tradeEvent.setCancelled(false);
+			Bukkit.getPluginManager().callEvent(tradeEvent);
+			if(tradeEvent.isCancelled()) {
+				event.setCancelled(true);
+				return;
+			}
+			merchantInventory.setItem(2, tradeEvent.getProduct());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		trade.setCount(event.isShiftClick() ? playerCanBuy : 1);
 		trade.perform();
 	}

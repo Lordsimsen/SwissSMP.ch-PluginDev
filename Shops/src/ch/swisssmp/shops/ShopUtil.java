@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
@@ -31,7 +32,7 @@ public class ShopUtil {
 		}
 		int price_1Count = (int)Math.floor(price_1_availability/(double)price_1.getAmount());
 		int price_2Count = price_1Count;
-		if(price_2!=null) price_2Count = (int)Math.floor(price_2_availability/(double)price_2.getAmount());
+		if(price_2!=null && price_2.getType()!=Material.AIR) price_2Count = (int)Math.floor(price_2_availability/(double)price_2.getAmount());
 		return Math.min(price_1Count, price_2Count);
 	}
     protected static <K, V extends Comparable<? super V>> Map<K, V> 
