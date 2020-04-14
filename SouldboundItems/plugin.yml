@@ -1,0 +1,12 @@
+main: ch.swisssmp.soulbound.SoulboundItemsPlugin
+version: 1.1
+api-version: 1.13
+name: SoulboundItems
+author: detig_iii
+description: Fügt Eigenschaft 'Seelengebunden' zu Items hinzu, so dass diese nur vom Besitzer berührt werden können
+depends: [SwissSMPUtils,CustomItems]
+softdepend: [Shops]
+permissions:
+  souldbound.ignore:
+    description: Ermöglicht, seelengebundene Items von anderen Spielern zu berühren
+    default: op
