@@ -1,12 +1,35 @@
 package ch.swisssmp.utils;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.utils.nbt.NBTTagCompound;
 
 public class ItemUtil {
+	
+	public static String serialize(ItemStack itemStack) {
+		org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
+		yamlConfiguration.set("item", itemStack);
+		return Base64.encodeBase64String(yamlConfiguration.saveToString().getBytes());
+	}
+	
+	public static ItemStack deserialize(String s) {
+		if(Base64.isBase64(s)){
+			org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
+			try {
+				yamlConfiguration.loadFromString(new String(Base64.decodeBase64(s)));
+				return yamlConfiguration.getItemStack("item");
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return null;
+	}
+	
 	public static boolean isHelmet(ItemStack itemStack){
 		if(itemStack==null)return false;
 		Material material = itemStack.getType();

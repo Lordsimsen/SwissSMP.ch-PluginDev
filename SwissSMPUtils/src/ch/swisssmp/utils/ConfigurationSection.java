@@ -13,7 +13,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -364,15 +363,7 @@ public class ConfigurationSection{
 	
 	public ItemStack getItemStack(String arg0){
 		if(Base64.isBase64(this.getString(arg0))){
-			org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
-			try {
-				yamlConfiguration.loadFromString(new String(Base64.decodeBase64(this.getString(arg0))));
-				return yamlConfiguration.getItemStack("item");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
+			return ItemUtil.deserialize(this.getString(arg0));
 		}
 		else return this.configurationSection.getItemStack(arg0);
 	}
@@ -417,10 +408,8 @@ public class ConfigurationSection{
 	}
 	
 	public void set(String arg0, ItemStack arg1){
-		org.bukkit.configuration.file.YamlConfiguration yamlConfiguration = new YamlConfiguration();
-		yamlConfiguration.set("item", arg1);
-		String encoded = Base64.encodeBase64String(yamlConfiguration.saveToString().getBytes());
-		this.set(arg0, encoded);
+		String itemStackString = ItemUtil.serialize(arg1);
+		this.set(arg0, itemStackString);
 	}
 
 	public void set(String arg0, Object arg1) {

@@ -1,8 +1,40 @@
 package ch.swisssmp.utils;
 
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
+import com.google.gson.JsonObject;
+
 public class VectorUtil {
+	public static JsonObject serialize(EulerAngle euler) {
+		JsonObject result = new JsonObject();
+		result.addProperty("x", euler.getX());
+		result.addProperty("y", euler.getX());
+		result.addProperty("z", euler.getX());
+		return result;
+	}
+	
+	public static EulerAngle deserializeEuler(JsonObject data) {
+		double x = data.get("x").getAsDouble();
+		double y = data.get("y").getAsDouble();
+		double z = data.get("z").getAsDouble();
+		return new EulerAngle(x,y,z);
+	}
+	
+	public static JsonObject serialize(Vector v) {
+		JsonObject result = new JsonObject();
+		result.addProperty("x", v.getX());
+		result.addProperty("y", v.getX());
+		result.addProperty("z", v.getX());
+		return result;
+	}
+	
+	public static Vector deserializeVector(JsonObject data) {
+		double x = data.get("x").getAsDouble();
+		double y = data.get("y").getAsDouble();
+		double z = data.get("z").getAsDouble();
+		return new Vector(x,y,z);
+	}
 	/**
 	 * Returns whether a Vector is between from and to (inclusive)
 	 */
