@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -25,25 +26,37 @@ public class NetherPortalAgent {
 	
 	public static Location getTargetLocation(Location location, int portalSearchRadius, int spaceSearchRadius, BlockVector firstSpaceSearch, BlockVector secondSpaceSearch, boolean allowCreation) {
 		World world = location.getWorld();
+		int maxHeight = Math.min(world.getMaxHeight(), world.getEnvironment()!=Environment.NETHER ? Integer.MAX_VALUE : 128);
 		Location portalSearchMin = new Location(world, location.getX() - portalSearchRadius, 0, location.getZ() - portalSearchRadius);
-		Location portalSearchMax = new Location(world, location.getX() + portalSearchRadius, world.getMaxHeight()-1, location.getZ() + portalSearchRadius);
+		Location portalSearchMax = new Location(world, location.getX() + portalSearchRadius, maxHeight-1, location.getZ() + portalSearchRadius);
 		Block closestPortalBlock = getClosestPortalBlock(location, portalSearchMin, portalSearchMax);
 		if(closestPortalBlock!=null) {
+			// Bukkit.getLogger().info("[NetherPortalFixer] Portal gefunden");
 			return closestPortalBlock.getLocation();
 		}
 
 		Location spaceSearchMin = new Location(world, location.getX() - spaceSearchRadius, 0, location.getZ() - spaceSearchRadius);
-		Location spaceSearchMax = new Location(world, location.getX() + spaceSearchRadius, world.getMaxHeight()-1, location.getZ() + spaceSearchRadius);
+		Location spaceSearchMax = new Location(world, location.getX() + spaceSearchRadius, maxHeight-1, location.getZ() + spaceSearchRadius);
 		AbstractMap.SimpleEntry<Block,BlockFace> emptySpaceBlock = getEmptySpaceBlock(location, spaceSearchMin, spaceSearchMax, firstSpaceSearch, secondSpaceSearch);
 		if(emptySpaceBlock!=null) {
-			if(allowCreation) createPortal(emptySpaceBlock.getKey(), emptySpaceBlock.getValue());
+			Bukkit.getLogger().info("[NetherPortalFixer] Freie Fläche gefunden");
+			if(allowCreation) {
+				// Bukkit.getLogger().info("[NetherPortalFixer] Generiere Portal");
+				createPortal(emptySpaceBlock.getKey(), emptySpaceBlock.getValue());
+			}
+			else {
+
+				// Bukkit.getLogger().info("[NetherPortalFixer] Teleportiere ohne Portal");
+			}
 			return emptySpaceBlock.getKey().getLocation();
 		}
 
 		if(!allowCreation) {
+			// Bukkit.getLogger().info("[NetherPortalFixer] Suche freie Fläche");
 			return getFreeSpace(location.getBlock()).getLocation();
 		}
-		
+
+		// Bukkit.getLogger().info("[NetherPortalFixer] Erzwinge Portal");
 		AbstractMap.SimpleEntry<Block,BlockFace> forcedSpaceBlock = getForcedSpaceBlock(location, spaceSearchMin, spaceSearchMax);
 		createPortal(forcedSpaceBlock.getKey(), forcedSpaceBlock.getValue());
 		return forcedSpaceBlock.getKey().getLocation();
@@ -102,7 +115,11 @@ public class NetherPortalAgent {
 			for(int x = min.getBlockX(); x <= max.getBlockX(); x++) {
 				for(int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
 					Block current = world.getBlockAt(x, y, z);
-					if(current.getType()!=Material.AIR || !current.getRelative(BlockFace.DOWN).getType().isBlock()) {
+					if(current.getType()!=Material.AIR) {
+						continue;
+					}
+					Material below = current.getRelative(BlockFace.DOWN).getType();
+					if(!below.isSolid() || below==Material.BEDROCK) {
 						continue;
 					}
 					boolean isCandidate = true;

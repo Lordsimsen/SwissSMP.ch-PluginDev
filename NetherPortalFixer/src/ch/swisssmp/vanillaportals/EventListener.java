@@ -45,6 +45,7 @@ public class EventListener implements Listener {
 		
 		Location cached = PortalLinkCache.getCached(from);
 		if(cached!=null) {
+			// Bukkit.getLogger().info("[NetherPortalFixer] Zwischengespeicherten Link gefunden: "+cached.getWorld().getName()+", "+cached.getX()+", "+cached.getY()+", "+cached.getZ());
 			return cached;
 		}
 		
@@ -53,7 +54,6 @@ public class EventListener implements Listener {
 		if(fromWorld==Bukkit.getWorlds().get(0) && toWorld.getName().equals(fromWorld.getName()+"_nether")){
 			/**
 			 * Spieler betritt Nether
-			 * Notiert informationen über den Eingangspunkt eines Reisenden
 			 */
 			Location rawLocation = from;
 			remappedLocation = new Location(toWorld, rawLocation.getX() / netherSizeRatio, rawLocation.getY(), rawLocation.getZ() / netherSizeRatio, rawLocation.getYaw(), rawLocation.getPitch());
@@ -62,7 +62,6 @@ public class EventListener implements Listener {
 		else if(toWorld==Bukkit.getWorlds().get(0) && fromWorld.getName().equals(toWorld.getName()+"_nether")){
 			/**
 			 * Spieler verlässt Nether
-			 * Stellt bei der Rückreise sicher, dass der Reisende zu seinem Eingangspunkt gesetzt wird
 			 */
 			Location rawLocation = from;
 			remappedLocation = new Location(toWorld, rawLocation.getX() * netherSizeRatio, rawLocation.getY(), rawLocation.getZ() * netherSizeRatio);
