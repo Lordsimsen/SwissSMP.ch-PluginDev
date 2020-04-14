@@ -30,8 +30,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import ch.swisssmp.webcore.WebCore;
-
 public class ConfigurationSection{
 
 	protected org.bukkit.configuration.ConfigurationSection configurationSection;
@@ -188,7 +186,7 @@ public class ConfigurationSection{
 			return new PotionData(type, extended, upgraded);
 		}
 		catch(Exception e){
-			WebCore.debug("Unkown potion type "+typeName);
+			Bukkit.getLogger().info("Unkown potion type "+typeName);
 			return null;
 		}
 	}
@@ -209,7 +207,7 @@ public class ConfigurationSection{
 			return new PotionEffect(type, duration, amplifier, ambient, particles, icon);
 		}
 		catch(Exception e){
-			WebCore.debug("Unkown potion type "+typeName);
+			Bukkit.getLogger().info("Unkown potion type "+typeName);
 			return null;
 		}
 	}
