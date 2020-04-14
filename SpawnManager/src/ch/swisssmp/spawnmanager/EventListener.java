@@ -69,7 +69,7 @@ public class EventListener implements Listener {
 			event.getPlayer().setStatistic(Statistic.TIME_SINCE_REST, 0);
 		},10L);
 		
-		double distanceToPreviousBed = previousBed.distanceSquared(block.getLocation());
+		double distanceToPreviousBed = previousBed!=null && block!=null ? previousBed.distanceSquared(block.getLocation()) : Double.MAX_VALUE;
 		if(distanceToPreviousBed>36){
 			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GREEN+"Spawpunkt gesetzt!");
 		}
