@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import ch.swisssmp.npc.conversations.NPCConversation;
@@ -49,6 +50,11 @@ public class EventListener implements Listener {
 
 		boolean cancelEvent = triggerInteraction(event.getPlayer(), npc, event.getHand());
 		event.setCancelled(cancelEvent);
+	}
+	
+	@EventHandler
+	private void onWorldUnload(WorldUnloadEvent event) {
+		NPCUnpacker.stop(event.getWorld());
 	}
 	
 	private boolean triggerInteraction(Player player, NPCInstance npc, EquipmentSlot hand) {

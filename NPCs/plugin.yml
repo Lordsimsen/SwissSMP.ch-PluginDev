@@ -1,5 +1,5 @@
 main: ch.swisssmp.npc.NPCs
-version: 1.2
+version: 1.3
 api-version: 1.13
 name: NPCs
 author: detig_iii
@@ -17,4 +17,12 @@ commands:
   npc create:
     description: Erstellt einen NPC an deiner Position
     usage: "/<command> <subcommand> [Typ]"
+    permission: npc.admin
+  npc pack:
+    description: Verpackt alle NPCs in Spawn-Eier, ausführen bevor eine Welt umbenannt oder transferiert wird
+    usage: "/<command> <subcommand>"
+    permission: npc.admin
+  npc unpack:
+    description: Entpackt alle NPCs, ausführen nachdem eine Welt umbenannt oder transferiert worden ist
+    usage: "/<command> <subcommand>"
     permission: npc.admin

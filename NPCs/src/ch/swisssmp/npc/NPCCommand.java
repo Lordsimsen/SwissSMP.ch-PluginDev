@@ -1,6 +1,7 @@
 package ch.swisssmp.npc;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,6 +20,7 @@ public class NPCCommand implements CommandExecutor {
 			return true;
 		}
 		Player player = (Player) sender;
+		String prefix = NPCs.getPrefix();
 		
 		switch(args[0].toLowerCase()){
 		case "erstelle":
@@ -40,6 +42,18 @@ public class NPCCommand implements CommandExecutor {
 				return true;
 			}
 			SwissSMPler.get(player).sendActionBar(ChatColor.GREEN+"NPC erstellt!");
+			return true;
+		}
+		case "pack":{
+			World world = player.getWorld();
+			NPCs.pack(world);
+			sender.sendMessage(prefix+ChatColor.GREEN+" NPCs verpackt");
+			return true;
+		}
+		case "unpack":{
+			World world = player.getWorld();
+			NPCs.unpack(world);
+			sender.sendMessage(prefix+ChatColor.GREEN+" NPCs entpackt");
 			return true;
 		}
 		default: return false;

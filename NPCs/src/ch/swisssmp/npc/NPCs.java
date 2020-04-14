@@ -1,6 +1,8 @@
 package ch.swisssmp.npc;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,6 +32,19 @@ public class NPCs extends JavaPlugin {
 		NPCConversation.clear();
 		PluginDescriptionFile pdfFile = getDescription();
 		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+	
+	public static void pack(World world) {
+		NPCUnpacker.stop(world);
+		NPCPacker.pack(world);
+	}
+	
+	public static void unpack(World world) {
+		NPCUnpacker.initialize(world);
+	}
+	
+	protected static String getPrefix() {
+		return "["+ChatColor.LIGHT_PURPLE+"NPCs"+ChatColor.RESET+"]";
 	}
 	
 	public static NPCs getInstance(){
