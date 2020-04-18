@@ -1,4 +1,4 @@
-package ch.swisssmp.zones.editor;
+package ch.swisssmp.zones.editor.slots;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,17 +13,17 @@ import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ButtonSlot;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.zones.ZoneEditor;
+import ch.swisssmp.zones.zoneinfos.ZoneInfo;
 
-public class CancelZoneEditorSlot extends ButtonSlot {
+public class RemoveZoneSlot extends ButtonSlot {
 
-	private final ZoneEditor editor;
+	private final ZoneInfo zoneInfo;
 	
 	private boolean confirmed = false;
 	
-	public CancelZoneEditorSlot(CustomEditorView view, int slot, ZoneEditor editor) {
+	public RemoveZoneSlot(CustomEditorView view, int slot, ZoneInfo zoneInfo) {
 		super(view, slot);
-		this.editor = editor;
+		this.zoneInfo = zoneInfo;
 	}
 
 	@Override
@@ -34,9 +34,9 @@ public class CancelZoneEditorSlot extends ButtonSlot {
 			return;
 		}
 		this.getView().closeLater();
-		editor.cancel();
+		zoneInfo.remove();
 
-		SwissSMPler.get((Player) this.getView().getPlayer()).sendActionBar(ChatColor.RED+"Bearbeiten abgebrochen.");
+		SwissSMPler.get((Player) this.getView().getPlayer()).sendActionBar(ChatColor.RED+"Zone entfernt");
 	}
 
 	@Override
@@ -52,16 +52,16 @@ public class CancelZoneEditorSlot extends ButtonSlot {
 	@Override
 	public String getName() {
 		if(!confirmed){
-			return ChatColor.RED+"Bearbeiten abbrechen";
+			return ChatColor.RED+"Zone entfernen";
 		}
 		else{
-			return ChatColor.RED+"Wirklich abbrechen?";
+			return ChatColor.RED+"Zone wirklich entfernen?";
 		}
 	}
 
 	@Override
 	protected List<String> getNormalDescription() {
-		return Arrays.asList("Die Eckpunkte werden", "dadurch zurückgesetzt.");
+		return Arrays.asList("Alle Zonenpläne dieser", "Zone werden geleert.");
 	}
 
 	@Override

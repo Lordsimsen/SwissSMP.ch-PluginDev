@@ -1,4 +1,4 @@
-package ch.swisssmp.zones;
+package ch.swisssmp.zones.editor;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

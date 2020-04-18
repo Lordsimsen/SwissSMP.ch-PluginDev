@@ -1,4 +1,4 @@
-package ch.swisssmp.zones.editor;
+package ch.swisssmp.zones.editor.slots;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ButtonSlot;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zones.ItemManager;
-import ch.swisssmp.zones.ZoneEditor;
+import ch.swisssmp.zones.editor.ZoneEditor;
 import ch.swisssmp.zones.zoneinfos.ZoneInfo;
 
 public class ConfirmZoneEditorSlot extends ButtonSlot {

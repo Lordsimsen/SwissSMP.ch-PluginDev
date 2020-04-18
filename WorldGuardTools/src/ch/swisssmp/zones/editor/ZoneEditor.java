@@ -1,4 +1,4 @@
-package ch.swisssmp.zones;
+package ch.swisssmp.zones.editor;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,7 +33,9 @@ import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.zones.editor.ActionResult;
+import ch.swisssmp.zones.MemberRole;
+import ch.swisssmp.zones.ZoneContainer;
+import ch.swisssmp.zones.ZonesPlugin;
 import ch.swisssmp.zones.zoneinfos.PolygonZoneInfo;
 import ch.swisssmp.zones.zoneinfos.ZoneInfo;
 
@@ -237,10 +239,10 @@ public class ZoneEditor implements Runnable, Listener {
 		if(locations.size()<2) return;
 		this.points = locations;
 		if(zoneInfo.getRegionType()==RegionType.POLYGON){
-			this.edges = ZoneUtil.buildPolygonEdges(locations);
+			this.edges = ZoneEditorUtil.buildPolygonEdges(locations);
 		}
 		else{
-			this.edges = ZoneUtil.buildBoxEdges(locations.get(0), locations.get(1));
+			this.edges = ZoneEditorUtil.buildBoxEdges(locations.get(0), locations.get(1));
 		}
 		float length = 0;
 		for(Edge edge : this.edges){

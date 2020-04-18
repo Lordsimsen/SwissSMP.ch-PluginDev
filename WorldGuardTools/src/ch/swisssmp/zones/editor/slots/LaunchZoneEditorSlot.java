@@ -1,4 +1,4 @@
-package ch.swisssmp.zones.editor;
+package ch.swisssmp.zones.editor.slots;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ButtonSlot;
-import ch.swisssmp.zones.ZoneEditor;
+import ch.swisssmp.zones.editor.ZoneEditor;
 import ch.swisssmp.zones.zoneinfos.ZoneInfo;
 
 public class LaunchZoneEditorSlot extends ButtonSlot {

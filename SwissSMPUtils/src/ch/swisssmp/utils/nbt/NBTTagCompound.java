@@ -191,6 +191,10 @@ public class NBTTagCompound extends NBTBase {
 		return new Position(x,y,z,yaw,pitch);
 	}
 	
+	public boolean isEmpty() {
+		return this.nbtTag.isEmpty();
+	}
+	
 	public String asString(){
 		return nbtTag.asString();
 	}

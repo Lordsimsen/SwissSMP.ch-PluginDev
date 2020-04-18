@@ -1,4 +1,4 @@
-package ch.swisssmp.zones;
+package ch.swisssmp.zones.editor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,9 +8,11 @@ import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
-import ch.swisssmp.zones.editor.ConfirmZoneEditorSlot;
-import ch.swisssmp.zones.editor.LaunchZoneEditorSlot;
-import ch.swisssmp.zones.editor.RemoveZoneSlot;
+import ch.swisssmp.zones.MemberRole;
+import ch.swisssmp.zones.ZoneType;
+import ch.swisssmp.zones.editor.slots.ConfirmZoneEditorSlot;
+import ch.swisssmp.zones.editor.slots.LaunchZoneEditorSlot;
+import ch.swisssmp.zones.editor.slots.RemoveZoneSlot;
 import ch.swisssmp.zones.zoneinfos.ZoneInfo;
 import ch.swisssmp.zones.zoneinfos.ZoneInfoState;
 
