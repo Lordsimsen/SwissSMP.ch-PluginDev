@@ -61,16 +61,34 @@ public class CustomItems extends JavaPlugin{
 		CustomMaterialTemplates.load();
 		CustomItemTemplates.load();
 	}
-	
+
+	/**
+	 * List den customEnum vom angegebenen ItemStack.
+	 * @param itemStack - Der zu analysierende ItemStack.
+	 * @return Den gefundenen customEnum oder <code>null</code>.
+	 */
 	public static String getCustomEnum(ItemStack itemStack){
 		if(itemStack==null)return null;
 		return ItemUtil.getString(itemStack, "customEnum");
 	}
 	
-	public static CustomItemBuilder getCustomItemBuilder(String custom_enum){
-		return CustomItems.getCustomItemBuilder(custom_enum, 1);
+	/**
+	 * Generiert ein Factory Objekt aufgrund einer voreingestellten Konfiguration, identifiziert durch den customEnum.
+	 * Der generierte ItemStack wird ohne weitere Einstellung eine Menge von 1 haben.
+	 * @param customEnum - Entspricht dem Wert aus dem Web-Interface
+	 * @return Ein CustomItemBuilder mit allen Voreinstellungen für den angegebenen CustomEnum.
+	 */
+	public static CustomItemBuilder getCustomItemBuilder(String customEnum){
+		return CustomItems.getCustomItemBuilder(customEnum, 1);
 	}
-	
+
+	/**
+	 * Generiert ein Factory Objekt aufgrund einer voreingestellten Konfiguration, identifiziert durch den customEnum.
+	 * Der generierte ItemStack wird die angegebene Grösse haben.
+	 * @param customEnum - Entspricht dem Wert aus dem Web-Interface
+	 * @param amount - Setzt die Grösse
+	 * @return Ein CustomItemBuilder mit allen Voreinstellungen für den angegebenen CustomEnum und der festgelegten Grösse.
+	 */
 	public static CustomItemBuilder getCustomItemBuilder(String custom_enum, int amount){
 		IBuilderTemplate template = CustomItemTemplate.get(custom_enum);
 		if(template==null) template = CustomMaterialTemplate.get(custom_enum);
@@ -87,12 +105,23 @@ public class CustomItems extends JavaPlugin{
 		result.setAmount(amount);
 		return result;
 	}
-	
+
+	/**
+	 * Generiert ein Factory Objekt aufgrund einer ConfigurationSection.
+	 * @param dataSection - Eine ConfigurationSection mit allen zu setzenden Werten
+	 * @return Ein CustomItemBuilder mit allen Voreinstellungen aus der dataSection.
+	 */
 	public static CustomItemBuilder getCustomItemBuilder(ConfigurationSection dataSection){
 		int amount = dataSection.contains("amount") ? dataSection.getInt("amount") : 1;
 		return getCustomItemBuilder(dataSection, amount);
 	}
-	
+
+	/**
+	 * Generiert ein Factory Objekt aufgrund einer ConfigurationSection und einer Grösse.
+	 * @param dataSection - Eine ConfigurationSection mit allen zu setzenden Werten
+	 * @param amount - Setzt die Grösse des resultierenden ItemStacks
+	 * @return Ein CustomItemBuilder mit allen Voreinstellungen aus der dataSection.
+	 */
 	public static CustomItemBuilder getCustomItemBuilder(ConfigurationSection dataSection, int amount){
 		if(dataSection==null) return null;
 		CustomItemBuilder customItemBuilder;
@@ -107,7 +136,13 @@ public class CustomItems extends JavaPlugin{
 		customItemBuilder.setAmount(amount);
 		return customItemBuilder;
 	}
-	
+
+	/**
+	 * Wendet alle Einstellungen aus der ConfigurationSection auf den CustomItemBuilder an.
+	 * @param dataSection - Eine ConfigurationSection mit allen zu setzenden Werten
+	 * @param customItemBuilder - Der zu modifizierende CustomItemBuilder
+	 * @return Der angegebene CustomItemBuilder, zur vereinfachten Verkettung von Befehlen.
+	 */
 	public static CustomItemBuilder getCustomItemBuilder(ConfigurationSection dataSection, CustomItemBuilder customItemBuilder){
 		if(dataSection==null) return customItemBuilder;
 		for(String key : dataSection.getKeys(false)){
@@ -282,6 +317,13 @@ public class CustomItems extends JavaPlugin{
 		return customItemBuilder;
 	}
 
+	/**
+	 * Prüft die Crafting-Matrix auf alle Zutaten aus dem ShapedRecipe, unter Beachtung von CustomItems
+	 * @param shape - Die Form aus dem ShapedRecipe
+	 * @param ingredients - Die Zutaten aus dem ShapedRecipe
+	 * @param inventory - Das Crafting Inventar
+	 * @return <code>true</code>, wenn alle Zutaten exakt gleich sind, ansonsten <code>false</code>
+	 */
 	public static boolean checkIngredients(String[] shape, Map<Character,RecipeChoice> ingredients, CraftingInventory inventory){
 		//String ingredientCustomEnum;
 		ItemStack[] matrix = inventory.getMatrix();
@@ -336,7 +378,13 @@ public class CustomItems extends JavaPlugin{
 		}
 		return true;
 	}
-	
+
+	/**
+	 * Prüft die Crafting-Matrix auf alle Zutaten aus dem ShapelessRecipe, unter Beachtung von CustomItems
+	 * @param recipe - Das Crafting Rezept
+	 * @param inventory - Das Crafting Inventar
+	 * @return <code>true</code>, wenn alle Zutaten exakt gleich sind, ansonsten <code>false</code>
+	 */
 	public static boolean checkIngredients(ShapelessRecipe recipe, CraftingInventory inventory){
 		
 		for(RecipeChoice choice : recipe.getChoiceList()){
@@ -363,6 +411,58 @@ public class CustomItems extends JavaPlugin{
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Prüft, ob das zu schmelzende Item exakt dem FurnaceRecipe entspricht, unter Beachtung von CustomItems
+	 * @param recipe - Das Rezept
+	 * @param inventory - Das Inventar
+	 * @return <code>true</code>, wenn die Zutat exakt gleich ist, ansonsten <code>false</code>
+	 */
+	public static boolean checkIngredients(FurnaceRecipe recipe, FurnaceInventory inventory){
+		ItemStack ingredient = recipe.getInput();
+		for(ItemStack itemStack : inventory){
+			if(itemStack==null)continue;
+			if(itemStack.isSimilar(ingredient)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Prüft, ob die gebotenen Items exakt dem Handel entsprechen, unter Beachtung von CustomItems
+	 * @param recipe - Das Rezept
+	 * @param inventory - Das Inventar
+	 * @return <code>true</code>, wenn das Angebot exakt gleich ist, ansonsten <code>false</code>
+	 */
+	public static boolean checkIngredients(MerchantRecipe recipe, MerchantInventory inventory){
+		outer:
+		for(ItemStack ingredient : recipe.getIngredients()){
+			for(ItemStack itemStack : inventory){
+				if(itemStack==null)continue;
+				if(itemStack.isSimilar(ingredient)){
+					continue outer;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Entfernt alle abgelaufenen Items aus dem Inventar. Ob ein ItemStack ein Ablaufdatum hat, und wann dieses ist, wird durch den NBT-Wert 'expirationDate' festgelegt.
+	 * @param inventory - Das zu prüfende Inventar
+	 */
+	public static void clearExpiredItems(Inventory inventory){
+		long currentTime = System.currentTimeMillis()/1000;
+		long expirationDate;
+		for(ItemStack itemStack : inventory){
+			if(itemStack==null) continue;
+			expirationDate = ItemUtil.getInt(itemStack, "expirationDate");
+			if(expirationDate==0 || expirationDate>currentTime) continue;
+			itemStack.setAmount(0);
+		}
 	}
 	
 	private static int getShapeWidth(String[] shape) {
@@ -412,42 +512,6 @@ public class CustomItems extends JavaPlugin{
 			}
 		}
 		return 0;
-	}
-	
-	public static boolean checkIngredients(FurnaceRecipe recipe, FurnaceInventory inventory){
-		ItemStack ingredient = recipe.getInput();
-		for(ItemStack itemStack : inventory){
-			if(itemStack==null)continue;
-			if(itemStack.isSimilar(ingredient)){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public static boolean checkIngredients(MerchantRecipe recipe, MerchantInventory inventory){
-		outer:
-		for(ItemStack ingredient : recipe.getIngredients()){
-			for(ItemStack itemStack : inventory){
-				if(itemStack==null)continue;
-				if(itemStack.isSimilar(ingredient)){
-					continue outer;
-				}
-			}
-			return false;
-		}
-		return true;
-	}
-	
-	public static void clearExpiredItems(Inventory inventory){
-		long currentTime = System.currentTimeMillis()/1000;
-		long expirationDate;
-		for(ItemStack itemStack : inventory){
-			if(itemStack==null) continue;
-			expirationDate = ItemUtil.getInt(itemStack, "expirationDate");
-			if(expirationDate==0 || expirationDate>currentTime) continue;
-			itemStack.setAmount(0);
-		}
 	}
 	
 	protected static void uploadData(){

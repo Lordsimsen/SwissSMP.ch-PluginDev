@@ -10,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -20,8 +19,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import ch.swisssmp.utils.EnchantmentData;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import net.minecraft.server.v1_15_R1.NBTTagList;
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.nbt.NBTTagCompound;
+import ch.swisssmp.utils.nbt.NBTTagList;
 
 public class CustomItemBuilder {
 	//itemStack
@@ -332,51 +332,53 @@ public class CustomItemBuilder {
 		return result;
 	}
 	public void update(ItemStack itemStack){
+		if(this.material!=null) itemStack.setType(material);
 		if(useNMS){
-			net.minecraft.server.v1_15_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
-			NBTTagCompound nbtTags;
-			if(craftItemStack.hasTag())
-				nbtTags = craftItemStack.getTag();
-			else
-				nbtTags = new NBTTagCompound();
+			NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
 			
 			if(!this.customEnum.isEmpty()){
-				nbtTags.setString("customEnum", this.customEnum);
+				nbtTag.setString("customEnum", this.customEnum);
 			}
+			
 			if(this.item_id>0){
-				nbtTags.setInt("item_id", item_id);
+				nbtTag.setInt("item_id", item_id);
 			}
+			
 			if(this.maxCustomDurability>0){
-				nbtTags.setInt("maxCustomDurability", this.maxCustomDurability);
-				if(!nbtTags.hasKey("customDurability")){
-					nbtTags.setInt("customDurability", this.customDurability);
+				nbtTag.setInt("maxCustomDurability", this.maxCustomDurability);
+				if(!nbtTag.hasKey("customDurability")){
+					nbtTag.setInt("customDurability", this.customDurability);
 				}
-				else if(nbtTags.getInt("customDurability")>this.maxCustomDurability){
-					nbtTags.setInt("customDurability", this.maxCustomDurability);
+				else if(nbtTag.getInt("customDurability")>this.maxCustomDurability){
+					nbtTag.setInt("customDurability", this.maxCustomDurability);
 				}
 			}
+			
 			if(this.customPotionColor>0){
-				nbtTags.setInt("CustomPotionColor", this.customPotionColor);
+				nbtTag.setInt("CustomPotionColor", this.customPotionColor);
 			}
+			
 			if(this.colorMap>0){
-				nbtTags.setInt("ColorMap", this.colorMap);
+				nbtTag.setInt("ColorMap", this.colorMap);
 			}
+			
 			if(this.expirationDate>0){
-				nbtTags.setLong("expirationDate", this.expirationDate);
+				nbtTag.setLong("expirationDate", this.expirationDate);
 			}
+			
 			if(this.maxStackSize>0){
-				nbtTags.setInt("maxStackSize", this.maxStackSize);
+				nbtTag.setInt("maxStackSize", this.maxStackSize);
 			}
+			
 			NBTTagList attributeModifiers = this.buildAttributeModifiers();
 			if(!attributeModifiers.isEmpty()){
-				nbtTags.set("AttributeModifiers", attributeModifiers);
+				nbtTag.set("AttributeModifiers", attributeModifiers);
 			}
-			if(!nbtTags.isEmpty()){
-				craftItemStack.setTag(nbtTags);
-				itemStack.setItemMeta(CraftItemStack.getItemMeta(craftItemStack));
-			}
+			
+			ItemUtil.setData(itemStack, nbtTag);
 		}
 		itemStack.setItemMeta(buildItemMeta(itemStack));
+		
 		for(CustomItemBuilderModifier c : components) {
 			try {
 				c.apply(itemStack);
