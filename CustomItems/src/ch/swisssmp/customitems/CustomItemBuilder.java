@@ -335,6 +335,7 @@ public class CustomItemBuilder {
 		if(this.material!=null) itemStack.setType(material);
 		if(useNMS){
 			NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
+			if(nbtTag==null) nbtTag = new NBTTagCompound();
 			
 			if(!this.customEnum.isEmpty()){
 				nbtTag.setString("customEnum", this.customEnum);
