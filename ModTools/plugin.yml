@@ -1,0 +1,34 @@
+main: ch.swisssmp.modtools.ModTools
+version: 1.0
+api-version: 1.13
+name: ModTools
+author: detig_iii
+description: Erlaubt Moderatoren Bannen und Entbannen von Spielern
+depend: [WebCore,PermissionManager]
+permissions: 
+  modtools.use:
+    default: op
+    description: Erlaubt die Verwendung des Plugins
+commands:
+  ban:
+    usage: /<command> [Spieler] (Grund)
+    description: Verbannt einen Spieler
+    permission: modtools.use
+  ban-ip:
+    usage: /<command> [Spieler] (Grund)
+    description: Verbannt einen Spieler anhand seiner IP
+    permission: modtools.use
+    aliases: [banip]
+  pardon:
+    usage: /<command> [Spieler]
+    description: Entbannt einen Spieler
+    permission: modtools.use
+  pardon-ip:
+    usage: /<command> [Spieler]
+    description: Entbannt einen Spieler anhand seiner IP
+    permission: modtools.use
+    aliases: [pardonip]
+  kick:
+    usage: /<command> [Spieler] (Grund)
+    description: Kickt einen Spieler
+    permission: modtools.use
