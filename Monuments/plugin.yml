@@ -1,14 +1,16 @@
 main: ch.swisssmp.monuments.Monuments
-version: 1.0
+version: 0.1
 api-version: 1.13
 name: Monuments
-depend: [AddonAbnahme,CitySystem,NPCs,CustomEditorAPI,SwissSMPUtils]
+author: Plexon21
+depend: [WebCore]
 permissions:
   monuments.admin:
-    description: Erlaubt die Administration des Plugins
+    description: Erlaubt die Verwaltung der Monumente
     default: op
 commands:
-  monument:
+  monuments:
     description: Hauptbefehl zur Verwaltung von Monumenten
-    usage: "Verwendung: /<command> <subcommand> [Argumente]"
     permission: monuments.admin
+  monuments reloadCache:
+    description: Ladet alle Monumente neu
