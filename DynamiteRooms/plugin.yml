@@ -1,6 +1,0 @@
-main: ch.swisssmp.dynamiterooms.Main
-version: 1.0
-name: DynamiteRooms
-author: detig_iii
-description: Allow TNT destruction only in set areas
-depend: [WorldGuard]
