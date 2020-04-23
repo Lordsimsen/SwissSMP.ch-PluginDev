@@ -42,7 +42,7 @@ public class Tournament implements Listener{
 	private Tournament(KnightsArena arena, Player master){
 		this.arena = arena;
 		this.master = SwissSMPler.get(master);
-		Bukkit.getPluginManager().registerEvents(this, KnightsTournament.plugin);
+		Bukkit.getPluginManager().registerEvents(this, KnightsTournamentPlugin.plugin);
 		tournaments.put(master.getUniqueId(), this);
 		this.arena.runTournament(this);
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "broadcast In kürze startet ein §cRitterspiel!");
@@ -50,7 +50,7 @@ public class Tournament implements Listener{
 	
 	public static Tournament initialize(KnightsArena arena, Player master){
 		if(arena.getTournament()!=null){
-			master.sendMessage(KnightsTournament.prefix+" In dieser Arena läuft bereits ein Turnier.");
+			master.sendMessage(KnightsTournamentPlugin.prefix+" In dieser Arena läuft bereits ein Turnier.");
 			return null;
 		}
 		return new Tournament(arena, master);
@@ -166,7 +166,7 @@ public class Tournament implements Listener{
 		if(!this.prepareTournament()) return false;
 		this.bracket = new TournamentBracket(this, this.participants);
 		Duel firstDuel = this.bracket.getNextDuel();
-		Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
 			public void run(){
 				firstDuel.prepare();
 			}
@@ -193,7 +193,7 @@ public class Tournament implements Listener{
 					}
 					Location location = player.getLocation();
 					for(int i = 0; i < 10; i++){
-						Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
+						Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
 							public void run(){
 								spawnFirework(location);
 								
@@ -202,7 +202,7 @@ public class Tournament implements Listener{
 					}
 				}
 			}
-			Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
+			Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
 				public void run(){
 					finish();
 				}

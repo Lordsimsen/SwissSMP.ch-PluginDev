@@ -2,8 +2,8 @@ package ch.swisssmp.knightstournament;
 
 import java.util.List;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,6 +18,8 @@ import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
+import ch.swisssmp.webcore.RequestMethod;
 
 public class EventListener implements Listener {
 
@@ -45,19 +47,25 @@ public class EventListener implements Listener {
 		if(!player.hasPermission("knightstournament.admin")){
 			return;
 		}
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("knights_tournament/sign.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(KnightsTournamentPlugin.getInstance(), "sign.php", new String[]{
 				"arena="+URLEncoder.encode(lines[1]),
 				"action="+URLEncoder.encode(lines[2])
-		});
-		if(yamlConfiguration==null) return;
-		if(yamlConfiguration.contains("message")){
-			player.sendMessage(yamlConfiguration.getString("message"));
-		}
-		if(yamlConfiguration.contains("lines")){
-			List<String> linesSection = yamlConfiguration.getStringList("lines");
-			for(int i = 0; i < linesSection.size() && i < 4; i++){
-				event.setLine(i,linesSection.get(i));
+		}, RequestMethod.POST_SYNC);
+		YamlConfiguration yamlConfiguration = new YamlConfiguration();
+		try{
+			yamlConfiguration.loadFromString(request.getResponse());
+			if(yamlConfiguration.contains("message")){
+				player.sendMessage(yamlConfiguration.getString("message"));
 			}
+			if(yamlConfiguration.contains("lines")){
+				List<String> linesSection = yamlConfiguration.getStringList("lines");
+				for(int i = 0; i < linesSection.size() && i < 4; i++){
+					event.setLine(i,linesSection.get(i));
+				}
+			}
+		}
+		catch(Exception e){
+			System.out.print(e);
 		}
 	}
 	
@@ -65,7 +73,8 @@ public class EventListener implements Listener {
 	private void onSignInteract(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		Block block = event.getClickedBlock();
-		if(block.getType()!=Material.WALL_SIGN && block.getType()!=Material.SIGN_POST) return;
+		BlockState state = block.getState();
+		if(!(state instanceof Sign)) return;
 		Sign sign = (Sign)block.getState();
 		if(!sign.getLine(0).equals("§4Ritterspiele")){
 			return;

@@ -20,7 +20,7 @@ public class PlayerCommand implements CommandExecutor {
 			Player player = (Player) sender;
 			KnightsArena arena = KnightsArena.get(args[1]);
 			if(arena==null){
-				sender.sendMessage(KnightsTournament.prefix+" Arena "+args[1]+" nicht gefunden.");
+				sender.sendMessage(KnightsTournamentPlugin.prefix+" Arena "+args[1]+" nicht gefunden.");
 				return true;
 			}
 			Tournament.initialize(arena, player);
@@ -34,7 +34,7 @@ public class PlayerCommand implements CommandExecutor {
 			Player player = (Player) sender;
 			Tournament tournament = Tournament.get(player);
 			if(tournament==null){
-				sender.sendMessage(KnightsTournament.prefix+" Du leitest momentan kein Turnier.");
+				sender.sendMessage(KnightsTournamentPlugin.prefix+" Du leitest momentan kein Turnier.");
 				return true;
 			}
 			tournament.start();
@@ -48,7 +48,7 @@ public class PlayerCommand implements CommandExecutor {
 			Player player = (Player) sender;
 			Tournament tournament = Tournament.get(player);
 			if(tournament==null){
-				sender.sendMessage(KnightsTournament.prefix+" Du leitest momentan kein Turnier.");
+				sender.sendMessage(KnightsTournamentPlugin.prefix+" Du leitest momentan kein Turnier.");
 				return true;
 			}
 			tournament.finish();

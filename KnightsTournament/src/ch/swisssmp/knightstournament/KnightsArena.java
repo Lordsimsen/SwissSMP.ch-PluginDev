@@ -8,6 +8,8 @@ import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
+import ch.swisssmp.webcore.RequestMethod;
 
 public class KnightsArena {
 	private static HashMap<String,KnightsArena> loadedArenas = new HashMap<String,KnightsArena>();
@@ -63,9 +65,17 @@ public class KnightsArena {
 	}
 	
 	public static KnightsArena load(String name){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("knights_tournament/arena.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(KnightsTournamentPlugin.getInstance(), "arena.php", new String[]{
 			"arena="+URLEncoder.encode(name)	
-		});
+		}, RequestMethod.POST_SYNC);
+		YamlConfiguration yamlConfiguration = new YamlConfiguration();
+		try{
+			yamlConfiguration.loadFromString(request.getResponse());
+			
+		}
+		catch(Exception e){
+			System.out.print(e);
+		}
 		if(yamlConfiguration.contains("arena")){
 			ConfigurationSection arenaSection = yamlConfiguration.getConfigurationSection("arena");
 			Location posOne = arenaSection.getLocation("pos_1");

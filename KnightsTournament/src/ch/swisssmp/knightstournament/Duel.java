@@ -49,10 +49,10 @@ public class Duel extends BukkitRunnable{
 		this.playerTwo = Bukkit.getPlayer(participantTwo.getPlayerUUID());
 		this.horseOne = this.participantOne.getHorse();
 		this.horseTwo = this.participantTwo.getHorse();
-		if(this.playerTwo!=null) this.participantOne.sendMessage(KnightsTournament.prefix+" Dein nächster Zweikampf: "+this.name+" gegen "+this.playerTwo.getDisplayName());
-		else this.participantOne.sendMessage(KnightsTournament.prefix+" "+this.name+" - Freipass!");
-		if(this.playerOne!=null) this.participantTwo.sendMessage(KnightsTournament.prefix+" Dein nächster Zweikampf: "+this.name+" gegen "+this.playerOne.getDisplayName());
-		else this.participantTwo.sendMessage(KnightsTournament.prefix+" "+this.name+" - Freipass!");
+		if(this.playerTwo!=null) this.participantOne.sendMessage(KnightsTournamentPlugin.prefix+" Dein nächster Zweikampf: "+this.name+" gegen "+this.playerTwo.getDisplayName());
+		else this.participantOne.sendMessage(KnightsTournamentPlugin.prefix+" "+this.name+" - Freipass!");
+		if(this.playerOne!=null) this.participantTwo.sendMessage(KnightsTournamentPlugin.prefix+" Dein nächster Zweikampf: "+this.name+" gegen "+this.playerOne.getDisplayName());
+		else this.participantTwo.sendMessage(KnightsTournamentPlugin.prefix+" "+this.name+" - Freipass!");
 	}
 	
 	public void prepare(){
@@ -61,8 +61,8 @@ public class Duel extends BukkitRunnable{
 		this.tournament.announce(this.name, this.playerOne.getDisplayName()+"§r§E vs. §r"+this.playerTwo.getDisplayName());
 		playerOne.setHealth(playerOne.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		playerTwo.setHealth(playerTwo.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-		participantOne.sendMessage(KnightsTournament.prefix+" Begib dich zur §cROTEN §rMarkierung.");
-		participantTwo.sendMessage(KnightsTournament.prefix+" Begib dich zur §9BLAUEN §rMarkierung.");
+		participantOne.sendMessage(KnightsTournamentPlugin.prefix+" Begib dich zur §cROTEN §rMarkierung.");
+		participantTwo.sendMessage(KnightsTournamentPlugin.prefix+" Begib dich zur §9BLAUEN §rMarkierung.");
 		if(horseOne!=null){
 			horseOne.removePotionEffect(PotionEffectType.SLOW);
 		}
@@ -125,7 +125,7 @@ public class Duel extends BukkitRunnable{
 		this.waypointTwo = null;
 		this.tournament.announce("Start!", this.playerOne.getDisplayName()+"§r§E vs. §r"+this.playerTwo.getDisplayName());
 		this.tournament.getArena().playCallSound();
-		this.runTaskTimer(KnightsTournament.plugin, 0, 1l);
+		this.runTaskTimer(KnightsTournamentPlugin.plugin, 0, 1l);
 		this.running = true;
 	}
 	
@@ -220,7 +220,7 @@ public class Duel extends BukkitRunnable{
 			this.cancel();
 			this.running = false;
 		}
-		Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
 			public void run(){
 				finish(winner, loser);
 			}
@@ -247,7 +247,7 @@ public class Duel extends BukkitRunnable{
 		if(this.waypointOne != null) this.waypointOne.cancel();
 		if(this.waypointTwo != null) this.waypointTwo.cancel();
 		if(this.tournament.runningDuel==this) this.tournament.runningDuel = null;
-		Bukkit.getScheduler().runTaskLater(KnightsTournament.plugin, new Runnable(){
+		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
 			public void run(){
 				tournament.proceed(winner);
 			}

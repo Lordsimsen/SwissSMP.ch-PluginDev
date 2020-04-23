@@ -4,24 +4,25 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.material.Wool;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.nbt.NBTTagCompound;
 
-public class KnightsTournament extends JavaPlugin{
+public class KnightsTournamentPlugin extends JavaPlugin{
 	protected static Logger logger;
 	protected static PluginDescriptionFile pdfFile;
 	protected static File dataFolder;
-	protected static KnightsTournament plugin;
+	protected static KnightsTournamentPlugin plugin;
 	
 	protected static CustomItemBuilder tournamentLanceBuilder = null;
 	protected static Recipe tournamentLanceRecipe;
@@ -37,7 +38,7 @@ public class KnightsTournament extends JavaPlugin{
 		PlayerCommand playerCommand = new PlayerCommand();
 		this.getCommand("knightstournament").setExecutor(playerCommand);
 		
-		KnightsTournament.loadTournamentLance();
+		KnightsTournamentPlugin.loadTournamentLance();
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
@@ -54,17 +55,16 @@ public class KnightsTournament extends JavaPlugin{
 		lanceBuilder.setAmount(1);
 		lanceBuilder.setAttackDamage(1);
 		lanceBuilder.setAttackSpeed(0.1f);
-		lanceBuilder.setDisplayName("§bTurnierlanze");
-		lanceBuilder.setLocalizedName("§bTournament Lance");
 		tournamentLanceBuilder = lanceBuilder;
-		ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(KnightsTournament.plugin, "Turnierlanze"), lanceBuilder.build());
+		ItemStack lance = lanceBuilder.build();
+		ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(KnightsTournamentPlugin.plugin, "tournament_lance"), lance);
 		recipe.shape(
 				"  i",
 				"wi ",
 				"bw "
 				);
 		recipe.setIngredient('i', Material.IRON_INGOT);
-		recipe.setIngredient('w', new Wool(DyeColor.RED));
+		recipe.setIngredient('w', Material.RED_WOOL);
 		recipe.setIngredient('b', Material.IRON_BLOCK);
 		tournamentLanceRecipe = recipe;
 		Bukkit.getServer().addRecipe(recipe);
@@ -76,5 +76,9 @@ public class KnightsTournament extends JavaPlugin{
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+	
+	public static KnightsTournamentPlugin getInstance(){
+		return plugin;
 	}
 }

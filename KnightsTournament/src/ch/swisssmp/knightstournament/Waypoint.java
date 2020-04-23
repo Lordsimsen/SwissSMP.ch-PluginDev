@@ -30,7 +30,7 @@ public class Waypoint extends BukkitRunnable{
 		this.goalDistanceSquared = Math.pow(this.goalDistance,2);
 		this.color = color;
 		this.onClear = onClear;
-		this.runTaskTimer(KnightsTournament.plugin, 0, 3l);
+		this.runTaskTimer(KnightsTournamentPlugin.plugin, 0, 3l);
 	}
 	@Override
 	public void run(){
