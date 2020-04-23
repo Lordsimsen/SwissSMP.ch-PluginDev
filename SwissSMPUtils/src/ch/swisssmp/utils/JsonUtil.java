@@ -3,6 +3,7 @@ package ch.swisssmp.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -33,13 +34,42 @@ public class JsonUtil {
         }
     }
 
+    public static String getString(String key, JsonObject json){
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        return element!=null && element.isJsonPrimitive() ? element.getAsString() : null;
+    }
+
+    public static float getFloat(String key, JsonObject json){
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        return element!=null && element.isJsonPrimitive() ? element.getAsFloat() : 0;
+    }
+
+    public static double getDouble(String key, JsonObject json){
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        return element!=null && element.isJsonPrimitive() ? element.getAsDouble() : 0;
+    }
+
+    public static int getInt(String key, JsonObject json){
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        return element!=null && element.isJsonPrimitive() ? element.getAsInt() : 0;
+    }
+
+    public static boolean getBool(String key, JsonObject json){
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        return element!=null && element.isJsonPrimitive() && element.getAsBoolean();
+    }
+
+    public static Color getColor(String key, JsonObject json){
+        return Color.fromRGB(getInt(key,json));
+    }
+
     public static Block getBlock(String key, World world, JsonObject json){
         JsonElement locationElement = json.has(key) ? json.get(key) : null;
         if(locationElement==null || !locationElement.isJsonObject()) return null;
         JsonObject locationData = locationElement.getAsJsonObject();
-        int x = locationData.has("x") ? locationData.get("x").getAsInt() : 0;
-        int y = locationData.has("y") ? locationData.get("y").getAsInt() : 0;
-        int z = locationData.has("z") ? locationData.get("z").getAsInt() : 0;
+        int x = getInt("x", locationData);
+        int y = getInt("y", locationData);
+        int z = getInt("z", locationData);
         return world.getBlockAt(x,y,z);
     }
 
@@ -47,12 +77,12 @@ public class JsonUtil {
         JsonElement locationElement = json.has(key) ? json.get(key) : null;
         if(locationElement==null || !locationElement.isJsonObject()) return null;
         JsonObject locationData = locationElement.getAsJsonObject();
-        double x = locationData.has("x") ? locationData.get("x").getAsDouble() : 0;
-        double y = locationData.has("y") ? locationData.get("y").getAsDouble() : 0;
-        double z = locationData.has("z") ? locationData.get("z").getAsDouble() : 0;
+        double x = getDouble("x", locationData);
+        double y = getDouble("y", locationData);
+        double z = getDouble("z", locationData);
         if(locationData.has("pitch") && locationData.has("yaw")){
-            float pitch = locationData.get("pitch").getAsFloat();
-            float yaw = locationData.get("yaw").getAsFloat();
+            float pitch = getFloat("pitch", locationData);
+            float yaw = getFloat("yaw", locationData);
             return new Location(world, x, y, z, yaw, pitch);
         }
 
