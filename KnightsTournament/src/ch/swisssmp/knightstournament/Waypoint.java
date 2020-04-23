@@ -6,13 +6,17 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.utils.nbt.NBTTagCompound;
 
 public class Waypoint extends BukkitRunnable{
+	private final World world;
 	private final SwissSMPler swissSMPler;
 	private final Player player;
 	private final Location location;
@@ -23,6 +27,7 @@ public class Waypoint extends BukkitRunnable{
 	private final Random random = new Random();
 	
 	public Waypoint(Player player, Location location, double goalDistance, Color color, Runnable onClear){
+		this.world = location.getWorld();
 		this.swissSMPler = SwissSMPler.get(player);
 		this.player = player;
 		this.location = location;
@@ -34,13 +39,17 @@ public class Waypoint extends BukkitRunnable{
 	}
 	@Override
 	public void run(){
-		if(player.getLocation().distanceSquared(this.location)>this.goalDistanceSquared){
-			this.player.spawnParticle(Particle.REDSTONE, this.location.getX()+getRandomOffset(),this.location.getY()+getRandomOffset(),this.location.getZ()+getRandomOffset()*3,0,Math.max(this.color.getRed()/255f, Float.MIN_VALUE),this.color.getGreen()/255f,this.color.getBlue()/255f,1);
+		if(player.getLocation().distanceSquared(this.location)>this.goalDistanceSquared){			
+			double x = this.location.getX()+getRandomOffset();
+			double y = this.location.getY()+getRandomOffset();
+			double z = this.location.getZ()+getRandomOffset()*3;
+			world.spawnParticle(Particle.REDSTONE, x, y, z, 1, new Particle.DustOptions(color, 5));
 		}
 		else{
 			ItemStack mainHand = this.player.getInventory().getItemInMainHand();
 			ItemStack offHand = this.player.getInventory().getItemInOffHand();
-			if(!mainHand.hasItemMeta() || !mainHand.getItemMeta().hasDisplayName() || (!mainHand.getItemMeta().getDisplayName().equals("§bTurnierlanze")&&!mainHand.getItemMeta().getDisplayName().equals("§6Siegerlanze"))){
+			NBTTagCompound nbt = (mainHand!=null) ? ItemUtil.getData(mainHand) : null;
+			if(nbt==null || (!nbt.hasKey(TournamentLance.dataProperty))){
 				swissSMPler.sendActionBar("§bTurnierlanze§r ausrüsten");
 				return;
 			}

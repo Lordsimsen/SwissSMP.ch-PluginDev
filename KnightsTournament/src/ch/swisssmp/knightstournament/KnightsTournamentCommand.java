@@ -1,11 +1,13 @@
 package ch.swisssmp.knightstournament;
 
+import java.util.Optional;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class PlayerCommand implements CommandExecutor {
+public class KnightsTournamentCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -18,13 +20,13 @@ public class PlayerCommand implements CommandExecutor {
 			}
 			if(args.length<2) return false;
 			Player player = (Player) sender;
-			KnightsArena arena = KnightsArena.get(args[1]);
-			if(arena==null){
+			Optional<KnightsArena> arenaQuery = KnightsArena.get(player.getWorld(), args[1]);
+			if(!arenaQuery.isPresent()){
 				sender.sendMessage(KnightsTournamentPlugin.prefix+" Arena "+args[1]+" nicht gefunden.");
 				return true;
 			}
-			Tournament.initialize(arena, player);
-			break;
+			Tournament.initialize(arenaQuery.get(), player);
+			return true;
 		}
 		case "begin":{
 			if(!(sender instanceof Player)){
@@ -38,7 +40,7 @@ public class PlayerCommand implements CommandExecutor {
 				return true;
 			}
 			tournament.start();
-			break;
+			return true;
 		}
 		case "end":{
 			if(!(sender instanceof Player)){
@@ -52,10 +54,11 @@ public class PlayerCommand implements CommandExecutor {
 				return true;
 			}
 			tournament.finish();
-			break;
+			return true;
 		}
+		default:
+			return false;
 		}
-		return true;
 	}
 
 }

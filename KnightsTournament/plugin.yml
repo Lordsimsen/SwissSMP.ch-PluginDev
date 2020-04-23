@@ -1,10 +1,10 @@
 main: ch.swisssmp.knightstournament.KnightsTournamentPlugin
-version: 1.6
+version: 2.0
 api-version: 1.13
 name: KnightsTournament
-author: detig_iii
+authors: [detig_iii, WhiteGuggi]
 description: Ritterspiele
-depend: [SwissSMPUtils,WebCore,CustomItems]
+depend: [SwissSMPUtils,WebCore,CustomItems,WorldManager,CustomEditorAPI,ResourcepackManager]
 permissions: 
   knightstournament.admin:
     default: op
@@ -26,3 +26,12 @@ commands:
     description: Steuert ein Turnier
     permission: knightstournament.admin
     aliases: [ritterspiel]
+  knightsarena:
+    usage: "/<command> <subcommand>"
+    description: Hauptbefehl zur Verwaltung von Arenen
+    permission: knightstournament.admin
+    aliases: [ritterarena]
+  knightsarena create:
+    usage: "/<command> <subcommand>"
+    description: Erstellt eine Arena
+    permission: knightstournament.admin

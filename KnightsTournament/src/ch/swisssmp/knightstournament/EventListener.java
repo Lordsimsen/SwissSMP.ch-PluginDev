@@ -1,6 +1,7 @@
 package ch.swisssmp.knightstournament;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -12,16 +13,28 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 
+import ch.swisssmp.customitems.CreateCustomItemBuilderEvent;
+import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
+import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.utils.nbt.NBTTagCompound;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
 
 public class EventListener implements Listener {
+	
+	@EventHandler
+	private void onPlayerResourepackUpdate(PlayerResourcePackUpdateEvent event) {
+		event.addComponent("knightstournament");
+	}
 
 	@EventHandler
 	private void onCraft(PrepareItemCraftEvent event){
@@ -80,11 +93,12 @@ public class EventListener implements Listener {
 			return;
 		}
 		String arenaName = sign.getLine(1);
-		KnightsArena arena = KnightsArena.get(arenaName);
-		if(arena==null){
+		Optional<KnightsArena> arenaQuery = KnightsArena.get(block.getWorld(), arenaName);
+		if(!arenaQuery.isPresent()){
 			SwissSMPler.get(event.getPlayer()).sendActionBar("§cArena aktuell inaktiv.");
 			return;
 		}
+		KnightsArena arena = arenaQuery.get();
 		Tournament tournament = arena.getTournament();
 		if(tournament==null){
 			if(sign.getLine(2).equals("Turnier öffnen")){
@@ -113,5 +127,53 @@ public class EventListener implements Listener {
 			}
 			tournament.start();
 		}
+	}
+	
+	@EventHandler
+	private void onPlayerInteract(PlayerInteractEvent e) {
+		if(e.getItem() == null) {
+			return;
+		}
+		if((e.getAction() != Action.RIGHT_CLICK_AIR) && (e.getAction() != Action.RIGHT_CLICK_BLOCK)) {
+			return;
+		}
+		if(!e.getPlayer().hasPermission("knightstournament.admin")) {
+			return;
+		}
+		KnightsArena arena = KnightsArena.get(e.getItem());
+		if(arena == null) {
+			return;
+		}
+		arena.openEditor(e.getPlayer());
+	}
+	
+	@EventHandler
+	private void onItemBuilderCreate(CreateCustomItemBuilderEvent event) {
+		ConfigurationSection dataSection = event.getConfigurationSection();
+		if(!dataSection.contains("tournament_lance")) return;
+		ConfigurationSection lanceSection = dataSection.getConfigurationSection("tournament_lance");
+		
+		LanceColor primary = LanceColor.of(lanceSection.getString("primary_color"));
+		LanceColor secondary = LanceColor.of(lanceSection.getString("secondary_color"));		
+				
+		event.getCustomItemBuilder().addComponent((ItemStack itemStack) -> {
+			NBTTagCompound nbt = ItemUtil.getData(itemStack);
+			if(nbt==null) nbt = new NBTTagCompound();
+			NBTTagCompound lanceNBT = new NBTTagCompound();
+			lanceNBT.setString(TournamentLance.primaryColorProperty, primary != null ? primary.toString() : null);
+			lanceNBT.setString(TournamentLance.secondaryColorProperty, secondary != null ? secondary.toString() : null);
+			nbt.set(TournamentLance.dataProperty, lanceNBT);
+			ItemUtil.setData(itemStack, nbt);
+		});
+	}
+	
+	@EventHandler
+	private void onWorldLoad(WorldLoadEvent event) {
+		KnightsArena.load(event.getWorld());
+	}
+	
+	@EventHandler
+	private void onWorldUnload(WorldUnloadEvent event) {
+		KnightsArena.unload(event.getWorld());
 	}
 }
