@@ -20,6 +20,7 @@ import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class CamCommand implements CommandExecutor {
 
@@ -28,8 +29,7 @@ public class CamCommand implements CommandExecutor {
 	final static int previewTime = CameraStudio.getInstance().getConfig().getInt("preview-time");
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		Player player = null;
-		if(sender instanceof Player) player = (Player) sender;
+		final Player player = (sender instanceof Player) ? (Player) sender : null;
 		if (args.length == 0) {
 			sender.sendMessage(
 					prefix + ChatColor.RED + "Type " + ChatColor.WHITE + "/cam help" + ChatColor.RED + " for details");
@@ -383,20 +383,24 @@ public class CamCommand implements CommandExecutor {
 				return true;
 			}
 			if(args.length<1) return false;
-			YamlConfiguration yamlConfiguration;
-			yamlConfiguration = DataSource.getYamlResponse(CameraStudio.getInstance(), "load_path.php", new String[]{
+			HTTPRequest request = DataSource.getResponse(CameraStudio.getInstance(), "load_path.php", new String[]{
 					"name="+URLEncoder.encode(args[0])	
 				});
-			if(yamlConfiguration==null || !yamlConfiguration.contains("path")){
-				sender.sendMessage(prefix + ChatColor.RED + "Pfad '"+args[0]+"' nicht gefunden.");
-				return true;
-			}
-			ConfigurationSection pathSection = yamlConfiguration.getConfigurationSection("path");
-			CameraPath cameraPath = new CameraPath(player.getWorld(),pathSection);
-			List<Location> listOfLocations = new ArrayList<Location>();
-			listOfLocations.addAll(cameraPath.getPoints());
-			points.put(player.getUniqueId(), listOfLocations);
-			player.sendMessage(prefix + ChatColor.YELLOW + "Pfad: " + ChatColor.BLUE + cameraPath.getName() + ChatColor.YELLOW + " geladen!");
+			final String path = args[0];
+			request.onFinish(()->{
+				YamlConfiguration yamlConfiguration = request.getYamlResponse();
+				if(yamlConfiguration==null || !yamlConfiguration.contains("path")){
+					sender.sendMessage(prefix + ChatColor.RED + "Pfad '"+path+"' nicht gefunden.");
+					return;
+				}
+				ConfigurationSection pathSection = yamlConfiguration.getConfigurationSection("path");
+				CameraPath cameraPath = new CameraPath(player.getWorld(),pathSection);
+				List<Location> listOfLocations = new ArrayList<Location>();
+				listOfLocations.addAll(cameraPath.getPoints());
+				points.put(player.getUniqueId(), listOfLocations);
+				player.sendMessage(prefix + ChatColor.YELLOW + "Pfad: " + ChatColor.BLUE + cameraPath.getName() + ChatColor.YELLOW + " geladen!");
+			});
+			player.sendMessage(prefix + ChatColor.YELLOW + "Pfad: " + ChatColor.BLUE + path + ChatColor.YELLOW + " wird geladen!");
 			return true;
 		}
 		default: return false;
