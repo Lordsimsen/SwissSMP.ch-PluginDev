@@ -62,6 +62,9 @@ LampControl/
 dynmap-master/
 dynmap/
 
+# WorldGuard
+WorldGuard/
+
 # Intellij
 .idea/
 out/
