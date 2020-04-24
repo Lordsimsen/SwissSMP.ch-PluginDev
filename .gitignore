@@ -67,7 +67,4 @@ dynmap/
 WorldGuard/
 
 # Intellij
-.idea/
-out/
-*.iml
 .build/
