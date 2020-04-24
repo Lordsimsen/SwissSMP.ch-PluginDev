@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -139,7 +140,7 @@ public class GeneratorPart{
 		try{
 			position = this.adjustPastePosition(position, rotation);
 			LocalSession session = WorldEdit.getInstance().getSessionManager().get(this.generator);
-			com.sk89q.worldedit.world.World worldeditWorld = WorldGuard.getInstance().getPlatform().getWorldByName(world.getName());
+			com.sk89q.worldedit.world.World worldeditWorld = BukkitAdapter.adapt(world);
 			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(worldeditWorld, -1);
 			this.copyToClipboard(session, editSession);
 			this.rotateClipboard(session, rotation*90);

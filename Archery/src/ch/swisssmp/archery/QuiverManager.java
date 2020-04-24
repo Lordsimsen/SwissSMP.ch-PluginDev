@@ -3,18 +3,18 @@ package ch.swisssmp.archery;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.nbt.NBTTagCompound;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.customitems.CustomItems;
-import net.minecraft.server.v1_13_R2.NBTTagCompound;
 
 public class QuiverManager {
 	protected static void openQuiver(Player player, ItemStack quiver){
@@ -22,8 +22,7 @@ public class QuiverManager {
 	}
 	
 	protected static ItemStack[] getQuiverContents(ItemStack quiver){
-		net.minecraft.server.v1_13_R2.ItemStack craftStack = CraftItemStack.asNMSCopy(quiver);
-		NBTTagCompound nbtData = craftStack.getTag();
+		NBTTagCompound nbtData = ItemUtil.getData(quiver);
 		ItemStack[] result = new ItemStack[QuiverManager.getQuiverSize()];
 		if(nbtData.hasKey("contents")){
 			NBTTagCompound contentsSection = nbtData.getCompound("contents");
@@ -65,8 +64,7 @@ public class QuiverManager {
 	}
 	
 	protected static void setQuiverContents(ItemStack quiver, ItemStack[] contents){
-		net.minecraft.server.v1_13_R2.ItemStack craftStack = CraftItemStack.asNMSCopy(quiver);
-		NBTTagCompound nbtData = craftStack.getTag();
+		NBTTagCompound nbtData = ItemUtil.getData(quiver);
 		NBTTagCompound contentsSection = new NBTTagCompound();
 		NBTTagCompound contentSection;
 		ItemStack itemStack;
@@ -105,8 +103,8 @@ public class QuiverManager {
 		if(itemInfo.size()>0){
 			nbtData.set("contents", contentsSection);
 		}
-		craftStack.setTag(nbtData);
-		ItemMeta itemMeta = CraftItemStack.getItemMeta(craftStack);
+		ItemUtil.setData(quiver, nbtData);
+		ItemMeta itemMeta = quiver.getItemMeta();
 		if(itemInfo.size()>5){
 			itemInfo.set(5, ChatColor.RESET.toString()+ChatColor.GRAY.toString()+ChatColor.ITALIC.toString()+"und "+(itemInfo.size()-5)+" mehr...");
 			itemInfo = itemInfo.subList(0, 6);

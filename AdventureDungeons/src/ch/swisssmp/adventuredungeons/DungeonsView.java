@@ -1,5 +1,6 @@
 package ch.swisssmp.adventuredungeons;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
@@ -31,27 +32,35 @@ public class DungeonsView extends InventoryView implements Listener{
 	}
 	
 	private void createDungeonTokens(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(AdventureDungeons.getInstance(), "get_dungeons.php");
-		if(yamlConfiguration==null || !yamlConfiguration.contains("dungeons")){
-			this.player.sendMessage("[AdventureDungeons] "+ChatColor.RED+"Konnte Dungeons nicht anzeigen.");
-			return;
-		}
-		ConfigurationSection dungeonsSection = yamlConfiguration.getConfigurationSection("dungeons");
-		ConfigurationSection dungeonSection;
-		int dungeon_id;
-		String dungeon_name;
-		String custom_enum;
-		ItemStack tokenStack;
-		for(String key : dungeonsSection.getKeys(false)){
-			dungeonSection = dungeonsSection.getConfigurationSection(key);
-			dungeon_id = dungeonSection.getInt("dungeon_id");
-			dungeon_name = dungeonSection.getString("name");
-			custom_enum = dungeonSection.getString("custom_enum");
-			tokenStack = ItemManager.getDungeonToken(dungeon_id, dungeon_name, custom_enum);
-			this.inventory.addItem(tokenStack);
-		}
+		HTTPRequest request = DataSource.getResponse(AdventureDungeons.getInstance(), "get_dungeons.php");
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("dungeons")){
+				this.player.sendMessage("[AdventureDungeons] "+ChatColor.RED+"Konnte Dungeons nicht anzeigen.");
+				return;
+			}
+			ConfigurationSection dungeonsSection = yamlConfiguration.getConfigurationSection("dungeons");
+			ConfigurationSection dungeonSection;
+			int dungeon_id;
+			String dungeon_name;
+			String custom_enum;
+			ItemStack tokenStack;
+			for(String key : dungeonsSection.getKeys(false)){
+				dungeonSection = dungeonsSection.getConfigurationSection(key);
+				dungeon_id = dungeonSection.getInt("dungeon_id");
+				dungeon_name = dungeonSection.getString("name");
+				custom_enum = dungeonSection.getString("custom_enum");
+				tokenStack = ItemManager.getDungeonToken(dungeon_id, dungeon_name, custom_enum);
+				this.inventory.addItem(tokenStack);
+			}
+		});
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return "Dungeons";
+	}
+
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
 		if(event.getView()!=this || event.getClickedInventory()!=this.inventory) return;

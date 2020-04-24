@@ -33,7 +33,12 @@ public class GeneratorEditorView extends InventoryView implements Listener{
 		this.player = player;
 		this.inventory = inventory;
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return generator.getName() != null ? generator.getName() : "Unbennater Generator";
+	}
+
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
 		if(event.getView()!=this || event.getClickedInventory()!=this.inventory) return;

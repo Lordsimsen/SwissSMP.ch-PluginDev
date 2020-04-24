@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
+import ch.swisssmp.world.WorldManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
@@ -134,7 +135,12 @@ public class DungeonInstance{
 			player.teleport(location);
 		}
 		try{
-			if(graceful) WorldUtil.deleteWorld(this.world, location, true);
+			if(graceful){
+				for(Player player : this.world.getPlayers()){
+					player.teleport(location);
+				}
+				WorldManager.deleteWorld(this.world.getName());
+			}
 		}
 		catch(Exception e){
 			e.printStackTrace();

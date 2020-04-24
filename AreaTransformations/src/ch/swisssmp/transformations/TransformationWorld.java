@@ -2,6 +2,7 @@ package ch.swisssmp.transformations;
 
 import java.util.HashMap;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -45,19 +46,22 @@ public class TransformationWorld{
 		//initialize
 		try{
 			this.world_name = world;
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(AreaTransformations.getInstance(), "get.php", new String[]{
+			HTTPRequest request = DataSource.getResponse(AreaTransformations.getInstance(), "get.php", new String[]{
 					"world="+world
 			});
-			if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;
-			ConfigurationSection transformationsSection = yamlConfiguration.getConfigurationSection("transformations");
-			ConfigurationSection transformationSection;
-			TransformationArea transformationArea;
-			for(String key : transformationsSection.getKeys(false)){
-				transformationSection = transformationsSection.getConfigurationSection(key);
-				transformationArea = new TransformationArea(this, transformationSection);
-				transformations.put(transformationArea.getTransformationId(), transformationArea);
-				transformationEnumMap.put(transformationArea.getTransformationEnum(), transformationArea);
-			}
+			request.onFinish(()->{
+				YamlConfiguration yamlConfiguration = request.getYamlResponse();
+				if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;
+				ConfigurationSection transformationsSection = yamlConfiguration.getConfigurationSection("transformations");
+				ConfigurationSection transformationSection;
+				TransformationArea transformationArea;
+				for(String key : transformationsSection.getKeys(false)){
+					transformationSection = transformationsSection.getConfigurationSection(key);
+					transformationArea = new TransformationArea(this, transformationSection);
+					transformations.put(transformationArea.getTransformationId(), transformationArea);
+					transformationEnumMap.put(transformationArea.getTransformationEnum(), transformationArea);
+				}
+			});
 		}
 		catch(Exception e){
 			e.printStackTrace();

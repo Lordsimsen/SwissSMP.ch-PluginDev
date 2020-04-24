@@ -45,7 +45,7 @@ public class FortressAssault extends JavaPlugin implements Listener{
 	public static YamlConfiguration config;
 	public static File configFile;
 	protected static String scoreSymbol = ChatColor.RESET.toString();
-	protected static JavaPlugin plugin;
+	protected static FortressAssault plugin;
 	protected static File dataFolder;
 	protected static Material crystalMaterial;
 	protected static WorldGuardPlugin worldGuardPlugin;
@@ -104,10 +104,15 @@ public class FortressAssault extends JavaPlugin implements Listener{
 		game = new Game();
 	}
 	public void onDisable() {
+		HandlerList.unregisterAll((JavaPlugin) plugin);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
-		HandlerList.unregisterAll(plugin);
 	}
+
+	public static FortressAssault getInstance(){
+		return plugin;
+	}
+
     private void firstRun() throws Exception {
         if(!configFile.exists()){
         	configFile.getParentFile().mkdirs();

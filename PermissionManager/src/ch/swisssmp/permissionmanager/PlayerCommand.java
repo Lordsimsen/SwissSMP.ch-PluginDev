@@ -71,7 +71,7 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission user [user]");
 							return true;
 						}
-						HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "user_info.php", new String[]{"user="+URLEncoder.encode(args[1])});
+						HTTPRequest request = DataSource.getResponse(PermissionManagerPlugin.getInstance(), "user_info.php", new String[]{"user="+URLEncoder.encode(args[1])});
 						request.onFinish(()->{
 							YamlConfiguration yamlConfiguration = request.getYamlResponse();
 							if(yamlConfiguration==null) return;
@@ -86,7 +86,7 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission city [city]");
 							return true;
 						}
-						HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "city_info.php", new String[]{"city="+URLEncoder.encode(args[1])});
+						HTTPRequest request = DataSource.getResponse(PermissionManagerPlugin.getInstance(), "city_info.php", new String[]{"city="+URLEncoder.encode(args[1])});
 						request.onFinish(()->{
 							YamlConfiguration yamlConfiguration = request.getYamlResponse();
 							if(yamlConfiguration==null) return;
@@ -101,7 +101,7 @@ public class PlayerCommand implements CommandExecutor{
 							sender.sendMessage("/permission rank [rank]");
 							return true;
 						}
-						HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "rank_info.php", new String[]{"rank="+URLEncoder.encode(args[1])});
+						HTTPRequest request = DataSource.getResponse(PermissionManagerPlugin.getInstance(), "rank_info.php", new String[]{"rank="+URLEncoder.encode(args[1])});
 						request.onFinish(()->{
 							YamlConfiguration yamlConfiguration = request.getYamlResponse();
 							if(yamlConfiguration==null) return;
@@ -120,7 +120,7 @@ public class PlayerCommand implements CommandExecutor{
 				if(sender instanceof Player){
 					senderName = ((Player)sender).getUniqueId().toString();
 				}
-				HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "promote.php", new String[]{
+				HTTPRequest request = DataSource.getResponse(PermissionManagerPlugin.getInstance(), "promote.php", new String[]{
 						"user="+URLEncoder.encode(user),
 						"promoter="+URLEncoder.encode(senderName)
 				});
@@ -136,7 +136,7 @@ public class PlayerCommand implements CommandExecutor{
 				if(sender instanceof Player){
 					senderName = ((Player)sender).getUniqueId().toString();
 				}
-				HTTPRequest request = DataSource.getResponse(PermissionManager.getInstance(), "demote.php", new String[]{
+				HTTPRequest request = DataSource.getResponse(PermissionManagerPlugin.getInstance(), "demote.php", new String[]{
 						"user="+URLEncoder.encode(user),
 						"promoter="+URLEncoder.encode(senderName)
 				});

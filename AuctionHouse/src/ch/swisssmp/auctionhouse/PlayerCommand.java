@@ -2,6 +2,7 @@ package ch.swisssmp.auctionhouse;
 
 import java.util.ArrayList;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,8 +28,11 @@ public class PlayerCommand implements CommandExecutor{
 				if(sender instanceof Player)parameters.add("initializer="+((Player)sender).getUniqueId());
 				else parameters.add("initializer=console");
 				parametersArray = new String[parameters.size()];
-				String message = DataSource.getResponse("auction/start.php", parameters.toArray(parametersArray));
-				sender.sendMessage(message);
+				HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/start.php", parameters.toArray(parametersArray));
+				request.onFinish(()->{
+					String message = request.getResponse();
+					sender.sendMessage(message);
+				});
 				break;
 			}
 			case "start":{
@@ -37,18 +41,27 @@ public class PlayerCommand implements CommandExecutor{
 				if(sender instanceof Player)parameters.add("initializer="+((Player)sender).getUniqueId());
 				else parameters.add("initializer=console");
 				parametersArray = new String[parameters.size()];
-				String message = DataSource.getResponse("auction/start.php", parameters.toArray(parametersArray));
-				sender.sendMessage(message);
+				HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/start.php", parameters.toArray(parametersArray));
+				request.onFinish(()->{
+					String message = request.getResponse();
+					sender.sendMessage(message);
+				});
 				break;
 			}
 			case "end":{
-				String message = DataSource.getResponse("auction/end.php");
-				sender.sendMessage(message);
+				HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/end.php");
+				request.onFinish(()->{
+					String message = request.getResponse();
+					sender.sendMessage(message);
+				});
 				break;
 			}
 			case "cancel":{
-				String message = DataSource.getResponse("auction/cancel.php");
-				sender.sendMessage(message);
+				HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/cancel.php");
+				request.onFinish(()->{
+					String message = request.getResponse();
+					sender.sendMessage(message);
+				});
 				break;
 			}
 		}

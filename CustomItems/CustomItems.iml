@@ -7,8 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="WebCore" level="application" />
-    <orderEntry type="library" name="spigot-1.15.2" level="application" />
+    <orderEntry type="library" name="Spigot" level="project" />
     <orderEntry type="module" module-name="SwissSMPUtils" />
+    <orderEntry type="module" module-name="WebCore" />
   </component>
 </module>

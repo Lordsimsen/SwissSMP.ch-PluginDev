@@ -24,7 +24,12 @@ public class MobCampEditor extends InventoryView implements Listener{
 		this.playerInventory = player.getInventory();
 		this.inventory = mobCamp.getContents();
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return mobCamp.getName()!=null ? mobCamp.getName() : "Unbenanntes Camp";
+	}
+
 	@EventHandler
 	private void onInventoryClose(InventoryCloseEvent event){
 		if(event.getView()!=this) return;

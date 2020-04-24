@@ -3,6 +3,7 @@ package ch.swisssmp.mobcamps;
 import java.util.Collections;
 import java.util.List;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -36,19 +37,27 @@ public class CampsView extends InventoryView implements Listener {
 	}
 	
 	private void createLootTableTokens(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(MobCamps.getInstance(), "list_camps.php");
-		if(yamlConfiguration==null || !yamlConfiguration.contains("mob_camps")){
-			this.player.sendMessage("[MobCamps] "+ChatColor.RED+"Konnte Camps nicht anzeigen.");
-			return;
-		}
-		List<Integer> mobCampsList = yamlConfiguration.getIntegerList("mob_camps");
-		MobCamp mobCamp;
-		for(int mob_camp_id : mobCampsList){
-			mobCamp = MobCamp.get(mob_camp_id);
-			this.inventory.addItem(mobCamp.getInventoryToken(1));
-		}
+		HTTPRequest request = DataSource.getResponse(MobCamps.getInstance(), "list_camps.php");
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("mob_camps")){
+				this.player.sendMessage("[MobCamps] "+ChatColor.RED+"Konnte Camps nicht anzeigen.");
+				return;
+			}
+			List<Integer> mobCampsList = yamlConfiguration.getIntegerList("mob_camps");
+			MobCamp mobCamp;
+			for(int mob_camp_id : mobCampsList){
+				mobCamp = MobCamp.get(mob_camp_id);
+				this.inventory.addItem(mobCamp.getInventoryToken(1));
+			}
+		});
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return "Camps";
+	}
+
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
 		if(event.getView()!=this || event.getClickedInventory()!=this.inventory) return;

@@ -10,6 +10,9 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -76,10 +79,11 @@ public class Game implements Listener{
 	}
 	
 	protected boolean isBlockInteractionAllowed(UUID player_uuid, Block block){
-		RegionManager regionManager = FortressAssault.worldGuardPlugin.getRegionManager(block.getWorld());
+		RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(this.getInstance()));
 		int team_id;
-		
-		for(ProtectedRegion protectedRegion : regionManager.getApplicableRegions(block.getLocation())){
+
+		BlockVector3 vector = BlockVector3.at(block.getX(), block.getY(), block.getZ());
+		for(ProtectedRegion protectedRegion : regionManager.getApplicableRegions(vector)){
 			if(protectedRegion.getId().contains("base_")){
 				team_id = Integer.parseInt(protectedRegion.getId().split("_")[1]);
 				if(FortressTeam.get(team_id).player_uuids.contains(player_uuid)){
@@ -228,7 +232,7 @@ public class Game implements Listener{
 					entity.remove();
 				}
 			}
-			RegionManager regionManager = FortressAssault.worldGuardPlugin.getRegionManager(this.getInstance());
+			RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(this.getInstance()));
 			regionManager.removeRegion("blockade");
 		}
 		else if(this.gameState==GameState.FINISHED){

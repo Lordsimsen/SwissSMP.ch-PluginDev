@@ -3,13 +3,18 @@ package ch.swisssmp.craftbank;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import ch.swisssmp.webcore.HTTPRequest;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sun.istack.internal.NotNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -69,7 +74,7 @@ public class CraftBank extends JavaPlugin implements Listener{
 		String[] lines = event.getLines();
 		Location location = player.getLocation();
 		WorldGuardPlatform platform = WorldGuard.getInstance().getPlatform();
-		RegionManager regionManager = platform.getRegionContainer().get(platform.getWorldByName(player.getWorld().getName()));
+		RegionManager regionManager = platform.getRegionContainer().get(BukkitAdapter.adapt(player.getWorld()));
 		List<String> regionIds = regionManager.getApplicableRegionsIDs(BlockVector3.at(location.getX(), location.getY(), location.getZ()));
 		List<String> arguments = new ArrayList<String>();
 		for(String regionId : regionIds){
@@ -80,27 +85,30 @@ public class CraftBank extends JavaPlugin implements Listener{
 		}
 		arguments.add("player="+player.getUniqueId().toString());
 		String[] args = new String[arguments.size()];
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(plugin, "sign.php", arguments.toArray(args));
-		if(yamlConfiguration==null) return;
-		if(yamlConfiguration.contains("sign")){
-			ConfigurationSection linesSection = yamlConfiguration.getConfigurationSection("sign");
-			for(String key : linesSection.getKeys(false)){
-				ConfigurationSection lineSection = linesSection.getConfigurationSection(key);
-				int lineIndex = lineSection.getInt("line");
-				String line = lineSection.getString("text");
-				if(lineIndex<0 || lineIndex>3){
-					Bukkit.getLogger().info("Invalid line "+lineIndex+" with contents "+line);
-					continue;
+		HTTPRequest request = DataSource.getResponse(plugin, "sign.php", arguments.toArray(args));
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null) return;
+			if(yamlConfiguration.contains("sign")){
+				ConfigurationSection linesSection = yamlConfiguration.getConfigurationSection("sign");
+				for(String key : linesSection.getKeys(false)){
+					ConfigurationSection lineSection = linesSection.getConfigurationSection(key);
+					int lineIndex = lineSection.getInt("line");
+					String line = lineSection.getString("text");
+					if(lineIndex<0 || lineIndex>3){
+						Bukkit.getLogger().info("Invalid line "+lineIndex+" with contents "+line);
+						continue;
+					}
+					event.setLine(lineIndex, line);
 				}
-				event.setLine(lineIndex, line);
 			}
-		}
-		if(yamlConfiguration.contains("message")){
-			player.sendMessage(yamlConfiguration.getString("message"));
-		}
-		if(yamlConfiguration.contains("action_bar")){
-			player.sendActionBar(yamlConfiguration.getString("action_bar"));
-		}
+			if(yamlConfiguration.contains("message")){
+				player.sendMessage(yamlConfiguration.getString("message"));
+			}
+			if(yamlConfiguration.contains("action_bar")){
+				player.sendActionBar(yamlConfiguration.getString("action_bar"));
+			}
+		});
 	}
 	@EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -137,13 +145,18 @@ public class CraftBank extends JavaPlugin implements Listener{
 		Integer depositAmount = Math.max(0, Math.min(Integer.parseInt(lines[2]), ExperienceManager.getExperience(player)));
 		transfer(player, depositAmount);
 	}
-	private void withdraw(SwissSMPler player, String[] lines){
+	private void withdraw(@NotNull SwissSMPler player, @NotNull String[] lines){
 		Integer widthdrawAmount = Math.max(0, Integer.parseInt(lines[2]));
 		transfer(player, -widthdrawAmount);
 	}
-	private void transfer(SwissSMPler player, int transfer){
-		YamlConfiguration userAccount = getUserAccount(player, transfer);
-		if(userAccount==null) return;
+	private void transfer(@NotNull SwissSMPler player, int transfer){
+		getUserAccount(player, transfer, (userAccount)->{
+			if(userAccount==null) return;
+			transfer(player, userAccount, transfer);
+		});
+	}
+
+	private void transfer(@NotNull SwissSMPler player, @NotNull YamlConfiguration userAccount, int transfer){
 		ConfigurationSection accountSection = userAccount.getConfigurationSection("account");
 		if(accountSection==null){
 			player.sendActionBar(ChatColor.RED+"Zugriff momentan nicht möglich.");
@@ -184,20 +197,25 @@ public class CraftBank extends JavaPlugin implements Listener{
 			changedString = "";
 		}
 		player.sendActionBar(transferString+"Kontostand: "+new_balance+changedString);
-		
 	}
-	public YamlConfiguration getUserAccount(SwissSMPler player, int transfer){
-		if(player==null) return null;
-		return DataSource.getYamlResponse(plugin, "edit_account.php", new String[]{
+
+	public void getUserAccount(SwissSMPler player, int transfer, Consumer<YamlConfiguration> callback){
+		if(player==null){
+			callback.accept(null);
+			return;
+		}
+
+		HTTPRequest request = DataSource.getResponse(plugin, "edit_account.php", new String[]{
 				"player="+player.getUniqueId().toString(),
 				"transfer="+transfer
 		});
+		request.onFinish(()->{
+			callback.accept(request.getYamlResponse());
+		});
 	}
 	public static boolean isBanksign(Block block){
-        Material material = block.getType();
-        if(material != Material.WALL_SIGN && material != Material.SIGN) {
-        	return false;
-        }
+        BlockState state = block.getState();
+        if(!(state instanceof Sign)) return false;
         Sign sign = (Sign) block.getState();
         String[] lines = sign.getLines();
         if(!lines[0].toLowerCase().contains("[bank]")) {

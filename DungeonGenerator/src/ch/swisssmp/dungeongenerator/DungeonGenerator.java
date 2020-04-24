@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -14,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockVector;
@@ -453,7 +453,7 @@ public class DungeonGenerator implements SessionOwner{
 			partsData.add(part.getJsonData());
 		}
 		jsonData.add("parts", partsData);
-		arguments.add("data="+Base64.encodeBase64URLSafeString(jsonData.toString().getBytes()));
+		arguments.add("data="+ Base64.encodeBase64URLSafeString(jsonData.toString().getBytes()));
 		String[] argumentsArray = new String[arguments.size()];
 		arguments.toArray(argumentsArray);
 		DataSource.getResponse(DungeonGeneratorPlugin.getInstance(), "inspect_generator.php", argumentsArray);

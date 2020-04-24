@@ -3,6 +3,7 @@ package ch.swisssmp.event;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -33,5 +34,13 @@ public class RemoteEventListener extends JavaPlugin{
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+
+	public static RemoteEventListener getInstance(){
+		return plugin;
+	}
+
+	public static String getPrefix(){
+		return "["+ ChatColor.GRAY+plugin.getName()+ChatColor.RESET+"]";
 	}
 }

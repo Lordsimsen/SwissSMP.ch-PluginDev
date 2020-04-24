@@ -14,7 +14,21 @@ import org.bukkit.block.Sign;
 import org.bukkit.util.BlockVector;
 
 public class BlockUtil {
-	private static Collection<Material> ignoreTypes = Arrays.asList(Material.AIR,Material.SIGN,Material.WALL_SIGN,Material.BARRIER);
+	private static Collection<Material> ignoreTypes = Arrays.asList(
+			Material.AIR,
+			Material.OAK_SIGN,
+			Material.OAK_WALL_SIGN,
+			Material.DARK_OAK_SIGN,
+			Material.DARK_OAK_WALL_SIGN,
+			Material.BIRCH_SIGN,
+			Material.BIRCH_WALL_SIGN,
+			Material.SPRUCE_SIGN,
+			Material.SPRUCE_WALL_SIGN,
+			Material.ACACIA_SIGN,
+			Material.ACACIA_WALL_SIGN,
+			Material.JUNGLE_SIGN,
+			Material.JUNGLE_WALL_SIGN,
+			Material.BARRIER);
 	
 	public static String getSignature(World world, BlockVector from, BlockVector to){
 		String result = "";
@@ -138,7 +152,6 @@ public class BlockUtil {
 	/**
 	 * Looks for the block with the lowest XYZ coordinates still belonging to the box
 	 * @param block - A block somewhere in the bounding box
-	 * @param boxMaterial - The Material of the bounding box
 	 * @return The origin block of the box
 	 */
 	protected static Block getBoxOrigin(Block block){

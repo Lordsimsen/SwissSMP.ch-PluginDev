@@ -6,15 +6,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import net.minecraft.server.v1_15_R1.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_15_R1.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -22,9 +25,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import net.minecraft.server.v1_13_R2.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_13_R2.PlayerConnection;
 
 public class CameraStudio extends JavaPlugin implements Listener {
 	private static CameraStudio instance;
@@ -80,13 +80,15 @@ public class CameraStudio extends JavaPlugin implements Listener {
 		}
 	}
 	
-	protected static CameraPath loadPath(int path_id, World world){
-		return CameraPath.load(path_id, world);
+	protected static void loadPath(int path_id, World world, Consumer<CameraPath> callback){
+		CameraPath.load(path_id, world, callback);
 	}
 	
 	public static void travel(final Player player, int path_id, int time){
-		CameraPath path = loadPath(path_id, player.getWorld());
-		travel(player,path,time);
+		loadPath(path_id, player.getWorld(), (path)->{
+			if(path==null) return;
+			travel(player,path,time);
+		});
 	}
 	
 	public static void travel(final Player player, CameraPath path, int time){

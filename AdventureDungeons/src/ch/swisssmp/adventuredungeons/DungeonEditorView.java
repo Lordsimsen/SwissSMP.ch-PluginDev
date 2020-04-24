@@ -130,7 +130,12 @@ public class DungeonEditorView extends InventoryView implements Listener{
 	public InventoryType getType() {
 		return InventoryType.CHEST;
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return dungeon.getName()!=null ? dungeon.getName() : "Unbenannter Dungeon";
+	}
+
 	private void createEditorItems(){
 		this.inventory.setItem(0, this.createLobbyJoinItem(this.lobbyJoin));
 		this.inventory.setItem(1, this.createLobbyLeaveItem(this.lobbyLeave));

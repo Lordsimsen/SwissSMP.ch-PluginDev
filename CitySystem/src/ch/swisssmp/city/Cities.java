@@ -5,13 +5,12 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 
-import com.sk89q.worldguard.internal.flywaydb.core.internal.util.StringUtils;
-
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 
 public class Cities {
 	private static HashMap<Integer,City> cities = new HashMap<Integer,City>();

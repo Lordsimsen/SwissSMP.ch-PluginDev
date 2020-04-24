@@ -2,7 +2,9 @@ package eu.crushedpixel.camerastudio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -41,11 +43,17 @@ public class CameraPath {
 		return this.points;
 	}
 	
-	public static CameraPath load(int path_id,World world){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(CameraStudio.getInstance(), "load_path.php", new String[]{
-			"path="+path_id	
+	public static void load(int path_id,World world, Consumer<CameraPath> callback){
+		HTTPRequest request = DataSource.getResponse(CameraStudio.getInstance(), "load_path.php", new String[]{
+				"path="+path_id
 		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("path"))return null;
-		return new CameraPath(world, yamlConfiguration.getConfigurationSection("path"));
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("path")){
+				callback.accept(null);
+				return;
+			}
+			callback.accept(new CameraPath(world, yamlConfiguration.getConfigurationSection("path")));
+		});
 	}
 }

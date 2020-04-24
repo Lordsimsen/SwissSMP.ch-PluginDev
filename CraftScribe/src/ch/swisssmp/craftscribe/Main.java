@@ -22,7 +22,9 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -62,7 +64,7 @@ public class Main extends JavaPlugin implements Listener{
 			Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>();
 			for(ItemStack itemStack : items){
 				if(itemStack==null) continue;
-				if(itemStack.getType()==Material.BOOK_AND_QUILL){
+				if(itemStack.getType()==Material.WRITABLE_BOOK){
 					containsBookAndQuill = true;
 					continue;
 				}
@@ -71,9 +73,13 @@ public class Main extends JavaPlugin implements Listener{
 					for(Entry<Enchantment, Integer> entry : itemStack.getEnchantments().entrySet()){
 						enchantments.put(entry.getKey(), entry.getValue());
 					}
-					float remainingDurability = (float) itemStack.getDurability()/(float)itemStack.getType().getMaxDurability();
-					if(remainingDurability>0.95f){
-						enchantments.put(Enchantment.VANISHING_CURSE, 1);
+					ItemMeta itemMeta = itemStack.getItemMeta();
+					if(itemMeta instanceof Damageable){
+						Damageable damageable = (Damageable) itemMeta;
+						float remainingDurability = 1 - ((float) damageable.getDamage()/(float)itemStack.getType().getMaxDurability());
+						if(remainingDurability<0.95f){
+							enchantments.put(Enchantment.VANISHING_CURSE, 1);
+						}
 					}
 					continue;
 				}
@@ -103,7 +109,7 @@ public class Main extends JavaPlugin implements Listener{
 		boolean containsBookAndQuill = false;
 		for(ItemStack itemStack : inventory.getContents()){
 			if(itemStack==null) continue;
-			if(itemStack.getType()==Material.BOOK_AND_QUILL) containsBookAndQuill = true;
+			if(itemStack.getType()==Material.WRITABLE_BOOK) containsBookAndQuill = true;
 		}
 		if(!containsBookAndQuill){
 			return;

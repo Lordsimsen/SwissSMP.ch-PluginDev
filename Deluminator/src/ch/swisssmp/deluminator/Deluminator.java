@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Lightable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -47,14 +48,18 @@ public class Deluminator {
 	}
 	
 	protected void extinguish(Player player, Block block, BlockFace face){
-		if(block.getType()!=Material.REDSTONE_LAMP_ON) return;
+		if(block.getType()!=Material.REDSTONE_LAMP) return;
+		Lightable lightable = (Lightable) block.getBlockData();
+		if(!lightable.isLit()) return;
 		this.blocks.add(block);
 		DeluminatorPlugin.extinguishLamp(block);
 		LightParticles.spawn(Deluminator.getBlockFaceLocation(block, face), new Targetable(player));
 	}
 	
 	protected static boolean ignite(Player player, Block block){
-		if(block.getType()!=Material.REDSTONE_LAMP_OFF) return false;
+		if(block.getType()!=Material.REDSTONE_LAMP) return false;
+		Lightable lightable = (Lightable) block.getBlockData();
+		if(lightable.isLit()) return false;
 		LightParticles lightParticles = LightParticles.spawn(player.getEyeLocation().add(0, -0.5, 0), new Targetable(Deluminator.getFreeBlockFaceLocation(block, player.getEyeLocation())));
 		lightParticles.addOnHitListener(()->{
 			DeluminatorPlugin.igniteLamp(block);
@@ -85,8 +90,9 @@ public class Deluminator {
 	protected static void resetBlocks(World world){
 		for(Deluminator deluminator : deluminators.values()){
 			for(Block block : new ArrayList<Block>(deluminator.blocks)){
-				if(block.getWorld()!=world) continue;
-				if(block.getType()==Material.REDSTONE_LAMP_OFF){
+				if(block.getType()!=Material.REDSTONE_LAMP) continue;
+				Lightable lightable = (Lightable) block.getBlockData();
+				if(!lightable.isLit()){
 					DeluminatorPlugin.igniteLamp(block);
 				}
 				deluminator.blocks.remove(block);
@@ -95,7 +101,9 @@ public class Deluminator {
 	}
 	
 	protected static boolean hasDeactivated(Block block){
-		if(block.getType()!=Material.REDSTONE_LAMP_OFF) return false;
+		if(block.getType()!=Material.REDSTONE_LAMP) return false;
+		Lightable lightable = (Lightable) block.getBlockData();
+		if(lightable.isLit()) return false;
 		for(Deluminator deluminator : deluminators.values()){
 			if(deluminator.blocks.contains(block)) return true;
 		}

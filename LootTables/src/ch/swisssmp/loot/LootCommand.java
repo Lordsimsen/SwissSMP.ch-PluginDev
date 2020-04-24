@@ -1,9 +1,9 @@
 package ch.swisssmp.loot;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -33,17 +33,18 @@ public class LootCommand implements CommandExecutor{
 		case "erstellen":
 		case "create":{
 			if(args.length<2) return false;
-			LootTable result = LootTable.get(args[1], true);
-			if(result==null){
-				sender.sendMessage("[LootTables] Konnte die Beutetabelle nicht erstellen.");
-			}
-			else{
-				sender.sendMessage("[LootTable] '"+result.getName()+"' erstellt.");
-				if(sender instanceof Player){
-					((Player)sender).getInventory().addItem(result.getInventoryToken(1));
-					LootTableEditor.open((Player)sender, result);
+			LootTable.get(args[1], true, (result)->{
+				if(result==null){
+					sender.sendMessage("[LootTables] Konnte die Beutetabelle nicht erstellen.");
 				}
-			}
+				else{
+					sender.sendMessage("[LootTable] '"+result.getName()+"' erstellt.");
+					if(sender instanceof Player){
+						((Player)sender).getInventory().addItem(result.getInventoryToken(1));
+						LootTableEditor.open((Player)sender, result);
+					}
+				}
+			});
 			return true;
 		}
 		case "aktualisiere":
@@ -56,7 +57,7 @@ public class LootCommand implements CommandExecutor{
 				if(lootTable==null) return false;
 			}
 			else{
-				lootTable = LootTable.get(args[1], false);
+				lootTable = LootTable.get(args[1]);
 			}
 			if(lootTable==null){
 				if(args.length>1){
@@ -79,7 +80,7 @@ public class LootCommand implements CommandExecutor{
 				if(lootTable==null) return false;
 			}
 			else{
-				lootTable = LootTable.get(args[1], false);
+				lootTable = LootTable.get(args[1]);
 			}
 			if(lootTable==null){
 				if(args.length>2) sender.sendMessage("[LootTables] '"+args[1]+"' nicht gefunden.");
@@ -97,7 +98,7 @@ public class LootCommand implements CommandExecutor{
 			String categoryString;
 			LootType lootType;
 			if(args.length>2){
-				lootTable = LootTable.get(args[1], false);
+				lootTable = LootTable.get(args[1]);
 				categoryString = args[2];
 			}
 			else{
@@ -123,7 +124,7 @@ public class LootCommand implements CommandExecutor{
 			String chanceString;
 			double chance;
 			if(args.length>2){
-				lootTable = LootTable.get(args[1], false);
+				lootTable = LootTable.get(args[1]);
 				chanceString = args[2];
 			}
 			else{
@@ -155,7 +156,7 @@ public class LootCommand implements CommandExecutor{
 			try{
 			//all arguments provided: LootTable, Min, Max
 			if(args.length>3){
-				lootTable = LootTable.get(args[1], false);
+				lootTable = LootTable.get(args[1]);
 				minRolls = Integer.parseInt(args[2]);
 				maxRolls = Integer.parseInt(args[3]);
 			}
@@ -168,7 +169,7 @@ public class LootCommand implements CommandExecutor{
 				}
 				//First is a LootTable Name, so the version is LootTable, Amount
 				else{
-					lootTable = LootTable.get(args[1],false);
+					lootTable = LootTable.get(args[1]);
 					minRolls = Integer.parseInt(args[2]);
 					maxRolls = minRolls;
 				}
@@ -196,7 +197,7 @@ public class LootCommand implements CommandExecutor{
 				if(lootTable==null) return false;
 			}
 			if(args.length>1){
-				lootTable = LootTable.get(args[1], false);
+				lootTable = LootTable.get(args[1]);
 			}
 			if(lootTable==null){
 				if(args.length>1) sender.sendMessage("[LootTables] '"+args[1]+"' nicht gefunden.");

@@ -10,6 +10,9 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Lightable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
@@ -252,7 +255,11 @@ public class FortressTeam {
 			crystal.setType(Material.EMERALD_BLOCK);
 			break;
 		case 12:
-			crystal.setType(Material.REDSTONE_LAMP_ON);
+			crystal.setType(Material.REDSTONE_LAMP);
+			BlockData data = crystal.getBlockData();
+			Lightable lightable = (Lightable) data;
+			lightable.setLit(true);
+			crystal.setBlockData(data,false);
 			break;
 		case 0:
 			crystal.setType(Material.TNT);

@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -170,15 +173,19 @@ public class TowerControlTeam {
 		return this.player_uuids.size();
 	}
 	
-	protected static TowerControlTeam load(String side){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("towercontrol/get_team.php", new String[]{
+	protected static void load(String side, Consumer<TowerControlTeam> callback){
+		HTTPRequest request = DataSource.getResponse(TowerControl.getPlugin(), "towercontrol/get_team.php", new String[]{
 			"side="+side	
 		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("team")){
-			Bukkit.getLogger().info("[TowerControl] Konnte das Team "+side+" nicht laden.");
-			return null;
-		}
-		return new TowerControlTeam(yamlConfiguration.getConfigurationSection("team"));
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("team")){
+				Bukkit.getLogger().info("[TowerControl] Konnte das Team "+side+" nicht laden.");
+				callback.accept(null);
+				return;
+			}
+			callback.accept(new TowerControlTeam(yamlConfiguration.getConfigurationSection("team")));
+		});
 	}
 	
 	protected static TowerControlTeam get(Player player){

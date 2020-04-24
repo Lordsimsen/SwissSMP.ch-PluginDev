@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,23 +51,29 @@ public class AuctionHouse extends JavaPlugin{
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
-	
+
+	public static AuctionHouse getInstance(){
+		return plugin;
+	}
+
 	public static void info(Player player, String addon_name){
-		YamlConfiguration response;
-		response = DataSource.getYamlResponse("auction/info.php", new String[]{
-			"player="+player.getUniqueId(),
-			"addon="+URLEncoder.encode(addon_name),
+		HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/info.php", new String[]{
+				"player="+player.getUniqueId(),
+				"addon="+URLEncoder.encode(addon_name),
 		});
-		if(response==null) return;
-		if(response.contains("message")){
-			for(String line : response.getStringList("message")){
-				player.sendMessage(line);
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null) return;
+			if(yamlConfiguration.contains("message")){
+				for(String line : yamlConfiguration.getStringList("message")){
+					player.sendMessage(line);
+				}
 			}
-		}
-		if(response.contains("actionbar")){
-			SwissSMPler swisssmpler = SwissSMPler.get(player);
-			swisssmpler.sendActionBar(response.getString("actionbar"));
-		}
+			if(yamlConfiguration.contains("actionbar")){
+				SwissSMPler swisssmpler = SwissSMPler.get(player);
+				swisssmpler.sendActionBar(yamlConfiguration.getString("actionbar"));
+			}
+		});
 	}
 	
 	public static void bid(Player player, String addon_name, ItemStack itemStack){
@@ -74,27 +81,30 @@ public class AuctionHouse extends JavaPlugin{
 		if(addon_name==null) return;
 		if(itemStack==null) return;
 		if(itemStack.getAmount()<=0) return;
-		YamlConfiguration response = DataSource.getYamlResponse("auction/bid.php", new String[]{
-			"player="+player.getUniqueId(),
-			"addon="+URLEncoder.encode(addon_name),
-			"amount="+itemStack.getAmount()
+		HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/bid.php", new String[]{
+				"player="+player.getUniqueId(),
+				"addon="+URLEncoder.encode(addon_name),
+				"amount="+itemStack.getAmount()
 		});
-		if(response==null) return;
-		if(response.contains("transferred")){
-			itemStack.setAmount(itemStack.getAmount()-response.getInt("transferred"));
-		}
-		if(response.contains("message")){
-			player.sendMessage(response.getString("message"));
-		}
-		if(response.contains("sound")){
-			Sound sound = Sound.valueOf(response.getString("sound"));
-			if(sound!=null){
-				player.getWorld().playSound(player.getLocation(), sound, 5f, 0.8f+random.nextFloat()*0.4f);
+		request.onFinish(()->{
+			YamlConfiguration response = request.getYamlResponse();
+			if(response==null) return;
+			if(response.contains("transferred")){
+				itemStack.setAmount(itemStack.getAmount()-response.getInt("transferred"));
 			}
-		}
-		if(response.contains("actionbar")){
-			SwissSMPler swisssmpler = SwissSMPler.get(player);
-			swisssmpler.sendActionBar(response.getString("actionbar"));
-		}
+			if(response.contains("message")){
+				player.sendMessage(response.getString("message"));
+			}
+			if(response.contains("sound")){
+				Sound sound = Sound.valueOf(response.getString("sound"));
+				if(sound!=null){
+					player.getWorld().playSound(player.getLocation(), sound, 5f, 0.8f+random.nextFloat()*0.4f);
+				}
+			}
+			if(response.contains("actionbar")){
+				SwissSMPler swisssmpler = SwissSMPler.get(player);
+				swisssmpler.sendActionBar(response.getString("actionbar"));
+			}
+		});
 	}
 }

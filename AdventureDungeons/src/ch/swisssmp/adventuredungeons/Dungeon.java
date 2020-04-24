@@ -3,7 +3,11 @@ package ch.swisssmp.adventuredungeons;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import ch.swisssmp.webcore.HTTPRequest;
+import ch.swisssmp.world.transfer.WorldTransferManager;
+import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,6 +16,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -115,30 +120,34 @@ public class Dungeon{
 		String template_name = this.getTemplateName();
 		World world = Bukkit.getWorld(template_name);
 		if(world==null){
-			if(WorldManager.localWorldExists(template_name)){
+			if(WorldTransferManager.localWorldExists(template_name)){
 				//World is present on local disk, load it and then teleport into it
 				world = WorldManager.loadWorld(template_name);
 			}
-			else if(WorldManager.remoteWorldExists(template_name)){
-				//World is present on remote disk, download it, load it, then teleport into it
-				WorldTransferObserver observer = WorldManager.downloadWorld(player, template_name);
-				observer.addOnFinishListener(new Runnable(){
-					public void run(){
-						initiateEditor(player);
-					}
-				});
-				return;
-			}
 			else{
-				//World does not exist, create it then teleport into it
-				WorldEditor worldEditor = WorldEditor.open(template_name, player);
-				worldEditor.onWorldGenerate((World newWorld)->{
-					this.applyGamerules(newWorld, Difficulty.EASY, false);
-					WorldGuardPlugin.inst().reloadConfig();
-					for(ProtectedRegion protectedRegion : WorldGuardManager.getRegionManager(newWorld).getRegions().values()){
-						protectedRegion.setFlag(Flags.PASSTHROUGH, StateFlag.State.ALLOW);
-					};
-					this.initiateEditor(player);
+				HTTPRequest remoteCheck = WorldTransferManager.remoteWorldExists(template_name);
+				remoteCheck.onFinish(()->{
+					if(remoteCheck.getResponse().equals("true")){
+						//World is present on remote disk, download it, load it, then teleport into it
+						WorldTransferObserver observer = WorldTransferManager.downloadWorld(player, template_name);
+						observer.addOnFinishListener(new Runnable(){
+							public void run(){
+								initiateEditor(player);
+							}
+						});
+					}
+					else{
+						//World does not exist, create it then teleport into it
+						WorldEditor worldEditor = WorldEditor.open(template_name, player);
+						worldEditor.onWorldGenerate((World newWorld)->{
+							this.applyGamerules(newWorld, Difficulty.EASY, false);
+							WorldGuardPlugin.inst().reloadConfig();
+							for(ProtectedRegion protectedRegion : WorldGuardManager.getRegionManager(newWorld).getRegions().values()){
+								protectedRegion.setFlag(Flags.PASSTHROUGH, StateFlag.State.ALLOW);
+							};
+							this.initiateEditor(player);
+						});
+					}
 				});
 				return;
 			}
@@ -199,7 +208,7 @@ public class Dungeon{
 		world.save();
 		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
 			public void run(){
-				WorldTransferObserver transferObserver = WorldManager.uploadWorld(sender, template_name);
+				WorldTransferObserver transferObserver = WorldTransferManager.uploadWorld(sender, template_name);
 				transferObserver.addOnFinishListener(new Runnable(){
 					public void run(){
 						WorldManager.deleteWorld(world.getName());
@@ -265,21 +274,27 @@ public class Dungeon{
 		String worldName = "dungeon_instance_"+instance_id;
 		World world = Bukkit.getWorld(worldName);
 		if(world==null){
-			if(WorldManager.localWorldExists(worldName)){
+			if(WorldTransferManager.localWorldExists(worldName)){
 				world = WorldManager.loadWorld(worldName);
 			}
-			else if(WorldManager.remoteWorldExists(worldName)){
-				//World is present on remote disk, download it, load it, then teleport into it
-				WorldTransferObserver observer = WorldManager.downloadWorld(player, this.getTemplateName(), worldName);
-				observer.addOnFinishListener(new Runnable(){
-					public void run(){
-						initiateInstance(instance_id, player, difficulty);
+			else{
+				String template_name = getTemplateName();
+				HTTPRequest remoteCheck = WorldTransferManager.remoteWorldExists(template_name);
+				remoteCheck.onFinish(()-> {
+					if (remoteCheck.getResponse().equals("true")) {
+						//World is present on remote disk, download it, load it, then teleport into it
+						WorldTransferObserver observer = WorldTransferManager.downloadWorld(player, this.getTemplateName(), worldName);
+						observer.addOnFinishListener(new Runnable(){
+							public void run(){
+								initiateInstance(instance_id, player, difficulty);
+							}
+						});
+					}
+					else{
+						player.sendMessage("["+this.name+ChatColor.RESET+"] "+ChatColor.RED+"Dieser Dungeon ist noch nicht eingerichtet.");
 					}
 				});
 				return;
-			}
-			else{
-				player.sendMessage("["+this.name+ChatColor.RESET+"] "+ChatColor.RED+"Dieser Dungeon ist noch nicht eingerichtet.");
 			}
 		}
 		if(world==null){
@@ -298,48 +313,70 @@ public class Dungeon{
 	
 	public static Dungeon get(DungeonInstance dungeonInstance){
 		if(dungeonInstance==null) return null;
-		return Dungeon.get(dungeonInstance.getDungeonId());
+		return dungeons.get(dungeonInstance.getDungeonId());
 	}
-	
+
 	public static Dungeon get(int dungeon_id){
-		if(dungeons.containsKey(dungeon_id)) return dungeons.get(dungeon_id);
-		return Dungeon.load(dungeon_id);
+		return dungeons.get(dungeon_id);
+	}
+
+	public static void get(int dungeon_id, Consumer<Dungeon> callback){
+		if(dungeons.containsKey(dungeon_id)){
+			callback.accept(dungeons.get(dungeon_id));
+			return;
+		}
+		Dungeon.load(dungeon_id, callback);
+	}
+
+	@Nullable
+	public static Dungeon get(@NotNull String identifier){
+		return dungeons.values()
+				.stream()
+				.filter(d->d.getName().toLowerCase().contains(identifier.toLowerCase()))
+				.findAny()
+				.orElse(null);
 	}
 	
 	/**
 	 * Searches for a Dungeon with a name containing the provided identifier.
 	 * The search starts at the Dungeon with lowest ID.
 	 * @param identifier - The key to look for in the name
-	 * @return The first Dungeon matching the identifier
 	 */
-	public static Dungeon get(String identifier){
+	public static void get(String identifier, Consumer<Dungeon> callback){
 		for(Dungeon dungeon : dungeons.values()){
-			if(dungeon.getName().toLowerCase().contains(identifier.toLowerCase())) return dungeon;
+			if(dungeon.getName().toLowerCase().contains(identifier.toLowerCase())){
+				callback.accept(dungeon);
+				return;
+			}
 		}
-		return Dungeon.load(identifier);
+		Dungeon.load(identifier, callback);
 	}
 	
-	private static Dungeon load(int dungeon_id){
-		return Dungeon.load(new String[]{
+	private static void load(int dungeon_id, Consumer<Dungeon> callback){
+		Dungeon.load(new String[]{
 				"id="+dungeon_id
-		});
+		}, callback);
 	}
 
-	private static Dungeon load(String identifier){
-		return Dungeon.load(new String[]{
+	private static void load(String identifier, Consumer<Dungeon> callback){
+		Dungeon.load(new String[]{
 				"identifier="+identifier
-		});
+		}, callback);
 	}
 	
-	private static Dungeon load(String[] args){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(AdventureDungeons.getInstance(), "get_dungeon.php", args);
-		if(yamlConfiguration==null || !yamlConfiguration.contains("dungeon")){
-			Bukkit.getLogger().info("[AdventureDungeons] Konnte den Dungeon ("+StringUtils.join(args,", ")+") nicht laden.");
-			return null;
-		}
-		ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection("dungeon");
-		Dungeon result = new Dungeon(dataSection);
-		dungeons.put(result.getDungeonId(), result);
-		return result;
+	private static void load(String[] args, Consumer<Dungeon> callback){
+		HTTPRequest request = DataSource.getResponse(AdventureDungeons.getInstance(), "get_dungeon.php", args);
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("dungeon")){
+				Bukkit.getLogger().info("[AdventureDungeons] Konnte den Dungeon ("+StringUtils.join(args,", ")+") nicht laden.");
+				callback.accept(null);
+				return;
+			}
+			ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection("dungeon");
+			Dungeon result = new Dungeon(dataSection);
+			dungeons.put(result.getDungeonId(), result);
+			callback.accept(result);
+		});
 	}
 }

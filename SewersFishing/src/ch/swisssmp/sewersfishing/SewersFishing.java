@@ -3,6 +3,10 @@ package ch.swisssmp.sewersfishing;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.enchantments.Enchantment;
@@ -57,7 +61,9 @@ public class SewersFishing extends JavaPlugin implements Listener{
 		}
 		//check if there is a toxic region nearby
 		boolean toxicArea = false;
-		ApplicableRegionSet regions = WorldGuardPlugin.inst().getRegionManager(caught.getWorld()).getApplicableRegions(caught.getLocation());
+		Location location = caught.getLocation();
+		BlockVector3 vector = BlockVector3.at(location.getX(), location.getY(), location.getZ());
+		ApplicableRegionSet regions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(caught.getWorld())).getApplicableRegions(vector);
 		for(ProtectedRegion region : regions){
 			if(region.getId().toLowerCase().contains("kanalisation")){
 				toxicArea = true;
@@ -69,7 +75,7 @@ public class SewersFishing extends JavaPlugin implements Listener{
     	Item item = (Item) caught;
     	ItemStack itemstack = item.getItemStack();
     	ItemMeta itemmeta = itemstack.getItemMeta();
-    	if(itemstack.getType() != Material.RAW_FISH)
+    	if(itemstack.getType() != Material.SALMON && itemstack.getType()!=Material.COD)
     		return;
 		//At this point the fish must be poisoned
     	itemmeta.addEnchant(Enchantment.THORNS, 1, true);
@@ -81,7 +87,7 @@ public class SewersFishing extends JavaPlugin implements Listener{
     public void onPlayerEat(PlayerItemConsumeEvent event){
     	Player player = event.getPlayer();
     	ItemStack itemstack = event.getItem();
-    	if(itemstack.getType() != Material.RAW_FISH)
+		if(itemstack.getType() != Material.SALMON && itemstack.getType()!=Material.COD)
     		return;
     	ItemMeta itemmeta = itemstack.getItemMeta();
     	if(!itemmeta.hasLore())

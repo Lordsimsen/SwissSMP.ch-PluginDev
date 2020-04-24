@@ -3,6 +3,7 @@ package ch.swisssmp.loot;
 import java.util.Collections;
 import java.util.List;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -36,19 +37,28 @@ public class LootTablesView extends InventoryView implements Listener {
 	}
 	
 	private void createLootTableTokens(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(LootTables.getInstance(), "list_tables.php");
-		if(yamlConfiguration==null || !yamlConfiguration.contains("loot_tables")){
-			this.player.sendMessage("[LootTables] "+ChatColor.RED+"Konnte Beutetabellen nicht anzeigen.");
-			return;
-		}
-		List<Integer> lootTablesList = yamlConfiguration.getIntegerList("loot_tables");
-		LootTable lootTable;
-		for(int loot_table_id : lootTablesList){
-			lootTable = LootTable.get(loot_table_id);
-			this.inventory.addItem(lootTable.getInventoryToken(1));
-		}
+		HTTPRequest request = DataSource.getResponse(LootTables.getInstance(), "list_tables.php");
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("loot_tables")){
+				this.player.sendMessage("[LootTables] "+ChatColor.RED+"Konnte Beutetabellen nicht anzeigen.");
+				return;
+			}
+			List<Integer> lootTablesList = yamlConfiguration.getIntegerList("loot_tables");
+			for(int loot_table_id : lootTablesList){
+				LootTable.get(loot_table_id, (lootTable)->{
+					this.inventory.addItem(lootTable.getInventoryToken(1));
+				});
+
+			}
+		});
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return "LootTables";
+	}
+
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
 		if(event.getView()!=this || event.getClickedInventory()!=this.inventory) return;

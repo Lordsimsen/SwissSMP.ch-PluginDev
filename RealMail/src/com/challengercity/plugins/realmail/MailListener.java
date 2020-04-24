@@ -51,7 +51,7 @@ public final class MailListener implements org.bukkit.event.Listener {
                 e.getPlayer().sendMessage(prefix+"Du hast deinen Coupon in einen Briefkasten umgewandelt.");
             }
             /* Cycle texture */
-            else if (is.getType() == Material.SKULL_ITEM && (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && is.getItemMeta().hasLore() && is.getItemMeta().getLore().get(1).contains("Punch to change texture")) {
+            else if (is.getType() == Material.PLAYER_HEAD && (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && is.getItemMeta().hasLore() && is.getItemMeta().getLore().get(1).contains("Punch to change texture")) {
                 e.getPlayer().getInventory().removeItem(toBeRemoved);
                 if (is.getItemMeta().getLore().get(0).contains("Blue")) {
                     server.dispatchCommand(server.getConsoleSender(), "minecraft:give "+e.getPlayer().getName()+" minecraft:skull 1 3 {display:{Name:\"§rMailbox\",Lore:[\"§r§7White\",\"§r§7Punch to change texture\"]},SkullOwner:{Id:\""+RealMail.plugin.mailboxIdWhite+"\",Name:\"ha1fBit\",Properties:{textures:[{Value:\""+RealMail.plugin.mailboxTextureWhite+"\"}]}}}");
@@ -66,7 +66,7 @@ public final class MailListener implements org.bukkit.event.Listener {
             }
             /* Stationery Stuff */
             else if (is.getType() == Material.WRITTEN_BOOK && is.hasItemMeta() && is.getItemMeta().hasLore() && is.getItemMeta().hasDisplayName() && (is.getItemMeta().getDisplayName().contains("§rLetter") || is.getItemMeta().getDisplayName().contains("§rPackage"))) {
-                if (e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.SKULL)) {
+                if (e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.PLAYER_HEAD)) {
 
                     List<String> players = (List<String>) mailboxesConfig.getList("players", new LinkedList<String>());
                     
@@ -98,7 +98,7 @@ public final class MailListener implements org.bukkit.event.Listener {
         } // End empty hand detection
         
         /* Open Mailbox */
-        if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.SKULL) && e.getPlayer().getInventory().getItemInMainHand().getType() != Material.WRITTEN_BOOK) {
+        if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.PLAYER_HEAD) && e.getPlayer().getInventory().getItemInMainHand().getType() != Material.WRITTEN_BOOK) {
             List<String> players = (List<String>) mailboxesConfig.getList("players", new LinkedList<String>());
             OfflinePlayer mailboxOwner = null;
             for (String p : players) {
@@ -182,7 +182,7 @@ public final class MailListener implements org.bukkit.event.Listener {
     	String prefix = RealMail.prefix;
         FileConfiguration config = RealMail.plugin.getConfig();
         //<editor-fold defaultstate="collapsed" desc="Only letters and attachments in mailboxes and no villagers">
-        if (e.getInventory().getName().contains("Mailbox")) {
+        if (e.getView().getTitle().contains("Mailbox")) {
             ItemStack cursor = e.getCursor();
             ItemStack current = e.getCurrentItem();
             
@@ -246,7 +246,7 @@ public final class MailListener implements org.bukkit.event.Listener {
             ItemStack current = e.getCurrentItem();
             ItemStack cursor = e.getCursor();
             
-            if ((current == null || current.getType() == Material.BOOK_AND_QUILL) && cursor != null && cursor.getType() != Material.AIR) {
+            if ((current == null || current.getType() == Material.WRITABLE_BOOK) && cursor != null && cursor.getType() != Material.AIR) {
                 if (current != null && current.hasItemMeta()) {
                     if (current.getItemMeta().hasDisplayName()) {
                         if (current.getItemMeta().getDisplayName().contains("Stationary") || current.getItemMeta().getDisplayName().contains("Stationery") || current.getItemMeta().getDisplayName().contains("Package")) {
@@ -322,7 +322,7 @@ public final class MailListener implements org.bukkit.event.Listener {
         FileConfiguration packagesConfig = RealMail.packagesConfig;
         //<editor-fold defaultstate="collapsed" desc="Detach items">
         if ((e.isRightClick() || e.getClick() == ClickType.CREATIVE) && e.getCursor() != null && e.getCursor().getType() != Material.AIR && (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)) {
-            if (e.getCursor().getType() == Material.WRITTEN_BOOK || e.getCursor().getType() == Material.BOOK_AND_QUILL) {
+            if (e.getCursor().getType() == Material.WRITTEN_BOOK || e.getCursor().getType() == Material.WRITABLE_BOOK) {
                 if (e.getCursor().hasItemMeta() && e.getCursor().getItemMeta().hasDisplayName() && e.getCursor().getItemMeta().getDisplayName().contains("Package") && e.getCursor().getItemMeta().hasLore()) {
                     for (String loreLine : e.getCursor().getItemMeta().getLore()) {
                         if (loreLine.contains("ID")) {
@@ -378,14 +378,14 @@ public final class MailListener implements org.bukkit.event.Listener {
     public void onInventoryClose(InventoryCloseEvent e) {
         FileConfiguration mailboxesConfig = RealMail.mailboxesConfig;
         FileConfiguration config = RealMail.plugin.getConfig();
-        if (e.getInventory().getName().contains("Mailbox")) {
+        if (e.getView().getTitle().contains("Mailbox")) {
             List<BookMeta> letters = new LinkedList<BookMeta>();
             for (ItemStack is : e.getInventory().getContents()) { // TODO Should do anything about extra letters?
                 if (is != null && is.hasItemMeta()) {
                     letters.add((org.bukkit.inventory.meta.BookMeta) is.getItemMeta());
                 }
             }
-            String ownerName = e.getInventory().getName();
+            String ownerName = e.getView().getTitle();
             ownerName = ownerName.replace("'s Mailbox", "");
             mailboxesConfig.set(Bukkit.getOfflinePlayer(ownerName).getUniqueId()+".letters", letters);
             mailboxesConfig.set(Bukkit.getOfflinePlayer(ownerName).getUniqueId()+".unread", false);
@@ -412,7 +412,7 @@ public final class MailListener implements org.bukkit.event.Listener {
         if (event.getItemInHand() != null) {
             ItemStack is = event.getItemInHand();
             
-            if (is.getType() == Material.SKULL_ITEM && is.getItemMeta().hasLore() && is.getItemMeta().getLore().size() >= 2 && is.getItemMeta().getLore().get(1).contains("Punch to change texture")) {
+            if (is.getType() == Material.PLAYER_HEAD && is.getItemMeta().hasLore() && is.getItemMeta().getLore().size() >= 2 && is.getItemMeta().getLore().get(1).contains("Punch to change texture")) {
                 
                 List<Location> locations = (List<Location>) mailboxesConfig.getList(event.getPlayer().getUniqueId()+".mailboxes", new LinkedList<Location>());
                 locations.add(event.getBlock().getLocation());

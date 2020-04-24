@@ -2,8 +2,10 @@ package ch.swisssmp.auctionhouse;
 
 import java.util.List;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +32,7 @@ public class EventListener implements Listener{
 			addon = lines[2];
 		}
 		else return;
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("auction/sign.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/sign.php", new String[]{
 				"player="+player.getUniqueId(),
 				"addon="+URLEncoder.encode(addon),
 				"world="+URLEncoder.encode(player.getWorld().getName()),
@@ -38,22 +40,26 @@ public class EventListener implements Listener{
 				"y="+(int)Math.round(player.getLocation().getY()),
 				"z="+(int)Math.round(player.getLocation().getZ()),
 		});
-		if(yamlConfiguration==null) return;
-		if(yamlConfiguration.contains("message")){
-			player.sendMessage(yamlConfiguration.getString("message"));
-		}
-		if(yamlConfiguration.contains("lines")){
-			List<String> linesSection = yamlConfiguration.getStringList("lines");
-			for(int i = 0; i < linesSection.size() && i < 4; i++){
-				event.setLine(i,linesSection.get(i));
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null) return;
+			if(yamlConfiguration.contains("message")){
+				player.sendMessage(yamlConfiguration.getString("message"));
 			}
-		}
+			if(yamlConfiguration.contains("lines")){
+				List<String> linesSection = yamlConfiguration.getStringList("lines");
+				for(int i = 0; i < linesSection.size() && i < 4; i++){
+					event.setLine(i,linesSection.get(i));
+				}
+			}
+		});
 	}
 	@EventHandler(ignoreCancelled=true)
 	private void onSignInteract(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		Block block = event.getClickedBlock();
-		if(block.getType()!=Material.WALL_SIGN && block.getType()!=Material.SIGN) return;
+		BlockState state = block.getState();
+		if(!(state instanceof Sign)) return;
 		Sign sign = (Sign)block.getState();
 		if(!sign.getLine(1).equals("§5[Auktion]")) return;
 		String addon = sign.getLine(2);

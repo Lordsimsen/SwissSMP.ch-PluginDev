@@ -32,4 +32,8 @@ public class Streets extends JavaPlugin{
 		PluginDescriptionFile pdfFile = getDescription();
 		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
+
+	public static Streets getInstance(){
+		return plugin;
+	}
 }

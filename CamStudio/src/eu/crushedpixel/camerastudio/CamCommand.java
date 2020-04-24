@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -282,18 +283,19 @@ public class CamCommand implements CommandExecutor {
 				return true;
 			}
 			String sequence_key = args[0];
-			CameraPathSequence cameraPathSequence;
+			Consumer<CameraPathSequence> callback = (cameraPathSequence)->{
+				if(cameraPathSequence==null){
+					Bukkit.getLogger().info("[CamStudio] Sequence "+sequence_key+" not found.");
+					return;
+				}
+				cameraPathSequence.runSequence(currentPlayer, null);
+			};
 			if(StringUtils.isStrictlyNumeric(sequence_key)){
-				cameraPathSequence = CameraPathSequence.load(Integer.parseInt(sequence_key));
+				CameraPathSequence.load(Integer.parseInt(sequence_key), callback);
 			}
 			else{
-				cameraPathSequence = CameraPathSequence.load(sequence_key);
+				CameraPathSequence.load(sequence_key, callback);
 			}
-			if(cameraPathSequence==null){
-				Bukkit.getLogger().info("[CamStudio] Sequence "+sequence_key+" not found.");
-				return true;
-			}
-			cameraPathSequence.runSequence(currentPlayer, null);
 			return true;
 		}
 		case "start":{

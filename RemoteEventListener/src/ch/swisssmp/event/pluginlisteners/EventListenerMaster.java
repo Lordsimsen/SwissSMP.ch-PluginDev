@@ -3,7 +3,9 @@ package ch.swisssmp.event.pluginlisteners;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -43,7 +45,11 @@ public class EventListenerMaster{
 	
 	public static EventListenerMaster init(){
 		EventListenerMaster result = new EventListenerMaster();
-		result.loadEventListeners();
+		result.loadEventListeners((success)->{
+			if(!success){
+				Bukkit.getLogger().info(RemoteEventListener.getPrefix()+" Listener konnten nicht geladen werden.");
+			}
+		});
 		return result;
 	}
 	
@@ -62,20 +68,26 @@ public class EventListenerMaster{
 		}
 	}
 	
-	public boolean loadEventListeners(){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("events/remote_listeners.php");
-		if(yamlConfiguration==null) return false;
-		eventListeners.clear();
-		for(String key : yamlConfiguration.getKeys(false)){
-			ConfigurationSection listenersSection = yamlConfiguration.getConfigurationSection(key);
-			List<BasicEventListener> listeners = new ArrayList<BasicEventListener>();
-			for(String listenerKey : listenersSection.getKeys(false)){
-				BasicEventListener listener = EventListenerCreator.create(listenersSection.getConfigurationSection(listenerKey));
-				if(listener!=null) listeners.add(listener);
+	public void loadEventListeners(Consumer<Boolean> callback){
+		HTTPRequest request = DataSource.getResponse(RemoteEventListener.getInstance(), "events/remote_listeners.php");
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null){
+				callback.accept(false);
+				return;
 			}
-			eventListeners.put(key, listeners);
-		}
-		return true;
+			eventListeners.clear();
+			for(String key : yamlConfiguration.getKeys(false)){
+				ConfigurationSection listenersSection = yamlConfiguration.getConfigurationSection(key);
+				List<BasicEventListener> listeners = new ArrayList<BasicEventListener>();
+				for(String listenerKey : listenersSection.getKeys(false)){
+					BasicEventListener listener = EventListenerCreator.create(listenersSection.getConfigurationSection(listenerKey));
+					if(listener!=null) listeners.add(listener);
+				}
+				eventListeners.put(key, listeners);
+			}
+			callback.accept(true);
+		});
 	}
 	
 	public boolean getAdventureDungeonsLoaded(){

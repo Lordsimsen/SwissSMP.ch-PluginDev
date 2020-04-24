@@ -16,6 +16,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class QuiverView extends InventoryView implements Listener{
 	private static HashMap<Player,QuiverView> views = new HashMap<Player,QuiverView>();
@@ -52,7 +53,13 @@ public class QuiverView extends InventoryView implements Listener{
 			}
 		}, 1L);
 	}
-	
+
+	@Override
+	public String getTitle() {
+		ItemMeta itemMeta = quiver.getItemMeta();
+		return itemMeta!=null && itemMeta.hasDisplayName() ? itemMeta.getDisplayName() : "Köcher";
+	}
+
 	@EventHandler
 	private void onInventoryClick(InventoryClickEvent event){
 		if(event.getView()!=this) return;

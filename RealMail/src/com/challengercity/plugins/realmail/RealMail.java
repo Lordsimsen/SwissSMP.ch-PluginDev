@@ -69,12 +69,12 @@ public class RealMail extends JavaPlugin {
         blueMailboxCoupon.setItemMeta(mailboxRecipeMeta);
         ShapedRecipe blueMailboxRecipe = new ShapedRecipe(new NamespacedKey(this,"Coupon"), blueMailboxCoupon);
         blueMailboxRecipe.shape("  w", "iii", "ici");
-        blueMailboxRecipe.setIngredient('w', org.bukkit.Material.WOOL, -1);
+        blueMailboxRecipe.setIngredient('w', org.bukkit.Material.WHITE_WOOL, -1);
         blueMailboxRecipe.setIngredient('i', org.bukkit.Material.IRON_INGOT);
         blueMailboxRecipe.setIngredient('c', org.bukkit.Material.CHEST);
         this.getServer().addRecipe(blueMailboxRecipe);
         
-        ItemStack stationery = new ItemStack(Material.BOOK_AND_QUILL, 1);
+        ItemStack stationery = new ItemStack(Material.WRITABLE_BOOK, 1);
         stationeryMeta = (org.bukkit.inventory.meta.BookMeta) stationery.getItemMeta();
         stationeryMeta.setDisplayName("§rStationery");
         stationeryMeta.setLore(Arrays.asList("Empfänger: Name als Titel","Versenden: Rechtsklick auf einen Briefkasten"));
@@ -261,7 +261,7 @@ public class RealMail extends JavaPlugin {
     }
     
     public void giveStationery(Player ply) {
-        ItemStack stationery = new ItemStack(Material.BOOK_AND_QUILL, 1);
+        ItemStack stationery = new ItemStack(Material.WRITABLE_BOOK, 1);
         stationery.setItemMeta(stationeryMeta);
         ply.getInventory().addItem(stationery);
     }
@@ -285,7 +285,7 @@ public class RealMail extends JavaPlugin {
         for (org.bukkit.inventory.meta.BookMeta letterMeta : letters) {
             ItemStack newBook;
             if (letterMeta.getDisplayName().contains("Stationary") || letterMeta.getDisplayName().contains("Stationery")) {
-                newBook = new ItemStack(Material.BOOK_AND_QUILL, 1);
+                newBook = new ItemStack(Material.WRITABLE_BOOK, 1);
             } else {
                 newBook = new ItemStack(Material.WRITTEN_BOOK, 1);
             }

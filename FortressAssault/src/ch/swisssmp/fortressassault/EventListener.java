@@ -2,12 +2,11 @@ package ch.swisssmp.fortressassault;
 
 import java.util.Set;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.webcore.RequestMethod;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -43,31 +42,29 @@ public class EventListener implements Listener{
 		this.game = game;
 	}
 	@EventHandler
-	private void onBlockPlace(BlockPlaceEvent event){
-		if(event.getPlayer().getGameMode()==GameMode.CREATIVE){
+	private void onBlockPlace(BlockPlaceEvent event) {
+		if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
 			return;
 		}
 		Block block = event.getBlock();
-		if(!this.game.isBlockInteractionAllowed(event.getPlayer().getUniqueId(),event.getBlock())){
+		if (!this.game.isBlockInteractionAllowed(event.getPlayer().getUniqueId(), event.getBlock())) {
 			event.setCancelled(true);
-			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED+"Du kannst nur in deiner Basis bauen.");
+			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED + "Du kannst nur in deiner Basis bauen.");
 			return;
 		}
-		if(block.getType()!=FortressAssault.crystalMaterial) return;
+		if (block.getType() != FortressAssault.crystalMaterial) return;
 		event.setCancelled(true);
 		Player player = event.getPlayer();
 		FortressTeam fortressTeam = FortressAssault.teamMap.get(player.getUniqueId());
-		if(fortressTeam!=null){
-			if(fortressTeam.leader.equals(player.getUniqueId())){
-				WorldGuardPlugin worldGuard = FortressAssault.worldGuardPlugin;
-				RegionManager regionManager = worldGuard.getRegionManager(this.game.getInstance());
-				ProtectedRegion region = regionManager.getRegion("base_"+fortressTeam.team_id);
-				if(region.contains(block.getX(), block.getY(), block.getZ())){
+		if (fortressTeam != null) {
+			if (fortressTeam.leader.equals(player.getUniqueId())) {
+				RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(player.getWorld()));
+				ProtectedRegion region = regionManager.getRegion("base_" + fortressTeam.team_id);
+				if (region.contains(block.getX(), block.getY(), block.getZ())) {
 					fortressTeam.crystal = block;
 					event.setCancelled(false);
-				}
-				else{
-					SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Platziere den Kristall in deiner Basis.");
+				} else {
+					SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Platziere den Kristall in deiner Basis.");
 				}
 			}
 		}
@@ -122,7 +119,7 @@ public class EventListener implements Listener{
 		if(event.getPlayer().getGameMode()==GameMode.CREATIVE){
 			return;
 		}
-		if(event.getBlock().getType()!=Material.SMOOTH_BRICK) event.setCancelled(true);
+		if(event.getBlock().getType()!=Material.STONE_BRICKS) event.setCancelled(true);
 	}
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerLogin(PlayerJoinEvent event){
@@ -234,9 +231,12 @@ public class EventListener implements Listener{
 			//join the new team
 			else if(this.game.getGameState()==GameState.PREGAME || this.game.getGameState()==GameState.FINISHED){
 				FortressTeam fortressTeam = FortressTeam.get(Integer.parseInt(team_id));
-				if(fortressTeam==null) fortressTeam = new FortressTeam(DataSource.getYamlResponse("fortress_assault/team.php", new String[]{
-						"team="+team_id
-				}).getConfigurationSection(team_id));
+				if(fortressTeam==null){
+					YamlConfiguration yamlConfiguration = DataSource.getResponse(FortressAssault.getInstance(), "fortress_assault/team.php", new String[]{
+							"team="+team_id
+					}, RequestMethod.POST_SYNC).getYamlResponse();
+					fortressTeam = new FortressTeam(yamlConfiguration.getConfigurationSection(team_id));
+				}
 				fortressTeam.registerTeam(this.game);
 				fortressTeam.join(player);
 				return;
@@ -294,7 +294,7 @@ public class EventListener implements Listener{
 				if(team.leader.equals(event.getPlayer().getUniqueId())){
 					if(event.getAction()==Action.LEFT_CLICK_BLOCK){
 						block.setType(Material.AIR);
-						block.getWorld().playEffect(block.getLocation(), Effect.TILE_BREAK, FortressAssault.crystalMaterial.getId());
+						block.getWorld().spawnParticle(Particle.BLOCK_CRACK, block.getLocation(), 1, FortressAssault.crystalMaterial);
 						event.getPlayer().getInventory().addItem(new ItemStack(FortressAssault.crystalMaterial, 1));
 						team.setReady(false);
 						team.crystal = null;
@@ -314,7 +314,7 @@ public class EventListener implements Listener{
 				event.setCancelled(true);
 			}
 			else if(event.getAction()==Action.LEFT_CLICK_BLOCK){
-				if(block.getType()!=Material.SMOOTH_BRICK && block.getType().isSolid()){
+				if(block.getType()!=Material.STONE_BRICKS && block.getType().isSolid()){
 					//mining is disabled by default
 					//Main.sendActionBar(event.getPlayer(), ChatColor.RED+"Du kannst nur Steinziegel abbauen.");
 					return;

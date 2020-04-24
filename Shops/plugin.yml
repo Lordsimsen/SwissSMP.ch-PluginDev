@@ -5,7 +5,7 @@ name: Shops
 author: detig_iii
 description: Konfigurierbare Villager Shops
 load: startup
-depend: [WebCore,WorldGuard,EventPoints]
+depend: [WebCore,WorldGuard,EventPoints,NPCs,CustomItems,CustomEditorAPI]
 permissions: 
   shop.admin:
     default: op

@@ -35,7 +35,12 @@ public class GeneratorsView extends InventoryView implements Listener {
 			this.inventory.addItem(ItemManager.getInventoryToken(generator, 1));
 		}
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return "Generatoren";
+	}
+
 	/**
 	 * Allow taking items and refill them instantly
 	 * Allow putting back items by clearing the underlying slot

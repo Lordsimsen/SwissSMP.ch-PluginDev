@@ -14,12 +14,14 @@ public class ConsoleCommand implements CommandExecutor{
 		if(args==null || args.length==0) return false;
 		switch(args[0]){
 			case "reload":{
-				if(EventListenerMaster.getInst().loadEventListeners()){
-					sender.sendMessage("[RemoteEventListener] EventListeners neu geladen.");
-				}
-				else{
-					sender.sendMessage("[RemoteEventListener] Fehler beim laden der EventListeners.");
-				}
+				EventListenerMaster.getInst().loadEventListeners((success)->{
+					if(success){
+						sender.sendMessage("[RemoteEventListener] EventListeners neu geladen.");
+					}
+					else{
+						sender.sendMessage("[RemoteEventListener] Fehler beim laden der EventListeners.");
+					}
+				});
 				break;
 			}
 			case "debug":{
