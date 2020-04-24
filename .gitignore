@@ -140,3 +140,4 @@ fabric.properties
 
 # Java Build
 .build/*
+_Artifacts/*

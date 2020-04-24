@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="IgnitableTorches:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="IgnitableTorches.jar">
+      <element id="module-output" name="IgnitableTorches" />
+      <element id="file-copy" path="$PROJECT_DIR$/IgnitableTorches/plugin.yml" />
+    </root>
+  </artifact>
+</component>
