@@ -24,7 +24,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
-import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  
@@ -35,7 +34,6 @@ public class Main extends JavaPlugin implements Listener{
 	public static YamlConfiguration regions;
 	public static File regionsFile;
 	public static WorldGuardPlugin worldguard;
-	public static RegionContainer container;
 	
 	public void onEnable() {
 		pdfFile = getDescription();
@@ -43,7 +41,6 @@ public class Main extends JavaPlugin implements Listener{
 		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 
 		worldguard = getWorldGuard();
-		container = Main.worldguard.getRegionContainer();
 		
 		server = getServer();
 		
@@ -71,7 +68,7 @@ public class Main extends JavaPlugin implements Listener{
 	
 	    // WorldGuard may not be loaded
 	    if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-	        logger.info("WorldGuard benötigt!");
+	        logger.info("WorldGuard benï¿½tigt!");
 	    }
 	
 	    return (WorldGuardPlugin) plugin;

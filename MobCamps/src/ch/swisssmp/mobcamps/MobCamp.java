@@ -3,7 +3,9 @@ package ch.swisssmp.mobcamps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,6 +34,8 @@ import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+
+import javax.annotation.Nullable;
 
 public class MobCamp {
 	private static HashMap<Integer,MobCamp> camps = new HashMap<Integer,MobCamp>();
@@ -278,29 +282,42 @@ public class MobCamp {
 		}
 	}
 	
-	private static MobCamp load(int camp_id){
-		if(camps.containsKey(camp_id)) return camps.get(camp_id);
-		return MobCamp.load(new String[]{
+	private static void load(int camp_id, Consumer<MobCamp> callback){
+		if(camps.containsKey(camp_id)){
+			callback.accept(camps.get(camp_id));
+			return;
+		}
+		MobCamp.load(new String[]{
 				"id="+camp_id
-		});
+		}, callback);
 	}
 	
-	private static MobCamp load(String name, boolean createNew){
+	private static void load(String name, boolean createNew, Consumer<MobCamp> callback){
 		for(MobCamp camp : camps.values()){
-			if(camp.name.toLowerCase().equals(name.toLowerCase())) return camp;
+			if(camp.name.toLowerCase().equals(name.toLowerCase())){
+				callback.accept(camp);
+				return;
+			}
 		}
-		return MobCamp.load(new String[]{
+		MobCamp.load(new String[]{
 				"name="+URLEncoder.encode(name),
 				"create_missing="+(createNew?"true":"false")
+		}, callback);
+	}
+	
+	private static void load(String[] params, Consumer<MobCamp> callback){
+		HTTPRequest request = DataSource.getResponse(MobCamps.getInstance(), "get_camp.php", params);
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("camp")){
+				callback.accept(null);
+				return;
+			}
+			callback.accept(new MobCamp(yamlConfiguration.getConfigurationSection("camp")));
 		});
 	}
-	
-	private static MobCamp load(String[] params){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse(MobCamps.getInstance(), "get_camp.php", params);
-		if(yamlConfiguration==null || !yamlConfiguration.contains("camp")) return null;
-		return new MobCamp(yamlConfiguration.getConfigurationSection("camp"));
-	}
-	
+
+	@Nullable
 	public static MobCamp get(Entity entity){
 		if(entity==null) return null;
 		if(entity.isInsideVehicle()) return MobCamp.get(entity.getVehicle());
@@ -309,23 +326,26 @@ public class MobCamp {
 		int camp_id = Integer.parseInt(entity.getCustomName().split("_")[1]);
 		return MobCamp.get(camp_id);
 	}
-	
+
+	@Nullable
 	public static MobCamp get(int camp_id){
 		if(camps.containsKey(camp_id)) return camps.get(camp_id);
-		return MobCamp.load(camp_id);
+		return null;
 	}
-	
+
+	@Nullable
 	public static MobCamp get(String name){
 		for(MobCamp camp : camps.values()){
 			if(camp.name.toLowerCase().equals(name.toLowerCase())) return camp;
 		}
-		return MobCamp.load(name, false);
+		return null;
 	}
-	
-	public static MobCamp create(String name){
-		return MobCamp.load(name, true);
+
+	public static void create(String name, Consumer<MobCamp> callback){
+		MobCamp.load(name, true, callback);
 	}
-	
+
+	@Nullable
 	public static MobCamp get(ItemStack tokenStack){
 		return MobCamp.get(ItemUtil.getInt(tokenStack, "mob_camp"));
 	}

@@ -16,7 +16,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Arrow.PickupStatus;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -124,7 +123,7 @@ public class ArrowManager {
 		if(allowPickup){
 			Bukkit.getScheduler().runTaskLater(Archery.getInstance(), new Runnable(){
 				public void run(){
-					arrow.setPickupStatus(PickupStatus.ALLOWED);
+					arrow.setPickupStatus(Arrow.PickupStatus.ALLOWED);
 				}
 			}, 1L);
 		}
@@ -210,10 +209,10 @@ public class ArrowManager {
 		ProjectileSource source = (event.getHitEntity() instanceof ProjectileSource)?(ProjectileSource)event.getHitEntity():null;
 		Location from = event.getHitEntity().getLocation().add(0,event.getHitEntity().getHeight()/2,0);
 		final ProjectileSource shooter = arrow.getShooter();
-		final Arrow arrow_0 = ArrowManager.spawnArrow(source, from, forward.clone().add(left).multiply(speed), PickupStatus.DISALLOWED);
-		final Arrow arrow_1 = ArrowManager.spawnArrow(source, from, forward.clone().subtract(left).multiply(speed), PickupStatus.DISALLOWED);
-		final Arrow arrow_2 = ArrowManager.spawnArrow(source, from, forward.clone().add(left).multiply(-speed), PickupStatus.DISALLOWED);
-		final Arrow arrow_3 = ArrowManager.spawnArrow(source, from, forward.clone().subtract(left).multiply(-speed), PickupStatus.DISALLOWED);
+		final Arrow arrow_0 = ArrowManager.spawnArrow(source, from, forward.clone().add(left).multiply(speed), Arrow.PickupStatus.DISALLOWED);
+		final Arrow arrow_1 = ArrowManager.spawnArrow(source, from, forward.clone().subtract(left).multiply(speed), Arrow.PickupStatus.DISALLOWED);
+		final Arrow arrow_2 = ArrowManager.spawnArrow(source, from, forward.clone().add(left).multiply(-speed), Arrow.PickupStatus.DISALLOWED);
+		final Arrow arrow_3 = ArrowManager.spawnArrow(source, from, forward.clone().subtract(left).multiply(-speed), Arrow.PickupStatus.DISALLOWED);
 		FixedMetadataValue arrowTypeValue = new FixedMetadataValue(Archery.getInstance(),"BURST_ARROW_THORN");
 		arrow_0.setMetadata("arrow_type", arrowTypeValue);
 		arrow_1.setMetadata("arrow_type", arrowTypeValue);
@@ -317,7 +316,7 @@ public class ArrowManager {
 	}
 	
 	private static void onExplosiveArrowShoot(EntityShootBowEvent event, Arrow arrow){
-		arrow.setPickupStatus(PickupStatus.DISALLOWED);
+		arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 	}
 	
 	private static void onExplosiveArrowHit(ProjectileHitEvent event, Arrow arrow){
@@ -379,7 +378,7 @@ public class ArrowManager {
 		}
 	}
 	
-	private static Arrow spawnArrow(ProjectileSource source, Location from, Vector velocity, PickupStatus pickupStatus){
+	private static Arrow spawnArrow(ProjectileSource source, Location from, Vector velocity, Arrow.PickupStatus pickupStatus){
 		Arrow result;
 		if(source!=null){
 			result = source.launchProjectile(Arrow.class, velocity);

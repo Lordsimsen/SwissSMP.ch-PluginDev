@@ -29,7 +29,12 @@ public class LootTableEditor extends InventoryView implements Listener{
 			this.inventory.setContents(this.lootTable.getItems());
 		}
 	}
-	
+
+	@Override
+	public String getTitle() {
+		return lootTable.getName()!=null ? lootTable.getName() : "Unbennanter LootTable";
+	}
+
 	@EventHandler
 	private void onInventoryClose(InventoryCloseEvent event){
 		if(event.getView()!=this) return;

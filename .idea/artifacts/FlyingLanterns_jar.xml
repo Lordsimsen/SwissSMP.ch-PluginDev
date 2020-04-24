@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="FlyingLanterns:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="FlyingLanterns.jar">
+      <element id="module-output" name="FlyingLanterns" />
+      <element id="file-copy" path="$PROJECT_DIR$/FlyingLanterns/plugin.yml" />
+    </root>
+  </artifact>
+</component>

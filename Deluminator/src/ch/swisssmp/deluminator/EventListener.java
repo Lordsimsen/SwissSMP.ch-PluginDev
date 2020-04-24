@@ -2,6 +2,7 @@ package ch.swisssmp.deluminator;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Lightable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -18,17 +19,21 @@ public class EventListener implements Listener {
 		if(!event.getPlayer().hasPermission("deluminator.use")) return;
 		Deluminator deluminator = Deluminator.get(event.getItem());
 		if(deluminator==null) return;
-		if(event.getAction()==Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType()==Material.REDSTONE_LAMP_ON){
+		if(event.getAction()==Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType()==Material.REDSTONE_LAMP && ((Lightable)event.getClickedBlock().getBlockData()).isLit()){
 			deluminator.extinguish(event.getPlayer(), event.getClickedBlock(), event.getBlockFace());
 		}
 		else if(event.getAction()==Action.RIGHT_CLICK_AIR || event.getAction()==Action.RIGHT_CLICK_BLOCK){
-			Block closest = BlockUtil.getClosest(event.getPlayer().getEyeLocation(), 30, Material.REDSTONE_LAMP_ON);
+			Block closest = BlockUtil.getClosest(event.getPlayer().getEyeLocation(), 30, (other)->{
+				return other.getType()==Material.REDSTONE_LAMP && ((Lightable)other.getBlockData()).isLit();
+			});
 			if(closest!=null){
 				deluminator.extinguish(event.getPlayer(), closest, Deluminator.getClosestBlockFace(closest, event.getPlayer().getEyeLocation()));
 			}
 		}
 		else if(event.getPlayer().isSneaking() && event.getPlayer().isOp()){
-			for(Block block : BlockUtil.getNearby(event.getPlayer().getLocation(), 50, Material.REDSTONE_LAMP_OFF)){
+			for(Block block : BlockUtil.getNearby(event.getPlayer().getLocation(), 50, (other)->{
+				return other.getType()==Material.REDSTONE_LAMP && !((Lightable)other.getBlockData()).isLit();
+			})){
 				Deluminator.ignite(event.getPlayer(), block);
 			}
 		}

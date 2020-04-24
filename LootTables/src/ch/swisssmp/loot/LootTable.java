@@ -1,10 +1,10 @@
 package ch.swisssmp.loot;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
 
+import ch.swisssmp.webcore.HTTPRequest;
+import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,6 +27,8 @@ import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+
+import javax.annotation.Nullable;
 
 public class LootTable {
 	private static HashMap<String,LootTable> loadedTables = new HashMap<String,LootTable>();
@@ -240,33 +242,71 @@ public class LootTable {
 			return UUID.randomUUID().toString();
 		}
 	}
-	
-	public static LootTable get(String name, boolean createIfMissing){
-		if(name==null || name.isEmpty()) return null;
-		if(loadedTables.containsKey(name.toLowerCase())) return loadedTables.get(name.toLowerCase());
-		YamlConfiguration yamlConfiguration;
-		yamlConfiguration = DataSource.getYamlResponse(LootTables.getInstance(), "get_table.php", new String[]{
-			"name="+URLEncoder.encode(name),
-			"create_missing="+(createIfMissing?1:0)
-		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("loot_table")) return null;
-		return new LootTable(yamlConfiguration.getConfigurationSection("loot_table"));
-	}
-	
-	public static LootTable get(int loot_table_id){
-		for(LootTable lootTable : loadedTables.values()){
-			if(lootTable.loot_table_id==loot_table_id) return lootTable;
+
+	@Nullable
+	public static LootTable get(@NotNull String name){
+		if(loadedTables.containsKey(name.toLowerCase())){
+			return loadedTables.get(name.toLowerCase());
 		}
-		YamlConfiguration yamlConfiguration;
-		yamlConfiguration = DataSource.getYamlResponse(LootTables.getInstance(), "get_table.php", new String[]{
-			"id="+loot_table_id,
-			"create_missing=0"
-		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("loot_table")) return null;
-		return new LootTable(yamlConfiguration.getConfigurationSection("loot_table"));
+		return null;
 	}
 	
+	public static void get(String name, boolean createIfMissing, Consumer<LootTable> callback){
+		if(name==null || name.isEmpty()) {
+			callback.accept(null);
+			return;
+		}
+		if(loadedTables.containsKey(name.toLowerCase())){
+			callback.accept(loadedTables.get(name.toLowerCase()));
+			return;
+		}
+		HTTPRequest request = DataSource.getResponse(LootTables.getInstance(), "get_table.php", new String[]{
+				"name="+URLEncoder.encode(name),
+				"create_missing="+(createIfMissing?1:0)
+		});
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("loot_table")){
+				callback.accept(null);
+				return;
+			}
+			callback.accept(new LootTable(yamlConfiguration.getConfigurationSection("loot_table")));
+		});
+	}
+
+	@Nullable
+	public static LootTable get(int id){
+		Optional<LootTable> result = loadedTables.values().stream().filter(t->t.loot_table_id==id).findAny();
+		return result.orElse(null);
+	}
+
+	public static void get(int loot_table_id, Consumer<LootTable> callback){
+		for(LootTable lootTable : loadedTables.values()){
+			if(lootTable.loot_table_id==loot_table_id){
+				callback.accept(lootTable);
+				return;
+			}
+		}
+		HTTPRequest request = DataSource.getResponse(LootTables.getInstance(), "get_table.php", new String[]{
+				"id="+loot_table_id,
+				"create_missing=0"
+		});
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("loot_table")){
+				callback.accept(null);
+				return;
+			}
+			callback.accept(new LootTable(yamlConfiguration.getConfigurationSection("loot_table")));
+		});
+	}
+
+	@Nullable
 	public static LootTable get(ItemStack tokenStack){
-		return LootTable.get(ItemUtil.getInt(tokenStack, "loot_table"));
+		return get(ItemUtil.getInt(tokenStack, "loot_table"));
+	}
+	
+	public static void get(ItemStack tokenStack, Consumer<LootTable> callback){
+		LootTable.get(ItemUtil.getInt(tokenStack, "loot_table"), callback);
 	}
 }

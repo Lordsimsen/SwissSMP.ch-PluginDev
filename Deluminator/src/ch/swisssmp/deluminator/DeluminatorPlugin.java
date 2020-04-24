@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Lightable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -24,7 +25,7 @@ public class DeluminatorPlugin extends JavaPlugin{
 	protected static PluginDescriptionFile pdfFile;
 	protected static DeluminatorPlugin plugin;
 	
-	protected static cz.ceph.LampControl.Main lampControl;
+	protected static cz.ceph.lampcontrol.Main lampControl;
 	
 	@Override
 	public void onEnable() {
@@ -36,7 +37,7 @@ public class DeluminatorPlugin extends JavaPlugin{
 		Bukkit.getPluginCommand("deluminator").setExecutor(new DeluminatorCommand());
 		Plugin lampControlPlugin = Bukkit.getPluginManager().getPlugin("LampControl");
 		if(lampControlPlugin==null) return;
-		lampControl = (cz.ceph.LampControl.Main) lampControlPlugin;
+		lampControl = (cz.ceph.lampcontrol.Main) lampControlPlugin;
 	}
 
 	@Override
@@ -59,27 +60,18 @@ public class DeluminatorPlugin extends JavaPlugin{
 	}
 	
 	protected static void igniteLamp(Block lamp){
-		if(lamp.getType()!=Material.REDSTONE_LAMP_OFF) return;
-		try {
-			lampControl.getSwitchBlock().initWorld(lamp.getWorld());
-			lampControl.getSwitchBlock().switchLamp(lamp, true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		if(lamp.getType()!=Material.REDSTONE_LAMP) return;
+		Lightable lightable = (Lightable) lamp.getBlockData();
+		if(lightable.isLit()) return;
+		lightable.setLit(true);
+		lamp.setBlockData(lightable, false);
 	}
 	
 	protected static void extinguishLamp(Block lamp){
-		if(lamp.getType()!=Material.REDSTONE_LAMP_ON) return;
-		if(!lamp.isBlockPowered() && !lamp.isBlockIndirectlyPowered()){
-			lamp.setType(Material.REDSTONE_LAMP_OFF);
-			return;
-		}
-		BlockState state = lamp.getState();
-		state.setType(Material.REDSTONE_LAMP_OFF);
-		if(!state.update(true, false)){
-			System.out.println("[Deluminator] Lampe konnte nicht gelöscht werden.");
-			return;
-		}
-		System.out.println("[Deluminator] Lampe gelöscht.");
+		if(lamp.getType()!=Material.REDSTONE_LAMP) return;
+		Lightable lightable = (Lightable) lamp.getBlockData();
+		if(!lightable.isLit()) return;
+		lightable.setLit(false);
+		lamp.setBlockData(lightable, false);
 	}
 }

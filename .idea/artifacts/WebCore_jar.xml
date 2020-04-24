@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="WebCore:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="WebCore.jar">
+      <element id="module-output" name="WebCore" />
+      <element id="file-copy" path="$PROJECT_DIR$/../SwissSMP.ch-WebCore/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/../SwissSMP.ch-WebCore/config.yml" />
+      <element id="library" level="application" name="commons-net-3.6" />
+    </root>
+  </artifact>
+</component>

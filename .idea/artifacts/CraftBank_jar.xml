@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CraftBank:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="CraftBank.jar">
+      <element id="module-output" name="CraftBank" />
+      <element id="file-copy" path="$PROJECT_DIR$/CraftBank/plugin.yml" />
+    </root>
+  </artifact>
+</component>

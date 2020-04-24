@@ -5,6 +5,7 @@ import java.util.HashMap;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 
 public class Street {
 	private static HashMap<String,Street> streetsMap = new HashMap<String,Street>();
@@ -37,13 +38,16 @@ public class Street {
 	
 	protected static void loadStreets(){
 		streetsMap.clear();
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("streets/get.php");
-		if(yamlConfiguration==null || !yamlConfiguration.contains("streets")) return;
-		ConfigurationSection streetsSection = yamlConfiguration.getConfigurationSection("streets");
-		ConfigurationSection streetSection;
-		for(String key : streetsSection.getKeys(false)){
-			streetSection = streetsSection.getConfigurationSection(key);
-			streetsMap.put(streetSection.getString("region_id"), new Street(streetSection));
-		}
+		HTTPRequest request = DataSource.getResponse(Streets.getInstance(), "streets/get.php");
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("streets")) return;
+			ConfigurationSection streetsSection = yamlConfiguration.getConfigurationSection("streets");
+			ConfigurationSection streetSection;
+			for(String key : streetsSection.getKeys(false)){
+				streetSection = streetsSection.getConfigurationSection(key);
+				streetsMap.put(streetSection.getString("region_id"), new Street(streetSection));
+			}
+		});
 	}
 }

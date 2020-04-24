@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -194,7 +195,7 @@ public class FlashMobBattle implements Runnable, Listener {
 		SoulParticles particles = SoulParticles.spawn(from, to, 0.5f);
 		particles.addOnHitListener(()->{
 			if(this.remainingTime<=0) return;
-			location.getWorld().playSound(location, Sound.ENTITY_LIGHTNING_IMPACT, SoundCategory.HOSTILE, 0.7f, (float)(0.9+random.nextDouble()*0.2));
+			location.getWorld().playSound(location, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.HOSTILE, 0.7f, (float)(0.9+random.nextDouble()*0.2));
 			Entity result = location.getWorld().spawnEntity(location, entityType);
 			if(result.getType()==EntityType.VINDICATOR){
 				((LivingEntity)result).getEquipment().setItemInMainHand(new ItemStack(Material.IRON_AXE));
@@ -323,12 +324,15 @@ public class FlashMobBattle implements Runnable, Listener {
 		arguments.add("battle="+URLEncoder.encode(UUID.randomUUID().toString()));
 		String[] argumentsArray = new String[arguments.size()];
 		arguments.toArray(argumentsArray);
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("halloween/save_scores.php", argumentsArray);
-		if(yamlConfiguration==null || !yamlConfiguration.contains("result")) return;
-		ConfigurationSection resultSection = yamlConfiguration.getConfigurationSection("result");
-		if(resultSection.contains("broadcast")){
-			Bukkit.broadcastMessage(resultSection.getString("broadcast"));
-		}
+		HTTPRequest request = DataSource.getResponse(HalloweenEventPlugin.getInstance(), "halloween/save_scores.php", argumentsArray);
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			if(yamlConfiguration==null || !yamlConfiguration.contains("result")) return;
+			ConfigurationSection resultSection = yamlConfiguration.getConfigurationSection("result");
+			if(resultSection.contains("broadcast")){
+				Bukkit.broadcastMessage(resultSection.getString("broadcast"));
+			}
+		});
 	}
 	
 	protected static FlashMobBattle start(Player player, Block block){

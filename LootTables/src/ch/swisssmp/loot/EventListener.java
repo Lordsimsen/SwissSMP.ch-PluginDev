@@ -29,20 +29,20 @@ public class EventListener implements Listener {
 		boolean generateItems = event.getPlayer().getGameMode()==GameMode.ADVENTURE || event.getPlayer().getGameMode()==GameMode.SURVIVAL;
 		List<LootTable> lootTables = new ArrayList<LootTable>();
 		int loot_table_id;
-		LootTable lootTable;
 		for(ItemStack itemStack : inventory){
 			if(itemStack==null) continue;
 			loot_table_id = ItemUtil.getInt(itemStack, "loot_table");
 			if(loot_table_id==0) continue;
 			if(generateItems) clearInventory = true;
-			lootTable = LootTable.get(loot_table_id);
-			if(lootTable==null) continue;
-			if(generateItems){
-				lootTables.add(lootTable);
-			}
-			else{
-				lootTable.updateToken(itemStack);
-			}
+			LootTable.get(loot_table_id, (lootTable)->{
+				if(lootTable==null) return;
+				if(generateItems){
+					lootTables.add(lootTable);
+				}
+				else{
+					lootTable.updateToken(itemStack);
+				}
+			});
 		}
 		if(clearInventory) inventory.clear();
 		if(generateItems && lootTables.size()>0){
@@ -75,53 +75,59 @@ public class EventListener implements Listener {
 		if(event.getItem()==null) return;
 		ItemStack itemStack = event.getItem();
 		int loot_table_id = ItemUtil.getInt(itemStack, "loot_table");
-		LootTable lootTable = LootTable.get(loot_table_id);
-		if(lootTable!=null){
-			if(event.getAction()==Action.RIGHT_CLICK_BLOCK){
-				Block block = event.getClickedBlock();
-				if(block.getState() instanceof InventoryHolder){
-					event.setCancelled(true);
-					Inventory inventory = ((InventoryHolder)block.getState()).getInventory();
-					boolean found = false;
-					for(ItemStack inventoryStack : inventory){
-						if(inventoryStack==null || !inventoryStack.isSimilar(itemStack)) continue;
-						found = true;
-						break;
+		if(loot_table_id<=0){
+			return;
+		}
+		LootTable.get(loot_table_id, (lootTable)->{
+			if(lootTable!=null){
+				if(event.getAction()==Action.RIGHT_CLICK_BLOCK){
+					Block block = event.getClickedBlock();
+					if(block.getState() instanceof InventoryHolder){
+						event.setCancelled(true);
+						Inventory inventory = ((InventoryHolder)block.getState()).getInventory();
+						boolean found = false;
+						for(ItemStack inventoryStack : inventory){
+							if(inventoryStack==null || !inventoryStack.isSimilar(itemStack)) continue;
+							found = true;
+							break;
+						}
+						if(found){
+							inventory.remove(itemStack);
+							SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GRAY+"Beutetabelle entfernt.");
+						}
+						else{
+							ItemStack newToken = itemStack.clone();
+							newToken.setAmount(1);
+							inventory.addItem(newToken);
+							SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GREEN+"Beutetabelle hinzugefügt.");
+						}
+						return;
 					}
-					if(found){
-						inventory.remove(itemStack);
-						SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GRAY+"Beutetabelle entfernt.");
-					}
-					else{
-						ItemStack newToken = itemStack.clone();
-						newToken.setAmount(1);
-						inventory.addItem(newToken);
-						SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GREEN+"Beutetabelle hinzugefügt.");
-					}
-					return;
 				}
+				lootTable.openEditor(event.getPlayer());
 			}
-			lootTable.openEditor(event.getPlayer());
-		}
-		else if(loot_table_id>0){
-			itemStack.setAmount(0);
-			event.getPlayer().sendMessage("[LootTables] Beutetabelle nicht gefunden. Vielleicht wurde sie gelöscht? Du kannst mit '/loot' herausfinden, welche Tabellen existieren.");
-		}
+			else{
+				itemStack.setAmount(0);
+				event.getPlayer().sendMessage("[LootTables] Beutetabelle nicht gefunden. Vielleicht wurde sie gelöscht? Du kannst mit '/loot' herausfinden, welche Tabellen existieren.");
+			}
+		});
 	}
 	
 	@EventHandler
 	private void onItemRename(PlayerRenameItemEvent event){
 		int loot_table_id = ItemUtil.getInt(event.getItemStack(), "loot_table");
 		if(loot_table_id==0) return;
-		LootTable lootTable = LootTable.get(loot_table_id);
-		if(lootTable==null){
-			event.getItemStack().setAmount(0);
-			event.setCancelled(true);
-			return;
-		}
-		lootTable.setName(event.getNewName());
-		event.setName(lootTable.getDisplayName());
-		lootTable.updateTokens();
+
+		LootTable.get(loot_table_id, (lootTable)->{
+			if(lootTable==null){
+				event.getItemStack().setAmount(0);
+				event.setCancelled(true);
+				return;
+			}
+			lootTable.setName(event.getNewName());
+			event.setName(lootTable.getDisplayName());
+			lootTable.updateTokens();
+		});
 	}
 	
 	@EventHandler

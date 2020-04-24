@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -15,6 +14,7 @@ import com.google.gson.JsonObject;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 
 public class PartConfigurationUtil {
 	

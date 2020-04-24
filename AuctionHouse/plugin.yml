@@ -1,5 +1,5 @@
 main: ch.swisssmp.auctionhouse.AuctionHouse
-version: 1.1
+version: 1.2
 name: AuctionHouse
 author: detig_iii
 description: Organisiert Auktionen und verteilt Luxusaddons

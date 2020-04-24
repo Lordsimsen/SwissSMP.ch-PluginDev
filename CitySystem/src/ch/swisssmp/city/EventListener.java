@@ -96,7 +96,7 @@ public class EventListener implements Listener {
 		Item item = (Item)event.getEntity();
 		ItemStack itemStack = item.getItemStack();
 		if(itemStack.getType()==INITIATOR_MATERIAL){
-			Block block = BlockUtil.getClosest(event.getEntity().getLocation(), 2, Material.FIRE);
+			Block block = BlockUtil.getClosest(event.getEntity().getLocation(), 2, (current)->current.getType()==Material.FIRE);
 			CityFoundingCeremony.start(block, responsible);
 			item.remove();
 			return;

@@ -90,10 +90,16 @@ public class TowerControl extends JavaPlugin{
 		for(Objective objective : scoreboard.getObjectives()) objective.unregister();
 		this.objective = scoreboard.registerNewObjective(TowerControl.scoreSymbol, "dummy");
 		this.objective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-		this.teamRed = TowerControlTeam.load("red");
-		this.teamBlue = TowerControlTeam.load("blue");
-		this.teamRed.register(this.scoreboard);
-		this.teamBlue.register(this.scoreboard);
+		TowerControlTeam.load("red", (team)->{
+			if(team==null) return;
+			this.teamRed = team;
+			this.teamRed.register(this.scoreboard);
+		});
+		TowerControlTeam.load("blue", (team)->{
+			if(team==null) return;
+			this.teamBlue = team;
+			this.teamBlue.register(this.scoreboard);
+		});
 		Arena.loadArenas();
 	}
 	public void onDisable() {

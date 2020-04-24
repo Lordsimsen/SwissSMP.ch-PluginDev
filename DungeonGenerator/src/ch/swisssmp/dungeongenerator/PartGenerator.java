@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.util.BlockVector;
 
 import com.google.gson.JsonArray;
@@ -245,7 +245,7 @@ public class PartGenerator {
 			logData.add(logEntry.getLogData());
 		}
 		jsonData.add("log_entries", logData);
-		arguments.add("log="+Base64.encodeBase64URLSafeString(jsonData.toString().getBytes()));
+		arguments.add("log="+ Base64.encodeBase64URLSafeString(jsonData.toString().getBytes()));
 		String[] argumentsArray = new String[arguments.size()];
 		arguments.toArray(argumentsArray);
 		Thread thread = new Thread(()->{

@@ -1,9 +1,9 @@
 main: ch.swisssmp.streets.Streets
-version: 1.0
+version: 1.1
 name: Streets
 author: detig_iii
 description: Erhöht Reisegeschwindigkeit in spezifischen Zonen
-depend: [WebCore]
+depend: [WebCore,WGRegionEvents,WorldGuard]
 permissions:
   streets.admin:
     description: Erlaubt die Verwaltung des Plugins

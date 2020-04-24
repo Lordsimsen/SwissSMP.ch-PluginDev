@@ -1,11 +1,11 @@
 main: ch.swisssmp.world.WorldManager
-version: 3.0
+version: 3.1
 api-version: 1.13
 name: WorldManager
 author: detig_iii
 description: Lädt und verwaltet Welten
-depend: [WebCore]
-softdepend: [WorldGuard,WorldBorder]
+depend: [WebCore,SwissSMPUtils,CustomItems]
+softdepend: [WorldGuard,WorldBorder,ResourcepackManager]
 permissions:
   worldmanager.admin:
     description: Erlaubt die Verwaltung des Plugins

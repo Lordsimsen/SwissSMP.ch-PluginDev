@@ -4,7 +4,7 @@ api-version: 1.13
 name: TravelSystem
 author: detig_iii
 description: Ermöglicht Reisen zwischen beliebigen Punkten
-depend: [WebCore,NPCs,CustomEditorAPI,WaypointAPI]
+depend: [WebCore,NPCs,CustomEditorAPI,WaypointAPI,WorldEdit]
 softdepend: [ResourcepackManager]
 permissions:
   travelsystem.admin:

@@ -24,7 +24,7 @@ public class EventListenerEntity extends EventListenerBasic{
 	private void onEntitySpawn(CreatureSpawnEvent event){
 		if(event.getLocation().getWorld()!=this.getInstance().getWorld()) return;
 		SpawnReason reason = event.getSpawnReason();
-		if(reason == SpawnReason.CHUNK_GEN || reason == SpawnReason.NATURAL){
+		if(reason == SpawnReason.NATURAL){
 			event.setCancelled(true);
 		}
 	}

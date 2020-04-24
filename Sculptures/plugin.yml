@@ -1,0 +1,6 @@
+main: ch.swisssmp.sculptures.SculpturesPlugin
+version: 1.0
+api-version: 1.13
+name: Sculptures
+author: detig_iii
+description: Ermöglicht errichten von Skulpturen

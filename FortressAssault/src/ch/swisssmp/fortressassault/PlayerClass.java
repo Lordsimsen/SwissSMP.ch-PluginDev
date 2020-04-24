@@ -2,6 +2,7 @@ package ch.swisssmp.fortressassault;
 
 import java.util.HashMap;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -70,20 +71,23 @@ public class PlayerClass {
 			}
 			break;
 		case BUILD:
-			playerInventory.addItem(new ItemStack(Material.SMOOTH_BRICK, 64));
-			playerInventory.addItem(new ItemStack(Material.SMOOTH_BRICK, 64));
+			playerInventory.addItem(new ItemStack(Material.STONE_BRICKS, 64));
+			playerInventory.addItem(new ItemStack(Material.STONE_BRICKS, 64));
 			break;
 		}
 	}
 	
 	public static void loadClasses() throws Exception{
 		playerClasses.clear();
-		
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("fortress_assault/classes.php");
-		for(String key : yamlConfiguration.getKeys(false)){
-			ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection(key);
-			new PlayerClass(dataSection);
-		}
+
+		HTTPRequest request = DataSource.getResponse(FortressAssault.getInstance(), "classes.php");
+		request.onFinish(()->{
+			YamlConfiguration yamlConfiguration = request.getYamlResponse();
+			for(String key : yamlConfiguration.getKeys(false)){
+				ConfigurationSection dataSection = yamlConfiguration.getConfigurationSection(key);
+				new PlayerClass(dataSection);
+			}
+		});
 	}
 	protected static PlayerClass get(int class_id){
 		return playerClasses.get(class_id);

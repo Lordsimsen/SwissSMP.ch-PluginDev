@@ -2,9 +2,13 @@ package ch.swisssmp.transportation;
 
 import java.util.List;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
@@ -35,7 +39,9 @@ public class EventListener implements Listener {
 		Block block = event.getClickedBlock();
 		if(block.getType()!=Material.ACTIVATOR_RAIL) return;
 		if(block.getRelative(BlockFace.DOWN).getType()!=Material.IRON_BLOCK) return;
-		ApplicableRegionSet regions = WorldGuardPlugin.inst().getRegionManager(block.getWorld()).getApplicableRegions(block.getLocation());
+		World world = block.getWorld();
+		BlockVector3 vector = BlockVector3.at(block.getX(), block.getY(), block.getZ());
+		ApplicableRegionSet regions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getApplicableRegions(vector);
 		List<String> stations = PublicTransportation.trainStations.get(block.getWorld());
 		boolean enterMinecart = false;
 		for(ProtectedRegion region : regions){

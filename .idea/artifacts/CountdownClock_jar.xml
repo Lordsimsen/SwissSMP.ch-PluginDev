@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CountdownClock:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="CountdownClock.jar">
+      <element id="module-output" name="CountdownClock" />
+      <element id="file-copy" path="$PROJECT_DIR$/CountdownClock/plugin.yml" />
+    </root>
+  </artifact>
+</component>

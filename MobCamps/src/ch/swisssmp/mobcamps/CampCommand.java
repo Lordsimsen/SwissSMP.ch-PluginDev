@@ -30,17 +30,18 @@ public class CampCommand implements CommandExecutor{
 		case "erstellen":
 		case "create":{
 			if(args.length<2) return false;
-			MobCamp result = MobCamp.create(args[1]);
-			if(result==null){
-				sender.sendMessage("[MobCamps] Konnte das Mob Camp nicht erstellen.");
-			}
-			else{
-				sender.sendMessage("[MobCamps] '"+result.getName()+"' erstellt.");
-				Bukkit.dispatchCommand(sender, "camp get "+result.getName());
-				if(sender instanceof Player){
-					MobCampEditor.open((Player)sender, result);
+			MobCamp.create(args[1], (result)->{
+				if(result==null){
+					sender.sendMessage("[MobCamps] Konnte das Mob Camp nicht erstellen.");
 				}
-			}
+				else{
+					sender.sendMessage("[MobCamps] '"+result.getName()+"' erstellt.");
+					Bukkit.dispatchCommand(sender, "camp get "+result.getName());
+					if(sender instanceof Player){
+						MobCampEditor.open((Player)sender, result);
+					}
+				}
+			});
 			return true;
 		}
 		case "lade":

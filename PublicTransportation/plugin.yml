@@ -1,5 +1,5 @@
 main: ch.swisssmp.transportation.PublicTransportation
-version: 1.0
+version: 1.1
 name: PublicTransportation
 author: detig_iii
 description: Schnellere Minecarts auf öffentlichen Schienennetzen

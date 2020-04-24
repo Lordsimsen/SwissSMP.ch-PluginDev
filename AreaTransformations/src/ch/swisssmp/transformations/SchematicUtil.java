@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -94,7 +95,7 @@ public class SchematicUtil {
         	WebCore.info("[AreaTransformations] Loading schematic from "+fileName);
             File file = new File(AreaTransformations.getInstance().getDataFolder(), fileName);
             
-            com.sk89q.worldedit.world.World world = WorldGuard.getInstance().getPlatform().getWorldByName(pasteLoc.getWorld().getName());
+            com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(pasteLoc.getWorld());
  
             ClipboardFormat format = ClipboardFormats.findByFile(file);
             ClipboardReader reader = format.getReader(new FileInputStream(file));

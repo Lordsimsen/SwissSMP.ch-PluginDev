@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="GroupAnnouncer:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="GroupAnnouncer.jar">
+      <element id="module-output" name="GroupAnnouncer" />
+      <element id="file-copy" path="$PROJECT_DIR$/GroupAnnouncer/plugin.yml" />
+    </root>
+  </artifact>
+</component>

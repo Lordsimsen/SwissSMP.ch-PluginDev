@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.HandlerList;
@@ -32,21 +33,27 @@ public class PublicTransportation extends JavaPlugin{
 		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	
-	protected static void updateTrainStations(){
-		for(World world : Bukkit.getWorlds()){
-			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transportation/stations.php", new String[]{
-					"world="+URLEncoder.encode(world.getName())
-			});
-			if(yamlConfiguration==null) continue;
-			if(!yamlConfiguration.contains("stations")) continue;
-			trainStations.remove(world);
-			trainStations.put(world, yamlConfiguration.getStringList("stations"));
-		}
-	}
-	
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	}
+
+	protected static void updateTrainStations(){
+		for(World world : Bukkit.getWorlds()){
+			HTTPRequest request = DataSource.getResponse(PublicTransportation.getInstance(), "transportation/stations.php", new String[]{
+					"world="+URLEncoder.encode(world.getName())
+			});
+			request.onFinish(()->{
+				YamlConfiguration yamlConfiguration = request.getYamlResponse();
+				if(yamlConfiguration==null || !yamlConfiguration.contains("stations")) return;
+				trainStations.remove(world);
+				trainStations.put(world, yamlConfiguration.getStringList("stations"));
+			});
+		}
+	}
+
+	public static PublicTransportation getInstance(){
+		return plugin;
 	}
 }
