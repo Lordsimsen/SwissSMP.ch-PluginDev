@@ -18,7 +18,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -30,7 +29,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionType;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
-import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.nbt.NBTTagCompound;
@@ -45,7 +43,7 @@ import ch.swisssmp.zones.editor.ActionResult;
 public abstract class ZoneInfo {
 
 	private World world;
-	private String regionId;
+	private String zoneId;
 	private final ZoneType zoneType;
 	private ProtectedRegion region;
 	private ZoneInfoState state;
@@ -55,50 +53,80 @@ public abstract class ZoneInfo {
 	
 	protected ZoneInfo(World world, String regionId, ZoneType zoneType, ConfigurationSection dataSection){
 		this.world = world;
-		this.regionId = regionId;
+		this.zoneId = regionId;
 		this.zoneType = zoneType;
 		this.state = world!=null ? ZoneInfoState.ACTIVE : ZoneInfoState.INACTIVE;
 	}
 	
 	public ZoneInfo(ZoneType zoneType){
 		this.world = null;
-		this.regionId = null;
+		this.zoneId = null;
 		this.zoneType = zoneType;
 		this.state = ZoneInfoState.PENDING;
 	}
 	
+	public String getName(){
+		return name;
+	}
+	
+	public String getDisplayName(){
+		boolean isIdUUID;
+		try{
+			isIdUUID = UUID.fromString(zoneId)!=null;
+		}
+		catch(Exception e){
+			isIdUUID = false;
+		}
+		if(name!=null){
+			return ChatColor.AQUA + name;
+		}
+		if(state==ZoneInfoState.PENDING){
+			return zoneType==ZoneType.GENERIC ? ChatColor.RESET+"Leerer Zonenplan" : zoneType.getNewLabel()+" "+zoneType.getName();
+		}
+		return ChatColor.AQUA + (!isIdUUID ? zoneId : "Unbenannte Zone");
+	}
+	
+	public void setName(String name){
+		this.name = name;
+	}
+	
+	public String getId(){
+		return zoneId;
+	}
+	
+	public World getWorld(){
+		return this.world;
+	}
+	
+	public ZoneType getZoneType(){
+		return zoneType;
+	}
+	
 	public ItemStack createItemStack(){
-		ItemStack result = new ItemStack(Material.DIAMOND_SWORD);
+		ItemStack result = new ItemStack(Material.AIR);
 		this.apply(result);
 		return result;
 	}
 	
 	public String createId(World world){
-		if(regionId!=null) return regionId;
+		if(zoneId!=null) return zoneId;
 		this.world = world;
-		regionId = UUID.randomUUID().toString();
-		return regionId;
+		zoneId = UUID.randomUUID().toString();
+		return zoneId;
 	}
 	
 	public void apply(ItemStack itemStack){
 		if(itemStack==null) return;
-		String customEnum = (zoneType!=null ? zoneType.getCustomEnum() : null);
-		if(customEnum!=null){
-			CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(customEnum);
-			itemBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-			itemBuilder.setAttackDamage(0);
-			ItemStack template = itemBuilder.build();
-			if(template!=null){
-				itemStack.setType(template.getType());
-				itemStack.setItemMeta(template.getItemMeta());
-			}
+		CustomItemBuilder itemBuilder = zoneType!=null ? zoneType.getItemBuilder() : null;
+		if(itemBuilder!=null){
+			itemBuilder.update(itemStack);
 		}
 		
 		//Apply ItemMeta
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		itemMeta.setDisplayName(this.getDisplayName());
 		List<String> description = new ArrayList<String>();
-		if(this.regionId!=null) description.add(ChatColor.GRAY+zoneType.getName());
+		if(this.zoneId!=null) description.add(ChatColor.GRAY+zoneType.getName());
 		if(region!=null){
 			description.add(ChatColor.GRAY+"Welt: "+WorldManager.getDisplayName(world));
 			BlockVector3 from = region.getMinimumPoint();
@@ -112,56 +140,18 @@ public abstract class ZoneInfo {
 		//Apply NBT
 		NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
 		if(nbtTag==null) nbtTag = new NBTTagCompound();
-		if(regionId!=null){
-			nbtTag.setString("region_id", this.regionId);
+		if(zoneId!=null && world!=null){
+			NBTTagCompound zoneSection = new NBTTagCompound();
+			zoneSection.setString("Id", this.zoneId);
+			zoneSection.setString("World", this.world.getName());
+			nbtTag.set("Zone", zoneSection);
 		}
-		if(world!=null){
-			nbtTag.setString("world", this.world.getName());
-		}
-		nbtTag.setString("zone_type", this.zoneType.toString());
 		ItemUtil.setData(itemStack, nbtTag);
 	}
 	
 	public void apply(ProtectedRegion region){
 		if(region==null) return;
 		this.zoneType.applyFlags(region);
-	}
-	
-	public String getName(){
-		return name;
-	}
-	
-	public String getDisplayName(){
-		boolean isIdUUID;
-		try{
-			isIdUUID = UUID.fromString(regionId)!=null;
-		}
-		catch(Exception e){
-			isIdUUID = false;
-		}
-		if(name!=null){
-			return ChatColor.AQUA + name;
-		}
-		if(state==ZoneInfoState.PENDING){
-			return zoneType==ZoneType.GENERIC ? ChatColor.RESET+"Leerer Zonenplan" : zoneType.getNewLabel()+" "+zoneType.getName();
-		}
-		return ChatColor.AQUA + (!isIdUUID ? regionId : "Unbenannte Zone");
-	}
-	
-	public void setName(String name){
-		this.name = name;
-	}
-	
-	public String getId(){
-		return regionId;
-	}
-	
-	public World getWorld(){
-		return this.world;
-	}
-	
-	public ZoneType getZoneType(){
-		return zoneType;
 	}
 	
 	public void setRegion(World world, ProtectedRegion region){
@@ -231,7 +221,7 @@ public abstract class ZoneInfo {
 	}
 	
 	public boolean remove(){
-		if(world==null || regionId==null){
+		if(world==null || zoneId==null){
 			state = ZoneInfoState.PENDING;
 			return false;
 		}
@@ -241,7 +231,7 @@ public abstract class ZoneInfo {
 			state = ZoneInfoState.INACTIVE;
 			return false;
 		}
-		manager.removeRegion(regionId, RemovalStrategy.UNSET_PARENT_IN_CHILDREN);
+		manager.removeRegion(zoneId, RemovalStrategy.UNSET_PARENT_IN_CHILDREN);
 		container.remove(this);
 		state = ZoneInfoState.MISSING;
 		
@@ -270,7 +260,7 @@ public abstract class ZoneInfo {
 	
 	@Override
 	public String toString(){
-		return "(world: "+(world!=null ? world.getName() : null)+", id: "+regionId+", type: "+zoneType.toString()+")";
+		return "(world: "+(world!=null ? world.getName() : null)+", id: "+zoneId+", type: "+zoneType.toString()+")";
 	}
 	
 	public static String getId(ItemStack itemStack){

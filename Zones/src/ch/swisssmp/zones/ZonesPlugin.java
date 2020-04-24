@@ -7,6 +7,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ch.swisssmp.zones.editor.ZoneEditorCommand;
+
 public class ZonesPlugin extends JavaPlugin {
 	private static ZonesPlugin plugin;
 	

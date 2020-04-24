@@ -9,12 +9,10 @@ import org.bukkit.inventory.ShapedRecipe;
 class CraftingRecipes {
 	static void register(){
 		registerGenericZoneMap();
-		/*
 		registerProjectZoneMap();
 		registerAntiCreeperZoneMap();
 		registerAntiHostileZoneMap();
 		registerInversionZoneMap();
-		*/
 	}
 
 	private static void registerGenericZoneMap(){
@@ -28,7 +26,6 @@ class CraftingRecipes {
 		Bukkit.addRecipe(recipe);
 	}
 	
-	/*
 	private static void registerProjectZoneMap(){
 		ItemStack itemStack = ZoneType.PROJECT.toItemStack();
 		NamespacedKey key = new NamespacedKey(ZonesPlugin.getInstance(), "project_zone_map");
@@ -75,5 +72,4 @@ class CraftingRecipes {
 		recipe.setIngredient('m', Material.MAP);
 		Bukkit.addRecipe(recipe);
 	}
-	*/
 }

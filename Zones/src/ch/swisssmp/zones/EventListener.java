@@ -1,8 +1,6 @@
 package ch.swisssmp.zones;
 
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -23,18 +21,32 @@ import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
-import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.customitems.CreateCustomItemBuilderEvent;
+import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.zones.drawingboard.DrawingBoard;
-import ch.swisssmp.zones.drawingboard.DrawingBoardView;
+import ch.swisssmp.zones.editor.ZoneEditor;
+import ch.swisssmp.zones.editor.ZoneEditorView;
 import ch.swisssmp.zones.zoneinfos.ZoneInfo;
 
 public class EventListener implements Listener {
 	
 	@EventHandler
 	private void onResourcepackUpdate(PlayerResourcePackUpdateEvent event){
-		event.addComponent("region_tools");
+		event.addComponent("zones");
+	}
+	
+	@EventHandler
+	private void onItemBuilderCreate(CreateCustomItemBuilderEvent event) {
+		if(!event.getConfigurationSection().contains("ZoneType")) {
+			return;
+		}
+		
+		CustomItemBuilder itemBuilder = event.getCustomItemBuilder();
+		ZoneType zoneType = ZoneType.get(event.getConfigurationSection().getString("zone_type"));
+		itemBuilder.addComponent((ItemStack itemStack)->{
+			zoneType.apply(itemStack);
+		});
 	}
 	
 	@EventHandler
@@ -52,8 +64,7 @@ public class EventListener implements Listener {
 	@EventHandler
 	private void onPlayerInteract(PlayerInteractEvent event){
 		if(event.getPlayer().getGameMode()==GameMode.SPECTATOR) return;
-		if(this.onDrawingBoardInteract(event)) return;
-		if(this.onDrawingBoardPlace(event)) return;
+		if(this.onCartographyTableInteract(event)) return;
 		if(this.onZoneEditorClick(event)) return;
 	}
 	
@@ -131,6 +142,14 @@ public class EventListener implements Listener {
 		return true;
 	}
 	
+	private boolean onCartographyTableInteract(PlayerInteractEvent event) {
+		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK || event.getClickedBlock().getType()!=Material.CARTOGRAPHY_TABLE) return false;
+		if(event.getItem()==null) return false;
+		//TODO add code
+		return true;
+	}
+	
+	/*
 	private boolean onDrawingBoardInteract(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK && event.getAction()!=Action.LEFT_CLICK_BLOCK) return false;
 		Player player = event.getPlayer();
@@ -188,5 +207,5 @@ public class EventListener implements Listener {
 		}
 		event.setCancelled(true);
 		return true;
-	}
+	}*/
 }

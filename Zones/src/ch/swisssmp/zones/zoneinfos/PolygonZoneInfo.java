@@ -22,11 +22,11 @@ import com.sk89q.worldguard.protection.regions.RegionType;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion.CircularInheritanceException;
 
 import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.zones.Edge;
 import ch.swisssmp.zones.MemberRole;
 import ch.swisssmp.zones.WorldGuardUtil;
 import ch.swisssmp.zones.ZoneType;
 import ch.swisssmp.zones.editor.ActionResult;
+import ch.swisssmp.zones.editor.Edge;
 
 public abstract class PolygonZoneInfo extends ZoneInfo {
 

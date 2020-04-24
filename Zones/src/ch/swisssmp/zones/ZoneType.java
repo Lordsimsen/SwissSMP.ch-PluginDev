@@ -15,6 +15,9 @@ import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionType;
 
+import ch.swisssmp.customitems.CustomItemBuilder;
+import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.zones.zoneinfos.AllowSpawnZoneInfo;
 import ch.swisssmp.zones.zoneinfos.GenericZoneInfo;
 import ch.swisssmp.zones.zoneinfos.NoCreeperZoneInfo;
@@ -31,23 +34,19 @@ public enum ZoneType {
 	;
 	
 	private final String name;
-	private final String custom_enum;
+	private final String customEnum;
 	private final String permission;
 	private final RegionType regionType;
 	
 	private ZoneType(String name, String custom_enum, String permission, RegionType regionType){
 		this.name = name;
-		this.custom_enum = custom_enum;
+		this.customEnum = custom_enum;
 		this.permission = permission;
 		this.regionType = regionType;
 	}
 	
 	public String getName(){
 		return name;
-	}
-	
-	public String getCustomEnum(){
-		return custom_enum;
 	}
 	
 	public String getPermissionIdentifier(){
@@ -114,6 +113,14 @@ public enum ZoneType {
 		catch(Exception e){
 			return null;
 		}
+	}
+	
+	public CustomItemBuilder getItemBuilder() {
+		return CustomItems.getCustomItemBuilder(this.customEnum);
+	}
+	
+	public void apply(ItemStack itemStack) {
+		ItemUtil.setString(itemStack, "ZoneType", this.toString());
 	}
 	
 	public ZoneInfo createZoneInfo(){

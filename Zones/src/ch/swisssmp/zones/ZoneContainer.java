@@ -49,7 +49,7 @@ public class ZoneContainer {
 	
 	public List<ZoneInfo> getZones(Player player){
 		return zones.values().stream()
-				.filter(z->(z.getMembers().containsValue(player.getUniqueId()) || (player.isOp() && player.getGameMode()==GameMode.CREATIVE)))
+				.filter(z->(z.getMembers().containsKey(player.getUniqueId()) || (player.isOp() && player.getGameMode()==GameMode.CREATIVE)))
 				.collect(Collectors.toList());
 	}
 	
