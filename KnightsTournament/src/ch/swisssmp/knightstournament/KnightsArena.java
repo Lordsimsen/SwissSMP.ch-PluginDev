@@ -66,6 +66,10 @@ public class KnightsArena {
 		return world;
 	}
 	
+	public static Collection<KnightsArena> getLoadedArenas(){
+		return loadedArenas;
+	}
+	
 	public String getName(){
 		return this.name;
 	}
@@ -276,7 +280,7 @@ public class KnightsArena {
 			if(arena.tournament==null) continue;
 			arena.tournament.finish();
 		}
-		loadedArenas.removeAll(arenas);
+		loadedArenas.removeAll(arenas); //this work?
 	}
 	
 	public static Optional<KnightsArena> get(World world, String name){

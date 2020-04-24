@@ -31,6 +31,8 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 		
 		this.getCommand("knightsarena").setExecutor(new KnightsArenaCommand());
 		
+		this.getCommand("knightsarenas").setExecutor(new KnightsArenasCommand());
+		
 		for(World world : Bukkit.getWorlds()) {
 			KnightsArena.load(world);
 		}

@@ -35,3 +35,7 @@ commands:
     usage: "/<command> <subcommand>"
     description: Erstellt eine Arena
     permission: knightstournament.admin
+  knightsarenas:
+    usage: "/<command>"
+    description: Zeigt erstellte Arenen
+    permission: knightstournament.admin
