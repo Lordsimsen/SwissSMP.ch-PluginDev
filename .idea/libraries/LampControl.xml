@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="LampControl">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/_Libraries/lampcontrol-4.0.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
