@@ -5,7 +5,7 @@
       <element id="module-output" name="WebCore" />
       <element id="file-copy" path="$PROJECT_DIR$/../SwissSMP.ch-WebCore/plugin.yml" />
       <element id="file-copy" path="$PROJECT_DIR$/../SwissSMP.ch-WebCore/config.yml" />
-      <element id="library" level="application" name="commons-net-3.6" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../SwissSMP.ch-WebCore/lib/commons-net-3.6.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
