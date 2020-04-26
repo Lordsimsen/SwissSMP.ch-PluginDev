@@ -16,9 +16,13 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
@@ -59,7 +63,70 @@ public class Tournament implements Listener{
 	public SwissSMPler getMaster(){
 		return this.master;
 	}
-	
+
+
+	@EventHandler (priority = EventPriority.HIGHEST)
+	private void onHit(EntityDamageByLanceAttackEvent event){
+		if(!event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) return;
+		if(!(event.getEntity() instanceof Player)) return;
+		Player damageDealer = event.getDamager();
+		Player damagee = (Player) event.getEntity();
+
+		if(!this.registeredPlayers.contains(damageDealer) && !this.registeredPlayers.contains(damagee)) return;
+		TournamentParticipant participantOne = this.runningDuel.getParticipant(damageDealer);
+		TournamentParticipant participantTwo =  this.runningDuel.getParticipant(damagee);
+		if(participantOne==null || participantTwo==null) {
+			event.setCancelled(true);
+			return;
+		}
+		event.setChargeEnds(true);
+		event.setLanceDurabilityLoss(0);
+		if(damagee.getHealth()-event.getFinalDamage()<=0){
+			event.setDamage(0);
+			damagee.leaveVehicle();
+			Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
+				damagee.setVelocity(event.getHitVector().multiply(2.));
+			}, 1L);
+			this.runningDuel.win(this.runningDuel.getParticipant(damageDealer), this.runningDuel.getParticipant(damagee));
+		}
+	}
+
+
+	/**
+	 * Cancel event if
+	 * either entity is a player and a participant
+	 * and not both are participating in a duel	 *
+	 * @param event
+	 */
+	@EventHandler
+	private void onEntityDamagesEntity(EntityDamageByEntityEvent event){
+		if(event instanceof EntityDamageByLanceAttackEvent) return;
+		boolean isTournamentParticipantOne = false;
+		boolean isTournamentParticipantTwo = false;
+		if((event.getEntity() instanceof Player)) {
+			Player damagee = (Player) event.getEntity();
+			if(this.registeredPlayers.contains(damagee)){
+				isTournamentParticipantOne = true;
+				if(this.runningDuel==null || !this.runningDuel.isParticipating(damagee)) {
+					event.setCancelled(true);
+					return;
+				}
+			}
+		}
+		if((event.getDamager() instanceof Player)) {
+			Player damageDealer = (Player) event.getDamager();
+			if(this.registeredPlayers.contains(damageDealer)){
+				isTournamentParticipantTwo = true;
+				if(this.runningDuel==null || !this.runningDuel.isParticipating(damageDealer)) {
+					event.setCancelled(true);
+					return;
+				}
+			}
+		}
+		if(!isTournamentParticipantOne && !isTournamentParticipantTwo) return;
+		event.setCancelled(!isTournamentParticipantOne || !isTournamentParticipantTwo);
+	}
+
 	@EventHandler
 	private void onEntityDismount(EntityDismountEvent event){
 		Entity entity = event.getEntity();

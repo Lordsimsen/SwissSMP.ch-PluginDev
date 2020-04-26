@@ -22,10 +22,12 @@ import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.*;
@@ -377,6 +379,19 @@ public class EventListener implements Listener {
 			ItemUtil.setData(itemStack, nbt);
 		});
 	}
+
+	@EventHandler
+	private void onInventoryOpen(InventoryOpenEvent event){
+		Player player = (Player) event.getPlayer();
+		LanceCharge charge = LanceCharge.get(player.getUniqueId()).orElse(null);
+		if(charge!=null) charge.cancel();
+		TournamentLance.updateLegacyLances(event.getInventory());
+	}
+
+	@EventHandler
+	private void onPlayerJoin(PlayerJoinEvent event){
+		TournamentLance.updateLegacyLances(event.getPlayer().getInventory());
+	}
 	
 	@EventHandler
 	private void onWorldLoad(WorldLoadEvent event) {
@@ -387,4 +402,5 @@ public class EventListener implements Listener {
 	private void onWorldUnload(WorldUnloadEvent event) {
 		KnightsArena.unload(event.getWorld());
 	}
+
 }

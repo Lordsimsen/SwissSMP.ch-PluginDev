@@ -2,15 +2,14 @@ package ch.swisssmp.knightstournament;
 
 import ch.swisssmp.utils.*;
 import ch.swisssmp.utils.Random;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -135,22 +134,50 @@ public class LanceCharge implements Runnable{
         for(LivingEntity entity : entities) {
             Vector delta = entity.getLocation().subtract(playerLocation).toVector();
             VectorUtil.rotateY(delta, (random.nextFloat()*2-1)*30);
-            hit(entity, baseDamage, delta.setY(0).normalize().multiply(playerSpeed*1.8));
+            int remainincLanceHealth = hit(entity, baseDamage, delta.setY(0).normalize().multiply(playerSpeed*1.8));
+            if(remainincLanceHealth==0) break;
         }
     }
 
-    private void hit(LivingEntity entity, double baseDamage, Vector knockback){
-        if(entity==player) return;
-        if(entity==player.getVehicle()) return;
-        if(entity.getVehicle()==player) return;
+    private int hit(LivingEntity entity, double baseDamage, Vector knockback){
+        if(entity==player) return 1;
+        if(entity==player.getVehicle()) return 1;
+        if(entity.getVehicle()==player) return 1;
         double damage = DamageUtil.calculateDamage(baseDamage, entity);
         if(entity instanceof Animals) damage *= 0.4;
-        EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(player, entity, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage);
+        double damageChance = player.getGameMode()!= GameMode.CREATIVE ? 1 : 0;
+        if(damageChance > 0 && lance.getItemMeta().hasEnchant(Enchantment.DURABILITY)){
+            int level = lance.getEnchantmentLevel(Enchantment.DURABILITY);
+            damageChance = 1.0/(level+1);
+        }
+        boolean lanceTookDamage = random.nextDouble() < damageChance;
+        int durabilityLoss = lanceTookDamage ? 1 : 0;
+        boolean chargeEnds = lanceTookDamage;
+        EntityDamageByLanceAttackEvent event = new EntityDamageByLanceAttackEvent(player, lance, durabilityLoss, knockback, chargeEnds, entity, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage);
         Bukkit.getPluginManager().callEvent(event);
-        if(event.isCancelled()) return;
+        if(event.isCancelled()) return 1;
+        durabilityLoss = event.getLanceDurabilityLoss();
+        chargeEnds = event.getChargeEnds();
+        damage = event.getFinalDamage();
+        int remaining = chargeEnds ? applyLanceDamage(durabilityLoss) : 1;
         entity.setVelocity(knockback);
         entity.damage(damage);
         entity.setNoDamageTicks(10);
+        if(chargeEnds) completed = true;
+        return remaining;
+    }
+
+    private int applyLanceDamage(int amount){
+        ItemMeta lanceMeta = lance.getItemMeta();
+        if(!(lanceMeta instanceof Damageable)) return -1;
+        Damageable damageable = (Damageable) lanceMeta;
+        int currentDamage = damageable.getDamage();
+        int maxDamage = lance.getType().getMaxDurability();
+        damageable.setDamage(currentDamage+amount);
+        lance.setItemMeta(lanceMeta);
+        int remaining = maxDamage - currentDamage;
+        if(remaining <= 0) lance.setAmount(0);
+        return Math.max(remaining, 0);
     }
 
 

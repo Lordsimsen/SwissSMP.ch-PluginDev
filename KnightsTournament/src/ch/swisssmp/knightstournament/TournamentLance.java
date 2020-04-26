@@ -7,6 +7,7 @@ import ch.swisssmp.utils.nbt.NBTTagCompound;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
@@ -49,4 +50,18 @@ public class TournamentLance {
 		Bukkit.getServer().addRecipe(recipe);
 	}
 
+	protected static void updateLegacyLances(Inventory inventory){
+		for(ItemStack itemStack : inventory){
+			if(itemStack==null) continue;
+			if(itemStack.getType()!=Material.DIAMOND_SWORD) continue;
+			String customEnum = CustomItems.getCustomEnum(itemStack);
+			if(customEnum==null || !customEnum.equalsIgnoreCase("TOURNAMENT_LANCE")) continue;
+			CustomItemBuilder customItemBuilder = CustomItems.getCustomItemBuilder(TournamentLance.bareCustomEnum);
+			customItemBuilder.update(itemStack);
+			NBTTagCompound nbt = ItemUtil.getData(itemStack);
+			nbt.remove("AttributeModifiers");
+			nbt.remove("HideFlags");
+			ItemUtil.setData(itemStack, nbt);
+		}
+	}
 }

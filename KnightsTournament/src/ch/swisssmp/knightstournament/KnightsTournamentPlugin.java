@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -47,6 +48,10 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 		
 		for(World world : Bukkit.getWorlds()) {
 			KnightsArena.load(world);
+		}
+
+		for(Player player : Bukkit.getOnlinePlayers()){
+			TournamentLance.updateLegacyLances(player.getInventory());
 		}
 
 		TournamentLance.registerCraftingRecipe();

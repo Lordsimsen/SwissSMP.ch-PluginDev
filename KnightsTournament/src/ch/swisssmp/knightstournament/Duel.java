@@ -18,7 +18,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-public class Duel implements Listener {
+public class Duel {
 
 	private final Tournament tournament;
 	private final String name;
@@ -137,7 +137,6 @@ public class Duel implements Listener {
 		this.waypointTwo = null;
 		this.tournament.announce("Start!", this.playerOne.getDisplayName()+"§r§E vs. §r"+this.playerTwo.getDisplayName());
 		this.tournament.getArena().playCallSound();
-		Bukkit.getPluginManager().registerEvents(this, KnightsTournamentPlugin.getInstance());
 		this.running = true;
 	}
 	
@@ -271,23 +270,5 @@ public class Duel implements Listener {
 	private void heal(Player player){
 		player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		player.setSaturation(20);
-	}
-
-	@EventHandler (priority = EventPriority.HIGHEST)
-	private void onHit(EntityDamageByEntityEvent event){
-		if(!event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) return;
-		if(!(event.getDamager() instanceof Player) || !(event.getEntity() instanceof Player)) return;
-		Player damageDealer = (Player) event.getDamager();
-		Player damagee = (Player) event.getEntity();
-		damageDealer = damageDealer == playerOne ? playerOne : ((damageDealer == playerTwo) ? playerTwo : null);
-		damagee = damagee == playerOne ? playerOne : ((damageDealer == playerTwo) ? playerTwo : null);
-		if(damageDealer==damagee || damageDealer==null || damagee==null) return;
-		ItemStack mainHand = ((Player) event.getEntity()).getInventory().getItemInMainHand();
-		if(!TournamentLance.isLance(mainHand)) return;
-		if(damagee.getHealth()-event.getFinalDamage()<=0){
-			event.setCancelled(true);
-			damagee.leaveVehicle();
-			win(getParticipant(damageDealer), getParticipant(damagee));
-		}
 	}
 }
