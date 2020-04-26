@@ -4,7 +4,7 @@ api-version: 1.13
 name: KnightsTournament
 authors: [detig_iii, WhiteGuggi]
 description: Ritterspiele
-depend: [SwissSMPUtils,WebCore,CustomItems,WorldManager,CustomEditorAPI,ResourcepackManager]
+depend: [SwissSMPUtils,WebCore,CustomItems,WorldManager,CustomEditorAPI,ResourcepackManager,ProtocolLib]
 permissions: 
   knightstournament.admin:
     default: op
@@ -12,9 +12,12 @@ permissions:
   knightstournament.host:
     default: op
     description: Erlaubt die Leitung von Turnieren
-  knightstournament.craft:
+  knightstournament.lance.craft:
     default: op
     description: Erlaubt das Craften von Turnierlanzen
+  knightstournament.lance.charge:
+    default: op
+    description: Erlaubt Nutzen der Ritterlanze ausserhalb von Turnieren
   knightstournament.participate:
     default: op
     description: Erlaubt die Teilnahme an Ritterspielen

@@ -239,7 +239,9 @@ public class KnightsArena {
 		
 		UUID id = JsonUtil.getUUID("id", json);
 		if(id == null) return null;
-		
+		Optional<KnightsArena> existing = KnightsArena.get(world, id);
+		if(existing.isPresent()) return existing.get();
+
 		KnightsArena result = new KnightsArena(id, world);
 		result.load(json);
 		KnightsArena.loadedArenas.add(result);
@@ -265,7 +267,7 @@ public class KnightsArena {
 		for(JsonElement element : arenasArray) {
 			if(!element.isJsonObject()) continue;
 			KnightsArena arena = load(world, element.getAsJsonObject());
-			if(arena == null) continue;
+			if(arena == null || loadedArenas.contains(arena)) continue;
 			arenas.add(arena);
 		}
 		loadedArenas.addAll(arenas);
@@ -280,13 +282,22 @@ public class KnightsArena {
 			if(arena.tournament==null) continue;
 			arena.tournament.finish();
 		}
-		loadedArenas.removeAll(arenas); //this work?
+		loadedArenas.removeAll(arenas);
+
+		Bukkit.getLogger().info("Arenas: " + loadedArenas.size());
 	}
 	
 	public static Optional<KnightsArena> get(World world, String name){
 		return loadedArenas
 				.stream()
 				.filter(a->a.world==world && a.name.equalsIgnoreCase(name))
+				.findAny();
+	}
+
+	public static Optional<KnightsArena> get(World world, UUID id){
+		return loadedArenas
+				.stream()
+				.filter(a->a.world==world && a.id.equals(id))
 				.findAny();
 	}
 	

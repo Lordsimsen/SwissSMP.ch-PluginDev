@@ -1,20 +1,36 @@
 package ch.swisssmp.knightstournament;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import ch.swisssmp.customitems.CustomItemBuilder;
+import ch.swisssmp.customitems.CustomItems;
+import net.minecraft.server.v1_15_R1.ItemBow;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Player;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Levelled;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.customitems.CreateCustomItemBuilderEvent;
@@ -28,6 +44,10 @@ import ch.swisssmp.utils.nbt.NBTTagCompound;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Cauldron;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class EventListener implements Listener {
 	
@@ -35,6 +55,47 @@ public class EventListener implements Listener {
 	private void onPlayerResourepackUpdate(PlayerResourcePackUpdateEvent event) {
 		event.addComponent("knightstournament");
 	}
+
+	@EventHandler
+	private void onPrepareItemCraft(PrepareItemCraftEvent event){
+		CraftingInventory inventory = event.getInventory();
+		ItemStack lance = null;
+		List<LanceColor> colors = new ArrayList<LanceColor>();
+		for(ItemStack itemStack : inventory){
+			if(itemStack==null) continue;
+			if(TournamentLance.isLance(itemStack)) {
+				lance = itemStack;
+				continue;
+			}
+			LanceColor color = LanceColor.of(itemStack.getType());
+			if(color==null) return;
+			colors.add(color);
+		}
+		if(lance==null || colors.size()!=2 || colors.get(0) == colors.get(1)) return;
+		final String primaryColorKey = TournamentLance.primaryColorProperty;
+		final String secondaryColorKey = TournamentLance.secondaryColorProperty;
+		Collections.sort(colors);
+		LanceColor main = colors.get(0);
+		LanceColor secondary = colors.get(1);
+		ItemStack result = lance.clone();
+		NBTTagCompound nbt = ItemUtil.getData(result);
+		NBTTagCompound lanceNbt = nbt.getCompound(TournamentLance.dataProperty);
+		final String lanceColorNone = LanceColor.NONE.toString();
+		if(lanceNbt.hasKey(primaryColorKey) && !lanceNbt.getString(primaryColorKey).equalsIgnoreCase(lanceColorNone)) return;
+		if(lanceNbt.hasKey(secondaryColorKey) && !lanceNbt.getString(secondaryColorKey).equalsIgnoreCase(lanceColorNone)) return;
+		lanceNbt.setString(primaryColorKey, main.toString());
+		lanceNbt.setString(secondaryColorKey, secondary.toString());
+		nbt.set(TournamentLance.dataProperty, lanceNbt);
+		ItemUtil.setData(result, nbt);
+		String customEnum = (main + "_" + secondary + "_" + TournamentLance.customBaseEnum).toUpperCase();
+		CustomItemBuilder customitemBuilder = CustomItems.getCustomItemBuilder(customEnum);
+		if(customitemBuilder!=null) {
+			int customModelId = customitemBuilder.getCustomModelId();
+			ItemUtil.setInt(result, "CustomModelData", customModelId);
+		}
+		inventory.setResult(result);
+	}
+
 
 	@EventHandler
 	private void onCraft(PrepareItemCraftEvent event){
@@ -81,8 +142,123 @@ public class EventListener implements Listener {
 			System.out.print(e);
 		}
 	}
-	
-	@EventHandler(ignoreCancelled=true)
+
+	@EventHandler
+	private void onPlayerDismount(EntityDismountEvent event){
+		Entity entity = event.getEntity();
+		if(!(entity instanceof Player)) return;
+		Entity vehicle = event.getDismounted();
+		if(!(vehicle instanceof AbstractHorse)) return;
+		LanceCharge charge = LanceCharge.get(entity.getUniqueId()).orElse(null);
+		if(charge==null) return;
+		charge.cancel();
+	}
+
+	@EventHandler
+	private void onPlayerShoot(EntityShootBowEvent event){
+		if(event.getEntityType()!= EntityType.PLAYER) return;
+		ItemStack itemStack = event.getBow();
+		if(!TournamentLance.isLance(itemStack)) return;
+		event.setCancelled(true);
+		LanceCharge charge = LanceCharge.get(event.getEntity().getUniqueId()).orElse(null);
+		if(charge==null)return;
+		charge.complete();
+	}
+
+	@EventHandler
+	private void onPlayerChangeItem(PlayerItemHeldEvent event){
+		Player player = event.getPlayer();
+		ItemStack previous = player.getInventory().getItem(event.getPreviousSlot());
+		if(previous==null) return;
+		LanceCharge charge = LanceCharge.get(player.getUniqueId()).orElse(null);
+		if(charge==null)return;
+		charge.cancel();
+	}
+
+	@EventHandler
+	private void onItemDrop(PlayerDropItemEvent event){
+		Player player = event.getPlayer();
+		LanceCharge charge = LanceCharge.get(player.getUniqueId()).orElse(null);
+		if(charge==null)return;
+		charge.cancel();
+	}
+
+	@EventHandler
+	private void onPlayerInteract(PlayerInteractEvent event){
+		if(event.getAction()==Action.RIGHT_CLICK_BLOCK) {
+			onSignInteract(event);
+			onCauldronInteract(event);
+		}
+		if(event.getAction()==Action.RIGHT_CLICK_AIR) {
+			onItemUse(event);
+		}
+		if(event.getAction()==Action.RIGHT_CLICK_AIR || event.getAction()==Action.RIGHT_CLICK_BLOCK) {
+			onTokenInteract(event);
+		}
+	}
+
+	private void onCauldronInteract(PlayerInteractEvent event){
+		if(event.getItem()==null) return;
+		if(event.getClickedBlock().getType()!= Material.CAULDRON) return;
+		ItemStack itemStack = event.getItem();
+		if(!TournamentLance.isLance(itemStack)) return;
+		Levelled cauldron = (Levelled) event.getClickedBlock().getBlockData();
+		if(cauldron.getLevel()<=0) return;
+
+		final String primaryColorKey = TournamentLance.primaryColorProperty;
+		final String secondaryColorKey = TournamentLance.secondaryColorProperty;
+		NBTTagCompound nbt = ItemUtil.getData(itemStack);
+		NBTTagCompound lanceNbt = nbt.getCompound(TournamentLance.dataProperty);
+		final String lanceColorNone = LanceColor.NONE.toString();
+		if(!lanceNbt.hasKey(primaryColorKey) || lanceNbt.getString(primaryColorKey).equalsIgnoreCase(lanceColorNone)) return;
+		if(!lanceNbt.hasKey(secondaryColorKey) || lanceNbt.getString(secondaryColorKey).equalsIgnoreCase(lanceColorNone)) return;
+
+		CauldronLevelChangeEvent cauldronEvent = new CauldronLevelChangeEvent(event.getClickedBlock(), event.getPlayer(),
+				CauldronLevelChangeEvent.ChangeReason.UNKNOWN, cauldron.getLevel(), cauldron.getLevel()-1);
+		Bukkit.getPluginManager().callEvent(cauldronEvent);
+		if(cauldronEvent.isCancelled()) {
+			event.setCancelled(true);
+			return;
+		}
+		lanceNbt.setString(primaryColorKey, lanceColorNone);
+		lanceNbt.setString(secondaryColorKey, lanceColorNone);
+		nbt.set(TournamentLance.dataProperty, lanceNbt);
+		ItemUtil.setData(itemStack, nbt);
+		String customEnum = (TournamentLance.bareCustomEnum).toUpperCase();
+		CustomItemBuilder customitemBuilder = CustomItems.getCustomItemBuilder(customEnum);
+		if(customitemBuilder!=null) {
+			int customModelId = customitemBuilder.getCustomModelId();
+			ItemUtil.setInt(itemStack, "CustomModelData", customModelId);
+		}
+
+		cauldron.setLevel(cauldron.getLevel()-1);
+		event.getClickedBlock().setBlockData(cauldron);
+	}
+
+	private void onItemUse(PlayerInteractEvent event){
+		ItemStack itemStack = event.getItem();
+		if(itemStack==null) return;
+		Player player = event.getPlayer();
+		if(player.getGameMode()== GameMode.SPECTATOR) return;
+		LanceCharge existing = LanceCharge.get(player.getUniqueId()).orElse(null);
+		if(existing!=null){
+			if(existing.getHand()!=event.getHand()) return;
+			if(existing.getLance()==itemStack) {
+				return; // Shouldn't happen as PlayerInteractEvent is only triggered once upon bow-draw
+			}
+			existing.cancel();
+		}
+		if(!TournamentLance.isLance(itemStack)) return;
+
+		if(!player.hasPermission("knightstournament.lance.charge.anywhere")) {
+			if(Tournament.get(player)==null) {
+				event.setCancelled(true);
+				return;
+			}
+		}
+		LanceCharge.initiate(player, event.getHand(), itemStack);
+	}
+
 	private void onSignInteract(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		Block block = event.getClickedBlock();
@@ -128,9 +304,8 @@ public class EventListener implements Listener {
 			tournament.start();
 		}
 	}
-	
-	@EventHandler
-	private void onPlayerInteract(PlayerInteractEvent e) {
+
+	private void onTokenInteract(PlayerInteractEvent e) {
 		if(e.getItem() == null) {
 			return;
 		}

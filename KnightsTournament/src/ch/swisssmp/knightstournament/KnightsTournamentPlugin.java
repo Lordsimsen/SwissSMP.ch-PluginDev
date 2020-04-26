@@ -1,5 +1,12 @@
 package ch.swisssmp.knightstournament;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.EnumWrappers;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -37,7 +44,9 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 			KnightsArena.load(world);
 		}
 		
-		KnightsTournamentPlugin.loadTournamentLance();
+		TournamentLance.registerCraftingRecipe();
+
+		PlayerDiggingListener.register();
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
@@ -45,36 +54,14 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 		
 	}
 	
-	private static void loadTournamentLance(){
-		CustomItemBuilder lanceBuilder = CustomItems.getCustomItemBuilder("TOURNAMENT_LANCE");
-		if(lanceBuilder==null){
-			Bukkit.getLogger().info("[KnightsTournament] Turnierlanze konnte nicht geladen werden.");
-			return;
-		}
-		lanceBuilder.setAmount(1);
-		lanceBuilder.setAttackDamage(1);
-		lanceBuilder.setAttackSpeed(0.1f);
-		tournamentLanceBuilder = lanceBuilder;
-		ItemStack lance = lanceBuilder.build();
-		ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(KnightsTournamentPlugin.plugin, "tournament_lance"), lance);
-		recipe.shape(
-				"  i",
-				"wi ",
-				"bw "
-				);
-		recipe.setIngredient('i', Material.IRON_INGOT);
-		recipe.setIngredient('w', Material.RED_WOOL);
-		recipe.setIngredient('b', Material.IRON_BLOCK);
-		tournamentLanceRecipe = recipe;
-		Bukkit.getServer().addRecipe(recipe);
-	}
-	
 
 	@Override
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
+		LanceCharge.cancelAll();
 		Bukkit.getScheduler().cancelTasks(this);
 		PluginDescriptionFile pdfFile = getDescription();
+		ProtocolLibrary.getProtocolManager().removePacketListeners(this);
 		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 	}
 	

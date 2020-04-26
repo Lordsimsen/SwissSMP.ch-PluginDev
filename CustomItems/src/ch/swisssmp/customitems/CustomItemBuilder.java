@@ -93,6 +93,11 @@ public class CustomItemBuilder {
 		this.customModelId = customModelId;
 		this.useCustomModelDataProperty = true;
 	}
+
+	public int getCustomModelId(){
+		return customModelId;
+	}
+
 	public void setUseCustomModelDataProperty(boolean use) {
 		this.useCustomModelDataProperty = use;
 	}
