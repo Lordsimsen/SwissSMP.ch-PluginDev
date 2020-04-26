@@ -244,11 +244,6 @@ public class CustomItems extends JavaPlugin{
 				customItemBuilder.setUnbreakable(dataSection.getBoolean("unbreakable"));
 				break;
 			}
-			case "item_id":{
-				if(dataSection.contains("use_item_id") && !dataSection.getBoolean("use_item_id")) continue;
-				customItemBuilder.setItemId(dataSection.getInt("item_id"));
-				break;
-			}
 			case "attack_damage":{
 				customItemBuilder.setAttackDamage(dataSection.getDouble("attack_damage"));
 				break;

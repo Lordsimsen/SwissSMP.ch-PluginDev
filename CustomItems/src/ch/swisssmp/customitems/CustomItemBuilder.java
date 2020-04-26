@@ -43,7 +43,6 @@ public class CustomItemBuilder {
 	private boolean useCustomModelDataProperty = false;
 	
 	private String customEnum = "";
-	private int item_id = 0;
 	private int maxCustomDurability = 0;
 	private int customDurability = 0;
 	private int customModelId = 0;
@@ -75,7 +74,7 @@ public class CustomItemBuilder {
 	}
 	public void setDurability(short durability){
 		this.durability = durability;
-		if(!this.customEnum.isEmpty() && this.durability!=0){
+		if(!this.customEnum.isEmpty() && this.durability>=0){
 			this.unbreakable = true;
 			if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
@@ -159,7 +158,6 @@ public class CustomItemBuilder {
 			if(template!=null){
 				Material material = template.getMaterial();
 				if(material!=null) this.setMaterial(material);
-				this.item_id  = template.getItemId();
 				this.setDurability(template.getDurability());
 				this.customModelId = template.getCustomModelId();
 				this.useCustomModelDataProperty = template.useCustomModelDataProperty();
@@ -173,16 +171,7 @@ public class CustomItemBuilder {
 			}
 		}
 	}
-	
-	public void setItemId(int item_id){
-		this.item_id = item_id;
-		this.useNMS = true;
-		if(this.useCustomModelDataProperty) return;
-		this.unbreakable = true;
-		if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
-			this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
-		}
-	}
+
 	public void setAttackDamage(double attackDamage){
 		this.useNMS = true;
 		this.attackDamage = attackDamage;
@@ -344,10 +333,6 @@ public class CustomItemBuilder {
 			
 			if(!this.customEnum.isEmpty()){
 				nbtTag.setString("customEnum", this.customEnum);
-			}
-			
-			if(this.item_id>0){
-				nbtTag.setInt("item_id", item_id);
 			}
 			
 			if(this.maxCustomDurability>0){
