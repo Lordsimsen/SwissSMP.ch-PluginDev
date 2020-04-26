@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Prism-Bukkit" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dynmap" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/elixr" vcs="Git" />
   </component>
 </project>

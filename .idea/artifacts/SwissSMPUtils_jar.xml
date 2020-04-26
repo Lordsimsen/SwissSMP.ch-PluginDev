@@ -3,7 +3,6 @@
     <output-path>$PROJECT_DIR$/_Artifacts</output-path>
     <root id="archive" name="SwissSMPUtils.jar">
       <element id="module-output" name="SwissSMPUtils" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../../../programme/Spigot/spigot-1.15.2.jar" path-in-jar="/" />
       <element id="file-copy" path="$PROJECT_DIR$/SwissSMPUtils/plugin.yml" />
     </root>
   </artifact>
