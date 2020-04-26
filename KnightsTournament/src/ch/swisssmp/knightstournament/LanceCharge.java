@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class LanceCharge implements Runnable{
 
     private static final int speedEffectInterval = 10;
-    private static final int maxSpeedEffect = 4;
+    private static final int maxSpeedEffect = 2;
     private static final float boostDecayStep = 0.400f;
     private static final Random random = new Random();
 
@@ -56,6 +56,7 @@ public class LanceCharge implements Runnable{
         walkSpeed = player.getWalkSpeed();
 //        player.setWalkSpeed(1f);
         applySpeedBuff = player.getVehicle() instanceof AbstractHorse;
+        //Bukkit.getLogger().info("Start charge!");
     }
 
     private void setSpeedEffect(int level){
@@ -80,7 +81,7 @@ public class LanceCharge implements Runnable{
             trackedPositions.remove(trackedPositions.size()-1);
         }
         Location hitBoxCenter = getHitBoxCenter();
-        Collection<LivingEntity> entities = checkHitBox(hitBoxCenter, 1);
+        Collection<LivingEntity> entities = checkHitBox(hitBoxCenter, 2);
         if(entities.size()>0) hit(entities);
         if(completed) {
             finish();
@@ -88,10 +89,10 @@ public class LanceCharge implements Runnable{
     }
 
     private Collection<LivingEntity> checkHitBox(Location location, double radius){
-        Bukkit.getLogger().info("Y:" + location.getY() + "," + radius);
+        // Bukkit.getLogger().info("Y:" + location.getY() + "," + radius);
         World world = location.getWorld();
         double radiusSquared = Math.pow(radius, 2);
-        Collection<Entity> entities = world.getNearbyEntities(location, radius*2, radius*3, radius*2);
+        Collection<Entity> entities = world.getNearbyEntities(location, radius*2, radius*10, radius*2);
         return entities.stream()
                 .filter(entity -> entity instanceof LivingEntity)
                 .map(entity -> (LivingEntity) entity)
@@ -99,7 +100,7 @@ public class LanceCharge implements Runnable{
                         && !livingEntity.isInvulnerable()
                         && livingEntity.isCollidable()
                         && livingEntity.getPassengers().size()==0
-                        && livingEntity.getLocation().distanceSquared(location)<radiusSquared)
+                        && livingEntity.getLocation().add(0,livingEntity.getHeight()/2,0).distanceSquared(location)<radiusSquared)
                 .collect(Collectors.toList());
     }
 
@@ -126,11 +127,12 @@ public class LanceCharge implements Runnable{
     }
 
     private void hit(Collection<LivingEntity> entities){
+        //Bukkit.getLogger().info("Hit: "+entities.size());
         double playerSpeed = getPlayerSpeed();
         double baseDamage = playerSpeed*10;
         if(baseDamage < 0.5) return;
         Location playerLocation = player.getLocation();
-        SwissSMPler.get(player).sendActionBar(baseDamage+"");
+        // SwissSMPler.get(player).sendActionBar(baseDamage+"");
         for(LivingEntity entity : entities) {
             Vector delta = entity.getLocation().subtract(playerLocation).toVector();
             VectorUtil.rotateY(delta, (random.nextFloat()*2-1)*30);
@@ -217,6 +219,7 @@ public class LanceCharge implements Runnable{
                             );
         }
         player.setWalkSpeed(walkSpeed);
+        //Bukkit.getLogger().info("Finish charge!");
     }
 
     protected void complete(){

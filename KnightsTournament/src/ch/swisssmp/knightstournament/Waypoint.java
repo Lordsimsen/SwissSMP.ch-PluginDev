@@ -43,7 +43,7 @@ public class Waypoint extends BukkitRunnable{
 			double x = this.location.getX()+getRandomOffset();
 			double y = this.location.getY()+getRandomOffset();
 			double z = this.location.getZ()+getRandomOffset()*3;
-			world.spawnParticle(Particle.REDSTONE, x, y, z, 1, new Particle.DustOptions(color, 5));
+			world.spawnParticle(Particle.REDSTONE, x, y+1, z, 1, new Particle.DustOptions(color, 3));
 		}
 		else{
 			ItemStack mainHand = this.player.getInventory().getItemInMainHand();

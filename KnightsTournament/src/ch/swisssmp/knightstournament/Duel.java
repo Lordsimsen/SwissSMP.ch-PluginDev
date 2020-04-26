@@ -1,24 +1,33 @@
 package ch.swisssmp.knightstournament;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.EntityEffect;
-import org.bukkit.Sound;
+import ch.swisssmp.utils.Position;
+import ch.swisssmp.utils.Random;
+import ch.swisssmp.utils.SwissSMPler;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-public class Duel {
+public class Duel implements Listener, Runnable {
+
+	private static final int BLOCK_TIME = 10;
+	private static final int BLOCK_COOLDOWN = 40;
+
+	private static final Random random = new Random();
 
 	private final Tournament tournament;
 	private final String name;
@@ -34,6 +43,11 @@ public class Duel {
 	
 	private boolean playerOneReady = false;
 	private boolean playerTwoReady = false;
+
+	private long playerOneBlockTime = 0;
+	private long playerTwoBlockTime = 0;
+	private long playerOneBlockCooldown = 0;
+	private long playerTwoBlockCooldown = 0;
 	
 	private Vector playerOneVector;
 	private Vector playerTwoVector;
@@ -42,7 +56,8 @@ public class Duel {
 	private float lanceRangeSquared = 16f;
 	boolean playerOneThrownOff = false;
 	boolean playerTwoThrownOff = false;
-	
+
+	private BukkitTask task;
 	private boolean running = false;
 	private boolean decided = false;
 	
@@ -138,6 +153,78 @@ public class Duel {
 		this.tournament.announce("Start!", this.playerOne.getDisplayName()+"§r§E vs. §r"+this.playerTwo.getDisplayName());
 		this.tournament.getArena().playCallSound();
 		this.running = true;
+
+		Bukkit.getPluginManager().registerEvents(this, KnightsTournamentPlugin.getInstance());
+		this.task = Bukkit.getScheduler().runTaskTimer(KnightsTournamentPlugin.getInstance(), this, 0, 1L);
+	}
+
+	@EventHandler(ignoreCancelled = false)
+	private void onPlayerInteract(PlayerInteractEvent event){
+		if(event.getAction()!= Action.LEFT_CLICK_AIR && event.getAction()!=Action.LEFT_CLICK_BLOCK) return;
+		Player player = event.getPlayer();
+		if(!this.isParticipating(player)) return;
+		if(player==playerOne){
+			if(playerOneBlockCooldown>0){
+				event.setCancelled(true);
+				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Blocken bereit in "+(playerOneBlockCooldown / 20.0)+"s");
+				return;
+			}
+			playerOneBlockTime = BLOCK_TIME;
+			playerOneBlockCooldown = BLOCK_COOLDOWN;
+		}
+		else if(player==playerTwo){
+			if(playerTwoBlockCooldown>0){
+				event.setCancelled(true);
+				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Blocken bereit in "+(playerTwoBlockCooldown / 20.0)+"s");
+				return;
+			}
+			playerTwoBlockTime = BLOCK_TIME;
+			playerTwoBlockCooldown = BLOCK_COOLDOWN;
+		}
+	}
+
+	@Override
+	public void run(){
+		if(playerOneBlockTime>0){
+			playerOneBlockTime--;
+		}
+		if(playerTwoBlockTime>0){
+			playerTwoBlockTime--;
+		}
+		if(playerOneBlockCooldown>0){
+			playerOneBlockCooldown--;
+			if(playerOneBlockCooldown==0) SwissSMPler.get(playerOne).sendActionBar(ChatColor.GREEN+"Blocken bereit!");
+		}
+		if(playerTwoBlockCooldown>0){
+			playerTwoBlockCooldown--;
+			if(playerTwoBlockCooldown==0) SwissSMPler.get(playerTwo).sendActionBar(ChatColor.GREEN+"Blocken bereit!");
+		}
+	}
+
+	protected void onHit(EntityDamageByLanceAttackEvent event){
+		long blockTime = (event.getEntity()==this.playerOne ? playerOneBlockTime : playerTwoBlockTime);
+		if(blockTime>0){
+			event.setDamage(0);
+			event.setChargeEnds(true);
+			Location location = event.getEntity().getLocation().add(0,event.getEntity().getHeight()/2,0);
+			World world = location.getWorld();
+			world.playSound(location, Sound.ITEM_SHIELD_BLOCK, SoundCategory.PLAYERS, 1f, 1f);
+			SwissSMPler.get(event.getDamager()).sendActionBar(event.getEntity().getName()+ChatColor.RESET+ChatColor.RED+" hat geblockt!");
+			for(int i = 0; i < 4; i++){
+				Vector randomOffset = new Vector(random.nextDouble()*2-1,random.nextDouble()*2-1,random.nextDouble()*2-1);
+				Location particleLocation = location.clone().add(randomOffset.multiply(0.3f));
+				world.spawnParticle(Particle.REDSTONE, particleLocation, 1, new Particle.DustOptions(Color.WHITE, 5));
+			}
+			return;
+		}
+
+		event.setDamage(8);
+
+		if(event.getFinalDamage()>=((Player) event.getEntity()).getHealth()){
+			this.win(this.getParticipant(event.getDamager()), this.getOpponent(event.getDamager()));
+			event.setDamage(0);
+		}
+		//Bukkit.getLogger().info("Damage: "+event.getDamage());
 	}
 	
 //	@Override
@@ -240,6 +327,10 @@ public class Duel {
 	}
 	
 	public void finish(TournamentParticipant winner, TournamentParticipant loser){
+		if(!this.decided) this.decided = true;
+		if(this.running) this.running = false;
+		HandlerList.unregisterAll(this);
+		if(task!=null) task.cancel();
 		if(winner!=null && loser!=null){
 			winner.addWonAgainst(loser);
 			loser.setLostAgainst(winner);
@@ -268,6 +359,7 @@ public class Duel {
 	}
 
 	private void heal(Player player){
+		if(player==null) return;
 		player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		player.setSaturation(20);
 	}

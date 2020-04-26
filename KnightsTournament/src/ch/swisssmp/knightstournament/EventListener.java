@@ -8,6 +8,7 @@ import java.util.Optional;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,10 +25,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.*;
@@ -99,29 +97,29 @@ public class EventListener implements Listener {
 		InventoryView view = event.getView();
 		Inventory inventory = event.getClickedInventory();
 		if(!(inventory instanceof CraftingInventory)) {
-			Bukkit.getLogger().info("inventoryclickTWO");
+			//Bukkit.getLogger().info("inventoryclickTWO");
 			return;
 		}
 		CraftingInventory craftingInventory = (CraftingInventory) inventory;
 		if(event.getSlot()!=0) {
-			Bukkit.getLogger().info("inventoryclickTHREE");
+			//Bukkit.getLogger().info("inventoryclickTHREE");
 			return;
 		}
 		ItemStack result = craftingInventory.getResult();
 		if(!TournamentLance.isLance(result)) {
-			Bukkit.getLogger().info("inventoryclickFOUR");
+			//Bukkit.getLogger().info("inventoryclickFOUR");
 			return;
 		}
 		ItemStack lance = result.clone();
 		event.setCancelled(true);
 		if(event.getClick().isShiftClick()){
-			Bukkit.getLogger().info("IsShiftClick");
+			//Bukkit.getLogger().info("IsShiftClick");
 			if(view.getBottomInventory().firstEmpty()<0) return;
 		} else if((view.getCursor()!=null && view.getCursor().getType()!=Material.AIR)) {
-			Bukkit.getLogger().info("inventoryclickFIVE");
+			//Bukkit.getLogger().info("inventoryclickFIVE");
 			return;
 		}
-		Bukkit.getLogger().info("inventoryclickPOSITIVE");
+		//Bukkit.getLogger().info("inventoryclickPOSITIVE");
 		for(ItemStack itemStack : craftingInventory.getMatrix()){
 			if(itemStack==null) continue;
 			LanceColor color = LanceColor.of(itemStack.getType());
@@ -151,26 +149,13 @@ public class EventListener implements Listener {
 		if(!player.hasPermission("knightstournament.admin")){
 			return;
 		}
-		HTTPRequest request = DataSource.getResponse(KnightsTournamentPlugin.getInstance(), "sign.php", new String[]{
-				"arena="+URLEncoder.encode(lines[1]),
-				"action="+URLEncoder.encode(lines[2])
-		}, RequestMethod.POST_SYNC);
-		YamlConfiguration yamlConfiguration = new YamlConfiguration();
-		try{
-			yamlConfiguration.loadFromString(request.getResponse());
-			if(yamlConfiguration.contains("message")){
-				player.sendMessage(yamlConfiguration.getString("message"));
-			}
-			if(yamlConfiguration.contains("lines")){
-				List<String> linesSection = yamlConfiguration.getStringList("lines");
-				for(int i = 0; i < linesSection.size() && i < 4; i++){
-					event.setLine(i,linesSection.get(i));
-				}
-			}
+
+		String arena = lines[1];
+		if(KnightsArena.getLoadedArenas().stream().noneMatch(a->a.getWorld()==player.getWorld() && arena.equalsIgnoreCase(a.getName()))){
+			event.setCancelled(true);
+			return;
 		}
-		catch(Exception e){
-			System.out.print(e);
-		}
+		event.setLine(0, "§4Ritterspiele");
 	}
 
 	@EventHandler
@@ -317,6 +302,10 @@ public class EventListener implements Listener {
 		if(tournament==null){
 			if(sign.getLine(2).equals("Turnier öffnen")){
 				if(event.getPlayer().hasPermission("knightstournament.host")){
+					if(!arena.isReady()){
+						SwissSMPler.get(event.getPlayer()).sendActionBar("§cArena ist noch nicht fertig aufgesetzt.");
+						return;
+					}
 					Tournament.initialize(arena, event.getPlayer());
 				}
 				else{
@@ -333,6 +322,9 @@ public class EventListener implements Listener {
 		}
 		else if(sign.getLine(2).equals("Verlassen")){
 			tournament.leave(event.getPlayer());
+		}
+		else if(sign.getLine(2).equals("Ausrüstung")){
+			LoanerEquipment.give(event.getPlayer());
 		}
 		else if(sign.getLine(2).equals("Turnier starten")){
 			if(tournament.getMaster().getUniqueId()!=event.getPlayer().getUniqueId()){
@@ -390,7 +382,19 @@ public class EventListener implements Listener {
 
 	@EventHandler
 	private void onPlayerJoin(PlayerJoinEvent event){
+		LoanerEquipment loaner = LoanerEquipment.get(event.getPlayer());
+		if(loaner!=null){
+			loaner.remove();
+		}
 		TournamentLance.updateLegacyLances(event.getPlayer().getInventory());
+	}
+
+	@EventHandler
+	private void onPlayerQuit(PlayerQuitEvent event){
+		LoanerEquipment loaner = LoanerEquipment.get(event.getPlayer());
+		if(loaner!=null){
+			loaner.remove();
+		}
 	}
 	
 	@EventHandler

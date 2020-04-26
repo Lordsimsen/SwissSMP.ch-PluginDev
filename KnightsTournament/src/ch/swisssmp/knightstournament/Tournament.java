@@ -5,16 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.FireworkEffect.Type;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,8 +19,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
@@ -36,6 +34,7 @@ public class Tournament implements Listener{
 	private final KnightsArena arena;
 	private SwissSMPler master;
 	private final List<Player> registeredPlayers = new ArrayList<Player>();
+	private final List<Player> loanerPlayers = new ArrayList<Player>();
 	private TournamentParticipant[] participants;
 	private TournamentBracket bracket;
 	
@@ -73,58 +72,45 @@ public class Tournament implements Listener{
 		Player damagee = (Player) event.getEntity();
 
 		if(!this.registeredPlayers.contains(damageDealer) && !this.registeredPlayers.contains(damagee)) return;
+		if(runningDuel==null){
+			event.setCancelled(true);
+			return;
+		}
 		TournamentParticipant participantOne = this.runningDuel.getParticipant(damageDealer);
 		TournamentParticipant participantTwo =  this.runningDuel.getParticipant(damagee);
 		if(participantOne==null || participantTwo==null) {
 			event.setCancelled(true);
 			return;
 		}
+		this.runningDuel.onHit(event);
+		if(event.isCancelled()) return;
 		event.setChargeEnds(true);
-		event.setLanceDurabilityLoss(0);
-		if(damagee.getHealth()-event.getFinalDamage()<=0){
-			event.setDamage(0);
-			damagee.leaveVehicle();
-			Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
-				damagee.setVelocity(event.getHitVector().multiply(2.));
-			}, 1L);
-			this.runningDuel.win(this.runningDuel.getParticipant(damageDealer), this.runningDuel.getParticipant(damagee));
-		}
+		ItemMeta lanceMeta = event.getLance().getItemMeta();
+		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
+			event.getLance().setItemMeta(lanceMeta);
+		},1L);
 	}
 
 
 	/**
-	 * Cancel event if
-	 * either entity is a player and a participant
-	 * and not both are participating in a duel	 *
+	 * Cancel event if either entity is a participant
 	 * @param event
 	 */
 	@EventHandler
 	private void onEntityDamagesEntity(EntityDamageByEntityEvent event){
 		if(event instanceof EntityDamageByLanceAttackEvent) return;
-		boolean isTournamentParticipantOne = false;
-		boolean isTournamentParticipantTwo = false;
 		if((event.getEntity() instanceof Player)) {
 			Player damagee = (Player) event.getEntity();
 			if(this.registeredPlayers.contains(damagee)){
-				isTournamentParticipantOne = true;
-				if(this.runningDuel==null || !this.runningDuel.isParticipating(damagee)) {
-					event.setCancelled(true);
-					return;
-				}
+				event.setCancelled(true);
 			}
 		}
 		if((event.getDamager() instanceof Player)) {
 			Player damageDealer = (Player) event.getDamager();
 			if(this.registeredPlayers.contains(damageDealer)){
-				isTournamentParticipantTwo = true;
-				if(this.runningDuel==null || !this.runningDuel.isParticipating(damageDealer)) {
-					event.setCancelled(true);
-					return;
-				}
+				event.setCancelled(true);
 			}
 		}
-		if(!isTournamentParticipantOne && !isTournamentParticipantTwo) return;
-		event.setCancelled(!isTournamentParticipantOne || !isTournamentParticipantTwo);
 	}
 
 	@EventHandler
@@ -141,7 +127,7 @@ public class Tournament implements Listener{
 	@EventHandler
 	private void onEntityRegainHealth(EntityRegainHealthEvent event){
 		if(this.runningDuel==null) return;
-		if(event.getEntityType()!=EntityType.PLAYER) return;
+		if(event.getEntityType()!= EntityType.PLAYER) return;
 		Player player = (Player) event.getEntity();
 		if(!this.runningDuel.isParticipating(player)) return;
 		event.setCancelled(true);
@@ -155,6 +141,21 @@ public class Tournament implements Listener{
 			}
 		}
 		this.registeredPlayers.remove(event.getPlayer());
+	}
+
+	@EventHandler
+	private void onRegionExit(RegionLeaveEvent event){
+		String regionId = event.getRegion().getId();
+		if(!regionId.equalsIgnoreCase(arena.getArenaRegion())){
+			return;
+		}
+
+		Player player = event.getPlayer();
+		if(!this.registeredPlayers.contains(player)){
+			return;
+		}
+
+		this.leave(player);
 	}
 	
 	public void announce(String title, String subtitle){
@@ -200,6 +201,16 @@ public class Tournament implements Listener{
 		if(player==null) return;
 		if(!this.registeredPlayers.contains(player)) return;
 		this.registeredPlayers.remove(player);
+
+		if(this.runningDuel!=null && this.runningDuel.isParticipating(player)){
+			this.runningDuel.win(this.runningDuel.getOpponent(player), this.runningDuel.getParticipant(player));
+		}
+
+		LoanerEquipment loaner = LoanerEquipment.get(player);
+		if(loaner!=null){
+			loaner.remove();
+		}
+
 		SwissSMPler swissSMPler = SwissSMPler.get(player);
 		swissSMPler.sendActionBar("§ERitterturnier verlassen.");
 

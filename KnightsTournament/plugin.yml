@@ -4,7 +4,7 @@ api-version: 1.13
 name: KnightsTournament
 authors: [detig_iii, WhiteGuggi]
 description: Ritterspiele
-depend: [SwissSMPUtils,WebCore,CustomItems,WorldManager,CustomEditorAPI,ResourcepackManager,ProtocolLib]
+depend: [SwissSMPUtils,WebCore,CustomItems,WorldManager,CustomEditorAPI,ResourcepackManager,ProtocolLib,WGRegionEvents,WorldGuard]
 permissions: 
   knightstournament.admin:
     default: op

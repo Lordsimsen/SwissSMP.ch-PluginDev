@@ -38,6 +38,7 @@ public class KnightsArena {
 	private String beginSound;
 	private String callSound;
 	private String endSound;
+	private String arenaRegion;
 	
 	private Tournament tournament;
 	
@@ -55,6 +56,7 @@ public class KnightsArena {
 		callSound = JsonUtil.getString("call_sound", json);
 		endSound = JsonUtil.getString("end_sound", json);	
 		name = JsonUtil.getString("name", json);
+		arenaRegion = JsonUtil.getString("arena_region", json);
 
 	}
 	
@@ -97,6 +99,16 @@ public class KnightsArena {
 	public String getEndSound() {
 		return endSound;
 	}
+
+	public String getArenaRegion(){return arenaRegion;}
+
+	public boolean isReady(){
+		return name!=null
+				&& arenaRegion!=null
+				&& this.posOne!=null
+				&& this.posTwo!=null
+				&& this.center!=null;
+	}
 	
 	public void playBeginSound(){
 		this.center.getWorld().playSound(center, this.beginSound, 50, 1);
@@ -109,7 +121,7 @@ public class KnightsArena {
 	public void playEndSound(){
 		this.center.getWorld().playSound(center, this.endSound, 50, 1);
 	}
-	
+
 	protected void runTournament(Tournament tournament){
 		this.tournament = tournament;
 	}
@@ -170,6 +182,10 @@ public class KnightsArena {
 	public void setEndSound(String endSound) {
 		this.endSound = endSound;
 	}
+
+	public void setArenaRegion(String arenaRegion) {
+		this.arenaRegion = arenaRegion;
+	}
 	
 	public ItemStack getTokenStack() {
 		CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("KNIGHTS_TOURNAMENT_ARENA");
@@ -214,6 +230,7 @@ public class KnightsArena {
 		if(callSound!=null)JsonUtil.set("call_sound", callSound, json);
 		if(endSound!=null)JsonUtil.set("end_sound", endSound, json);	
 		if(name!=null)JsonUtil.set("name", name, json);
+		if(arenaRegion!=null)JsonUtil.set("arena_region", arenaRegion, json);
 		
 		return json;
 	}

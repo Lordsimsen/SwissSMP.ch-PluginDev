@@ -25,5 +25,7 @@
     <orderEntry type="module" module-name="WorldManager" />
     <orderEntry type="module" module-name="ResourcepackManager" />
     <orderEntry type="library" name="ProtocolLib" level="project" />
+    <orderEntry type="module" module-name="WGRegionEvents" />
+    <orderEntry type="library" name="WorldGuard" level="project" />
   </component>
 </module>

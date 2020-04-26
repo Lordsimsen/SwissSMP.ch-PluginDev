@@ -3,20 +3,12 @@ package ch.swisssmp.knightstournament;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import ch.swisssmp.knightstournament.editor.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
-import ch.swisssmp.knightstournament.editor.ArenaDeleteSlot;
-import ch.swisssmp.knightstournament.editor.ArenaNameSlot;
-import ch.swisssmp.knightstournament.editor.BeginSoundSlot;
-import ch.swisssmp.knightstournament.editor.CallSoundSlot;
-import ch.swisssmp.knightstournament.editor.CenterWaypointSlot;
-import ch.swisssmp.knightstournament.editor.EndSoundSlot;
-import ch.swisssmp.knightstournament.editor.PosOneWaypointSlot;
-import ch.swisssmp.knightstournament.editor.PosTwoWaypointSlot;
-import ch.swisssmp.knightstournament.editor.TournamentOrganizerSlot;
 
 public class KnightsArenaEditor extends CustomEditorView{
 	
@@ -37,7 +29,8 @@ public class KnightsArenaEditor extends CustomEditorView{
 		result.add(new PosOneWaypointSlot(this, 1));
 		result.add(new PosTwoWaypointSlot(this, 2));
 		result.add(new CenterWaypointSlot(this, 3));
-		result.add(new TournamentOrganizerSlot(this,4)); //momentan noch ohne Funktion und eventhandler
+		result.add(new ArenaRegionSlot(this, 4, arena));
+		result.add(new TournamentOrganizerSlot(this,8)); //momentan noch ohne Funktion und eventhandler
 		result.add(new CallSoundSlot(this, 10));
 		result.add(new BeginSoundSlot(this, 11));
 		result.add(new EndSoundSlot(this, 12));
