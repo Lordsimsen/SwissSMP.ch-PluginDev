@@ -55,4 +55,32 @@ public class VectorUtil {
 		default: return vector;
 		}
 	}
+
+	/**
+	 * Rotates a Vector by a given amount of euler degrees on x axis
+	 */
+	public static Vector rotateX(Vector vector, float euler){
+		return vector.rotateAroundX(euler / 180 * Math.PI);
+	}
+
+	/**
+	 * Rotates a Vector by a given amount of euler degrees on y axis
+	 */
+	public static Vector rotateY(Vector vector, float euler){
+		return vector.rotateAroundY(euler / 180 * Math.PI);
+	}
+
+	/**
+	 * Rotates a Vector by a given amount of euler degrees on z axis
+	 */
+	public static Vector rotateZ(Vector vector, float euler){
+		return vector.rotateAroundZ(euler / 180 * Math.PI);
+	}
+
+	/**
+	 * Rotates a Vector by a given amount of euler degrees on axis
+	 */
+	public static Vector rotate(Vector vector, Vector axis, float euler){
+		return vector.rotateAroundAxis(axis, euler / 180 * Math.PI);
+	}
 }
