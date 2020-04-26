@@ -27,6 +27,9 @@ public class TournamentParticipant {
 	public void setPlayerUUID(UUID player_uuid){
 		this.player_uuid = player_uuid;
 	}
+	public Player getPlayer(){
+		return Bukkit.getPlayer(this.player_uuid);
+	}
 	public Horse getHorse(){
 		Player player = Bukkit.getPlayer(this.player_uuid);
 		if(player==null) return null;

@@ -32,6 +32,11 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		plugin = this;
+
+		/*
+		Register early because of CustomItemBuilders in RegisterCraftingRecipe
+		 */
+		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		KnightsTournamentCommand knightsTournamentCommand = new KnightsTournamentCommand();
 		this.getCommand("knightstournament").setExecutor(knightsTournamentCommand);
@@ -43,12 +48,10 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 		for(World world : Bukkit.getWorlds()) {
 			KnightsArena.load(world);
 		}
-		
+
 		TournamentLance.registerCraftingRecipe();
 
 		PlayerDiggingListener.register();
-		
-		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
 		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 		

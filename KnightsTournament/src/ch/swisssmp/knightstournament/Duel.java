@@ -7,12 +7,18 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-public class Duel extends BukkitRunnable{
+public class Duel implements Listener {
 
 	private final Tournament tournament;
 	private final String name;
@@ -97,19 +103,23 @@ public class Duel extends BukkitRunnable{
 	}
 	
 	private boolean checkForfeit(){
+		if(decided)return true;
 		boolean forfeitOne = (playerOne==null || !playerOne.isOnline());
 		boolean forfeitTwo = (playerTwo==null || !playerTwo.isOnline());
 		if(forfeitOne && !forfeitTwo){
+			decided = true;
 			this.tournament.announce(playerTwo.getDisplayName(), "gewinnt automatisch.");
 			this.finish(this.participantTwo, this.participantOne);
 			return true;
 		}
 		else if(!forfeitOne && forfeitTwo){
+			decided = true;
 			this.tournament.announce(playerOne.getDisplayName(), "gewinnt automatisch.");
 			this.finish(this.participantOne, this.participantTwo);
 			return true;
 		}
 		else if(forfeitOne && forfeitTwo){
+			decided = true;
 			this.tournament.announce("", "Teilnehmer offline, überspringe Match...");
 			this.finish(this.participantOne, this.participantTwo);
 			return true;
@@ -119,78 +129,80 @@ public class Duel extends BukkitRunnable{
 	
 	public void start(){
 		if(this.checkForfeit()) return;
+		if(playerOne!=null) heal(playerOne);
+		if(playerTwo!=null) heal(playerTwo);
 		participantOne.getHorse().removePotionEffect(PotionEffectType.SLOW);
 		participantTwo.getHorse().removePotionEffect(PotionEffectType.SLOW);
 		this.waypointOne = null;
 		this.waypointTwo = null;
 		this.tournament.announce("Start!", this.playerOne.getDisplayName()+"§r§E vs. §r"+this.playerTwo.getDisplayName());
 		this.tournament.getArena().playCallSound();
-		this.runTaskTimer(KnightsTournamentPlugin.plugin, 0, 1l);
+		Bukkit.getPluginManager().registerEvents(this, KnightsTournamentPlugin.getInstance());
 		this.running = true;
 	}
 	
-	@Override
-	public void run() {
-		if(playerOne.getLocation().distanceSquared(playerTwo.getLocation())>this.lanceRangeSquared){
-			return;
-		}
-		playerOneVector = playerOne.getEyeLocation().toVector().clone().setY(0);
-		playerTwoVector = playerTwo.getEyeLocation().toVector().clone().setY(0);
-		playerOneToTwo = playerTwoVector.clone().subtract(playerOneVector).normalize();
-		playerTwoToOne = playerOneVector.clone().subtract(playerTwoVector).normalize();
-		if(!playerOne.isBlocking() && playerOne.getEyeLocation().getDirection().setY(0).normalize().subtract(playerOneToTwo).lengthSquared()<0.05f){
-			if(!playerTwo.isBlocking()){
-				if(playerTwo.getNoDamageTicks()==0){
-					if(playerTwo.getHealth()>5f){
-						playerTwo.playEffect(EntityEffect.HURT);
-						playerTwo.setHealth(playerTwo.getHealth()-5f);
-						playerTwo.setNoDamageTicks(20);
-						playerTwo.getWorld().playSound(playerTwo.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 10, 1);
-					}
-					else{
-						playerTwoThrownOff = true;
-					}
-				}
-			}
-			else{
-				playerOne.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 40, 3));
-			}
-		}
-		if(!playerTwo.isBlocking() && playerTwo.getEyeLocation().getDirection().setY(0).normalize().subtract(playerTwoToOne).lengthSquared()<0.05f){
-			if(!playerOne.isBlocking()){
-				if(playerOne.getNoDamageTicks()==0){
-					if(playerOne.getHealth()>5f){
-						playerOne.playEffect(EntityEffect.HURT);
-						playerOne.setHealth(playerOne.getHealth()-5f);
-						playerOne.setNoDamageTicks(20);
-						playerOne.getWorld().playSound(playerOne.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 10, 1);
-					}
-					else{
-						playerOneThrownOff = true;
-					}
-				}
-			}
-			else{
-				playerTwo.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 40, 1));
-			}
-		}
-		if(playerOneThrownOff && !playerTwoThrownOff){
-			this.decided = true;
-			horseOne.eject();
-			playerOne.playEffect(EntityEffect.HURT);
-			win(participantTwo, participantOne);
-		}
-		else if(playerTwoThrownOff && !playerOneThrownOff){
-			this.decided = true;
-			horseTwo.eject();
-			playerTwo.playEffect(EntityEffect.HURT);
-			win(participantOne, participantTwo);
-		}
-		else if(playerOneThrownOff && playerTwoThrownOff){
-			playerOneThrownOff = false;
-			playerTwoThrownOff = false;
-		}
-	}
+//	@Override
+//	public void run() {
+//		if(playerOne.getLocation().distanceSquared(playerTwo.getLocation())>this.lanceRangeSquared){
+//			return;
+//		}
+//		playerOneVector = playerOne.getEyeLocation().toVector().clone().setY(0);
+//		playerTwoVector = playerTwo.getEyeLocation().toVector().clone().setY(0);
+//		playerOneToTwo = playerTwoVector.clone().subtract(playerOneVector).normalize();
+//		playerTwoToOne = playerOneVector.clone().subtract(playerTwoVector).normalize();
+//		if(!playerOne.isBlocking() && playerOne.getEyeLocation().getDirection().setY(0).normalize().subtract(playerOneToTwo).lengthSquared()<0.05f){
+//			if(!playerTwo.isBlocking()){
+//				if(playerTwo.getNoDamageTicks()==0){
+//					if(playerTwo.getHealth()>5f){
+//						playerTwo.playEffect(EntityEffect.HURT);
+//						playerTwo.setHealth(playerTwo.getHealth()-5f);
+//						playerTwo.setNoDamageTicks(20);
+//						playerTwo.getWorld().playSound(playerTwo.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 10, 1);
+//					}
+//					else{
+//						playerTwoThrownOff = true;
+//					}
+//				}
+//			}
+//			else{
+//				playerOne.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 40, 3));
+//			}
+//		}
+//		if(!playerTwo.isBlocking() && playerTwo.getEyeLocation().getDirection().setY(0).normalize().subtract(playerTwoToOne).lengthSquared()<0.05f){
+//			if(!playerOne.isBlocking()){
+//				if(playerOne.getNoDamageTicks()==0){
+//					if(playerOne.getHealth()>5f){
+//						playerOne.playEffect(EntityEffect.HURT);
+//						playerOne.setHealth(playerOne.getHealth()-5f);
+//						playerOne.setNoDamageTicks(20);
+//						playerOne.getWorld().playSound(playerOne.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 10, 1);
+//					}
+//					else{
+//						playerOneThrownOff = true;
+//					}
+//				}
+//			}
+//			else{
+//				playerTwo.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 40, 1));
+//			}
+//		}
+//		if(playerOneThrownOff && !playerTwoThrownOff){
+//			this.decided = true;
+//			horseOne.eject();
+//			playerOne.playEffect(EntityEffect.HURT);
+//			win(participantTwo, participantOne);
+//		}
+//		else if(playerTwoThrownOff && !playerOneThrownOff){
+//			this.decided = true;
+//			horseTwo.eject();
+//			playerTwo.playEffect(EntityEffect.HURT);
+//			win(participantOne, participantTwo);
+//		}
+//		else if(playerOneThrownOff && playerTwoThrownOff){
+//			playerOneThrownOff = false;
+//			playerTwoThrownOff = false;
+//		}
+//	}
 	
 	public boolean isDecided(){
 		return this.decided;
@@ -213,11 +225,12 @@ public class Duel extends BukkitRunnable{
 	}
 	
 	public void win(TournamentParticipant winner, TournamentParticipant loser){
+		if(decided) return;
+		decided = true;
 		this.tournament.broadcast(Bukkit.getPlayer(winner.getPlayerUUID()).getDisplayName()+"§r besiegt "+Bukkit.getPlayer(loser.getPlayerUUID()).getDisplayName()+"!");
 		this.tournament.announce(Bukkit.getPlayer(winner.getPlayerUUID()).getDisplayName(), "besiegt "+Bukkit.getPlayer(loser.getPlayerUUID()).getDisplayName()+"§r!");
 
 		if(this.running){
-			this.cancel();
 			this.running = false;
 		}
 		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
@@ -232,6 +245,8 @@ public class Duel extends BukkitRunnable{
 			winner.addWonAgainst(loser);
 			loser.setLostAgainst(winner);
 		}
+		if(winner!=null) heal(winner.getPlayer());
+		if(loser!=null) heal(loser.getPlayer());
 		if(horseOne!=null){
 			horseOne.removePotionEffect(PotionEffectType.SLOW);
 		}
@@ -240,7 +255,6 @@ public class Duel extends BukkitRunnable{
 		}
 		//cancel the loop task
 		if(this.running){
-			this.cancel();
 			this.running = false;
 		}
 		//remove the waypoints
@@ -252,5 +266,28 @@ public class Duel extends BukkitRunnable{
 				tournament.proceed(winner);
 			}
 		}, 60L);
+	}
+
+	private void heal(Player player){
+		player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		player.setSaturation(20);
+	}
+
+	@EventHandler (priority = EventPriority.HIGHEST)
+	private void onHit(EntityDamageByEntityEvent event){
+		if(!event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) return;
+		if(!(event.getDamager() instanceof Player) || !(event.getEntity() instanceof Player)) return;
+		Player damageDealer = (Player) event.getDamager();
+		Player damagee = (Player) event.getEntity();
+		damageDealer = damageDealer == playerOne ? playerOne : ((damageDealer == playerTwo) ? playerTwo : null);
+		damagee = damagee == playerOne ? playerOne : ((damageDealer == playerTwo) ? playerTwo : null);
+		if(damageDealer==damagee || damageDealer==null || damagee==null) return;
+		ItemStack mainHand = ((Player) event.getEntity()).getInventory().getItemInMainHand();
+		if(!TournamentLance.isLance(mainHand)) return;
+		if(damagee.getHealth()-event.getFinalDamage()<=0){
+			event.setCancelled(true);
+			damagee.leaveVehicle();
+			win(getParticipant(damageDealer), getParticipant(damagee));
+		}
 	}
 }

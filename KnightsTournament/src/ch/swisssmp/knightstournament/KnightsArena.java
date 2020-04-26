@@ -236,7 +236,6 @@ public class KnightsArena {
 	}
 	
 	private static KnightsArena load(World world, JsonObject json) {
-		
 		UUID id = JsonUtil.getUUID("id", json);
 		if(id == null) return null;
 		Optional<KnightsArena> existing = KnightsArena.get(world, id);

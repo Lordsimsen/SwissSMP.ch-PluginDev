@@ -7,14 +7,12 @@ import java.util.Optional;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
-import net.minecraft.server.v1_15_R1.ItemBow;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -23,15 +21,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.HorseJumpEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 
 import ch.swisssmp.customitems.CreateCustomItemBuilderEvent;
 import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
@@ -44,9 +41,6 @@ import ch.swisssmp.utils.nbt.NBTTagCompound;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.Cauldron;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class EventListener implements Listener {
@@ -64,6 +58,7 @@ public class EventListener implements Listener {
 		for(ItemStack itemStack : inventory){
 			if(itemStack==null) continue;
 			if(TournamentLance.isLance(itemStack)) {
+				if(lance!=null) return;
 				lance = itemStack;
 				continue;
 			}
@@ -88,6 +83,7 @@ public class EventListener implements Listener {
 		nbt.set(TournamentLance.dataProperty, lanceNbt);
 		ItemUtil.setData(result, nbt);
 		String customEnum = (main + "_" + secondary + "_" + TournamentLance.customBaseEnum).toUpperCase();
+		CustomItems.setCustomEnum(result, customEnum);
 		CustomItemBuilder customitemBuilder = CustomItems.getCustomItemBuilder(customEnum);
 		if(customitemBuilder!=null) {
 			int customModelId = customitemBuilder.getCustomModelId();
@@ -96,19 +92,51 @@ public class EventListener implements Listener {
 		inventory.setResult(result);
 	}
 
-
 	@EventHandler
-	private void onCraft(PrepareItemCraftEvent event){
-		ItemStack result = event.getInventory().getResult();
-		if(result==null) return;
-		if(!result.hasItemMeta()) return;
-		if(!result.getItemMeta().hasDisplayName()) return;
-		if(!result.getItemMeta().getDisplayName().equals("§bTurnierlanze")) return;
-		if(!(event.getView().getPlayer() instanceof Player)) return;
-		Player player = (Player) event.getView().getPlayer();
-		if(!player.hasPermission("knightstournament.craft")){
-			event.getInventory().setResult(null);
+	private void onInventoryClick(InventoryClickEvent event){
+		InventoryView view = event.getView();
+		Inventory inventory = event.getClickedInventory();
+		if(!(inventory instanceof CraftingInventory)) {
+			Bukkit.getLogger().info("inventoryclickTWO");
+			return;
 		}
+		CraftingInventory craftingInventory = (CraftingInventory) inventory;
+		if(event.getSlot()!=0) {
+			Bukkit.getLogger().info("inventoryclickTHREE");
+			return;
+		}
+		ItemStack result = craftingInventory.getResult();
+		if(!TournamentLance.isLance(result)) {
+			Bukkit.getLogger().info("inventoryclickFOUR");
+			return;
+		}
+		ItemStack lance = result.clone();
+		event.setCancelled(true);
+		if(event.getClick().isShiftClick()){
+			Bukkit.getLogger().info("IsShiftClick");
+			if(view.getBottomInventory().firstEmpty()<0) return;
+		} else if((view.getCursor()!=null && view.getCursor().getType()!=Material.AIR)) {
+			Bukkit.getLogger().info("inventoryclickFIVE");
+			return;
+		}
+		Bukkit.getLogger().info("inventoryclickPOSITIVE");
+		for(ItemStack itemStack : craftingInventory.getMatrix()){
+			if(itemStack==null) continue;
+			LanceColor color = LanceColor.of(itemStack.getType());
+			if(color!=null){
+				itemStack.setAmount(itemStack.getAmount()-1);
+				continue;
+			}
+			itemStack.setAmount(0);
+		}
+		craftingInventory.setResult(null);
+		if(event.getClick().isShiftClick()){
+			view.getBottomInventory().addItem(lance);
+			return;
+		}
+		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
+			view.setCursor(lance);
+		}, 1L);
 	}
 
 	@EventHandler(ignoreCancelled=true)
@@ -195,6 +223,12 @@ public class EventListener implements Listener {
 		if(event.getAction()==Action.RIGHT_CLICK_AIR || event.getAction()==Action.RIGHT_CLICK_BLOCK) {
 			onTokenInteract(event);
 		}
+
+
+		if(event.getAction()==Action.LEFT_CLICK_AIR){
+//			äuä
+		}
+
 	}
 
 	private void onCauldronInteract(PlayerInteractEvent event){
@@ -213,8 +247,9 @@ public class EventListener implements Listener {
 		if(!lanceNbt.hasKey(primaryColorKey) || lanceNbt.getString(primaryColorKey).equalsIgnoreCase(lanceColorNone)) return;
 		if(!lanceNbt.hasKey(secondaryColorKey) || lanceNbt.getString(secondaryColorKey).equalsIgnoreCase(lanceColorNone)) return;
 
+		int cauldronLevel = cauldron.getLevel()-(event.getPlayer().getGameMode()!=GameMode.CREATIVE ? 1 : 0);
 		CauldronLevelChangeEvent cauldronEvent = new CauldronLevelChangeEvent(event.getClickedBlock(), event.getPlayer(),
-				CauldronLevelChangeEvent.ChangeReason.UNKNOWN, cauldron.getLevel(), cauldron.getLevel()-1);
+				CauldronLevelChangeEvent.ChangeReason.UNKNOWN, cauldron.getLevel(), cauldronLevel);
 		Bukkit.getPluginManager().callEvent(cauldronEvent);
 		if(cauldronEvent.isCancelled()) {
 			event.setCancelled(true);
@@ -225,13 +260,14 @@ public class EventListener implements Listener {
 		nbt.set(TournamentLance.dataProperty, lanceNbt);
 		ItemUtil.setData(itemStack, nbt);
 		String customEnum = (TournamentLance.bareCustomEnum).toUpperCase();
+		CustomItems.setCustomEnum(itemStack, customEnum);
 		CustomItemBuilder customitemBuilder = CustomItems.getCustomItemBuilder(customEnum);
 		if(customitemBuilder!=null) {
 			int customModelId = customitemBuilder.getCustomModelId();
 			ItemUtil.setInt(itemStack, "CustomModelData", customModelId);
 		}
 
-		cauldron.setLevel(cauldron.getLevel()-1);
+		cauldron.setLevel(cauldronLevel);
 		event.getClickedBlock().setBlockData(cauldron);
 	}
 
