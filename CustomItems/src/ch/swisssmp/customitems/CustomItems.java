@@ -63,7 +63,15 @@ public class CustomItems extends JavaPlugin{
 	}
 
 	/**
-	 * List den customEnum vom angegebenen ItemStack.
+	 * Setzt den customEnum vom angegebenen ItemStack ohne weitere Eigenschaften zu verändern.
+	 */
+	public static void setCustomEnum(ItemStack itemStack, String customEnum){
+		if(itemStack==null)return;
+		ItemUtil.setString(itemStack, "customEnum", customEnum);
+	}
+
+	/**
+	 * Liest den customEnum vom angegebenen ItemStack.
 	 * @param itemStack - Der zu analysierende ItemStack.
 	 * @return Den gefundenen customEnum oder <code>null</code>.
 	 */
@@ -89,9 +97,9 @@ public class CustomItems extends JavaPlugin{
 	 * @param amount - Setzt die Grösse
 	 * @return Ein CustomItemBuilder mit allen Voreinstellungen für den angegebenen CustomEnum und der festgelegten Grösse.
 	 */
-	public static CustomItemBuilder getCustomItemBuilder(String custom_enum, int amount){
-		IBuilderTemplate template = CustomItemTemplate.get(custom_enum);
-		if(template==null) template = CustomMaterialTemplate.get(custom_enum);
+	public static CustomItemBuilder getCustomItemBuilder(String customEnum, int amount){
+		IBuilderTemplate template = CustomItemTemplate.get(customEnum);
+		if(template==null) template = CustomMaterialTemplate.get(customEnum);
 		if(template==null) return null;
 		ConfigurationSection dataSection = template.getData();
 		CustomItemBuilder result = new CustomItemBuilder();
