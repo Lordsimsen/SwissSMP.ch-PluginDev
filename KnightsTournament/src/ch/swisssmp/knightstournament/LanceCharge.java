@@ -30,7 +30,7 @@ public class LanceCharge implements Runnable{
     private final Player player;
     private final ItemStack lance;
     private final EquipmentSlot hand;
-    private List<Vector> trackedPositions = new ArrayList<Vector>();
+    private final List<Vector> trackedPositions = new ArrayList<Vector>();
 
     private PotionEffect previousSpeedEffect;
 

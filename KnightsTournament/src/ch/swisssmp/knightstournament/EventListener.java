@@ -327,7 +327,7 @@ public class EventListener implements Listener {
 			LoanerEquipment.give(event.getPlayer());
 		}
 		else if(sign.getLine(2).equals("Turnier starten")){
-			if(tournament.getMaster().getUniqueId()!=event.getPlayer().getUniqueId()){
+			if(tournament.getMaster().getUniqueId()!=event.getPlayer().getUniqueId() && !event.getPlayer().hasPermission("knightstournament.admin")){
 				SwissSMPler.get(event.getPlayer()).sendActionBar("§cKeine Berechtigung.");
 				return;
 			}
