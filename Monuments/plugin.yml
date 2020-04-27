@@ -1,4 +1,4 @@
-main: ch.swisssmp.monuments.Monuments
+main: ch.swisssmp.monuments.MonumentsPlugin
 version: 0.1
 api-version: 1.13
 name: Monuments
@@ -14,3 +14,4 @@ commands:
     permission: monuments.admin
   monuments reloadCache:
     description: Ladet alle Monumente neu
+    permission: monuments.admin

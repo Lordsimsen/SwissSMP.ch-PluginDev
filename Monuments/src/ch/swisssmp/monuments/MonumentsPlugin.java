@@ -5,8 +5,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Monuments extends JavaPlugin {
-    private static Monuments plugin;
+public class MonumentsPlugin extends JavaPlugin {
+    private static MonumentsPlugin plugin;
     private PluginDescriptionFile pdfFile;
 
     @Override
@@ -14,7 +14,7 @@ public class Monuments extends JavaPlugin {
         plugin = this;
         pdfFile = getDescription();
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
-        Bukkit.getPluginCommand("monuments reload").setExecutor(new PlayerCommand());
+        Bukkit.getPluginCommand("monuments").setExecutor(new PlayerCommand());
         MonumentEntries.reload();
         Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
     }
@@ -27,7 +27,7 @@ public class Monuments extends JavaPlugin {
         Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
 }
 
-    public static Monuments getInstance(){
+    public static MonumentsPlugin getInstance(){
         return plugin;
     }
 

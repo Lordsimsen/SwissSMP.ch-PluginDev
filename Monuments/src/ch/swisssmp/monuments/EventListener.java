@@ -16,7 +16,7 @@ public class EventListener implements Listener {
         List<Block> protectedBlocks = new ArrayList<>();
         for(Block block : event.blockList())
         {
-            if(MonumentEntries.blockInMonumentArea(block)){
+            if(MonumentEntries.blockInAnyMonumentArea(block)){
                 protectedBlocks.add(block);
             }
         }
