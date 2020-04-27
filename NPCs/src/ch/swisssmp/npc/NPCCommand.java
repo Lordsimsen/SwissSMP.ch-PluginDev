@@ -29,7 +29,7 @@ public class NPCCommand implements CommandExecutor {
 			String typeString = args[1];
 			EntityType entityType;
 			try{
-				entityType = EntityType.valueOf(typeString);
+				entityType = EntityType.valueOf(typeString.toUpperCase());
 			}
 			catch(Exception e){
 				sender.sendMessage("[NPC] "+ChatColor.RED+"Unbekannter Typ "+typeString);
