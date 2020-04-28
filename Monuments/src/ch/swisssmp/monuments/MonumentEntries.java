@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
@@ -23,7 +24,6 @@ public class MonumentEntries {
         request.onFinish(() -> {
             JsonObject jsonResponse = request.getJsonResponse();
             if (jsonResponse == null || jsonResponse.isJsonNull()) {
-                Bukkit.getLogger().info(MonumentsPlugin.getPrefix() + " Fehler beim Laden der Monumente. Bitte API prüfen.");
                 if (sendResult != null) {
                     sendResult.accept("Aktualisierung der Monumente fehlgeschlagen.");
                 }
@@ -38,8 +38,9 @@ public class MonumentEntries {
     }
 
     private static void reload(Consumer<String> sendResult, JsonObject monumentData) {
+        Bukkit.getLogger().info(monumentData.toString());
         JsonArray rawMonuments = monumentData.getAsJsonArray("monuments");
-        if (rawMonuments == null) {
+        if (rawMonuments == null ) {
             if (sendResult != null) {
                 sendResult.accept("Keine Monumente gefunden, Monumente nicht aktualisiert");
             }
@@ -52,21 +53,19 @@ public class MonumentEntries {
             }
         }
         if (sendResult != null) {
-            sendResult.accept("Monumente aktualisiert.");
+            sendResult.accept(monuments.size() + " Monumente geladen.");
         }
     }
 
     private static Monument loadMonument(JsonObject rawMonument) {
+        World world = Bukkit.getWorld(JsonUtil.getString("world", rawMonument));
 
-        JsonObject rawMonumentAsJsonObject = rawMonument.getAsJsonObject();
         Monument monument = new Monument(
-                JsonUtil.getString("world", rawMonumentAsJsonObject),
-                JsonUtil.getInt("id", rawMonumentAsJsonObject),
-                JsonUtil.getString("addon_id", rawMonumentAsJsonObject),
-                JsonUtil.getInt("x", rawMonumentAsJsonObject),
-                JsonUtil.getInt("y", rawMonumentAsJsonObject),
-                JsonUtil.getInt("z", rawMonumentAsJsonObject),
-                JsonUtil.getInt("radius", rawMonumentAsJsonObject));
+                world,
+                JsonUtil.getInt("id", rawMonument),
+                JsonUtil.getString("addon_id", rawMonument),
+                JsonUtil.getLocation("center", world, rawMonument),
+                JsonUtil.getInt("radius", rawMonument));
         return monument;
     }
 
@@ -74,8 +73,8 @@ public class MonumentEntries {
         for (Monument monument : monuments) {
             Location location = block.getLocation();
             Vector locationVector = location.toVector();
-            if (monument.world == location.getWorld().getName()) {
-                if (locationVector.isInSphere(monument.locationVector, monument.radius))
+            if (monument.world == location.getWorld()) {
+                if (locationVector.isInSphere(monument.center.toVector(), monument.radius))
                     return true;
             }
         }
@@ -83,17 +82,17 @@ public class MonumentEntries {
     }
 
     public static class Monument {
-        String world;
+        World world;
         int id;
         String addonId;
-        Vector locationVector;
+        Location center;
         int radius;
 
-        public Monument(String world, int id, String addonId, int x, int y, int z, int radius) {
+        public Monument(World world, int id, String addonId, Location center, int radius) {
             this.world = world;
             this.id = id;
             this.addonId = addonId;
-            this.locationVector = new Vector(x, y, z);
+            this.center = center;
             this.radius = radius;
         }
     }

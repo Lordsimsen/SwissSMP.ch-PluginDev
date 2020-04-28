@@ -14,6 +14,7 @@ public class EventListener implements Listener {
     @EventHandler(priority= EventPriority.HIGHEST)
     private void onEntityExplode(EntityExplodeEvent event){
         List<Block> protectedBlocks = new ArrayList<>();
+
         for(Block block : event.blockList())
         {
             if(MonumentEntries.blockInAnyMonumentArea(block)){
