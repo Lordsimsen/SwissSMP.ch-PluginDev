@@ -127,13 +127,40 @@ public class EventListener implements Listener {
 				itemStack.setAmount(itemStack.getAmount()-1);
 				continue;
 			}
-			itemStack.setAmount(0);
+			itemStack.setAmount(itemStack.getAmount()-1); //Does this one kill materials if you craft bare lances?
 		}
 		craftingInventory.setResult(null);
+
+
 		if(event.getClick().isShiftClick()){
-			view.getBottomInventory().addItem(lance);
+			int itemsChecked = 0;
+			int possibleCreations = 1;
+			if (event.isShiftClick())
+				for (ItemStack item : craftingInventory.getMatrix()) {
+					if (item != null && !item.getType().equals(Material.AIR)) {
+						System.out.println(item.toString());
+						if (itemsChecked == 0)
+							possibleCreations = item.getAmount();
+						else
+							possibleCreations = Math.min(possibleCreations, item.getAmount());
+						itemsChecked++;
+					}
+				}
+			for(int i = 0; i < possibleCreations; i++) {
+				if (view.getBottomInventory().firstEmpty() < 0) {
+					return;
+				}
+				view.getBottomInventory().addItem(lance);
+				for (ItemStack item : craftingInventory.getMatrix()) {
+					if (item != null && !item.getType().equals(Material.AIR)) {
+						item.setAmount(item.getAmount()-1);
+					}
+				}
+			}
 			return;
 		}
+
+
 		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
 			view.setCursor(lance);
 		}, 1L);
