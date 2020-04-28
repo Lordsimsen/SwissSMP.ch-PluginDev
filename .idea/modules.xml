@@ -33,6 +33,7 @@
       <module fileurl="file://$PROJECT_DIR$/CustomEntities/CustomEntities.iml" filepath="$PROJECT_DIR$/CustomEntities/CustomEntities.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomItems/CustomItems.iml" filepath="$PROJECT_DIR$/CustomItems/CustomItems.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" filepath="$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DavInfinityBucket/DavInfinityBucket.iml" filepath="$PROJECT_DIR$/DavInfinityBucket/DavInfinityBucket.iml" />
       <module fileurl="file://$PROJECT_DIR$/DeathMessages/DeathMessages.iml" filepath="$PROJECT_DIR$/DeathMessages/DeathMessages.iml" />
       <module fileurl="file://$PROJECT_DIR$/Deluminator/Deluminator.iml" filepath="$PROJECT_DIR$/Deluminator/Deluminator.iml" />
       <module fileurl="file://$PROJECT_DIR$/DungeonGenerator/DungeonGenerator.iml" filepath="$PROJECT_DIR$/DungeonGenerator/DungeonGenerator.iml" />

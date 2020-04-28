@@ -1,0 +1,6 @@
+main: ch.swisssmp.davinfinitybucket.DavInfinityBucketPlugin
+name: DavInfinityBucket
+version: 1.0
+api-version: 1.13
+author: dav_trax
+depend: [SwissSMPUtils]

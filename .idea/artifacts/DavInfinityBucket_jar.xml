@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DavInfinityBucket:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="DavInfinityBucket.jar">
+      <element id="module-output" name="DavInfinityBucket" />
+      <element id="file-copy" path="$PROJECT_DIR$/DavInfinityBucket/plugin.yml" />
+    </root>
+  </artifact>
+</component>
