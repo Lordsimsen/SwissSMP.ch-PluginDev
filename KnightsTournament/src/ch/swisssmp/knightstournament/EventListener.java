@@ -159,8 +159,6 @@ public class EventListener implements Listener {
 			}
 			return;
 		}
-
-
 		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
 			view.setCursor(lance);
 		}, 1L);
@@ -359,6 +357,11 @@ public class EventListener implements Listener {
 				return;
 			}
 			tournament.start();
+		} else if(sign.getLine(2).equals("Beenden")){
+			if(tournament.getMaster().getUniqueId()!=event.getPlayer().getUniqueId()){
+				SwissSMPler.get(event.getPlayer()).sendActionBar("Keine Berechtigung");
+			}
+			tournament.finish();
 		}
 	}
 

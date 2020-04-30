@@ -48,7 +48,7 @@ public class Tournament implements Listener{
 		Bukkit.getPluginManager().registerEvents(this, KnightsTournamentPlugin.plugin);
 		tournaments.put(master.getUniqueId(), this);
 		this.arena.runTournament(this);
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "broadcast In kürze startet ein §cRitterspiel!");
+		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "broadcast In Kürze startet ein §cRitterspiel!");
 	}
 	
 	public static Tournament initialize(KnightsArena arena, Player master){
