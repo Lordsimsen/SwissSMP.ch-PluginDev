@@ -1,0 +1,20 @@
+main: ch.swisssmp.logintroll.LoginTrollPlugin
+version: 1.0
+api-version: 1.13
+name: LoginTroll
+author: detig_iii
+description: Verändert Usernamen beim Login/Logout
+depend: [SwissSMPUtils]
+permissions:
+  logintroll.admin:
+    description: Ermöglicht Verwaltung des Plugins
+    default: op
+commands:
+  logintroll:
+    description: Hauptbefehl
+    usage: "/<command> <subcommand>"
+    permission: logintroll.admin
+  logintroll reload:
+    description: Lädt Namen neu
+    usage: "/<command> <subcommand>"
+    permission: logintroll.admin

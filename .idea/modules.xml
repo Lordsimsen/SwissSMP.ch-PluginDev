@@ -54,6 +54,7 @@
       <module fileurl="file://$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" filepath="$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" filepath="$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/LoginRewards/LoginRewards.iml" filepath="$PROJECT_DIR$/LoginRewards/LoginRewards.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoginTroll/LoginTroll.iml" filepath="$PROJECT_DIR$/LoginTroll/LoginTroll.iml" />
       <module fileurl="file://$PROJECT_DIR$/LootTables/LootTables.iml" filepath="$PROJECT_DIR$/LootTables/LootTables.iml" />
       <module fileurl="file://$PROJECT_DIR$/MapImageLoader/MapImageLoader.iml" filepath="$PROJECT_DIR$/MapImageLoader/MapImageLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/MobCamps/MobCamps.iml" filepath="$PROJECT_DIR$/MobCamps/MobCamps.iml" />

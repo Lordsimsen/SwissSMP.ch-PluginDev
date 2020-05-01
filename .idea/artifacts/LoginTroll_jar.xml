@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LoginTroll:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="LoginTroll.jar">
+      <element id="module-output" name="LoginTroll" />
+      <element id="file-copy" path="$PROJECT_DIR$/LoginTroll/plugin.yml" />
+    </root>
+  </artifact>
+</component>
