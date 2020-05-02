@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="RawTextBuilderAPI:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="RawTextBuilderAPI.jar">
+      <element id="module-output" name="RawTextBuilderAPI" />
+      <element id="file-copy" path="$PROJECT_DIR$/RawTextBuilderAPI/plugin.yml" />
+    </root>
+  </artifact>
+</component>

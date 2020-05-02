@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SoulboundItems:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="SoulboundItems.jar">
+      <element id="module-output" name="SoulboundItems" />
+      <element id="file-copy" path="$PROJECT_DIR$/SoulboundItems/plugin.yml" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="StairChairs:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="StairChairs.jar">
+      <element id="module-output" name="StairChairs" />
+      <element id="file-copy" path="$PROJECT_DIR$/StairChairs/plugin.yml" />
+    </root>
+  </artifact>
+</component>

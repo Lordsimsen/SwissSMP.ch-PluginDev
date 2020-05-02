@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SewersFishing:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="SewersFishing.jar">
+      <element id="module-output" name="SewersFishing" />
+      <element id="file-copy" path="$PROJECT_DIR$/SewersFishing/plugin.yml" />
+    </root>
+  </artifact>
+</component>
