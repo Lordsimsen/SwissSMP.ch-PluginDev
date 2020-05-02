@@ -1,0 +1,30 @@
+name: ZvieriGame
+version: '1.0'
+api-version: '1.13'
+main: ch.swisssmp.zvierigame.ZvieriGamePlugin
+author: WhiteGuggi
+description: Zvieri Minigame
+depend: [SwissSMPUtils,CustomEditorAPI,NPCs,WaypointAPI,CustomItems,ResourcepackManager]
+permissions:
+  zvierigame.admin:
+    default: op
+    description: Erlaubt Steuerung des Plugins
+  zvierigame.play:
+    default: op
+    description: Erlaubt Zvierigames zu spielen
+commands:
+  zvieriarena:
+    usage: "/<command> <subcommand>"
+    permission: zvierigame.admin
+  zvieriarena create:
+    usage: "/<command> <subcommand> <arenaname>"
+    description: Erlaubt erstellen einer ZvieriArena
+    permission: zvierigame.admin
+  zvieriarenen:
+    usage: "/<command>"
+    description: Öffnet Übersicht über bisher erstellte Arenen
+    permission: zvierigame.admin
+  zvierigame:
+    usage: "/<command> <subcommand>"
+    description: Erlaubt momentan nur abbrechen eines laufenden Spiels
+    permission: zvierigame.admin

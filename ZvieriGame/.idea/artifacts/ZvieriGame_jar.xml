@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ZvieriGame:jar">
+    <output-path>$USER_HOME$/Desktop/RL/Loisirs/Spigot/guggiPlugins</output-path>
+    <root id="archive" name="ZvieriGame.jar">
+      <element id="module-output" name="ZvieriGame" />
+      <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
+    </root>
+  </artifact>
+</component>
