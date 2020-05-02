@@ -125,13 +125,24 @@ public class NPCInstance {
 			return result.toJson().getAsJsonObject();
 		}
 	}
-	
+
 	public void teleport(Location location){
-		if(location==null || location.getWorld()==null) return;
+		teleport(location, null);
+	}
+
+	public void teleport(Location location, Runnable afterTeleportCallback){
+		if(location==null || location.getWorld()==null){
+			throw new NullPointerException("Invalid Location supplied! "+(location!=null
+					? location.getX()+", "+location.getY()+", "+location.getZ()+" ("+(location.getWorld()!=null
+						? location.getWorld().getName()
+						: "null")+")"
+					: "null"));
+		}
 		base.teleport(location);
 		visible.teleport(location);
 		Bukkit.getScheduler().runTaskLater(NPCs.getInstance(), ()->{
 			base.addPassenger(visible);
+			if(afterTeleportCallback!=null) afterTeleportCallback.run();
 		}, 1L);
 	}
 	
