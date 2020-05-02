@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="NetherPortalFixer:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="NetherPortalFixer.jar">
+      <element id="module-output" name="NetherPortalFixer" />
+      <element id="file-copy" path="$PROJECT_DIR$/NetherPortalFixer/plugin.yml" />
+    </root>
+  </artifact>
+</component>

@@ -3,8 +3,6 @@
     <output-path>$PROJECT_DIR$/_Artifacts</output-path>
     <root id="archive" name="Monuments.jar">
       <element id="module-output" name="Monuments" />
-      <element id="module-output" name="SwissSMPUtils" />
-      <element id="module-output" name="WebCore" />
       <element id="file-copy" path="$PROJECT_DIR$/Monuments/plugin.yml" />
     </root>
   </artifact>
