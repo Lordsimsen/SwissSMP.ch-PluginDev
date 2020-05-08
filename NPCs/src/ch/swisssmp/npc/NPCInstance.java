@@ -138,11 +138,14 @@ public class NPCInstance {
 						: "null")+")"
 					: "null"));
 		}
-		base.teleport(location);
-		visible.teleport(location);
-		Bukkit.getScheduler().runTaskLater(NPCs.getInstance(), ()->{
-			base.addPassenger(visible);
-			if(afterTeleportCallback!=null) afterTeleportCallback.run();
+		base.removePassenger(visible);
+		Bukkit.getScheduler().runTaskLater(NPCs.getInstance(), () -> {
+			visible.teleport(location);
+			base.teleport(location);
+			Bukkit.getScheduler().runTaskLater(NPCs.getInstance(), ()->{
+				base.addPassenger(visible);
+				if(afterTeleportCallback!=null) afterTeleportCallback.run();
+			}, 1L);
 		}, 1L);
 	}
 	
@@ -198,7 +201,7 @@ public class NPCInstance {
 	}
 	
 	private static ArmorStand createBase(EntityType entityType, Location location){
-		Location spawnLocation = location.clone().add(getBaseOffset(entityType));
+		Location spawnLocation = location.clone().add(NPCInfo.getBaseOffset(entityType));
 		ArmorStand result = (ArmorStand) location.getWorld().spawnEntity(spawnLocation, EntityType.ARMOR_STAND);
 		result.setInvulnerable(true);
 		result.setVisible(false);
@@ -221,12 +224,5 @@ public class NPCInstance {
 		ItemUtil.setString(itemStack, "npc_id", npc_id.toString());
 		return itemStack;
 	}
-	
-	private static Vector getBaseOffset(EntityType entityType){
-		switch(entityType){
-		case VILLAGER: return new Vector(0,-0.75,0);
-		default: return new Vector(0, -0.9f, 0);
-		}
-		
-	}
+
 }
