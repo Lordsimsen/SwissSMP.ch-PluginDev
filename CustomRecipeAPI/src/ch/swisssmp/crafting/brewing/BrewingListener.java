@@ -99,7 +99,12 @@ public class BrewingListener implements Listener {
         BrewingRecipe recipe = recipeQuery.get();
         if(!recipe.canStart(inventory)) return;
         Optional<BrewingProcess> process = BrewingProcess.get(inventory);
-        if(process.isPresent()) return;
+        if(process.isPresent()){
+            if(process.get().getRecipe()==recipe){
+                return;
+            }
+            process.get().cancel();
+        }
         recipe.startBrewing(inventory);
     }
 

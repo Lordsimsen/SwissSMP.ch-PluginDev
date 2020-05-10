@@ -34,6 +34,14 @@ public class BrewingProcess extends BukkitRunnable {
         this.step = BASE_BREWING_TICKS / (float) recipe.getTime();
     }
 
+    public BrewingRecipe getRecipe() {
+        return recipe;
+    }
+
+    public ItemStack getIngredient(){
+        return recipe.getIngredient();
+    }
+
     @Override
     public void run() {
         ItemStack ingredient = inventory.getIngredient();
