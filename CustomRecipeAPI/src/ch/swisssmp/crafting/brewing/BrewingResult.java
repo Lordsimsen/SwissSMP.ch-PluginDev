@@ -3,13 +3,13 @@ package ch.swisssmp.crafting.brewing;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 
-public class BrewResult {
+public class BrewingResult {
     private final BrewerInventory inventory;
     private final ItemStack result;
     private final ItemStack ingredient;
     private final int slot;
 
-    protected BrewResult(BrewerInventory inventory, ItemStack ingredient, ItemStack result, int slot){
+    protected BrewingResult(BrewerInventory inventory, ItemStack ingredient, ItemStack result, int slot){
         this.inventory = inventory;
         this.result = result;
         this.ingredient = ingredient;

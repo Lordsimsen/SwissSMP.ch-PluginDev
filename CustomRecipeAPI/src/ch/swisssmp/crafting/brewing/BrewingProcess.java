@@ -69,7 +69,7 @@ public class BrewingProcess extends BukkitRunnable {
                 e.printStackTrace();
             }
             if(event.isCancelled()) continue;
-            recipe.getAction().brew(new BrewResult(inventory, ingredient, result, i));
+            recipe.getAction().brew(new BrewingResult(inventory, ingredient, result, i));
         }
         ingredient.setAmount(ingredient.getAmount()-1);
         finish();

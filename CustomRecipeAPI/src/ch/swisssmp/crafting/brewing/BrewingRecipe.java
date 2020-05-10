@@ -14,10 +14,10 @@ public class BrewingRecipe extends CustomRecipe {
 
     private final ItemStack ingredient;
     private final int time;
-    private final BrewFilter filter;
-    private final BrewAction action;
+    private final BrewingFilter filter;
+    private final BrewingAction action;
 
-    private BrewingRecipe(NamespacedKey key, ItemStack ingredient, int time, BrewFilter resultFilter, BrewAction action){
+    private BrewingRecipe(NamespacedKey key, ItemStack ingredient, int time, BrewingFilter resultFilter, BrewingAction action){
         super(key);
         this.ingredient = ingredient;
         this.time = time;
@@ -25,15 +25,15 @@ public class BrewingRecipe extends CustomRecipe {
         this.action = action;
     }
 
-    private BrewingRecipe(NamespacedKey key, ItemStack ingredient, BrewFilter resultFilter, BrewAction action){
+    private BrewingRecipe(NamespacedKey key, ItemStack ingredient, BrewingFilter resultFilter, BrewingAction action){
         this(key, ingredient, DEFAULT_BREWING_TIME, resultFilter, action);
     }
 
-    public BrewingRecipe(NamespacedKey key, Material ingredient, int time, BrewFilter resultFilter, BrewAction action){
+    public BrewingRecipe(NamespacedKey key, Material ingredient, int time, BrewingFilter resultFilter, BrewingAction action){
         this(key, new ItemStack(ingredient), time, resultFilter, action);
     }
 
-    public BrewingRecipe(NamespacedKey key, Material ingredient, BrewFilter resultFilter, BrewAction action){
+    public BrewingRecipe(NamespacedKey key, Material ingredient, BrewingFilter resultFilter, BrewingAction action){
         this(key, ingredient, DEFAULT_BREWING_TIME, resultFilter, action);
     }
 
@@ -45,11 +45,11 @@ public class BrewingRecipe extends CustomRecipe {
         return time;
     }
 
-    public BrewFilter getResultFilter(){
+    public BrewingFilter getResultFilter(){
         return filter;
     }
 
-    public BrewAction getAction(){
+    public BrewingAction getAction(){
         return action;
     }
 
