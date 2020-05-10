@@ -8,6 +8,7 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -33,7 +34,6 @@ public class BrewingProcess extends BukkitRunnable {
         this.brewingStand = inventory.getHolder();
         this.time = recipe.getTime();
         this.step = 1/(float) recipe.getTime();
-        Bukkit.getLogger().info("Step: " + step);
     }
 
     public BrewingRecipe getRecipe() {
@@ -62,12 +62,19 @@ public class BrewingProcess extends BukkitRunnable {
         }
         t+=step;
         int tick = Mathf.roundToInt(t*BASE_BREWING_TICKS);
-        Bukkit.getLogger().info("Tick: " + tick);
-        brewingStand.setBrewingTime(BASE_BREWING_TICKS - tick);
+        int vanillaTick = BASE_BREWING_TICKS - tick;
+        brewingStand.setBrewingTime(vanillaTick);
+
+        updateBrewingTimeForViewers(vanillaTick);
+    }
+
+    private void updateBrewingTimeForViewers(int tick){
+        for(HumanEntity entity : brewingStand.getInventory().getViewers()){
+            entity.getOpenInventory().setProperty(InventoryView.Property.BREW_TIME, tick);
+        }
     }
 
     private void complete(){
-        Bukkit.getLogger().info("Completed");
         ItemStack ingredient = inventory.getIngredient();
         if(ingredient==null) return;
 
@@ -90,13 +97,11 @@ public class BrewingProcess extends BukkitRunnable {
 
     @Override
     public void cancel(){
-        Bukkit.getLogger().info("Cancelled");
         processes.remove(inventory);
         finish();
     }
 
     private void finish(){
-        Bukkit.getLogger().info("Finished");
         super.cancel();
     }
 
