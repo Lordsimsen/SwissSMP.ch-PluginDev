@@ -5,6 +5,7 @@ import ch.swisssmp.utils.Mathf;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BrewingStand;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +32,8 @@ public class BrewingProcess extends BukkitRunnable {
         this.inventory = inventory;
         this.brewingStand = inventory.getHolder();
         this.time = recipe.getTime();
-        this.step = BASE_BREWING_TICKS / (float) recipe.getTime();
+        this.step = 1/(float) recipe.getTime();
+        Bukkit.getLogger().info("Step: " + step);
     }
 
     public BrewingRecipe getRecipe() {
@@ -49,20 +51,23 @@ public class BrewingProcess extends BukkitRunnable {
             cancel();
             return;
         }
-        if (!ingredient.isSimilar(ingredient)) {
+        if (!ingredient.isSimilar(recipe.getIngredient())) {
             brewingStand.setBrewingTime(BASE_BREWING_TICKS);
             cancel();
             return;
         }
-        if (time == 0) {
+        if (t >= 1) {
             complete();
             return;
         }
         t+=step;
-        brewingStand.setBrewingTime(Mathf.roundToInt((1-t)*BASE_BREWING_TICKS));
+        int tick = Mathf.roundToInt(t*BASE_BREWING_TICKS);
+        Bukkit.getLogger().info("Tick: " + tick);
+        brewingStand.setBrewingTime(BASE_BREWING_TICKS - tick);
     }
 
     private void complete(){
+        Bukkit.getLogger().info("Completed");
         ItemStack ingredient = inventory.getIngredient();
         if(ingredient==null) return;
 
@@ -85,11 +90,13 @@ public class BrewingProcess extends BukkitRunnable {
 
     @Override
     public void cancel(){
+        Bukkit.getLogger().info("Cancelled");
         processes.remove(inventory);
         finish();
     }
 
     private void finish(){
+        Bukkit.getLogger().info("Finished");
         super.cancel();
     }
 

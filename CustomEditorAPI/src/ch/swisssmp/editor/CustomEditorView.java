@@ -163,7 +163,7 @@ public abstract class CustomEditorView implements Listener {
 		}, 1L);
 	}
 	
-	public void setItemLager(int slot, ItemStack itemStack){
+	public void setItemLater(int slot, ItemStack itemStack){
 		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
 			this.inventory.setItem(slot,itemStack);
 		}, 1L);

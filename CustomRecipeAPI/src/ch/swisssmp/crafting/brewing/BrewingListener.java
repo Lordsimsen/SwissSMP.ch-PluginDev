@@ -44,16 +44,21 @@ public class BrewingListener implements Listener {
                     action = TransferAction.SWAP;
                 }
                 else{
+                    Bukkit.getLogger().info("case right, add one to slot");
                     return;
                 }
                 break;
             }
             default:
+                Bukkit.getLogger().info("undefined clicktype " + event.getClick());
                 return;
         }
 
         Optional<BrewingRecipe> recipeQuery = BrewingRecipe.get(itemInCursor);
-        if(!recipeQuery.isPresent()) return;
+        if(!recipeQuery.isPresent()) {
+            Bukkit.getLogger().info("Recipe not present");
+            return;
+        }
 
         switch(action){
             case SWAP:{
@@ -71,6 +76,7 @@ public class BrewingListener implements Listener {
                 break;
             }
             default:
+                Bukkit.getLogger().info("No behavior defined for action " + action);
                 return;
         }
         BrewerInventory brewingInventory = (BrewerInventory)inventory;
@@ -78,10 +84,11 @@ public class BrewingListener implements Listener {
         ItemStack slot = itemInSlot;
         ItemStack cursor = itemInCursor;
         Bukkit.getScheduler().runTaskLater(CustomRecipeAPI.getInstance(), () ->{
-            view.setCursor(slot);
-            inventory.setItem(3, cursor);
+            view.setCursor(cursor);
+            view.setItem(3, slot);
             checkCanStart(brewingInventory);
         }, 1L);
+        Bukkit.getLogger().info("Allowed placement");
     }
 
     @EventHandler
@@ -95,16 +102,24 @@ public class BrewingListener implements Listener {
         ItemStack ingredient = inventory.getIngredient();
         if(ingredient==null || ingredient.getType()==Material.AIR) return;
         Optional<BrewingRecipe> recipeQuery = BrewingRecipe.get(ingredient);
-        if(!recipeQuery.isPresent()) return;
+        if(!recipeQuery.isPresent()) {
+            Bukkit.getLogger().info("No recipe found");
+            return;
+        }
         BrewingRecipe recipe = recipeQuery.get();
-        if(!recipe.canStart(inventory)) return;
+        if(!recipe.canStart(inventory)) {
+            Bukkit.getLogger().info("Recipe cannot start");
+            return;
+        }
         Optional<BrewingProcess> process = BrewingProcess.get(inventory);
         if(process.isPresent()){
             if(process.get().getRecipe()==recipe){
+                Bukkit.getLogger().info("Process already running");
                 return;
             }
             process.get().cancel();
         }
+        Bukkit.getLogger().info("Starting brewing");
         recipe.startBrewing(inventory);
     }
 
