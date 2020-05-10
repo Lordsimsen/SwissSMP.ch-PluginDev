@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CustomRecipeAPI:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="CustomRecipeAPI.jar">
+      <element id="module-output" name="CustomRecipeAPI" />
+      <element id="file-copy" path="$PROJECT_DIR$/CustomRecipeAPI/plugin.yml" />
+    </root>
+  </artifact>
+</component>

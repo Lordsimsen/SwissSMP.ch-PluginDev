@@ -1,0 +1,5 @@
+main: ch.swisssmp.crafting.CustomRecipeAPI
+version: 1.0
+api-version: 1.13
+name: CustomRecipeAPI
+author: detig_iii

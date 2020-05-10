@@ -32,6 +32,7 @@
       <module fileurl="file://$PROJECT_DIR$/CustomEditorAPI/CustomEditorAPI.iml" filepath="$PROJECT_DIR$/CustomEditorAPI/CustomEditorAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomEntities/CustomEntities.iml" filepath="$PROJECT_DIR$/CustomEntities/CustomEntities.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomItems/CustomItems.iml" filepath="$PROJECT_DIR$/CustomItems/CustomItems.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CustomRecipeAPI/CustomRecipeAPI.iml" filepath="$PROJECT_DIR$/CustomRecipeAPI/CustomRecipeAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" filepath="$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" />
       <module fileurl="file://$PROJECT_DIR$/DeathMessages/DeathMessages.iml" filepath="$PROJECT_DIR$/DeathMessages/DeathMessages.iml" />
       <module fileurl="file://$PROJECT_DIR$/Deluminator/Deluminator.iml" filepath="$PROJECT_DIR$/Deluminator/Deluminator.iml" />
