@@ -68,7 +68,6 @@ public class ZvieriGame implements Runnable{
     private Phase getNextPhase(Phase currentPhase){
         if(currentPhase instanceof PreparationPhase) {
             GamePhase gamePhase = new GamePhase(this);
-            Bukkit.getPluginManager().registerEvents(gamePhase, ZvieriGamePlugin.getInstance());
             return gamePhase;
         }
         if(currentPhase instanceof GamePhase) return new EndingPhase(this);
@@ -76,6 +75,10 @@ public class ZvieriGame implements Runnable{
     }
 
     public void join(Player player){
+        if(participants.size() >= 4) {
+            SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Spiel bereits voll");
+            return;
+        }
         this.participants.add(player);
         SwissSMPler.get(player).sendActionBar(ChatColor.GREEN + "Spiel beigetreten");
     }
@@ -84,6 +87,7 @@ public class ZvieriGame implements Runnable{
         this.participants.remove(player);
         if(!(this.currentPhase instanceof PreparationPhase)){
             player.teleport(this.arena.getQueue().getLocation(this.arena.getWorld()));
+            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
         SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Spiel verlassen");
         if(this.participants.isEmpty()){
@@ -115,6 +119,9 @@ public class ZvieriGame implements Runnable{
     private void finish(){
         if(task!=null) task.cancel();
         games.remove(this);
+        participants.clear();
+        arena.endGame();
+        Bukkit.getPluginManager().registerEvents(ZvieriGamePlugin.getEventListener(), ZvieriGamePlugin.getInstance()); //TODO odr
     }
 
     public void cancel(){
@@ -122,14 +129,18 @@ public class ZvieriGame implements Runnable{
             this.currentPhase.cancel();
             this.currentPhase.finish();
         }
-        finish();
         for(Player player : participants){
             SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Spiel abgebrochen");
         }
+        finish();
     }
 
     private void complete(){
         finish();
+    }
+
+    public Phase getCurrentPhase(){
+        return currentPhase;
     }
 
     public ZvieriArena getArena(){
@@ -151,6 +162,4 @@ public class ZvieriGame implements Runnable{
     public void setScore(int score){
         this.score = score;
     }
-
-
 }

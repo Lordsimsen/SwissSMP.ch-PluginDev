@@ -4,7 +4,7 @@ import ch.swisssmp.zvierigame.ZvieriGame;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-public abstract class Phase implements Runnable, Listener {
+public abstract class Phase implements Runnable {
 
     private final ZvieriGame game;
     private boolean completed = false;

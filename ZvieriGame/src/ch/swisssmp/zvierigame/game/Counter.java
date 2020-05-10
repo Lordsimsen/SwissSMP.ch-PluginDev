@@ -1,7 +1,14 @@
 package ch.swisssmp.zvierigame.game;
 
+import ch.swisssmp.npc.NPCInfo;
+import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.Position;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 
 public class Counter {
 	
@@ -28,10 +35,15 @@ public class Counter {
 
 	public void setClient(Client client) {
 		this.client = client;
-		ArmorStand dishCarrier = (ArmorStand) client.getNPCInstance().getEntity().getPassengers().get(0);
-		client.getNPCInstance().teleport(this.position.getLocation(client.getNPCInstance().getEntity().getWorld()));
-		dishCarrier.teleport(this.position.getLocation(client.getNPCInstance().getEntity().getWorld()));
-		client.getNPCInstance().getEntity().addPassenger(dishCarrier);
+		NPCInstance npc = client.getNPCInstance();
+		Entity dishCarrier = client.getNPCInstance().getEntity().getPassengers().get(0);
+		npc.getEntity().removePassenger(dishCarrier);
+		Location location = this.position.getLocation(npc.getEntity().getWorld());
+		dishCarrier.teleport(location);
+		npc.teleport(location.add(NPCInfo.getBaseOffset(npc.getEntity().getType())),
+				() -> {
+					npc.getEntity().addPassenger(dishCarrier);
+				});
 		toggleOccupied(true);
 	}
 	
@@ -45,7 +57,7 @@ public class Counter {
 	
 	public void reset() {
 		if(client!=null) {
-			client.getNPCInstance().getEntity().removePassenger(client.getNPCInstance().getEntity().getPassengers().get(0));
+			client.getNPCInstance().getEntity().getPassengers().get(0).remove();
 			client.getNPCInstance().remove();
 			client = null;
 			toggleOccupied(false);

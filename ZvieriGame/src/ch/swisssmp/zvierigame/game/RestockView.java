@@ -4,9 +4,11 @@ import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Random;
+import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvierigame.ZvieriArena;
 import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -17,6 +19,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,33 +75,31 @@ public class RestockView implements Listener {
     }
 
     private void setItems(ItemStack[] ingredients){ //Brucht äuä die CustomItems bzw dene eri enums odr?
-        ItemStack[] itemStack = new ItemStack[ingredients.length];
-        for(int i = 0; i < itemStack.length; i++){
-//          itemStack[i-1] = CustomItems.getCustomItemBuilder("ZVIERI_ZUTAT_"+i).build(); // check enum once items exist
-            CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(ingredients[i].getItemMeta().getDisplayName());
-
-//          itemBuilder.setLore(getDescription(i)); Preis und Anzahl aus enum holen?
-            List<String> description = new ArrayList<String>();
-            description.add("5 Stück für 5 Francs bestellen");
-            itemBuilder.setLore(description);
-
-            ItemStack result = itemBuilder.build();
-            itemStack[i] = result;
-        }
+        ItemStack[] itemStack = gamePhase.getLevel().getIngredients();
+        //TODO add price and amount in description
         inventory.setContents(itemStack);
     }
 
     private void order(ItemStack ingredient){
+        if(!gamePhase.isRestockAllowed()){
+            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Keine Bestellungen mehr möglich");
+            return;
+        }
         //TODO Preis und Aznahl je nach Item ändern(?)
         int ingredientPrice = 5;
         this.gamePhase.subtractFromScore(ingredientPrice);
-
+        if(gamePhase.getScore() < 0){
+            gamePhase.resetScore();
+            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Zu wenig Smaragdmuenzen");
+            return;
+        }
+        gamePhase.displayScore();
         ItemStack result = ingredient;
-        result.setAmount(5); // variiert nach Zutat?
-        //TODO add them after random time up to 20 seconds ..
-        long delay = new Random().nextInt(20);
-        this.arena.getStorageChest().getBlockInventory().setItem(this.arena.getStorageChest().getBlockInventory().firstEmpty(), result);
+        result.setAmount(4); // variiert nach Zutat?
 
-        player.sendMessage(ZvieriGamePlugin.getPrefix() + " " + ingredient.getItemMeta().getDisplayName() + " wurden bestellt.");
+        Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {
+            this.arena.getStorageChest().getBlockInventory().setItem(this.arena.getStorageChest().getBlockInventory().firstEmpty(), result);
+        }, (long) new Random().nextInt(400));
+        SwissSMPler.get(player).sendActionBar("Bestellung aufgegeben.");
     }
 }

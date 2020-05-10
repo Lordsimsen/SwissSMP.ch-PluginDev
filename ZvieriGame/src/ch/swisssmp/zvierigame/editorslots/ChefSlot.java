@@ -33,6 +33,7 @@ public class ChefSlot extends PickItemSlot{
 		itemBuilder.setLore(description);		
 		ItemStack itemStack = itemBuilder.build();
 		ItemUtil.setString(itemStack, "link_zvieriarena", this.view.getArena().getId().toString());
+		ItemUtil.setString(itemStack, "npc", "chef");
 		return itemStack;
 	}
 

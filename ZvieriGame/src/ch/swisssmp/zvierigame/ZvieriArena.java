@@ -6,6 +6,7 @@ import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Position;
+import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.zvierigame.game.Counter;
 import ch.swisssmp.zvierigame.game.Level;
 import com.google.gson.JsonObject;
@@ -15,9 +16,11 @@ import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,8 +43,6 @@ public class ZvieriArena {
 	
 	private final int maxCounters = 5;
 	private int currentCounters;
-	
-	private ItemStack[] allIngredients;
 	
 	private ZvieriArena(World world, UUID arena_id, String name) {
 		this.world = world;
@@ -121,14 +122,6 @@ public class ZvieriArena {
 	public Chest getStorageChest() {
 		return storageChest;
 	}
-	
-	public ItemStack[] getIngredients() {
-		return allIngredients;
-	}
-	
-	public ItemStack getIngredient(int i) {
-		return allIngredients[i];
-	}
 
 	public boolean isGameRunning(){
 		return gameRunning;
@@ -171,6 +164,32 @@ public class ZvieriArena {
 		return game;
 	}
 
+	public int getHighscore(int level){
+		int highscore = 0;
+		try {
+			highscore = this.getConfigurationSection().getConfigurationSection("highscores").getConfigurationSection("level_" + level).getInt("highscore");
+		} catch (NullPointerException e){ Bukkit.getLogger().info("No highscore yet for this level");}
+		return highscore;
+	}
+
+	public List<String> getHighscorePlayers(int level) {
+		List<String> highscorePlayers = new ArrayList<String>();
+		try {
+			ConfigurationSection playersSection = this.getConfigurationSection().getConfigurationSection("highscores")
+					.getConfigurationSection("level_" + level).getConfigurationSection("players");
+			int i = 1;
+			while(playersSection.get("player_" + i) != null){
+				highscorePlayers.add(playersSection.getString("player_" + i));
+				Bukkit.getLogger().info("Found highscore player. Added to list for sign.");
+				i++;
+			}
+		} catch(NullPointerException e){
+			highscorePlayers.add(null);
+			Bukkit.getLogger().info("No highscore yet for this level");
+		}
+		return highscorePlayers;
+	}
+
 	public boolean isParticipant(Player player){
 		return game.getParticipants().contains(player);
 	}
@@ -205,6 +224,20 @@ public class ZvieriArena {
 		}
 		return get(arena_id);
 	}
+
+	public ConfigurationSection getConfigurationSection(){
+		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(world.getWorldFolder(), "plugindata/ZvieriGame/arenen.yml"));
+		if (yamlConfiguration.contains("arenen")) {
+			ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
+			for (String key : arenenSection.getKeys(false)) {
+				ConfigurationSection arenaSection = arenenSection.getConfigurationSection(key);
+				if (UUID.fromString(arenaSection.getString("id")).equals(this.arena_id)) {
+					return arenaSection;
+				}
+			}
+		}
+		return null;
+	}
 	
 	public void setName(String name) {
 		this.name = name;
@@ -231,9 +264,29 @@ public class ZvieriArena {
 		if(json == null) {
 			json = new JsonObject();
 		}
+
+		npc.setName("Chef de cuisine");
+		npc.setIdentifier("chef");
 		json.addProperty("zvieriarena", this.arena_id.toString());
 		json.addProperty("name", npc.getName());
 		npc.setJsonData(json);
+		Villager villager = (Villager) npc.getEntity();
+		villager.setProfession(Villager.Profession.BUTCHER);
+		npc.setNameVisible(true);
+	}
+
+	public void setLogisticsNPC(NPCInstance npc){
+		JsonObject json = npc.getJsonData();
+		if(json == null) {
+			json = new JsonObject();
+		}
+		npc.setName("Logistiker");
+		npc.setIdentifier("logistics");
+		json.addProperty("zvieriarena", this.arena_id.toString());
+		json.addProperty("logistics", true);
+		npc.setJsonData(json);
+		Villager villager = (Villager) npc.getEntity();
+		villager.setProfession(Villager.Profession.CARTOGRAPHER);
 		npc.setNameVisible(true);
 	}
 	
@@ -271,6 +324,43 @@ public class ZvieriArena {
 			}
 		}
 	}
+
+	public boolean updateHighscore(int level, int score, List<Player> participants) {
+		Bukkit.getLogger().info("updating highscore for level " + level);
+		File dataFile = new File(world.getWorldFolder(), "plugindata/ZvieriGame/arenen.yml");
+		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(dataFile);
+		if (yamlConfiguration.contains("arenen")) {
+			ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
+			for (String key : arenenSection.getKeys(false)) {
+				ConfigurationSection arenaSection = arenenSection.getConfigurationSection(key);
+				if (UUID.fromString(arenaSection.getString("id")).equals(this.arena_id)) {
+					if (!arenaSection.getKeys(false).contains("highscores")) {
+						arenaSection.createSection("highscores");
+					}
+					ConfigurationSection highscoreSection = arenaSection.getConfigurationSection("highscores");
+					if (!highscoreSection.getKeys(false).contains("level_" + level)) {
+						highscoreSection.createSection("level_" + level);
+					}
+					ConfigurationSection levelSection = highscoreSection.getConfigurationSection("level_" + level);
+					int highscore = levelSection.getInt("highscore");
+					if (score > highscore) {
+						Bukkit.getLogger().info("new highscore for level " + level);
+						highscore = score;
+						levelSection.set("highscore", highscore);
+						if(levelSection.getConfigurationSection("players") != null) levelSection.remove("players");
+						ConfigurationSection playerSection = levelSection.createSection("players");
+						for(int i = 1; i <= participants.size(); i++){
+							playerSection.set("player_" + i , participants.get(i-1).getDisplayName());
+						}
+						yamlConfiguration.save(dataFile);
+						return true;
+					}
+					return false;
+				}
+			}
+		}
+		return false;
+	}
 	
 	public ZvieriArenaEditor openEditor(Player player) {
 		return ZvieriArenaEditor.open(player, this);
@@ -295,15 +385,11 @@ public class ZvieriArena {
 					savePosition(dataSection, "counter_" + i, this.counters[i-1].getPosition());
 				}
 			}
-		}		
+		}
 	}
 	
 	public static ZvieriArena load(World world, ConfigurationSection dataSection) {
 		return new ZvieriArena(world, dataSection);
-	}
-	
-	public void unload() {
-		ZvieriArenen.remove(arena_id);
 	}
 
 	public void prepareGame(Level level){
@@ -314,8 +400,7 @@ public class ZvieriArena {
 		game = ZvieriGame.prepare(this, level);
 	}
 
-	public void cancelGame() {
-		this.game.cancel();
+	public void endGame() {
 		this.game = null;
 		gamePreparing = false;
 		gameRunning = false;
@@ -326,7 +411,8 @@ public class ZvieriArena {
 					this.kitchen == null ||
 					this.queue == null ||
 					this.counters == null ||
-					this.storage == null);				
+					this.storage == null) ||
+					!(this.storage.getLocation(world).getBlock() instanceof Chest);
 	}
 	
 	public void remove() {
@@ -359,18 +445,4 @@ public class ZvieriArena {
 		ZvieriArenen.put(result.arena_id, result);
 		return result;
 	}
-
-
-//public LevelSelectionView openLevelSelection(Player p) {
-//return LevelSelectionView.open(p, this);
-//}
-
-//public void prepareGame(ZvieriArena arena) {
-//	if(this.activeGame != null) {
-//		//To-Do (?)
-//	}
-//	this.activeGame = Game.prepare(this, arena);
-//	// addOnEmbarkListener?
-//}
-	
 }

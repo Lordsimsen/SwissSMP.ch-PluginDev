@@ -14,7 +14,7 @@ public class StopGameCommand implements CommandExecutor {
         String arenaName = strings[1];
         ZvieriArena arena = ZvieriArena.get(arenaName, true);
         if(arena==null) return false;
-        arena.cancelGame();
+        arena.getGame().cancel();
         return true;
     }
 }

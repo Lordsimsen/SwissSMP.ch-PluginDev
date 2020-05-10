@@ -2,9 +2,13 @@ package ch.swisssmp.zvierigame.game;
 
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvierigame.ZvieriGame;
+import ch.swisssmp.zvierigame.ZvieriGamePlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerRespawnEvent;
+
+import java.util.List;
 
 public class EndingPhase extends Phase{
 
@@ -20,19 +24,32 @@ public class EndingPhase extends Phase{
         for(Player player : game.getParticipants()){
             player.teleport(game.getArena().getQueue().getLocation(game.getArena().getWorld()));
         }
-        this.finish();
+        this.setCompleted();
     }
 
     @Override
     public void finish() {
         for(Player player : game.getParticipants()){
-//            if (highScore){
-//                Bukkit.getServer().getConsoleSender().sendMessage("broadcast " + game.getParticipants() + " haben einen neuen Highscore in" +
-//                    game.getGameName() + " aufgestellt:" + highScore.get()); //seperate-with-comma-method please
-//            }
-            SwissSMPler.get(player).sendTitle(ChatColor.GREEN + "Fin de partie!", "Score: " + ChatColor.YELLOW + game.getScore());
+            Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {
+                SwissSMPler.get(player).sendTitle(ChatColor.GREEN + "Fin de partie!", "Score: " + ChatColor.YELLOW + game.getScore());
+            }, 1L);
+            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
-        this.setCompleted();
+        if (game.getArena().updateHighscore(game.getLevel().getLevelNumber(), game.getScore(), game.getParticipants())){
+            Bukkit.getLogger().info(game.getParticipants().size() + " Teilnehmer im finish");
+            String players = "";
+            List<Player> participants = game.getParticipants();
+            if(participants.size() == 1) {
+                players += (participants.get(0).getDisplayName() + " hat");
+            } else {
+                for(int i = 0; i < participants.size(); i++){
+                    players += (participants.get(i).getDisplayName() + " ");
+                }
+                players += " haben";
+            }
+            Bukkit.getServer().broadcastMessage(players + " einen neuen Highscore in " +
+                    game.getGameName() + " aufgestellt: " + game.getScore() + " Smaragdmuenzen"); //TODO seperate-with-comma-method please
+        }
     }
 
     @Override

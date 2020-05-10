@@ -58,9 +58,8 @@ public class LevelSelectionView implements Listener {
         event.setCancelled(true);
         int slot = event.getSlot();
         if(slot==8 && this.arena.isGamePreparing()){
-            this.arena.cancelGame();
+            this.arena.getGame().leave(player);
             player.closeInventory();
-            player.sendMessage(ZvieriGamePlugin.getPrefix() + " Spiel abgebrochen");
             return;
         }
         ItemStack itemStack = inventory.getItem(slot);
@@ -144,7 +143,7 @@ public class LevelSelectionView implements Listener {
     private void createCancelGameItem(){
         CustomItemBuilder itemBuilder = new CustomItemBuilder();
         itemBuilder.setMaterial(Material.BARRIER);
-        itemBuilder.setDisplayName(ChatColor.RED + "Spiel abbrechen");
+        itemBuilder.setDisplayName(ChatColor.RED + "Spiel verlassen");
         itemBuilder.setAmount(1);
         ItemStack result = itemBuilder.build();
         inventory.setItem(8, result);
