@@ -14,19 +14,6 @@ public class Client {
 
     public Client(NPCInstance npc){
         this.npc = npc;
-
-        int baseTip = JsonUtil.getInt("baseTip", npc.getJsonData());
-        Bukkit.getLogger().info("BaseTip client init: " + baseTip);
-
-//        JsonObject json;
-//        if(npc.getJsonData()!=null) {
-//            json = npc.getJsonData();
-//        } else {
-//            json = new JsonObject();
-//        }
-//        JsonUtil.set("client", true, json);
-//        JsonUtil.set("tip", JsonUtil.getInt("baseTip", npc.getJsonData()), json);
-//        npc.setJsonData(json);
     }
 
     public void increaseWaitingTime(){
@@ -40,7 +27,6 @@ public class Client {
         double decay = (double) waitingTime / (double) patienceTime;
         int tip = baseTip - (int) ((double) baseTip * (decay));
         if(decay > 1) tip = 0;
-        Bukkit.getLogger().info("Basetip: " + baseTip + ", Tip: " + tip);
         return tip;
     }
 

@@ -1,10 +1,10 @@
 name: ZvieriGame
-version: '1.0'
+version: '0.9'
 api-version: '1.13'
 main: ch.swisssmp.zvierigame.ZvieriGamePlugin
 author: WhiteGuggi
 description: Zvieri Minigame
-depend: [SwissSMPUtils,CustomEditorAPI,NPCs,WaypointAPI,CustomItems,ResourcepackManager]
+depend: [SwissSMPUtils,CustomEditorAPI,NPCs,WaypointAPI,CustomItems,ResourcepackManager,WorldEdit,WorldGuard,WGRegionEvents,CustomRecipeAPI]
 permissions:
   zvierigame.admin:
     default: op
@@ -26,5 +26,5 @@ commands:
     permission: zvierigame.admin
   zvierigame:
     usage: "/<command> <subcommand>"
-    description: Erlaubt momentan nur abbrechen eines laufenden Spiels
+    description: Erlaubt Abbruch eines Spiels und reloaden der Config
     permission: zvierigame.admin

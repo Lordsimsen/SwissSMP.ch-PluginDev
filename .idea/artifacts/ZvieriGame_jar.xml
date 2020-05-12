@@ -4,6 +4,7 @@
     <root id="archive" name="ZvieriGame.jar">
       <element id="module-output" name="ZvieriGame" />
       <element id="file-copy" path="$PROJECT_DIR$/ZvieriGame/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/ZvieriGame/config.yml" />
     </root>
   </artifact>
 </component>

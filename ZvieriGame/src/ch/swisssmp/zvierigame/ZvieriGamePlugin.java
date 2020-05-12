@@ -1,31 +1,30 @@
 package ch.swisssmp.zvierigame;
 
 
+import ch.swisssmp.crafting.CustomRecipeAPI;
 import ch.swisssmp.zvierigame.game.CraftingRecipes;
-import ch.swisssmp.zvierigame.game.StopGameCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ZvieriGamePlugin extends JavaPlugin{
 	
 	private static ZvieriGamePlugin plugin;
-	private static Listener eventListener;
 	
 	@Override
 	public void onEnable() {
-		plugin = this;	
+		plugin = this;
+		getConfig().options().copyDefaults();
+		saveDefaultConfig();
 
 		EventListener eventListener = new EventListener();
-		setEventListener(eventListener);
 		Bukkit.getPluginManager().registerEvents(eventListener, plugin);
 		
 		Bukkit.getPluginCommand("zvieriarena").setExecutor(new ZvieriArenaCommand());
 		Bukkit.getPluginCommand("zvieriarenen").setExecutor(new ZvieriArenenCommand());
-		Bukkit.getPluginCommand("zvierigame").setExecutor(new StopGameCommand());
+		Bukkit.getPluginCommand("zvierigame").setExecutor(new ZvieriGameCommand());
 
 		CraftingRecipes.registerCraftingRecipes();
 		CraftingRecipes.registerFurnaceRecipes();
@@ -39,7 +38,7 @@ public class ZvieriGamePlugin extends JavaPlugin{
 	
 	@Override
 	public void onDisable() {
-
+		CustomRecipeAPI.removeRecipes(this);
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);		
 	}
@@ -50,14 +49,6 @@ public class ZvieriGamePlugin extends JavaPlugin{
 	
 	public static ZvieriGamePlugin getInstance() {
 		return plugin;
-	}
-
-	public static Listener getEventListener(){
-		return eventListener;
-	}
-
-	public static void setEventListener(Listener eventListener){
-		ZvieriGamePlugin.eventListener = eventListener;
 	}
 
 }

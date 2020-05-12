@@ -21,7 +21,9 @@ public class EndingPhase extends Phase{
 
     @Override
     public void run() {
+        game.clearArena();
         for(Player player : game.getParticipants()){
+            ZvieriGame.cleanseInventory(player.getInventory());
             player.teleport(game.getArena().getQueue().getLocation(game.getArena().getWorld()));
         }
         this.setCompleted();

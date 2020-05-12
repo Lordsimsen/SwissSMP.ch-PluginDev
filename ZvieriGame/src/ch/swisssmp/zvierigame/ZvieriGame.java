@@ -1,14 +1,31 @@
 package ch.swisssmp.zvierigame;
 
+import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.Position;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvierigame.game.*;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BrewingStand;
+import org.bukkit.block.Furnace;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +96,10 @@ public class ZvieriGame implements Runnable{
             SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Spiel bereits voll");
             return;
         }
+        if(!(currentPhase instanceof PreparationPhase)) {
+            SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Kann laufendem Spiel nicht beitreten");
+            return;
+        }
         this.participants.add(player);
         SwissSMPler.get(player).sendActionBar(ChatColor.GREEN + "Spiel beigetreten");
     }
@@ -86,7 +107,6 @@ public class ZvieriGame implements Runnable{
     public void leave(Player player){
         this.participants.remove(player);
         if(!(this.currentPhase instanceof PreparationPhase)){
-            player.teleport(this.arena.getQueue().getLocation(this.arena.getWorld()));
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
         SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Spiel verlassen");
@@ -121,7 +141,6 @@ public class ZvieriGame implements Runnable{
         games.remove(this);
         participants.clear();
         arena.endGame();
-        Bukkit.getPluginManager().registerEvents(ZvieriGamePlugin.getEventListener(), ZvieriGamePlugin.getInstance()); //TODO odr
     }
 
     public void cancel(){
@@ -133,6 +152,40 @@ public class ZvieriGame implements Runnable{
             SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Spiel abgebrochen");
         }
         finish();
+    }
+
+    public void clearArena(){
+        World world = arena.getWorld();
+        ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
+        BlockVector3 min = region.getMinimumPoint();
+        BlockVector3 max = region.getMaximumPoint();
+        BoundingBox arenaBox = new BoundingBox(min.getX(),min.getY(),min.getZ(),max.getX(),max.getY(),max.getZ());
+        for(Entity entity : arena.getWorld().getNearbyEntities(arenaBox)){
+            if(!(entity instanceof Item)) continue;
+            ItemStack item = ((Item) entity).getItemStack();
+            if(ItemUtil.getBoolean(item, "zvieriGameItem")) entity.remove();
+        }
+        for(int i = min.getBlockX(); i <= max.getBlockX(); i++){
+            for(int j = min.getBlockY(); j <= max.getBlockY(); j++){
+                for(int k = min.getBlockZ(); k <= max.getBlockZ(); k++){
+                    Block block = arena.getWorld().getBlockAt(i, j, k);
+                    if(block.getType() == Material.FURNACE){
+                        ((Furnace) block.getState()).getInventory().clear();
+                    }
+                    if(block.getType() == Material.BREWING_STAND){
+                        ((BrewingStand) block.getState()).getInventory().clear();
+                    }
+                }
+            }
+        }
+    }
+
+    public static void cleanseInventory(PlayerInventory inventory){
+        for(int i = 0; i < inventory.getContents().length; i++){
+            if(ItemUtil.getBoolean(inventory.getContents()[i], "zvieriGameItem")){
+                inventory.remove(inventory.getContents()[i]);
+            }
+        }
     }
 
     private void complete(){

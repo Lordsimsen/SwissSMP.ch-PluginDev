@@ -10,15 +10,19 @@ import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.zvierigame.game.Counter;
 import ch.swisssmp.zvierigame.game.Level;
 import com.google.gson.JsonObject;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Lectern;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,6 +40,9 @@ public class ZvieriArena {
 	private Counter[] counters;
 	private Position storage;
 	private Chest storageChest;
+	private String arenaRegion;
+	private Position lecternPosition;
+	private BlockState lectern;
 	
 	private ZvieriGame game;
 	private boolean gameRunning;
@@ -56,6 +63,7 @@ public class ZvieriArena {
 		this.world = world;
 		this.arena_id = UUID.fromString(dataSection.getString("id"));
 		this.name = dataSection.getString("name");
+		this.arenaRegion = dataSection.getString("region");
 		if(dataSection.getKeys(false).contains("kitchen")) this.kitchen = dataSection.getPosition("kitchen");
 		if(dataSection.getKeys(false).contains("queue")) this.queue = dataSection.getPosition("queue");
 		
@@ -73,6 +81,10 @@ public class ZvieriArena {
 			if (storageChestState instanceof Chest) {
 				storageChest = (Chest) storageChestState;
 			}
+		}
+		if(dataSection.getKeys(false).contains("lectern")){
+			this.lecternPosition = dataSection.getPosition("lectern");
+			this.lectern = lecternPosition.getLocation(world).getBlock().getState();
 		}
 	}
 	
@@ -118,6 +130,12 @@ public class ZvieriArena {
 	public Position getStorage() {
 		return storage;
 	}
+
+	public BlockState getLectern(){
+		return lectern;
+	}
+
+	public Position getLecternPosition() { return lecternPosition; }
 	
 	public Chest getStorageChest() {
 		return storageChest;
@@ -164,11 +182,29 @@ public class ZvieriArena {
 		return game;
 	}
 
+	public String getArenaRegion(){
+		return this.arenaRegion;
+	}
+
+	public void getHighscore(ItemStack book){
+		if(book.getType() != Material.WRITTEN_BOOK) return;
+		BookMeta bookMeta = (BookMeta) book.getItemMeta();
+		bookMeta.setTitle("Highscores " + this.name);
+		bookMeta.setGeneration(BookMeta.Generation.ORIGINAL);
+		bookMeta.setAuthor("");
+		List<String> pages = new ArrayList<String>();
+		for(int i = 1; i <= 5; i++){
+			pages.add("Level " + i + ": " + getHighscore(i) + "\n" + "\n" + "Spieler: " + "\n" + String.join(", ", getHighscorePlayers(i)));
+		}
+		bookMeta.setPages(pages);
+		book.setItemMeta(bookMeta);
+	}
+
 	public int getHighscore(int level){
 		int highscore = 0;
 		try {
 			highscore = this.getConfigurationSection().getConfigurationSection("highscores").getConfigurationSection("level_" + level).getInt("highscore");
-		} catch (NullPointerException e){ Bukkit.getLogger().info("No highscore yet for this level");}
+		} catch (NullPointerException e){ }
 		return highscore;
 	}
 
@@ -180,12 +216,10 @@ public class ZvieriArena {
 			int i = 1;
 			while(playersSection.get("player_" + i) != null){
 				highscorePlayers.add(playersSection.getString("player_" + i));
-				Bukkit.getLogger().info("Found highscore player. Added to list for sign.");
 				i++;
 			}
 		} catch(NullPointerException e){
 			highscorePlayers.add(null);
-			Bukkit.getLogger().info("No highscore yet for this level");
 		}
 		return highscorePlayers;
 	}
@@ -197,6 +231,14 @@ public class ZvieriArena {
 	public static ZvieriArena get(UUID arena_id) {
 		if(ZvieriArenen.containsKey(arena_id)) {
 			return ZvieriArenen.get(arena_id);
+		}
+		return null;
+	}
+
+	public static ZvieriArena get(String arenaRegion){
+		for(ZvieriArena arena : ZvieriArenen.getAll()){
+			if(!arena.getArenaRegion().equalsIgnoreCase(arenaRegion)) continue;
+			return arena;
 		}
 		return null;
 	}
@@ -243,6 +285,11 @@ public class ZvieriArena {
 		this.name = name;
 		ZvieriArenen.save(world);
 	}
+
+	public void setArenaRegion(String region){
+		this.arenaRegion = region;
+		ZvieriArenen.save(world);
+	}
 	
 	public void setKitchen(Position kitchen) {
 		this.kitchen = kitchen;
@@ -256,6 +303,11 @@ public class ZvieriArena {
 	
 	public void setStorage(Position storage) {
 		this.storage = storage;
+		ZvieriArenen.save(world);
+	}
+
+	public void setLectern(Position lecternPosition){
+		this.lecternPosition = lecternPosition;
 		ZvieriArenen.save(world);
 	}
 	
@@ -331,33 +383,38 @@ public class ZvieriArena {
 		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(dataFile);
 		if (yamlConfiguration.contains("arenen")) {
 			ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
+			ConfigurationSection arenaSection = null;
 			for (String key : arenenSection.getKeys(false)) {
-				ConfigurationSection arenaSection = arenenSection.getConfigurationSection(key);
-				if (UUID.fromString(arenaSection.getString("id")).equals(this.arena_id)) {
-					if (!arenaSection.getKeys(false).contains("highscores")) {
-						arenaSection.createSection("highscores");
-					}
-					ConfigurationSection highscoreSection = arenaSection.getConfigurationSection("highscores");
-					if (!highscoreSection.getKeys(false).contains("level_" + level)) {
-						highscoreSection.createSection("level_" + level);
-					}
-					ConfigurationSection levelSection = highscoreSection.getConfigurationSection("level_" + level);
-					int highscore = levelSection.getInt("highscore");
-					if (score > highscore) {
-						Bukkit.getLogger().info("new highscore for level " + level);
-						highscore = score;
-						levelSection.set("highscore", highscore);
-						if(levelSection.getConfigurationSection("players") != null) levelSection.remove("players");
-						ConfigurationSection playerSection = levelSection.createSection("players");
-						for(int i = 1; i <= participants.size(); i++){
-							playerSection.set("player_" + i , participants.get(i-1).getDisplayName());
-						}
-						yamlConfiguration.save(dataFile);
-						return true;
-					}
-					return false;
+				ConfigurationSection section = arenenSection.getConfigurationSection(key);
+				if (!UUID.fromString(section.getString("id")).equals(this.arena_id)) {
+					continue;
 				}
+				arenaSection = section;
+				break;
 			}
+			if (arenaSection == null) arenaSection = arenenSection.createSection("arena_" + arenenSection.getKeys(false).size());
+			if (!arenaSection.getKeys(false).contains("highscores")) {
+				arenaSection.createSection("highscores");
+			}
+			ConfigurationSection highscoreSection = arenaSection.getConfigurationSection("highscores");
+			if (!highscoreSection.getKeys(false).contains("level_" + level)) {
+				highscoreSection.createSection("level_" + level);
+			}
+			ConfigurationSection levelSection = highscoreSection.getConfigurationSection("level_" + level);
+			int highscore = levelSection.getInt("highscore");
+			if (score > highscore) {
+				Bukkit.getLogger().info("new highscore for level " + level);
+				highscore = score;
+				levelSection.set("highscore", highscore);
+				if(levelSection.getConfigurationSection("players") != null) levelSection.remove("players");
+				ConfigurationSection playerSection = levelSection.createSection("players");
+				for(int i = 1; i <= participants.size(); i++){
+					playerSection.set("player_" + i , participants.get(i-1).getDisplayName());
+				}
+				yamlConfiguration.save(dataFile);
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}
@@ -369,6 +426,7 @@ public class ZvieriArena {
 	public void save(ConfigurationSection dataSection) {
 		dataSection.set("id", this.arena_id.toString());
 		dataSection.set("name", this.name);
+		dataSection.set("region", this.arenaRegion);
 		
 		if(this.kitchen != null) {
 			savePosition(dataSection, "kitchen", this.kitchen);
@@ -378,6 +436,9 @@ public class ZvieriArena {
 		}
 		if(this.storage != null) {
 			savePosition(dataSection, "storage", this.storage);			
+		}
+		if(this.lecternPosition != null){
+			savePosition(dataSection, "lectern", this.lecternPosition);
 		}
 		if(this.counters != null) {
 			for(int i = 1; i <= counters.length; i++) {
@@ -412,6 +473,7 @@ public class ZvieriArena {
 					this.queue == null ||
 					this.counters == null ||
 					this.storage == null) ||
+					this.arenaRegion == null ||
 					!(this.storage.getLocation(world).getBlock() instanceof Chest);
 	}
 	

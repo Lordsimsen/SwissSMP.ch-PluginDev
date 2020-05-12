@@ -1,5 +1,6 @@
 package ch.swisssmp.zvierigame.game;
 
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPler;
@@ -9,6 +10,7 @@ import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Chest;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -73,16 +75,19 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		}
 		this.objective = scoreboard.registerNewObjective("scoreboard", "dummy", ChatColor.YELLOW + "Saldo");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-		score = 0;
+		score = 20;
+		displayScore();
 	}
 
 	public void initializeStorage(){
 		storageChest.getBlockInventory().clear();
+		ConfigurationSection ingredientsSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("ingredients");
 
 		ItemStack[] result = new ItemStack[ingredients.length + level.getRecipes().length];
 		for(int i = 0; i < ingredients.length; i++){
 			result[i] = ingredients[i];
-			result[i].setAmount(4);
+			result[i].setAmount(ingredientsSection.getInt(ingredients[i].getType().toString() + ".initialAmount"));
+			ItemUtil.setBoolean(result[i], "zvieriGameItem", true);
 		}
 		for(int i = ingredients.length; i < ingredients.length + level.getRecipes().length; i++){
 			result[i] = level.getRecipes()[i-ingredients.length];
@@ -180,6 +185,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 
 	@Override
 	public void cancel(){
+		game.clearArena();
 		for(Player p : game.getParticipants()) {
 			p.teleport(arena.getQueue().getLocation(p.getWorld()));
 			p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());

@@ -6,25 +6,27 @@ import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.PlayerRenameItemEvent;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.zvierigame.game.EquipmentStorer;
 import ch.swisssmp.zvierigame.game.PreparationPhase;
 import com.google.gson.JsonObject;
+import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Lectern;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +80,7 @@ public class EventListener implements Listener{
 		if(ItemUtil.getString(itemStack, "npc").equalsIgnoreCase("chef")) {
 			arena.setChef(npc);
 			SwissSMPler.get(p).sendActionBar(ChatColor.GREEN + "Küchenchef zugewiesen");
-		} else if (ItemUtil.getString(itemStack, "npc").equalsIgnoreCase("logistics")){
+		} else if(ItemUtil.getString(itemStack, "npc").equalsIgnoreCase("logistics")){
 			arena.setLogisticsNPC(npc);
 			SwissSMPler.get(p).sendActionBar(ChatColor.GREEN + "Logistiker zugewiesen");
 		}
@@ -94,7 +96,6 @@ public class EventListener implements Listener{
 		if(json == null || !json.has("zvieriarena")) {
 			return;
 		}
-//		if(!event.getNPC().getIdentifier().equalsIgnoreCase("chef")) return;
 		Player player = event.getPlayer();
 		String arena_id = json.get("zvieriarena").getAsString();
 		ZvieriArena arena = ZvieriArena.get(UUID.fromString(arena_id));
@@ -131,6 +132,30 @@ public class EventListener implements Listener{
 		}
 		arena.setName(e.getNewName());
 		e.setName(ChatColor.AQUA + arena.getName());
+	}
+
+	@EventHandler
+	private void onPlayerOpenLectern(InventoryOpenEvent event){
+		if(event.getView().getType() != InventoryType.LECTERN) return;
+		LecternInventory lecternInventory = (LecternInventory) event.getInventory();
+		ItemStack itemStack = lecternInventory.getItem(0);
+		if(itemStack == null || itemStack.getType() != Material.WRITTEN_BOOK) return;
+		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())){
+			BlockState lectern = arena.getLectern();
+			Inventory inventory = ((InventoryHolder) lectern).getInventory();
+			if(!inventory.equals(lecternInventory)) return;
+			arena.getHighscore(itemStack);
+		}
+	}
+
+	@EventHandler
+	private void onBookStealAttempt(PlayerTakeLecternBookEvent event){ //could this be done with worldguard?
+		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())){
+			if((Lectern) arena.getLectern() != event.getLectern()) continue;
+			Bukkit.getLogger().info("Lectern found");
+			if(event.getPlayer().hasPermission("zvierigame.admin")) return;
+			event.setCancelled(true);
+		}
 	}
 
 	@EventHandler
@@ -183,6 +208,13 @@ public class EventListener implements Listener{
 			default: return;
 		}
 	}
+
+    @EventHandler
+    private void onArenaExit(RegionLeaveEvent event){
+		ZvieriArena arena = ZvieriArena.get(event.getRegion().getId());
+		if(arena == null) return;
+		ZvieriGame.cleanseInventory(event.getPlayer().getInventory());
+    }
 	
 	@EventHandler
 	private void onWorldLoad(WorldLoadEvent e) {

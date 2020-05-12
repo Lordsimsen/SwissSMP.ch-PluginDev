@@ -2,21 +2,21 @@ package ch.swisssmp.zvierigame.game;
 
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.npc.NPCInstance;
-import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.utils.Random;
+import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,30 +46,32 @@ public class Level {
             new ItemStack(Material.KELP),
             new ItemStack(Material.PUMPKIN),
             new ItemStack(Material.SWEET_BERRIES),
-            new ItemStack(Material.BEETROOT)
+            new ItemStack(Material.BEETROOT),
+            new ItemStack(Material.COAL),
+            new ItemStack(Material.GLASS_BOTTLE)
     };
 
 
     private final ItemStack[] allDishes = new ItemStack[]{
-            (CustomItems.getCustomItemBuilder("HASH_BROWNS").build()),
+            (CustomItems.getCustomItemBuilder("HASH_BROWNS").build()), //0
             CustomItems.getCustomItemBuilder("MEAT_FEAST").build(),
-            (CustomItems.getCustomItemBuilder("HONEY_MILK").build()),
+            (CustomItems.getCustomItemBuilder("HONEY_MILK").build()),//2
             (CustomItems.getCustomItemBuilder("RICE_PUDDING").build()),
-            (CustomItems.getCustomItemBuilder("SUSHI").build()),
+            (CustomItems.getCustomItemBuilder("SUSHI").build()), //4
             new ItemStack(Material.RABBIT_STEW),
-            (CustomItems.getCustomItemBuilder("SCHNITZEL_FRIES").build()),
+            (CustomItems.getCustomItemBuilder("SCHNITZEL_FRIES").build()), //6
             (CustomItems.getCustomItemBuilder("VEGGIES_DELIGHT").build()),
 
-            (CustomItems.getCustomItemBuilder("SPAGHETTI_BOLOGNESE").build()),
-            (CustomItems.getCustomItemBuilder("CREEPER_SUCRE").build()),
+            (CustomItems.getCustomItemBuilder("SPAGHETTI_BOLOGNESE").build()), //8
+            (CustomItems.getCustomItemBuilder("DAME_BLANCHE").build()),
 
-            (CustomItems.getCustomItemBuilder("ZURICH_GESCHNETZELTES").build()),
+            (CustomItems.getCustomItemBuilder("ZURICH_GESCHNETZELTES").build()), //10
             (CustomItems.getCustomItemBuilder("HOT_CHOCOLATE").build()),
-            (CustomItems.getCustomItemBuilder("PEKING_DUCK").build()),
+            (CustomItems.getCustomItemBuilder("PEKING_DUCK").build()), //12
             (CustomItems.getCustomItemBuilder("PIZZA_MARGHERITA").build()),
-            (CustomItems.getCustomItemBuilder("MARITIME_PLATTER").build()),
-            (CustomItems.getCustomItemBuilder("LORDS_BLESSING").build()),
-            (CustomItems.getCustomItemBuilder("DAME_BLANCHE").build())
+            (CustomItems.getCustomItemBuilder("MARITIME_PLATTER").build()), //14
+            (CustomItems.getCustomItemBuilder("CREEPER_SUCRE").build()),
+            (CustomItems.getCustomItemBuilder("LORDS_BLESSING").build())
     };
 
     private final ItemStack[] easyDishes = new ItemStack[]{allDishes[0], allDishes[1], allDishes[2], allDishes[3],
@@ -82,126 +84,16 @@ public class Level {
 
     public static HashMap<String, List<String>> recipes = new HashMap<String, List<String>>();
 
-
-    /*
-    Presets all the recipes. Could/Should probably be defined in a constant yml or json object in the plugin folder.
-     */
-    protected void setRecipes(){
-        List<String> hashBrownsRecipe = new ArrayList<String>();
-        hashBrownsRecipe.add("2x Gebratene Kartoffel");
-        recipes.put("HASH_BROWNS", hashBrownsRecipe);
-
-        List<String> meatFeastRecipe = new ArrayList<String>();
-        meatFeastRecipe.add("1x Gebratenes Poulet");
-        meatFeastRecipe.add("1x Steak");
-        meatFeastRecipe.add("1x Gebratenes Schweinefleisch");
-        recipes.put("MEAT_FEAST", meatFeastRecipe);
-
-        List<String> honeyMilkRecipe = new ArrayList<String>();
-        honeyMilkRecipe.add("1x Honig");
-        honeyMilkRecipe.add("1x Milch");
-        recipes.put("HONEY_MILK", honeyMilkRecipe);
-
-        List<String> ricePuddingRecipe = new ArrayList<String>();
-        ricePuddingRecipe.add("1x Milch");
-        ricePuddingRecipe.add("1x Weizen");
-        recipes.put("RICE_PUDDING", ricePuddingRecipe);
-
-        List<String> sushiRecipe = new ArrayList<String>();
-        sushiRecipe.add("1x Getrockneter Seetang");
-        sushiRecipe.add("1x roher Lachs");
-        sushiRecipe.add("1x Weizen");
-        recipes.put("SUSHI", sushiRecipe);
-
-        List<String> rabbitStewRecipe = new ArrayList<String>();
-        rabbitStewRecipe.add("1x Hasenfuss");
-        rabbitStewRecipe.add("1x Kochwasser");
-        rabbitStewRecipe.add("1x Karotte");
-        rabbitStewRecipe.add("1x Kartoffel");
-        recipes.put("RABBIT_STEW", rabbitStewRecipe);
-
-        List<String> schnitzelFriesRecipe = new ArrayList<String>();
-        schnitzelFriesRecipe.add("1x gebratenes Schweinefleisch");
-        schnitzelFriesRecipe.add("1x Bratkartoffeln");
-        schnitzelFriesRecipe.add("1x Weizen");
-        recipes.put("SCHNITZEL_FRIES", schnitzelFriesRecipe);
-
-        List<String> veggiesDelightRecipe = new ArrayList<String>();
-        veggiesDelightRecipe.add("1x Seegras");
-        veggiesDelightRecipe.add("1x Weizen");
-        veggiesDelightRecipe.add("1x Karotte");
-        recipes.put("VEGGIES_DELIGHT", veggiesDelightRecipe);
-
-        List<String> spaghettiBologneseRecipe = new ArrayList<String>();
-        spaghettiBologneseRecipe.add("1x Pasta");
-        spaghettiBologneseRecipe.add("1x Rote Sauce");
-        spaghettiBologneseRecipe.add("1x Steak");
-        recipes.put("SPAGHETTI_BOLOGNESE", spaghettiBologneseRecipe);
-
-        List<String> creeperSucreRecipe = new ArrayList<String>();
-        creeperSucreRecipe.add("1x Geduensteter Creeperkopf");
-        creeperSucreRecipe.add("1x Zucker");
-        creeperSucreRecipe.add("1x Sahne");
-        recipes.put("CREEPER_SUCRE", creeperSucreRecipe);
-
-        List<String> zurichGeschnetzeltesRecipe = new ArrayList<String>();
-        zurichGeschnetzeltesRecipe.add("1x Steak");
-        zurichGeschnetzeltesRecipe.add("1x Röschti");
-        zurichGeschnetzeltesRecipe.add("1x Milch");
-        recipes.put("ZURICH_GESCHNETZELTES", zurichGeschnetzeltesRecipe);
-
-        List<String> hotChocolateRecipe = new ArrayList<String>();
-        hotChocolateRecipe.add("1x Milch");
-        hotChocolateRecipe.add("1x Schokoladenpulver");
-        hotChocolateRecipe.add("1x Zucker");
-        recipes.put("HOT_CHOCOLATE", hotChocolateRecipe);
-
-        List<String> pekingDuckRecipe = new ArrayList<String>();
-        pekingDuckRecipe.add("1x gebratenes Poulet");
-        pekingDuckRecipe.add("1x Zucker");
-        pekingDuckRecipe.add("1x Kochwasser");
-        recipes.put("PEKING_DUCK", pekingDuckRecipe);
-
-        List<String> pizzaMargheritaRecipe = new ArrayList<String>();
-        pizzaMargheritaRecipe.add("1x Brot");
-        pizzaMargheritaRecipe.add("1x Rote Sauce");
-        pizzaMargheritaRecipe.add("1x Kaese");
-        recipes.put("PIZZA_MARGHERITA", pizzaMargheritaRecipe);
-
-        List<String> maritimePlatterRecipe = new ArrayList<String>();
-        maritimePlatterRecipe.add("1x Gebratener Laches");
-        maritimePlatterRecipe.add("1x Pufferfischextrakt");
-        maritimePlatterRecipe.add("1x Gebratenes Seegras");
-        recipes.put("MARITIME_PLATTER", maritimePlatterRecipe);
-
-        List<String> lordsBlessingRecipe = new ArrayList<String>();
-        lordsBlessingRecipe.add("1x geduensteter Kuerbis");
-        lordsBlessingRecipe.add("1x Bratkartoffeln");
-        lordsBlessingRecipe.add("1x Kochwasser");
-        lordsBlessingRecipe.add("1x Sahne");
-        recipes.put("LORDS_BLESSING", lordsBlessingRecipe);
-
-        List<String> dameBlancheRecipe = new ArrayList<String>();
-        dameBlancheRecipe.add("1x Heissi Schoggi");
-        dameBlancheRecipe.add("1x Sahen");
-        dameBlancheRecipe.add("1x Wildbeeren");
-        recipes.put("DAME_BLANCHE", dameBlancheRecipe);
-    }
-
     /*
     Gives the recipe for [dishEnum] in form of a piece of paper with the ingredients necessary as its lore
      */
     protected ItemStack getRecipe(String dishEnum){
+        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        ConfigurationSection dishes = config.getConfigurationSection("dishes");
         ItemStack recipe = new ItemStack(Material.PAPER);
         ItemMeta recipeMeta = recipe.getItemMeta();
-        String name;
-        if(!dishEnum.equalsIgnoreCase("RABBIT_STEW")){
-            name = CustomItems.getCustomItemBuilder(dishEnum).build().getItemMeta().getDisplayName();
-        } else{
-            name = "Hasensee-Ragout";
-        }
-        recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + ChatColor.WHITE + name);
-        recipeMeta.setLore(recipes.get(dishEnum));
+        recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + ChatColor.WHITE + dishes.getString(dishEnum + ".name"));
+        recipeMeta.setLore(dishes.getStringList(dishEnum + ".recipe"));
         recipe.setItemMeta(recipeMeta);
         return recipe;
     }
@@ -209,7 +101,6 @@ public class Level {
     public Level(int level) {
         this.level = level;
         setDuration();
-        setRecipes();
     }
 
     /*
@@ -345,7 +236,6 @@ public class Level {
             }
             default: {
                 npc.setIdentifier("client_" + clientCount);
-                Bukkit.getLogger().info("returning npc with basetip" + JsonUtil.getInt("baseTip", npc.getJsonData()) + "and patience " + JsonUtil.getDouble("patience", npc.getJsonData()));
                 clientCount++;
                 return npc;
             }
@@ -359,7 +249,7 @@ public class Level {
                 villager.setProfession(Villager.Profession.NITWIT);
 //                npc.setName("Landstreicher");
 //                npc.setNameVisible(true);
-                JsonUtil.set("baseTip", 5, json);
+                JsonUtil.set("baseTip", 2, json);
                 JsonUtil.set("patience", 1.0, json);
                 break;
             }
@@ -367,7 +257,7 @@ public class Level {
                 villager.setProfession(Villager.Profession.WEAPONSMITH);
 //                npc.setName("Schmied");
 //                npc.setNameVisible(true);
-                JsonUtil.set("baseTip", 10, json);
+                JsonUtil.set("baseTip", 5, json);
                 JsonUtil.set("patience", 0.75, json);
                 break;
             }
@@ -375,7 +265,7 @@ public class Level {
                 villager.setProfession(Villager.Profession.LIBRARIAN);
 //                npc.setName("Gelehrter");
 //                npc.setNameVisible(true);
-                JsonUtil.set("baseTip", 20, json);
+                JsonUtil.set("baseTip", 10, json);
                 JsonUtil.set("patience", 0.4, json);
                 break;
             }
@@ -383,7 +273,7 @@ public class Level {
                 villager.setProfession(Villager.Profession.CLERIC);
 //                npc.setName("Alchemist");
 //                npc.setNameVisible(true);
-                JsonUtil.set("baseTip", 15, json);
+                JsonUtil.set("baseTip", 7, json);
                 JsonUtil.set("patience", 0.6, json);
                 break;
             }
@@ -391,7 +281,7 @@ public class Level {
                 villager.setProfession((Villager.Profession.SHEPHERD));
 //                npc.setName("Hirte");
 //                npc.setNameVisible(true);
-                JsonUtil.set("baseTip", 8, json);
+                JsonUtil.set("baseTip", 4, json);
                 JsonUtil.set("patience", 0.9, json);
                 break;
             }
@@ -399,7 +289,7 @@ public class Level {
                 villager.setProfession(Villager.Profession.CARTOGRAPHER);
 //                npc.setName("Aristokrat");
 //                npc.setNameVisible(true);
-                JsonUtil.set("baseTip", 40, json);
+                JsonUtil.set("baseTip", 20, json);
                 JsonUtil.set("patience", 0.2, json);
                 break;
             }
@@ -409,6 +299,7 @@ public class Level {
 
     /*
     Returns the recipes as papers with ingredients as lore for dishes that can be ordered in the selected level.
+    Done manually, so watch out when modifying the dishes order and stuff.
      */
     protected ItemStack[] getRecipes(){
         switch(level){
@@ -421,21 +312,22 @@ public class Level {
             }
             case 3: {
                 return new ItemStack[]{getRecipe("ZURICH_GESCHNETZELTES"), getRecipe("HOT_CHOCOLATE"),
-                                                    getRecipe("CREEPER_SUCRE"), getRecipe("SPAGHETTI_BOLOGNESE")};
+                                                    getRecipe("DAME_BLANCHE"), getRecipe("SPAGHETTI_BOLOGNESE")};
             }
             case 4: {
                 return new ItemStack[]{getRecipe("ZURICH_GESCHNETZELTES"), getRecipe("HOT_CHOCOLATE"),
                                 getRecipe("PEKING_DUCK"), getRecipe("PIZZA_MARGHERITA"), getRecipe("MARITIME_PLATTER"),
-                                getRecipe("LORDS_BLESSING")};
+                                getRecipe("CREEPER_SUCRE")};
             }
             case 5: {
-                ItemStack[] allRecipes = new ItemStack[recipes.size()];
+                ItemStack[] allRecipes = new ItemStack[17];
                 int i = 0;
-                for(String key : recipes.keySet()){
+                Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+                for(String key : config.getConfigurationSection("dishes").getKeys(false)){
                     ItemStack recipe = new ItemStack(Material.PAPER);
                     ItemMeta recipeMeta = recipe.getItemMeta();
-                    recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + CustomItems.getCustomItemBuilder(key).build().getItemMeta().getDisplayName());
-                    recipeMeta.setLore(recipes.get(key));
+                    recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + config.getString("dishes." + key + ".name"));
+                    recipeMeta.setLore(config.getStringList("dishes." + key + ".recipe"));
                     recipe.setItemMeta(recipeMeta);
                     allRecipes[i] = recipe;
                     i++;

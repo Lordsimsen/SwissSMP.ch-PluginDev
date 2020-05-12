@@ -1,15 +1,14 @@
 package ch.swisssmp.zvierigame.game;
 
+import ch.swisssmp.crafting.CustomRecipeAPI;
+import ch.swisssmp.crafting.brewing.BrewingRecipe;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.inventory.FurnaceRecipe;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 
 public class CraftingRecipes {
 
@@ -41,8 +40,8 @@ public class CraftingRecipes {
         hashBrownsBuilder.setAmount(1);
         ItemStack hashBrowns = hashBrownsBuilder.build();
         ShapelessRecipe hashBrownsRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "hash_browns"), hashBrowns);
-        hashBrownsRecipe.addIngredient(Material.POTATO);
-        hashBrownsRecipe.addIngredient(Material.POTATO);
+        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
+        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
         Bukkit.getServer().addRecipe(hashBrownsRecipe);
 
 
@@ -245,30 +244,39 @@ public class CraftingRecipes {
     public static void registerFurnaceRecipes(){
         //Todo furnace recipe or smelting event? And how does one make them dependent on permission (given to participants)?
         Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "red_sauce")
-                , CustomItems.getCustomItemBuilder("RED_SAUCE").build(), Material.BEETROOT, 0, 160));
+                , CustomItems.getCustomItemBuilder("RED_SAUCE").build(), Material.BEETROOT, 0, 200));
         Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "steamed_creeper_head")
-                , CustomItems.getCustomItemBuilder("STEAMED_CREEPER_HEAD").build(), Material.CREEPER_HEAD, 0, 200));
+                , CustomItems.getCustomItemBuilder("STEAMED_CREEPER_HEAD").build(), Material.CREEPER_HEAD, 0, 600));
         Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "steamed_pumpkin")
-                , CustomItems.getCustomItemBuilder("STEAMED_PUMPKIN").build(), Material.PUMPKIN, 0, 200));
+                , CustomItems.getCustomItemBuilder("STEAMED_PUMPKIN").build(), Material.PUMPKIN, 0, 600));
         Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "cheese")
                 , CustomItems.getCustomItemBuilder("CHEESE").build(), Material.MILK_BUCKET, 0, 200));
+
+        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "red_sauce")
+                , CustomItems.getCustomItemBuilder("RED_SAUCE").build(), Material.BEETROOT, 0, 100));
+        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "steamed_creeper_head")
+                , CustomItems.getCustomItemBuilder("STEAMED_CREEPER_HEAD").build(), Material.CREEPER_HEAD, 0, 200));
+        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "steamed_pumpkin")
+                , CustomItems.getCustomItemBuilder("STEAMED_PUMPKIN").build(), Material.PUMPKIN, 0, 200));
+        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "cheese")
+                , CustomItems.getCustomItemBuilder("CHEESE").build(), Material.MILK_BUCKET, 0, 100));
     }
 
     public static void registerBrewingRecipes(){
-        BrewingRecipe.addRecipe(new BrewingRecipe(Material.PUFFERFISH, (inventory, result, ingredient) -> {
-            ItemStack pufferfishExtract = CustomItems.getCustomItemBuilder("PUFFERFISH_EXTRACT").build();
-            result.setItemMeta(pufferfishExtract.getItemMeta());
-            result.setAmount(1);
+        CustomRecipeAPI.addRecipe(new BrewingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "pufferfish_extract"), Material.PUFFERFISH
+                , (itemStack) -> itemStack.isSimilar(new ItemStack(Material.GLASS_BOTTLE))
+                , (result) ->{
+            CustomItems.getCustomItemBuilder("PUFFERFISH_EXTRACT").update(result.getResult());
         }));
-        BrewingRecipe.addRecipe(new BrewingRecipe(Material.MILK_BUCKET, (inventory, result, ingredient) -> {
-            ItemStack whippedCream = CustomItems.getCustomItemBuilder("WHIPPED_CREAM").build();
-            result.setItemMeta(whippedCream.getItemMeta());
-            result.setAmount(1);
+        CustomRecipeAPI.addRecipe(new BrewingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "whipped_cream"), Material.MILK_BUCKET
+                , (itemStack) -> itemStack.isSimilar(new ItemStack(Material.GLASS_BOTTLE))
+                , (result) ->{
+            CustomItems.getCustomItemBuilder("WHIPPED_CREAM").update(result.getResult());
         }));
-        BrewingRecipe.addRecipe(new BrewingRecipe(Material.WATER_BUCKET, (inventory, result, ingredient) -> {
-            ItemStack boiledWater = CustomItems.getCustomItemBuilder("BOILED_WATER").build();
-            result.setItemMeta(boiledWater.getItemMeta());
-            result.setAmount(1);
+        CustomRecipeAPI.addRecipe(new BrewingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "boiled_water"), Material.WATER_BUCKET
+                , (itemStack) -> itemStack.isSimilar(new ItemStack(Material.GLASS_BOTTLE))
+                , (result) ->{
+            CustomItems.getCustomItemBuilder("BOILED_WATER").update(result.getResult());
         }));
     }
 }
