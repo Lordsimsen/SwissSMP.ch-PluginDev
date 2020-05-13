@@ -103,6 +103,7 @@
       <module fileurl="file://$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" filepath="$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldGuardTools/WorldGuardTools.iml" filepath="$PROJECT_DIR$/WorldGuardTools/WorldGuardTools.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldManager/WorldManager.iml" filepath="$PROJECT_DIR$/WorldManager/WorldManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Zones/Zones.iml" filepath="$PROJECT_DIR$/Zones/Zones.iml" />
       <module fileurl="file://$PROJECT_DIR$/ZvieriGame/ZvieriGame.iml" filepath="$PROJECT_DIR$/ZvieriGame/ZvieriGame.iml" />
     </modules>
   </component>
