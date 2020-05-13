@@ -1,0 +1,7 @@
+name: EventPlugin
+version: '0.1'
+api-version: '1.13'
+main: ch.swisssmp.events.EventPlugin
+author: WhiteGuggi
+description: Abstract Eventplugin with base entries, editor and methods (including saving and loading in/from worldfolder).
+depend: [SwissSMPUtils,CustomEditorAPI,CustomItems]
