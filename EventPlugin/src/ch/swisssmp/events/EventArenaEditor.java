@@ -8,7 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class EventArenaEditor extends CustomEditorView {
+public class EventArenaEditor extends CustomEditorView {
 
     private final EventArena arena;
 
@@ -32,7 +32,11 @@ public abstract class EventArenaEditor extends CustomEditorView {
         return this.arena;
     }
 
-    public abstract EventArenaEditor open(Player player, EventArena arena);
+    public static EventArenaEditor open(Player player, EventArena arena){
+        EventArenaEditor editor = new EventArenaEditor(player, arena);
+        editor.open();
+        return editor;
+    }
 
     @Override
     protected void onInventoryClicked(InventoryClickEvent arg0){
@@ -48,5 +52,4 @@ public abstract class EventArenaEditor extends CustomEditorView {
     public String getTitle() {
         return this.arena.getName();
     }
-
 }

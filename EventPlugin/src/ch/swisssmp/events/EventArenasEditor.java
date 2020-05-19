@@ -10,13 +10,17 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public abstract class EventArenasEditor {
+public class EventArenasEditor {
+
+    private final EventPlugin eventPlugin;
     private final Player player;
     private final Inventory inventory;
+    private EventArenas arenas;
 
     private InventoryView view;
 
-    private EventArenasEditor(Player player, List<EventArena> arenen, String label) {
+    private EventArenasEditor(EventPlugin plugin, Player player, List<EventArena> arenen, String label) {
+        this.eventPlugin = plugin;
         this.player = player;
 
         int cellCount = Mathf.ceilToInt(arenen.size() / 9f)*9;
@@ -42,27 +46,26 @@ public abstract class EventArenasEditor {
         this.view = this.getPlayer().openInventory(this.inventory);
     }
 
-    public abstract EventArenasEditor open(Player player, boolean showAll);
-//    public static EventArenasEditor open(Player player, boolean showAll) {
-//        EventArenasEditor editor;
-//        if(showAll) {
-//            if(EventArenas.getArenasList().size() == 0) {
-//                player.sendMessage(EventPlugin.getDefaultPrefix() + " Es wurde noch keine Arena erstellt. "
-//                        + "Verwende /zvieriarena create [Name] um eine Arena zu erstellen");
-//                return null;
-//            }
-//            editor = new EventArenasEditor(player, EventArenas.getArenasList(), "Alle Arenen");
-//        } else {
-//            List<EventArena> arenen = EventArenas.getArenas(player.getWorld());
-//            if(arenen.size() == 0) {
-//                player.sendMessage(EventPlugin.getDefaultPrefix() + " In dieser Welt gibt es keine Arenen. "
-//                        + "Verwende /zvieriarenen um alle geladenen Arenen anzuzeigen");
-//                return null;
-//            }
-//            editor = new EventArenasEditor(player, arenen, "Arenen in " + player.getWorld().getName());
-//        }
-//        editor.open();
-//        return editor;
-//    }
+    public EventArenasEditor open(EventPlugin plugin, Player player, boolean showAll) {
+        EventArenasEditor editor;
+        if(showAll) {
+            if(arenas.getArenasList().size() == 0) {
+                player.sendMessage(eventPlugin.getPrefix() + " Es wurde noch keine Arena erstellt. "
+                        + "Verwende /zvieriarena create [Name] um eine Arena zu erstellen");
+                return null;
+            }
+            editor = new EventArenasEditor(plugin, player, arenas.getArenasList(), "Alle Arenen");
+        } else {
+            List<EventArena> arenen = EventArenas.getArenas(player.getWorld());
+            if(arenen.size() == 0) {
+                player.sendMessage(eventPlugin.getPrefix() + " In dieser Welt gibt es keine Arenen. "
+                        + "Verwende /zvieriarenen um alle geladenen Arenen anzuzeigen");
+                return null;
+            }
+            editor = new EventArenasEditor(plugin, player, arenen, "Arenen in " + player.getWorld().getName());
+        }
+        editor.open();
+        return editor;
+    }
 
 }

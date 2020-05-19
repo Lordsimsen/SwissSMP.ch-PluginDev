@@ -11,6 +11,7 @@ import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Chest;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -115,8 +116,18 @@ public class RestockView implements Listener {
         ItemUtil.setBoolean(result, "zvieriGameItem", true);
         result.setAmount(ingredientsSection.getInt(result.getType().toString() + ".buyAmount"));
 
+        Inventory storage = this.arena.getStorageChest().getBlockInventory();
         Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {
-            this.arena.getStorageChest().getBlockInventory().setItem(this.arena.getStorageChest().getBlockInventory().firstEmpty(), result);
+            boolean stackExists = false;
+            for(int i = 0; i < storage.getStorageContents().length; i++){
+                if(storage.getItem(i).getType() == result.getType()){
+                    result.setAmount(result.getAmount() + storage.getItem(i).getAmount());
+                    storage.setItem(i, result);
+                    stackExists = true;
+                    break;
+                }
+            }
+            if(!stackExists) storage.setItem(storage.firstEmpty(), result);
         }, new Random().nextInt(400));
         SwissSMPler.get(player).sendActionBar("Bestellung aufgegeben.");
     }

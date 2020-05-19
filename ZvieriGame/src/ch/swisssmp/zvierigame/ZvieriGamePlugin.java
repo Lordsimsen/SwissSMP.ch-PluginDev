@@ -33,20 +33,24 @@ public class ZvieriGamePlugin extends JavaPlugin{
 		for (World world : Bukkit.getWorlds()) {
 			ZvieriArenen.load(world);
 		}
-		
 	}
 	
 	@Override
 	public void onDisable() {
 		CustomRecipeAPI.removeRecipes(this);
 		HandlerList.unregisterAll(this);
-		Bukkit.getScheduler().cancelTasks(this);		
+		for(ZvieriArena arena : ZvieriArenen.getAll()){
+			if(arena.getGame() != null){
+				arena.getGame().cancel();
+			}
+		}
+		Bukkit.getScheduler().cancelTasks(this);
 	}
 	
 	public static String getPrefix() {
 		return "[" + ChatColor.GOLD + "ZvieriGame" + ChatColor.RESET + "]";
 	}
-	
+
 	public static ZvieriGamePlugin getInstance() {
 		return plugin;
 	}

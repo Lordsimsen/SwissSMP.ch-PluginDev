@@ -4,6 +4,7 @@
     <root id="archive" name="Spleef.jar">
       <element id="module-output" name="Spleef" />
       <element id="file-copy" path="$PROJECT_DIR$/Spleef/plugin.yml" />
+      <element id="module-output" name="EventPlugin" />
     </root>
   </artifact>
 </component>

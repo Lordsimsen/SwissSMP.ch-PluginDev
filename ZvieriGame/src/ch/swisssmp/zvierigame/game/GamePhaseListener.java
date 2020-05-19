@@ -66,6 +66,7 @@ public class GamePhaseListener implements Listener {
         if(event.getHand() != EquipmentSlot.HAND) {
             return;
         }
+        if(!arena.getGame().getParticipants().contains(event.getPlayer())) return;
         NPCInstance npc = event.getNPC();
         JsonObject json = npc.getJsonData();
         if(json == null) {

@@ -52,6 +52,7 @@
       <module fileurl="file://$PROJECT_DIR$/InteractiveLore/InteractiveLore.iml" filepath="$PROJECT_DIR$/InteractiveLore/InteractiveLore.iml" />
       <module fileurl="file://$PROJECT_DIR$/JP2048/JP2048.iml" filepath="$PROJECT_DIR$/JP2048/JP2048.iml" />
       <module fileurl="file://$PROJECT_DIR$/KnightsTournament/KnightsTournament.iml" filepath="$PROJECT_DIR$/KnightsTournament/KnightsTournament.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LaPoste/LaPoste.iml" filepath="$PROJECT_DIR$/LaPoste/LaPoste.iml" />
       <module fileurl="file://$PROJECT_DIR$/Lift/Lift.iml" filepath="$PROJECT_DIR$/Lift/Lift.iml" />
       <module fileurl="file://$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" filepath="$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" filepath="$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" />

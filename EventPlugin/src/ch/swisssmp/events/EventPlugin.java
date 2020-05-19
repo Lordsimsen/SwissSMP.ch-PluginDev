@@ -1,6 +1,5 @@
 package ch.swisssmp.events;
 
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.HandlerList;
@@ -9,10 +8,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class EventPlugin extends JavaPlugin {
 
+    private EventArenas arenas;
+    private EventPlugin plugin = this;
+
     @Override
     public void onEnable(){
+        arenas = new EventArenas(this);
         for (World world : Bukkit.getWorlds()) {
-            EventArenas.load(world, this.getName());
+            arenas.load(world);
         }
     }
 
@@ -22,15 +25,9 @@ public abstract class EventPlugin extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
     }
 
-    public abstract Plugin getInstance();
+    public Plugin getInstance(){
+        return plugin;
+    }
+
     public abstract String getPrefix();
-    public abstract String getDirectoryName();
-
-    public static String getDefaultDirectoryName() {
-        return "";
-    }
-
-    public static String getDefaultPrefix(){
-        return "[" + ChatColor.DARK_PURPLE + "EventPlugin" + ChatColor.RESET + "]";
-    }
 }
