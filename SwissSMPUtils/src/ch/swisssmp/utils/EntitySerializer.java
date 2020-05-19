@@ -70,11 +70,7 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.entity.ZombieVillager;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.material.Colorable;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
@@ -541,7 +537,14 @@ public class EntitySerializer {
 		JsonObject section = new JsonObject();
 		section.addProperty("c", entity.getColor().toString());
 		section.addProperty("s", entity.getStyle().toString());
+		section.add("i", serializeHorseInventory(entity.getInventory()));
 		data.add("horse", section);
+	}
+	private static JsonObject serializeHorseInventory(HorseInventory inventory){
+		JsonObject section = new JsonObject();
+		if(inventory.getSaddle()!=null) section.addProperty("s", ItemUtil.serialize(inventory.getSaddle()));
+		if(inventory.getArmor()!=null) section.addProperty("a", ItemUtil.serialize(inventory.getArmor()));
+		return section;
 	}
 	private static void serializeHumanEntitySettings(HumanEntity entity, JsonObject data){
 		JsonObject section = new JsonObject();

@@ -11,11 +11,13 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -91,6 +93,15 @@ public class Journey implements Runnable, Listener {
 			this.skipTravel();
 		}
 		*/
+	}
+
+	@EventHandler
+	private void onEntityDamage(EntityDamageEvent event){
+		if(!entities.contains(event.getEntity().getUniqueId()) || event.getEntityType()== EntityType.PLAYER){
+			return;
+		}
+
+		event.setCancelled(true);
 	}
 	
 	@EventHandler

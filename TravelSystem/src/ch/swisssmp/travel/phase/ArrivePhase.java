@@ -1,8 +1,12 @@
 package ch.swisssmp.travel.phase;
 
+import ch.swisssmp.utils.EntityUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -75,7 +79,27 @@ public class ArrivePhase extends Phase {
 		Location location = destination.getWaypoint().getLocation(destination.getWorld());
 		location.setY(Math.ceil(location.getY()+0.2));
 		for(Entity entity : this.getJourney().getEntities()){
-			entity.teleport(location);
+			try{
+				if(!entity.isValid()){
+					if(entity instanceof LivingEntity){
+						((LivingEntity)entity).setHealth(((LivingEntity) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+					}
+					EntityUtil.deserialize(location, EntityUtil.serialize(entity));
+					continue;
+				}
+				entity.teleport(location);
+			}
+			catch(Exception e){
+				String debugString = null;
+				try{
+					debugString = EntityUtil.serialize(entity).toString();
+				}
+				catch(Exception e2){
+					e2.printStackTrace();
+				}
+				Bukkit.getLogger().info(TravelSystem.getPrefix()+" Failed to teleport entity: "+debugString);
+				e.printStackTrace();
+			}
 		}
 	}
 

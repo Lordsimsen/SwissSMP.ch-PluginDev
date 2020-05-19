@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="EntitySafety:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="EntitySafety.jar">
+      <element id="module-output" name="EntitySafety" />
+      <element id="file-copy" path="$PROJECT_DIR$/EntitySafety/plugin.yml" />
+    </root>
+  </artifact>
+</component>

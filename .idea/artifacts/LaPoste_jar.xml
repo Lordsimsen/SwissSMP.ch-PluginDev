@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/_Artifacts</output-path>
     <root id="archive" name="LaPoste.jar">
       <element id="module-output" name="LaPoste" />
-      <element id="file-copy" path="$PROJECT_DIR$/LaPoste/src/main/resources/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/LaPoste/plugin.yml" />
     </root>
   </artifact>
 </component>
