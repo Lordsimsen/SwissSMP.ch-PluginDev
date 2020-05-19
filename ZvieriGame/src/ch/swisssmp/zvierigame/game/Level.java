@@ -4,6 +4,7 @@ import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.utils.Random;
+import ch.swisssmp.zvierigame.ZvieriGame;
 import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
 import org.bukkit.ChatColor;
@@ -109,38 +110,45 @@ public class Level {
     as possible orders.
      */
     protected Client spawnClient(long time, Location location){
+        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        ConfigurationSection levels = config.getConfigurationSection("levels");
         switch(level){
             case 1:{
-                if(time==(10*20)) return new Client(getNPC(location));
-                if(time%(20*20)==0) return new Client(getNPC(location));
+                ConfigurationSection level = config.getConfigurationSection("one");
+                if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
+                if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
                 if(time>duration) return null;
             }
             case 2:{
-                if(time==(10*20)) return new Client(getNPC(location));
-                if(time%(15*20)==0) return new Client(getNPC(location));
+                ConfigurationSection level = config.getConfigurationSection("two");
+                if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
+                if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
                 if(time>duration) return null;
             }
             case 3:{
-                if(time==(5*20)) return new Client(getNPC(location));
-                if(time%(15*20)==0) return new Client(getNPC(location));
+                ConfigurationSection level = config.getConfigurationSection("three");
+                if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
+                if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
                 if(time>duration) return null;
             }
             case 4:{
-                if(time==(5*20)) return new Client(getNPC(location));
-                if(time%(15*20)==0) return new Client(getNPC(location));
+                ConfigurationSection level = config.getConfigurationSection("four");
+                if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
+                if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
                 if(time>(240*20) && time%(10*20) == 0) return new Client(getNPC(location));
                 if(time>duration) return null;
             }
             case 5:{
-                if(time==(5*20)) return new Client(getNPC(location));
-                if(time%(15*20)==0) return new Client(getNPC(location));
+                ConfigurationSection level = config.getConfigurationSection("five");
+                if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
+                if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
                 if(time>(300*20) && time < (500*20) && time%(10*20) == 0) return new Client(getNPC(location));
-                if(time>(500*20) && time%(20*20) == 0) return new Client(getNPC(location));
+                if(time>(400*20) && time%(20*20) == 0) return new Client(getNPC(location));
                 if(time>duration) return null;
             }
             default: return null;
@@ -320,19 +328,21 @@ public class Level {
                                 getRecipe("CREEPER_SUCRE")};
             }
             case 5: {
-                ItemStack[] allRecipes = new ItemStack[17];
-                int i = 0;
-                Configuration config = ZvieriGamePlugin.getInstance().getConfig();
-                for(String key : config.getConfigurationSection("dishes").getKeys(false)){
-                    ItemStack recipe = new ItemStack(Material.PAPER);
-                    ItemMeta recipeMeta = recipe.getItemMeta();
-                    recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + config.getString("dishes." + key + ".name"));
-                    recipeMeta.setLore(config.getStringList("dishes." + key + ".recipe"));
-                    recipe.setItemMeta(recipeMeta);
-                    allRecipes[i] = recipe;
-                    i++;
-                }
+                ItemStack[] allRecipes = new ItemStack[0];
                 return allRecipes;
+//                ItemStack[] allRecipes = new ItemStack[17];
+//                int i = 0;
+//                Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+//                for(String key : config.getConfigurationSection("dishes").getKeys(false)){
+//                    ItemStack recipe = new ItemStack(Material.PAPER);
+//                    ItemMeta recipeMeta = recipe.getItemMeta();
+//                    recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + config.getString("dishes." + key + ".name"));
+//                    recipeMeta.setLore(config.getStringList("dishes." + key + ".recipe"));
+//                    recipe.setItemMeta(recipeMeta);
+//                    allRecipes[i] = recipe;
+//                    i++;
+//                }
+//                return allRecipes;
             }
             default: return null;
         }
@@ -368,25 +378,27 @@ public class Level {
     }
 
     private void setDuration() {
+        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        ConfigurationSection levels = config.getConfigurationSection("levels");
         switch (level) {
             case 1: {
-                duration = 30; //quicktesting. +'0' originally
+                duration = levels.getInt("one.duration");
                 break;
             }
             case 2: {
-                duration = 90; //360 originally
+                duration = levels.getInt("two.duration");
                 break;
             }
             case 3: {
-                duration = 420;
+                duration = levels.getInt("three.duration");
                 break;
             }
             case 4: {
-                duration = 480;
+                duration = levels.getInt("four.duration");;
                 break;
             }
             case 5: {
-                duration = 540;
+                duration = levels.getInt("five.duration");;
                 break;
             }
             default:
@@ -396,21 +408,23 @@ public class Level {
     }
 
     public String getName(){
+        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        ConfigurationSection levels = config.getConfigurationSection("levels");
         switch (level) {
             case 1: {
-                return "Apprentis";
+                return levels.getString("one.name");
             }
             case 2: {
-                return "Commis de Cuisine";
+                return levels.getString("two.name");
             }
             case 3: {
-                return "Chef de Partie";
+                return levels.getString("three.name");
             }
             case 4: {
-                return "Sous Chef";
+                return levels.getString("four.name");
             }
             case 5: {
-                return "Chef de cuisine";
+                return levels.getString("five.name");
             }
             default:{
                 return "Secret";

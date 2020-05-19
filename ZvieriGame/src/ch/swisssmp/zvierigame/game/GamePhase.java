@@ -80,6 +80,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 	}
 
 	public void initializeStorage(){
+		//TODO can't access doublechest.. "über blockstate an inventoryholder ,dann zu doublechest casten" Didn't recognise it as doublechest I think.
 		storageChest.getBlockInventory().clear();
 		ConfigurationSection ingredientsSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("ingredients");
 

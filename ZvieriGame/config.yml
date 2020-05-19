@@ -1,3 +1,29 @@
+levels:
+  one:
+    name: 'Apprentis'
+    duration: 300
+    firstclient: 10
+    baseinterval: 20
+  two:
+    name: 'Commis de cuisine'
+    duration: 360
+    firstclient: 10
+    baseinterval: 20
+  three:
+    name: 'Chef de partie'
+    duration: 420
+    firstclient: 10
+    baseinterval: 15
+  four:
+    name: 'Sous Chef'
+    duration: 480
+    firstclient: 5
+    baseinterval: 15
+  five:
+    name: 'Chef de cuisine'
+    duration: 540
+    firstclient: 5
+    baseinterval: 15
 dishes:
   HASH_BROWNS:
     name: 'Röschti'

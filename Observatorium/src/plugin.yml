@@ -1,0 +1,6 @@
+main: ch.swisssmp.observatorium.ObservatoriumPlugin
+version: '1.9'
+api-version: '1.13'
+name: Observatorium
+author: WhiteGuggi
+depend: [SwissSMPUtils,WorldGuard,WorldEdit,CitySystem]

@@ -50,7 +50,7 @@ public class ZvieriArena {
 	
 	private final int maxCounters = 5;
 	private int currentCounters;
-	
+
 	private ZvieriArena(World world, UUID arena_id, String name) {
 		this.world = world;
 		this.arena_id = arena_id;
@@ -150,7 +150,7 @@ public class ZvieriArena {
 	}
 	
 	public ItemStack getTokenStack() {
-		CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("ZVIERI_ARENA"); //lieutenant
+		CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("ZVIERI_ARENA");
 		itemBuilder.setDisplayName(ChatColor.AQUA + "Zvieriarena");
 		itemBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		itemBuilder.setLore(this.getDescription());
