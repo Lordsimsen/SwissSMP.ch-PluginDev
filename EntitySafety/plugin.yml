@@ -1,0 +1,24 @@
+main: ch.swisssmp.entitysafety.EntitySafetyPlugin
+version: 1.0
+api-version: 1.13
+name: EntitySafety
+author: detig_iii
+description: Bietet Wiederherstellungsfunktionen für wichtige Mobs
+depend: [SwissSMPUtils]
+permissions:
+  entitysafety.admin:
+    description: Erlaubt Verwaltung des Plugins
+    default: op
+commands:
+  safeentity:
+    usage: "/<command> <subcommand>"
+    description: Stellt eine Entity wieder her
+    permission: entitysafety.admin
+  packentity:
+    usage: "/<command>"
+    description: Verpackt eine Entity
+    permission: entitysafety.admin
+  unpackentity:
+    usage: "/<command> <subcommand>"
+    description: Entpackt eine Entity
+    permission: entitysafety.admin
