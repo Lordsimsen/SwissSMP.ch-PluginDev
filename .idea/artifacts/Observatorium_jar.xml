@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Observatorium:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="Observatorium.jar">
+      <element id="module-output" name="Observatorium" />
+      <element id="file-copy" path="$PROJECT_DIR$/Observatorium/src/plugin.yml" />
+    </root>
+  </artifact>
+</component>

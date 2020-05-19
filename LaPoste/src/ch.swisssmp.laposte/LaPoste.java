@@ -1,4 +1,4 @@
-package ch.swisssmp;
+package ch.swisssmp.laposte;
 
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;

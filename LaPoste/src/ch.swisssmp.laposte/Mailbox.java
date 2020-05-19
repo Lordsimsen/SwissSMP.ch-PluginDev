@@ -1,4 +1,4 @@
-package ch.swisssmp;
+package ch.swisssmp.laposte;
 
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ConfigurationSection;
