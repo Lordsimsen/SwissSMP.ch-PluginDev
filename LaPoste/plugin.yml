@@ -1,14 +1,22 @@
 name: LaPoste
-version: '0.1'
-main: ch.swisssmp.LaPostePlugin
+version: '1.0'
+main: ch.swisssmp.laposte.LaPostePlugin
 api-version: '1.13'
-depend: [SwissSMPUtils,CustomItems,Webcore]
+depend: [SwissSMPUtils,CustomItems,WebCore,ResourcepackManager]
 author: WhiteGuggi
 description: Post-Plugin für SwissSMP Städtesystem
 permissions:
-  laposte.use:
+  laposte.craft:
     default: op
-    description: Allows crafting and using Mailboxes for oneself
+    description: Allows crafting Letters, packages and mailboxes
+  laposte.use:
+    default: true
+    description: Allows using Mailboxes
   laposte.admin:
     default: op
-    description: Everything
+    description: Allows opening anyone's packages
+commands:
+  laposte:
+    permission: laposte.admin
+    description: Sends a message to the recipient when some mail is sent.
+    usage: "/<command> <subcommand>"
