@@ -14,13 +14,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class CraftingRecipes {
 
     protected static final String mailboxTextureBlue = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjZhNDllZmFhYWI1MzI1NTlmZmY5YWY3NWRhNmFjNGRkNzlkMTk5ZGNmMmZkNDk3Yzg1NDM4MDM4NTY0In19fQ==";
-    protected static final String mailboxIdBlue = "48614330-6c44-47be-85ec-33ed037cf48c";
     protected static final String mailboxTextureWhite = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTM5ZTE5NzFjYmMzYzZmZWFhYjlkMWY4NWZjOWQ5YmYwODY3NjgzZjQxMjk1NWI5NjExMTdmZTY2ZTIifX19";
-    protected static final String mailboxIdWhite = "480bff09-ed89-4214-a2bd-dab19fa5177d";
     protected static final String mailboxTextureRed = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGZhODljZTg1OTMyYmVjMWExYzNmMzFjYjdjMDg1YTViZmIyYWM3ZTQwNDA5NDIwOGMzYWQxMjM4NzlkYTZkYSJ9fX0=";
-    protected static final String mailboxIdRed = "6a71ad04-2422-41f3-a501-6ea5707aaef3";
     protected static final String mailboxTextureGreen = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzJiY2NiNTI0MDg4NWNhNjRlNDI0YTBjMTY4YTc4YzY3NmI4Yzg0N2QxODdmNmZiZjYwMjdhMWZlODZlZSJ9fX0=";
-    protected static final String mailboxIdGreen = "60621c0e-cb3e-471b-a237-4dec155f4889";
 
     protected static Recipe paketRezept;
     protected static Recipe briefRezept;
@@ -29,22 +25,7 @@ public class CraftingRecipes {
     protected static Recipe greenBoxRecipe;
     protected static Recipe redBoxRecipe;
 
-    protected static ItemStack whiteMailboxStack;
-    protected static ItemStack blueMailboxStack;
-    protected static ItemStack redMailboxStack;
-    protected static ItemStack greenMailboxStack;
-
-
     protected static void registerCraftingRecipes() {
-//        CustomItemBuilder mailboxBuilder = CustomItems.getCustomItemBuilder("LA_POSTE_MAILBOX");
-//        if (mailboxBuilder == null) {
-//            Bukkit.getLogger().info(LaPostePlugin.getPrefix() + " Mailboxrezept konnte nicht geladen werden.");
-//            return;
-//        }
-//        mailboxBuilder.setAmount(1);
-//        https://mcadmin.swisssmp.ch/test/player_head.png
-//        ItemStack mailbox = mailboxBuilder.build();
-//        ItemStack mailbox = SkullCreator.itemWithUrl(new ItemStack(Material.PLAYER_HEAD), "https://mcadmin.swisssmp.ch/test/player_head.png"); // no work
 
         /*
         Blue Mailbox
@@ -54,7 +35,6 @@ public class CraftingRecipes {
         blueMailboxMeta.setDisplayName("LaPoste Briefkasten");
         blueMailbox.setItemMeta(blueMailboxMeta);
         ItemUtil.setBoolean(blueMailbox, "la_poste_mailbox", true);
-//        blueMailboxStack = blueMailbox;
         ShapedRecipe blueMailboxRecipe = new ShapedRecipe(new NamespacedKey(LaPostePlugin.getInstance(), "la_poste_mailbox_blue"), blueMailbox);
         blueMailboxRecipe.shape(
                 "  w",
@@ -75,8 +55,6 @@ public class CraftingRecipes {
         greenMailboxMeta.setDisplayName("LaPoste Briefkasten");
         greenMailbox.setItemMeta(greenMailboxMeta);
         ItemUtil.setBoolean(greenMailbox, "la_poste_mailbox", true);
-//        ItemUtil.setString(greenMailbox, "colour", "green");
-//        greenMailboxStack = greenMailbox;
         ShapedRecipe greenMailboxRecipe = new ShapedRecipe(new NamespacedKey(LaPostePlugin.getInstance(), "la_poste_mailbox_green"), greenMailbox);
         greenMailboxRecipe.shape(
                 "  w",
@@ -97,8 +75,6 @@ public class CraftingRecipes {
         whiteMailboxMeta.setDisplayName("LaPoste Briefkasten");
         whiteMailbox.setItemMeta(whiteMailboxMeta);
         ItemUtil.setBoolean(whiteMailbox, "la_poste_mailbox", true);
-//        ItemUtil.setString(whiteMailbox, "colour", "white");
-//        whiteMailboxStack = whiteMailbox;
         ShapedRecipe whiteMailboxRecipe = new ShapedRecipe(new NamespacedKey(LaPostePlugin.getInstance(), "la_poste_mailbox_white"), whiteMailbox);
         whiteMailboxRecipe.shape(
                 "  w",
@@ -119,8 +95,6 @@ public class CraftingRecipes {
         redMailboxMeta.setDisplayName("LaPoste Briefkasten");
         redMailbox.setItemMeta(redMailboxMeta);
         ItemUtil.setBoolean(redMailbox, "la_poste_mailbox", true);
-//        ItemUtil.setString(redMailbox, "colour", "red");
-//        redMailboxStack = redMailbox;
         ShapedRecipe redMailboxRecipe = new ShapedRecipe(new NamespacedKey(LaPostePlugin.getInstance(), "la_poste_mailbox_red"), redMailbox);
         redMailboxRecipe.shape(
                 "  w",
@@ -141,7 +115,6 @@ public class CraftingRecipes {
         }
         packageBuilder.setAmount(1);
         ItemStack paket = packageBuilder.build();
-//        ItemStack paket = new ItemStack(Material.WRITABLE_BOOK);
         paket.setAmount(1);
         ItemMeta paketMeta = paket.getItemMeta();
         paketMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Paket");
@@ -168,7 +141,6 @@ public class CraftingRecipes {
         }
         letterBuilder.setAmount(1);
         ItemStack letter = letterBuilder.build();
-//        ItemStack letter = new ItemStack(Material.WRITABLE_BOOK);
         letter.setAmount(1);
         ItemMeta letterMeta = letter.getItemMeta();
         letterMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Brief");

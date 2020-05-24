@@ -114,10 +114,6 @@ public class EventListener implements Listener {
         if(event.getClickedBlock() == null) return;
         if(!(event.getClickedBlock().getState() instanceof Skull)) return;
         Player player = event.getPlayer();
-//        if(!player.hasPermission("laposte.use")) {
-//            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Du kanst dieses Feature nicht nutzen!");
-//            return;
-//        }
         Location location = event.getClickedBlock().getLocation();
         UUID ownerId = Mailbox.getMailboxOwner(location);
         if(ownerId == null){
@@ -207,33 +203,6 @@ public class EventListener implements Listener {
             return;
         }
         LaPoste.validateRecipient(event, player, event.getPreviousBookMeta(), event.getNewBookMeta(), player.getLocation(), event.getSlot());
-//        PlayerInventory inventory = player.getInventory();
-
-//        ItemStack confirmation = new ItemStack(Material.PAPER);
-//        ItemMeta confirmationMeta = confirmation.getItemMeta();
-//        confirmationMeta.setDisplayName(ChatColor.YELLOW + "LaPoste " + ChatColor.GRAY + "Sendebestätigung");
-//        List<String> lore = new ArrayList<>();
-//        lore.add("Sendung von " + event.getNewBookMeta().getAuthor() + " an " + event.getNewBookMeta().getTitle());
-//        lore.add("Auftragsnummer: " + new Random().nextInt(300000));
-//        confirmationMeta.setLore(lore);
-//        confirmation.setItemMeta(confirmationMeta);
-
-//        int slot = event.getSlot();
-//        if(slot == -1){
-//            inventory.clear(45);
-//        } else{
-//            inventory.clear(36+slot);
-//        }
-
-//        if(inventory.getItemInOffHand().getType() == Material.WRITABLE_BOOK && (inventory.getItemInMainHand().getType() != Material.WRITABLE_BOOK)){
-//            inventory.setItemInOffHand(null);
-//            inventory.setItem(45, confirmation); //setting null or new ItemStack(Material.AIR) allows to duplicate the delivery by pressing F
-//            inventory.remove(inventory.getItem(45)); //same bullshit
-//        } else{
-//            inventory.setItemInMainHand(null);
-//            inventory.setItem(inventory.getHeldItemSlot(), confirmation);
-//            inventory.remove(inventory.getItem(inventory.getHeldItemSlot()));
-//        }
     }
 
     /*
@@ -261,12 +230,5 @@ public class EventListener implements Listener {
                 return;
             }
         }
-//        ItemStack[] matrix = event.getInventory().getMatrix();
-////        for(int i = 0; i < matrix.length; i++){
-////            ItemStack itemStack = matrix[i];
-////            if(ItemUtil.getBoolean(itemStack, "la_poste_package")){
-////                event.getInventory().setResult(new ItemStack(Material.AIR));
-////            }
-////        }
     }
 }

@@ -1,13 +1,11 @@
 package ch.swisssmp.laposte;
 
-import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -74,10 +72,7 @@ public class LaPoste {
             BookMeta newerMeta = newMeta;
             String type = ItemUtil.getBoolean(decoy, "la_poste_package") ? "Paket" : "Brief";
             newerMeta.setDisplayName(ChatColor.YELLOW + type + " für " + ChatColor.AQUA + recipient);
-
             decoy.setItemMeta(newerMeta);
-//            event.setNewBookMeta(newerMeta);
-
             updateCustomItem(decoy, ItemUtil.getBoolean(decoy, "la_poste_package"));
             event.setNewBookMeta((BookMeta) decoy.getItemMeta());
         }

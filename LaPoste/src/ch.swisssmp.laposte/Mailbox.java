@@ -12,22 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-/*
-This class has become utterly pointless.
- */
 public class Mailbox {
-
-//    private void spawnMailbox(){
-//        mailboxCarrier = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
-//        mailboxCarrier.setVisible(false);
-//        mailboxCarrier.setGravity(false);
-//        mailboxCarrier.setInvulnerable(true);
-//        mailboxCarrier.setSmall(true);
-//        ItemStack mailbox = CustomItems.getCustomItemBuilder("LA_POSTE_MAILBOX").build();
-//        ItemUtil.setString(mailbox, "owner", owner.toString());
-//        ItemUtil.setBoolean(mailbox, "placed_mailbox", true);
-//        mailboxCarrier.getEquipment().setHelmet(mailbox);
-//    }
 
     protected static File getFile(World world){
         File pluginDirectory = new File(world.getWorldFolder(), "plugindata/LaPoste");
