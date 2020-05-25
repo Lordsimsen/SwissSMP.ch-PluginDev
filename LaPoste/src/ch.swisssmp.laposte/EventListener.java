@@ -47,7 +47,6 @@ public class EventListener implements Listener {
         request.onFinish(() -> {
             JsonObject json = request.getJsonResponse();
             if (json == null || !json.get("success").getAsBoolean() || json.get("count").getAsInt() == 0) {
-                Bukkit.getLogger().info("Request failed or count == 0");
                 return;
             }
             Bukkit.getScheduler().runTaskLater(LaPostePlugin.getInstance(), () -> {
