@@ -10,14 +10,14 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonObject;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -29,6 +29,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class EventListener implements Listener {
@@ -114,6 +115,15 @@ public class EventListener implements Listener {
         mailbox.setOwningPlayer(player);
     }
 
+    private void dropMailbox(ItemStack mailbox, Location location){
+        ItemMeta mailboxMeta = mailbox.getItemMeta();
+        mailboxMeta.setDisplayName("LaPoste Briefkasten");
+        mailbox.setItemMeta(mailboxMeta);
+        ItemUtil.setBoolean(mailbox, "la_poste_mailbox", true);
+
+        location.getWorld().dropItem(location, mailbox);
+    }
+
     @EventHandler
     private void onMailboxRemove(BlockBreakEvent event){
         if(event.getBlock().getType() != Material.PLAYER_HEAD) return;
@@ -122,20 +132,55 @@ public class EventListener implements Listener {
         if(Mailbox.getMailboxOwner(location) == null) return;
 
         ArrayList<ItemStack> drops = (ArrayList<ItemStack>) event.getBlock().getDrops();
-        if(drops.size() > 1) return;
+        if(drops.size() != 1) return;
         ItemStack drop = drops.get(0);
-
-        ItemMeta dropMeta = drop.getItemMeta();
-        dropMeta.setDisplayName("LaPoste Briefkasten");
-        drop.setItemMeta(dropMeta);
-        ItemUtil.setBoolean(drop, "la_poste_mailbox", true);
-
-        location.getWorld().dropItem(location, drop);
+        dropMailbox(drop, location);
 
         event.setCancelled(true);
         event.getBlock().setType(Material.AIR);
 
         Mailbox.removeMailbox(location);
+    }
+
+    @EventHandler
+    private void onEntityExplode(EntityExplodeEvent event){
+        List<Block> affectedBlocks = event.blockList();
+        for(Block block : affectedBlocks){
+            if(block.getType() != Material.PLAYER_HEAD) continue;
+            Location location = block.getLocation();
+            if(Mailbox.getMailboxOwner(location) == null) continue;
+            ArrayList<ItemStack> drops = (ArrayList<ItemStack>) block.getDrops();
+            if(drops.size() != 1) return;
+            ItemStack drop = drops.get(0);
+            dropMailbox(drop, location);
+            block.setType(Material.AIR);
+            Mailbox.removeMailbox(location);
+        }
+    }
+
+    @EventHandler
+    private void onPistonMailboxInteract(BlockPistonExtendEvent event){
+        if(event.getBlocks() == null || event.getBlocks().isEmpty()) return;
+        List<Block> affectedBlocks = event.getBlocks();
+        for(Block block : affectedBlocks){
+            if(block.getType() != Material.PLAYER_HEAD) continue;
+            Location location = block.getLocation();
+            if(Mailbox.getMailboxOwner(location) == null) continue;
+            ArrayList<ItemStack> drops = (ArrayList<ItemStack>) block.getDrops();
+            if(drops.size() != 1) return;
+            ItemStack drop = drops.get(0);
+            dropMailbox(drop, location);
+            block.setType(Material.AIR);
+            Mailbox.removeMailbox(location);
+        }
+    }
+
+    @EventHandler
+    private void onWaterFlowOnMailbox(BlockFromToEvent event){
+        if(event.getToBlock().getType() != Material.PLAYER_HEAD) return;
+        Location location = event.getToBlock().getLocation();
+        if(Mailbox.getMailboxOwner(location) == null) return;
+        event.setCancelled(true);
     }
 
     @EventHandler
