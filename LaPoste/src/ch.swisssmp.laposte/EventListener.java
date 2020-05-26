@@ -1,5 +1,7 @@
 package ch.swisssmp.laposte;
 
+import ch.swisssmp.customitems.CreateCustomItemBuilderEvent;
+import ch.swisssmp.customitems.CustomItemBuilderModifier;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.ItemUtil;
@@ -57,6 +59,44 @@ public class EventListener implements Listener {
                 }
             }, 300L);
         });
+    }
+
+    @EventHandler
+    private void createFCustomItemBuilder(CreateCustomItemBuilderEvent event){
+        String customEnum = (String) event.getConfigurationSection().get("custom_enum");
+        if(!customEnum.equals("LA_POSTE_MAILBOX") && !customEnum.equals("LA_POSTE_PACKAGE") && !customEnum.equals("LA_POSTE_LETTER")) return;
+        CustomItemBuilderModifier component = new CustomItemBuilderModifier() {
+            @Override
+            public void apply(ItemStack itemStack) {
+                switch(customEnum){
+                    case "": break;
+                    case "LA_POSTE_PACKAGE":{
+                        itemStack.setAmount(1);
+                        ItemMeta paketMeta = itemStack.getItemMeta();
+                        paketMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Paket");
+                        ArrayList<String> text = new ArrayList<>();
+                        text.add(ChatColor.RESET + "");
+                        ((BookMeta) paketMeta).setPages(text);
+                        itemStack.setItemMeta(paketMeta);
+                        ItemUtil.setBoolean(itemStack, "la_poste_package", true);
+                        ItemUtil.setInt(itemStack, "weight", 0);
+                        break;
+                    }
+                    case "LA_POSTE_LETTER":{
+                        itemStack.setAmount(1);
+                        ItemMeta letterMeta = itemStack.getItemMeta();
+                        letterMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Brief");
+                        ArrayList<String> text = new ArrayList<>();
+                        text.add(ChatColor.RESET + "");
+                        ((BookMeta) letterMeta).setPages(text);
+                        itemStack.setItemMeta(letterMeta);
+                        ItemUtil.setBoolean(itemStack, "la_poste_letter", true);
+                        break;
+                    }
+                }
+            }
+        };
+        event.getCustomItemBuilder().addComponent(component);
     }
 
 
@@ -192,13 +232,14 @@ public class EventListener implements Listener {
 
     @EventHandler
     private void onBookSign(PlayerEditBookEvent event){
-        if(!event.isSigning()) return;
+        if(!event.isSigning()) {
+            return;
+        }
         Player player = event.getPlayer();
         if((!ItemUtil.getBoolean(player.getInventory().getItemInMainHand(), "la_poste_package")
                 && !ItemUtil.getBoolean(player.getInventory().getItemInMainHand(), "la_poste_letter"))
                 && !ItemUtil.getBoolean(player.getInventory().getItemInOffHand(), "la_poste_package")
                 && !ItemUtil.getBoolean(player.getInventory().getItemInOffHand(), "la_poste_letter")){
-            Bukkit.getLogger().info("Not package and not letter in mainhand AND not package and not letter in offhand");
             return;
         }
         LaPoste.validateRecipient(event, player, event.getPreviousBookMeta(), event.getNewBookMeta(), player.getLocation(), event.getSlot());

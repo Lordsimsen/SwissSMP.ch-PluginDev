@@ -9,7 +9,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
 
 public class CraftingRecipes {
 
@@ -113,14 +116,15 @@ public class CraftingRecipes {
             Bukkit.getLogger().info(LaPostePlugin.getPrefix() + " Paketrezept konnte nicht geladen werden");
             return;
         }
-        packageBuilder.setAmount(1);
+//        packageBuilder.setAmount(1);
         ItemStack paket = packageBuilder.build();
-        paket.setAmount(1);
-        ItemMeta paketMeta = paket.getItemMeta();
-        paketMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Paket");
-        paket.setItemMeta(paketMeta);
-        ItemUtil.setBoolean(paket, "la_poste_package", true);
-        ItemUtil.setInt(paket, "weight", 0);
+//        paket.setAmount(1);
+//        ItemMeta paketMeta = paket.getItemMeta();
+//        paketMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Paket");
+//        ((BookMeta) paketMeta).setPages(new ArrayList<String>());
+//        paket.setItemMeta(paketMeta);
+//        ItemUtil.setBoolean(paket, "la_poste_package", true);
+//        ItemUtil.setInt(paket, "weight", 0);
         ShapedRecipe packageRecipe = new ShapedRecipe(new NamespacedKey(LaPostePlugin.getInstance(), "la_post_package"), paket);
         packageRecipe.shape(
                 " s ",
@@ -139,13 +143,16 @@ public class CraftingRecipes {
             Bukkit.getLogger().info(LaPostePlugin.getPrefix() + " Briefrezept konnte nicht geladen werden");
             return;
         }
-        letterBuilder.setAmount(1);
+//        letterBuilder.setAmount(1);
         ItemStack letter = letterBuilder.build();
-        letter.setAmount(1);
-        ItemMeta letterMeta = letter.getItemMeta();
-        letterMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Brief");
-        letter.setItemMeta(letterMeta);
-        ItemUtil.setBoolean(letter, "la_poste_letter", true);
+//        letter.setAmount(1);
+//        ItemMeta letterMeta = letter.getItemMeta();
+//        letterMeta.setDisplayName(ChatColor.YELLOW + "LaPoste Brief");
+//        ArrayList<String> text = new ArrayList<>();
+//        text.add(" ");
+//        ((BookMeta) letterMeta).setPages(new ArrayList<String>());
+//        letter.setItemMeta(letterMeta);
+//        ItemUtil.setBoolean(letter, "la_poste_letter", true);
         ShapelessRecipe letterRecipe = new ShapelessRecipe(new NamespacedKey(LaPostePlugin.getInstance(), "la_poste_letter"), letter);
         letterRecipe.addIngredient(Material.INK_SAC);
         letterRecipe.addIngredient(Material.FEATHER);
