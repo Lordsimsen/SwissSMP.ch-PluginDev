@@ -62,9 +62,9 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    private void createFCustomItemBuilder(CreateCustomItemBuilderEvent event){
+    private void createCustomItemBuilder(CreateCustomItemBuilderEvent event){
         String customEnum = (String) event.getConfigurationSection().get("custom_enum");
-        if(!customEnum.equals("LA_POSTE_MAILBOX") && !customEnum.equals("LA_POSTE_PACKAGE") && !customEnum.equals("LA_POSTE_LETTER")) return;
+        if(!customEnum.equals("LA_POSTE_PACKAGE") && !customEnum.equals("LA_POSTE_LETTER")) return;
         CustomItemBuilderModifier component = new CustomItemBuilderModifier() {
             @Override
             public void apply(ItemStack itemStack) {
