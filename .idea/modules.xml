@@ -66,6 +66,7 @@
       <module fileurl="file://$PROJECT_DIR$/Monuments/Monuments.iml" filepath="$PROJECT_DIR$/Monuments/Monuments.iml" />
       <module fileurl="file://$PROJECT_DIR$/NPCs/NPCs.iml" filepath="$PROJECT_DIR$/NPCs/NPCs.iml" />
       <module fileurl="file://$PROJECT_DIR$/NetherPortalFixer/NetherPortalFixer.iml" filepath="$PROJECT_DIR$/NetherPortalFixer/NetherPortalFixer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NightSkipper/NightSkipper.iml" filepath="$PROJECT_DIR$/NightSkipper/NightSkipper.iml" />
       <module fileurl="file://$PROJECT_DIR$/Observatorium/Observatorium.iml" filepath="$PROJECT_DIR$/Observatorium/Observatorium.iml" />
       <module fileurl="file://$PROJECT_DIR$/ParticleSystemsAPI/ParticleSystemsAPI.iml" filepath="$PROJECT_DIR$/ParticleSystemsAPI/ParticleSystemsAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/PermissionManager/PermissionManager.iml" filepath="$PROJECT_DIR$/PermissionManager/PermissionManager.iml" />

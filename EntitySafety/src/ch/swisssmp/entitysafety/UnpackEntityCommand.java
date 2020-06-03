@@ -39,7 +39,6 @@ public class UnpackEntityCommand implements CommandExecutor {
             int z = Integer.parseInt(args[3]);
             location = new Location(world,x,y,z);
             valueString = args[4];
-            sender.sendMessage(EntitySafetyPlugin.getPrefix()+" Kann nur ingame verwendet werden. "+sender.getClass().getName());
         }
         else{
             return false;
