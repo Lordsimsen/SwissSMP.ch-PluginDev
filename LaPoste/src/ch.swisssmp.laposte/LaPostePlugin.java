@@ -12,9 +12,9 @@ public final class LaPostePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+        Bukkit.getPluginCommand("laposte").setExecutor(new LaPosteCommand());
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
         CraftingRecipes.registerCraftingRecipes();
-        Bukkit.getLogger().info(LaPostePlugin.getPrefix() + " LaPoste has been enabled");
     }
 
     @Override
