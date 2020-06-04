@@ -276,6 +276,10 @@ public class CityMapDisplay {
 	
 	public static Optional<CityMapDisplay> get(ItemStack itemStack) {
 		String displayUidString = ItemUtil.getString(itemStack, DisplayUidProperty);
+		if(displayUidString==null){
+			return Optional.empty();
+		}
+
 		UUID displayUid;
 		try {
 			displayUid = UUID.fromString(displayUidString);
