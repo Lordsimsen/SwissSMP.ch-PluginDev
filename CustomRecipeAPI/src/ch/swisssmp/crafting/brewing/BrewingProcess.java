@@ -103,6 +103,7 @@ public class BrewingProcess extends BukkitRunnable {
 
     private void finish(){
         super.cancel();
+        this.updateBrewingTimeForViewers(BASE_BREWING_TICKS);
     }
 
     protected static Optional<BrewingProcess> get(Inventory inventory){
