@@ -1,10 +1,12 @@
 package ch.swisssmp.zvierigame.game;
 
 import ch.swisssmp.utils.SwissSMPler;
+import ch.swisssmp.zvierigame.ZvieriArena;
 import ch.swisssmp.zvierigame.ZvieriGame;
 import ch.swisssmp.zvierigame.ZvieriGamePlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import ch.swisssmp.zvierigame.ZvieriSound;
+
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -13,10 +15,14 @@ import java.util.List;
 public class EndingPhase extends Phase{
 
     private final ZvieriGame game;
+    private final ZvieriArena arena;
+    private final World world;
 
     public EndingPhase(ZvieriGame game){
         super(game);
         this.game = game;
+        this.arena = game.getArena();
+        this.world = arena.getWorld();
     }
 
     @Override
@@ -36,9 +42,11 @@ public class EndingPhase extends Phase{
                 SwissSMPler.get(player).sendTitle(ChatColor.GREEN + "Fin de partie!", "Score: " + ChatColor.YELLOW + game.getScore());
             }, 1L);
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+            ZvieriGame.cleanseInventory(player.getInventory());
+            updateLevelUnlocks();
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg rm " + game.getArena().getArenaRegion() + " " + player.getName());
         }
         if (game.getArena().updateHighscore(game.getLevel().getLevelNumber(), game.getScore(), game.getParticipants())){
-            Bukkit.getLogger().info(game.getParticipants().size() + " Teilnehmer im finish");
             String players = "";
             List<Player> participants = game.getParticipants();
             if(participants.size() == 1) {
@@ -49,8 +57,31 @@ public class EndingPhase extends Phase{
                 }
                 players += " haben";
             }
-            Bukkit.getServer().broadcastMessage(players + " einen neuen Highscore in " +
-                    game.getGameName() + " aufgestellt: " + game.getScore() + " Smaragdmuenzen"); //TODO seperate-with-comma-method please
+            Bukkit.getServer().broadcastMessage(players + " einen neuen Highscore in " + ChatColor.DARK_PURPLE +
+                    game.getGameName() + ChatColor.RESET + " aufgestellt: " + ChatColor.YELLOW + game.getScore() + " Smaragdmuenzen");
+            playFinishSound(true);
+        } else{
+            playFinishSound(false);
+        }
+    }
+
+    private void playFinishSound(boolean highscore){
+        Location location = arena.getJukebox().getLocation();
+        if(highscore) {
+            world.playSound(location, ZvieriSound.HIGHSCORE, SoundCategory.RECORDS, 10f, 1f);
+            return;
+        }
+        if(game.getScore() >= game.getLevel().getThreshhold()) {
+            world.playSound(location, ZvieriSound.SUCCESS, SoundCategory.RECORDS, 10f, 1f);
+        } else{
+            world.playSound(location, ZvieriSound.FAILED, SoundCategory.RECORDS, 10f, 1f);
+        }
+    }
+
+    private void updateLevelUnlocks(){
+        int threshhold = game.getLevel().getThreshhold();
+        if(game.getScore() >= threshhold){
+            game.getArena().updateLevelUnlock(game.getParticipants(), game.getLevel());
         }
     }
 

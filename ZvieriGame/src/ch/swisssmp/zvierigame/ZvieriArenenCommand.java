@@ -24,7 +24,12 @@ public class ZvieriArenenCommand implements CommandExecutor{
 				showAll = false;
 				break;
 			}
-			default: p.sendMessage("Ungültige flag");
+			case "reload":{
+				ZvieriArenen.load(p.getWorld());
+				p.sendMessage(ZvieriGamePlugin.getPrefix() + " Reloading arenas");
+				return true;
+			}
+			default: p.sendMessage("Ungï¿½ltige flag");
 			}
 		}
 		ZvieriArenenEditor.open(p, showAll);

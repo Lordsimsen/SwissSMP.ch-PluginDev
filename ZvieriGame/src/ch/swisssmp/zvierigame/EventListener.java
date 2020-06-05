@@ -12,7 +12,7 @@ import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Lectern;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,23 +37,52 @@ public class EventListener implements Listener{
 	private void onPlayerResourepackUpdate(PlayerResourcePackUpdateEvent event) {
 		event.addComponent("zvieri");
 	}
-	
+
 	@EventHandler
 	private void onPlayerInteract(PlayerInteractEvent e) {
 		if(e.getItem() == null) {
 			return;
 		}
+		ItemStack itemStack = e.getItem();
 		if((e.getAction() != Action.RIGHT_CLICK_AIR) && (e.getAction() != Action.RIGHT_CLICK_BLOCK)) {
 			return;
 		}
 		if(!e.getPlayer().hasPermission("zvieriarena.admin")) {
 			return;
 		}
-		ZvieriArena arena = ZvieriArena.get(e.getItem());
+		ZvieriArena arena = ZvieriArena.get(itemStack);
+		if(arena != null){
+			arena.openEditor(e.getPlayer());
+			return;
+		}
+		//Storagechest procedure
+		String arena_id = ItemUtil.getString(itemStack, "link_zvieriarena");
+		if(arena_id == null) {
+			return;
+		}
+		arena = ZvieriArena.get(UUID.fromString(arena_id));
 		if(arena == null) {
 			return;
 		}
-		arena.openEditor(e.getPlayer());
+		if(ItemUtil.getString(itemStack, "zvieritool").equalsIgnoreCase("chest")) {
+			if(!(e.getClickedBlock().getState() instanceof Chest)) return;
+			arena.setStorage(e.getClickedBlock());
+			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Lagerkiste  zugewiesen");
+			e.setCancelled(true);
+			itemStack.setAmount(0);
+		} else if(ItemUtil.getString(itemStack, "zvieritool").equalsIgnoreCase("lectern")){
+			if(!(e.getClickedBlock().getState() instanceof Lectern)) return;
+			arena.setLectern(e.getClickedBlock());
+			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Highscores-Lesepult  zugewiesen");
+			e.setCancelled(true);
+			itemStack.setAmount(0);
+		} else if(ItemUtil.getString(itemStack, "zvieritool").equalsIgnoreCase("jukebox")){
+			if(!e.getClickedBlock().getType().equals(Material.JUKEBOX)) return;
+			arena.setJukebox(e.getClickedBlock());
+			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Jukebox  zugewiesen");
+			e.setCancelled(true);
+			itemStack.setAmount(0);
+		}
 	}
 	
 	@EventHandler
@@ -139,21 +168,31 @@ public class EventListener implements Listener{
 		if(event.getView().getType() != InventoryType.LECTERN) return;
 		LecternInventory lecternInventory = (LecternInventory) event.getInventory();
 		ItemStack itemStack = lecternInventory.getItem(0);
-		if(itemStack == null || itemStack.getType() != Material.WRITTEN_BOOK) return;
-		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())){
-			BlockState lectern = arena.getLectern();
-			Inventory inventory = ((InventoryHolder) lectern).getInventory();
-			if(!inventory.equals(lecternInventory)) return;
-			arena.getHighscore(itemStack);
+		ZvieriArena zvieriArena = null;
+		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())) {
+			Lectern lectern = arena.getLectern();
+			if(lectern == null) continue;
+			if (!lectern.getLocation().equals(event.getInventory().getLocation())) continue;
+			zvieriArena = arena;
 		}
+		if(zvieriArena == null) return;
+		if(itemStack == null || itemStack.getType() != Material.WRITTEN_BOOK){
+			itemStack = new ItemStack(Material.WRITTEN_BOOK);
+		}
+		zvieriArena.getHighscoreBook(itemStack);
+		lecternInventory.setItem(0, itemStack);
 	}
 
 	@EventHandler
 	private void onBookStealAttempt(PlayerTakeLecternBookEvent event){ //could this be done with worldguard?
+		Bukkit.getLogger().info("BookStealAttempt detected");
 		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())){
-			if((Lectern) arena.getLectern() != event.getLectern()) continue;
+			Bukkit.getLogger().info("Arena: " + arena.getName());
+			Bukkit.getLogger().info("Lectern: " + arena.getLectern());
+			Bukkit.getLogger().info("Event lectern: " + event.getLectern());
+			if(!arena.getLectern().equals(event.getLectern())) continue;
 			Bukkit.getLogger().info("Lectern found");
-			if(event.getPlayer().hasPermission("zvierigame.admin")) return;
+//			if(event.getPlayer().hasPermission("zvierigame.admin")) return;
 			event.setCancelled(true);
 		}
 	}
@@ -180,10 +219,10 @@ public class EventListener implements Listener{
 		event.setLine(0, "§4[Highscore Lvl " + level + "]");
 
 		Bukkit.getLogger().info("Getting highscore");
-		event.setLine(1, arena.getHighscore(level) + "");
+		event.setLine(1, arena.getPlayerData().getHighscoreScore(level) + "");
 
 		Bukkit.getLogger().info("Getting players");
-		List<String> players = arena.getHighscorePlayers(level);
+		List<String> players = arena.getPlayerData().getHighscorePlayers(level);
 		Bukkit.getLogger().info(players.toString());
 		switch(players.size()){
 			case 1: {

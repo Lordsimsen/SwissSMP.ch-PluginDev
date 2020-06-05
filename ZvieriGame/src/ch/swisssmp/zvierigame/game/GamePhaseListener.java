@@ -1,5 +1,6 @@
 package ch.swisssmp.zvierigame.game;
 
+import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
 import ch.swisssmp.utils.ItemUtil;
@@ -7,8 +8,10 @@ import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvierigame.ZvieriArena;
 import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
+import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -27,14 +30,12 @@ public class GamePhaseListener implements Listener {
 
     private final GamePhase gamePhase;
     private final ZvieriArena arena;
-    private final ItemStack[] ingredients;
 
     private List<Player> participants;
 
     public GamePhaseListener(GamePhase gamePhase){
         this.gamePhase = gamePhase;
         arena = gamePhase.getArena();
-        ingredients = gamePhase.getLevel().getIngredients();
         participants = gamePhase.getGame().getParticipants();
     }
 
@@ -47,22 +48,71 @@ public class GamePhaseListener implements Listener {
         if(event.getView() == null) return;
         if(event.getRecipe() == null) return;
         if(!gamePhase.getGame().getParticipants().contains(event.getView().getPlayer())) return;
-        CraftingInventory inventory = (CraftingInventory) event.getView();
+        CraftingInventory inventory = event.getInventory();
         ItemStack result = inventory.getResult();
         ItemUtil.setBoolean(result, "zvieriGameItem", true);
-        ((CraftingInventory) event.getView()).setResult(result);
+        (event.getInventory()).setResult(result);
     }
+
+//    @EventHandler
+//    private void onZvieriItemCook(FurnaceSmeltEvent event){
+//        if(arena == null) return;
+//        if(arena.getGame() == null) return;
+//        Block furnace = event.getBlock();
+//        World world = arena.getWorld();
+//        ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
+//        BlockVector3 min = region.getMinimumPoint();
+//        BlockVector3 max = region.getMaximumPoint();
+//        for(int i = min.getBlockX(); i <= max.getBlockX(); i++){
+//            for(int j = min.getBlockY(); j <= max.getBlockY(); j++){
+//                for(int k = min.getBlockZ(); k <= max.getBlockZ(); k++){
+//                    Block block = arena.getWorld().getBlockAt(i, j, k);
+//                    if (block.equals(furnace)) {
+//                        ItemUtil.setBoolean(event.getResult(), "zvieriGameItem", true);
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    @EventHandler
+//    private void onZvieriItemBrew(BrewEvent event){
+//        if(arena == null) return;
+//        if(arena.getGame() == null) return;
+//        Block brewingStand = event.getBlock();
+//        World world = arena.getWorld();
+//        ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
+//        BlockVector3 min = region.getMinimumPoint();
+//        BlockVector3 max = region.getMaximumPoint();
+//        for(int i = min.getBlockX(); i <= max.getBlockX(); i++){
+//            for(int j = min.getBlockY(); j <= max.getBlockY(); j++){
+//                for(int k = min.getBlockZ(); k <= max.getBlockZ(); k++){
+//                    Block block = arena.getWorld().getBlockAt(i, j, k);
+//                    if (block.equals(brewingStand)) {
+//                        if(arena.getGame().getParticipants().contains((event.getContents().getViewers()))){
+//                            for(ItemStack item : event.getContents().getContents()){
+//                                ItemUtil.setBoolean(item, "zvieriGameItem", true);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     @EventHandler
     private void onPlayerQuit(PlayerQuitEvent event){
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
         if(!arena.getGame().getParticipants().contains(event.getPlayer())) return;
         arena.getGame().getParticipants().remove(event.getPlayer());
         if(arena.getGame().getParticipants().size() == 0) arena.getGame().cancel();
     }
 
-
     @EventHandler (priority = EventPriority.HIGHEST)
     private void onNPCInteract(PlayerInteractNPCEvent event){
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
         if(event.getHand() != EquipmentSlot.HAND) {
             return;
         }
@@ -74,11 +124,10 @@ public class GamePhaseListener implements Listener {
         }
         if(npc.getIdentifier().equalsIgnoreCase("logistics")) {
             Player player = event.getPlayer();
-            RestockView.open(this.arena, this.gamePhase, this.ingredients, player);
+            RestockView.open(this.arena, this.gamePhase, player);
         }
         ConfigurationSection dishesSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("dishes");
         for(Counter counter : gamePhase.getCounters()) {
-
             if(!counter.isOccupied()) continue;
             if(!counter.getClient().getNPCInstance().getIdentifier().equalsIgnoreCase(event.getNPC().getIdentifier())) continue;
             Client client = counter.getClient();
@@ -88,16 +137,19 @@ public class GamePhaseListener implements Listener {
             if(order == null) continue;
             ItemStack mainHand = event.getPlayer().getInventory().getItemInMainHand();
             if(mainHand == null) continue;
-            if (!order.isSimilar(mainHand)) continue;
+            if (!order.isSimilar(mainHand)) {
+                arena.getWorld().playSound(npc.getEntity().getLocation(), Sound.ENTITY_VILLAGER_NO, 5f, 5f);
+                continue;
+            }
             int tip = client.getTip();
-            ItemMeta orderMeta = order.getItemMeta();
-            String dishName = orderMeta.getDisplayName().substring(2);
-            int price = 0; // brauche custom enum durch "order"... oder muss durch alle keys in dishes und schauen ob name mit dishName übereinstimmt, dann price rausgeben.
+            String customEnum = CustomItems.getCustomEnum(order); //TODO t'es niqué
+            int price = 0;
             for(String key : dishesSection.getKeys(false)){
-                if(!dishesSection.getString(key + ".name").equalsIgnoreCase(dishName)) continue;
+                if(!key.equalsIgnoreCase(customEnum)) continue;
                 price = dishesSection.getInt(key + ".price");
                 break;
             }
+            arena.getWorld().playSound(npc.getEntity().getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 5f, 5f);
             gamePhase.addToScore(price + tip);
             SwissSMPler.get(event.getPlayer()).sendActionBar(price + "(" + ChatColor.YELLOW +"+" + tip + ChatColor.RESET + ") Smaragdmuenzen erhalten");
             counter.reset();
@@ -109,9 +161,20 @@ public class GamePhaseListener implements Listener {
 
     @EventHandler
     private void onItemPlace(BlockPlaceEvent event){
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
         if(participants.contains(event.getPlayer())) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    private void onArenaEnter(RegionEnterEvent event){
+        ZvieriArena arena = ZvieriArena.get(event.getRegion().getId());
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
+        SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED + "Du kannst während einem laufenden Spiel nicht in die Lokalität!");
+        event.setCancelled(true);
     }
 
     @EventHandler

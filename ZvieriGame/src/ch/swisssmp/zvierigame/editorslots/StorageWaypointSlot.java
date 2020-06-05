@@ -21,7 +21,8 @@ public class StorageWaypointSlot extends WaypointSlot{
 
 	@Override
 	protected void applyWaypoint(Position position) {
-		view.getArena().setStorage(position);
+//		view.getArena().setStorage(position);
+		return;
 	}
 
 	@Override
@@ -36,7 +37,8 @@ public class StorageWaypointSlot extends WaypointSlot{
 
 	@Override
 	protected Position getWaypoint() {
-		return view.getArena().getStorage(); //Only gets you the position of the first storages-entry currently
+//		return view.getArena().getStorage();
+		return null;
 	}
 
 	@Override

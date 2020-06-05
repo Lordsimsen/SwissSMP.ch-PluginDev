@@ -29,10 +29,12 @@ public class ZvieriArenaEditor extends CustomEditorView {
 		result.add(new KitchenWaypointSlot(this, 3));
 		result.add(new QueueWaypointSlot(this, 4));
 		result.add(new CounterWaypointSlot(this, 5));
-		result.add(new StorageWaypointSlot(this, 6));
-		result.add(new ArenaRegionSlot(this, 7, arena));
-		result.add(new LecternSlot(this, 8));
+		result.add(new StorageChestSlot(this, 6));
+		result.add(new LecternSlot(this, 7));
+		result.add(new JukeboxSlot(this, 8));
+		result.add(new EntryWaypointSlot(this, 9));
 		result.add(new CountersDeleteSlot(this, 14, this.arena));
+		result.add(new ArenaRegionSlot(this, 16, arena));
 		result.add(new ArenaDeleteSlot(this, 17, this.arena));
 		
 		return result;

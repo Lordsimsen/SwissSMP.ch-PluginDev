@@ -2,22 +2,26 @@ package ch.swisssmp.zvierigame.game;
 
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.npc.NPCInstance;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.zvierigame.ZvieriGame;
 import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,29 +33,7 @@ public class Level {
 
     protected long duration;
 
-    public final ItemStack[] allIngredients = new ItemStack[]{
-            new ItemStack(Material.CARROT),
-            new ItemStack(Material.SUGAR),
-            new ItemStack(Material.COCOA_BEANS),
-            new ItemStack(Material.PORKCHOP),
-            new ItemStack(Material.BEEF),
-            new ItemStack(Material.CHICKEN),
-            new ItemStack(Material.MILK_BUCKET),
-            new ItemStack(Material.HONEY_BOTTLE),
-            new ItemStack(Material.PUFFERFISH),
-            new ItemStack(Material.POTATO),
-            new ItemStack(Material.RABBIT_FOOT),
-            new ItemStack(Material.CREEPER_HEAD),
-            new ItemStack(Material.WHEAT),
-            new ItemStack(Material.SALMON),
-            new ItemStack(Material.KELP),
-            new ItemStack(Material.PUMPKIN),
-            new ItemStack(Material.SWEET_BERRIES),
-            new ItemStack(Material.BEETROOT),
-            new ItemStack(Material.COAL),
-            new ItemStack(Material.GLASS_BOTTLE)
-    };
-
+    public final HashMap<String, ItemStack> allIngredients = new HashMap<>();
 
     private final ItemStack[] allDishes = new ItemStack[]{
             (CustomItems.getCustomItemBuilder("HASH_BROWNS").build()), //0
@@ -59,29 +41,28 @@ public class Level {
             (CustomItems.getCustomItemBuilder("HONEY_MILK").build()),//2
             (CustomItems.getCustomItemBuilder("RICE_PUDDING").build()),
             (CustomItems.getCustomItemBuilder("SUSHI").build()), //4
-            new ItemStack(Material.RABBIT_STEW),
-            (CustomItems.getCustomItemBuilder("SCHNITZEL_FRIES").build()), //6
+            (CustomItems.getCustomItemBuilder("SCHNITZEL_FRIES").build()), //5
             (CustomItems.getCustomItemBuilder("VEGGIES_DELIGHT").build()),
 
-            (CustomItems.getCustomItemBuilder("SPAGHETTI_BOLOGNESE").build()), //8
+            (CustomItems.getCustomItemBuilder("SPAGHETTI_BOLOGNESE").build()), //7
             (CustomItems.getCustomItemBuilder("DAME_BLANCHE").build()),
 
-            (CustomItems.getCustomItemBuilder("ZURICH_GESCHNETZELTES").build()), //10
+            (CustomItems.getCustomItemBuilder("ZURICH_GESCHNETZELTES").build()), //9
             (CustomItems.getCustomItemBuilder("HOT_CHOCOLATE").build()),
-            (CustomItems.getCustomItemBuilder("PEKING_DUCK").build()), //12
+            (CustomItems.getCustomItemBuilder("PEKING_DUCK").build()), //11
             (CustomItems.getCustomItemBuilder("PIZZA_MARGHERITA").build()),
-            (CustomItems.getCustomItemBuilder("MARITIME_PLATTER").build()), //14
+            (CustomItems.getCustomItemBuilder("MARITIME_PLATTER").build()), //13
             (CustomItems.getCustomItemBuilder("CREEPER_SUCRE").build()),
-            (CustomItems.getCustomItemBuilder("LORDS_BLESSING").build())
+            (CustomItems.getCustomItemBuilder("LORDS_BLESSING").build()) //15
     };
 
-    private final ItemStack[] easyDishes = new ItemStack[]{allDishes[0], allDishes[1], allDishes[2], allDishes[3],
-                                                            allDishes[4], allDishes[5], allDishes[6], allDishes[7]};
-
-    private final ItemStack[] mediumDishes = new ItemStack[]{allDishes[8], allDishes[9], allDishes[10], allDishes[11],
-                                                            allDishes[12], allDishes[13], allDishes[14], allDishes[15]};
-
-    private final ItemStack[] hardDishes = new ItemStack[]{allDishes[16]};
+//    private final ItemStack[] easyDishes = new ItemStack[]{allDishes[0], allDishes[1], allDishes[2], allDishes[3],
+//                                                            allDishes[4], allDishes[6], allDishes[7], allDishes[5]};
+//
+//    private final ItemStack[] mediumDishes = new ItemStack[]{allDishes[8], allDishes[9], allDishes[10], allDishes[11],
+//                                                            allDishes[12], allDishes[13], allDishes[14], allDishes[15]};
+//
+//    private final ItemStack[] hardDishes = new ItemStack[]{allDishes[16]};
 
     public static HashMap<String, List<String>> recipes = new HashMap<String, List<String>>();
 
@@ -96,11 +77,13 @@ public class Level {
         recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + ChatColor.WHITE + dishes.getString(dishEnum + ".name"));
         recipeMeta.setLore(dishes.getStringList(dishEnum + ".recipe"));
         recipe.setItemMeta(recipeMeta);
+        ItemUtil.setBoolean(recipe, "zvieriGameItem", true);
         return recipe;
     }
 
     public Level(int level) {
         this.level = level;
+        initializeIngredients();
         setDuration();
     }
 
@@ -114,42 +97,42 @@ public class Level {
         ConfigurationSection levels = config.getConfigurationSection("levels");
         switch(level){
             case 1:{
-                ConfigurationSection level = config.getConfigurationSection("one");
+                ConfigurationSection level = levels.getConfigurationSection("level_" + getLevelNumber());
+                if(time >= duration*20) return null;
                 if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
                 if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
-                if(time>duration) return null;
             }
             case 2:{
-                ConfigurationSection level = config.getConfigurationSection("two");
+                ConfigurationSection level = levels.getConfigurationSection("level_" + getLevelNumber());
+                if(time >= duration*20) return null;
                 if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
                 if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
-                if(time>duration) return null;
             }
             case 3:{
-                ConfigurationSection level = config.getConfigurationSection("three");
+                ConfigurationSection level = levels.getConfigurationSection("level_" + getLevelNumber());
+                if(time >= duration*20) return null;
                 if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
                 if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
-                if(time>duration) return null;
             }
             case 4:{
-                ConfigurationSection level = config.getConfigurationSection("four");
+                ConfigurationSection level = levels.getConfigurationSection("level_" + getLevelNumber());
+                if(time >= duration*20) return null;
                 if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
                 if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
                 if(time>(240*20) && time%(10*20) == 0) return new Client(getNPC(location));
-                if(time>duration) return null;
             }
             case 5:{
-                ConfigurationSection level = config.getConfigurationSection("five");
+                ConfigurationSection level = levels.getConfigurationSection("level_" + getLevelNumber());
+                if(time >= duration*20) return null;
                 if(time==(level.getInt("firstclient")*20)) return new Client(getNPC(location));
                 if(time%(level.getInt("baseinterval")*20)==0) return new Client(getNPC(location));
                 if(time>(120*20) && time%(25*20) == 0) return new Client(getNPC(location));
                 if(time>(300*20) && time < (500*20) && time%(10*20) == 0) return new Client(getNPC(location));
                 if(time>(400*20) && time%(20*20) == 0) return new Client(getNPC(location));
-                if(time>duration) return null;
             }
             default: return null;
         }
@@ -315,34 +298,21 @@ public class Level {
                 return new ItemStack[]{getRecipe("MEAT_FEAST"), getRecipe("HONEY_MILK"), getRecipe("HASH_BROWNS")};
             }
             case 2: {
-                return new ItemStack[]{getRecipe("MEAT_FEAST"), getRecipe("HONEY_MILK"), getRecipe("HASH_BROWNS")
-                                ,getRecipe("RICE_PUDDING"), getRecipe("SUSHI"), getRecipe("RABBIT_STEW")};
+                return new ItemStack[]{getRecipe("HONEY_MILK"), getRecipe("HASH_BROWNS")
+                                ,getRecipe("RICE_PUDDING"), getRecipe("SUSHI")};
             }
             case 3: {
-                return new ItemStack[]{getRecipe("ZURICH_GESCHNETZELTES"), getRecipe("HOT_CHOCOLATE"),
+                return new ItemStack[]{getRecipe("SCHNITZEL_FRIES"), getRecipe("VEGGIES_DELIGHT"),
                                                     getRecipe("DAME_BLANCHE"), getRecipe("SPAGHETTI_BOLOGNESE")};
             }
             case 4: {
-                return new ItemStack[]{getRecipe("ZURICH_GESCHNETZELTES"), getRecipe("HOT_CHOCOLATE"),
-                                getRecipe("PEKING_DUCK"), getRecipe("PIZZA_MARGHERITA"), getRecipe("MARITIME_PLATTER"),
-                                getRecipe("CREEPER_SUCRE")};
+                return new ItemStack[]{getRecipe("VEGGIES_DELIGHT"), getRecipe("DAME_BLANCHE"),
+                        getRecipe("SPAGHETTI_BOLOGNESE"), getRecipe("ZURICH_GESCHNETZELTES"), getRecipe("HOT_CHOCOLATE")};
+
             }
             case 5: {
-                ItemStack[] allRecipes = new ItemStack[0];
-                return allRecipes;
-//                ItemStack[] allRecipes = new ItemStack[17];
-//                int i = 0;
-//                Configuration config = ZvieriGamePlugin.getInstance().getConfig();
-//                for(String key : config.getConfigurationSection("dishes").getKeys(false)){
-//                    ItemStack recipe = new ItemStack(Material.PAPER);
-//                    ItemMeta recipeMeta = recipe.getItemMeta();
-//                    recipeMeta.setDisplayName(ChatColor.AQUA + "Rezept fuer " + config.getString("dishes." + key + ".name"));
-//                    recipeMeta.setLore(config.getStringList("dishes." + key + ".recipe"));
-//                    recipe.setItemMeta(recipeMeta);
-//                    allRecipes[i] = recipe;
-//                    i++;
-//                }
-//                return allRecipes;
+                return new ItemStack[]{getRecipe("CREEPER_SUCRE"), getRecipe("LORDS_BLESSING"),
+                        getRecipe("PIZZA_MARGHERITA"), getRecipe("DAME_BLANCHE"), getRecipe("SCHNITZEL_FRIES")};
             }
             default: return null;
         }
@@ -354,24 +324,62 @@ public class Level {
     protected ItemStack getRandomDish(){
         switch(level) {
             case 1: {
-                int random = new Random().nextInt(easyDishes.length - 5);
-                return easyDishes[random];
+                List<ItemStack> dishes = new ArrayList<>();
+                dishes.add(allDishes[0]);
+                dishes.add(allDishes[1]);
+                dishes.add(allDishes[2]);
+                int random = new Random().nextInt(dishes.size());
+                ItemStack dish = dishes.get(random);
+                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
+                return dish;
             }
             case 2: {
-                int random = new Random().nextInt(easyDishes.length - 2);
-                return easyDishes[random];
+                List<ItemStack> dishes = new ArrayList<>();
+                dishes.add(allDishes[0]);
+                dishes.add(allDishes[2]);
+                dishes.add(allDishes[3]);
+                dishes.add(allDishes[4]);
+                int random = new Random().nextInt(dishes.size());
+                ItemStack dish = dishes.get(random);
+                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
+                return dish;
             }
             case 3: {
-                int random = new Random().nextInt(mediumDishes.length - 4);
-                return mediumDishes[random];
+                List<ItemStack> dishes = new ArrayList<>();
+                int random = new Random().nextInt(dishes.size());
+                dishes.add(allDishes[5]);
+                dishes.add(allDishes[6]);
+                dishes.add(allDishes[7]);
+                dishes.add(allDishes[8]);
+                ItemStack dish = dishes.get(random);
+                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
+                return dish;
             }
             case 4: {
-                int random = new Random().nextInt(mediumDishes.length - 2);
-                return mediumDishes[random+2];
+                List<ItemStack> dishes = new ArrayList<>();
+                int random = new Random().nextInt(dishes.size());
+                dishes.add(allDishes[6]);
+                dishes.add(allDishes[7]);
+                dishes.add(allDishes[8]);
+                dishes.add(allDishes[9]);
+                dishes.add(allDishes[10]);
+                ItemStack dish = dishes.get(random);
+                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
+                return dish;
             }
             case 5: {
-                int random = new Random().nextInt(allDishes.length);
-                return allDishes[random];
+                List<ItemStack> dishes = new ArrayList<>();
+                int random = new Random().nextInt(dishes.size());
+                dishes.add(allDishes[5]);
+                dishes.add(allDishes[8]);
+                dishes.add(allDishes[12]);
+                dishes.add(allDishes[14]);
+                dishes.add(allDishes[15]);
+                ItemStack dish = dishes.get(random);
+                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
+                return dish;
+//                int random = new Random().nextInt(allDishes.length);
+//                return allDishes[random];
             }
         }
         return null;
@@ -380,63 +388,50 @@ public class Level {
     private void setDuration() {
         Configuration config = ZvieriGamePlugin.getInstance().getConfig();
         ConfigurationSection levels = config.getConfigurationSection("levels");
-        switch (level) {
-            case 1: {
-                duration = levels.getInt("one.duration");
-                break;
-            }
-            case 2: {
-                duration = levels.getInt("two.duration");
-                break;
-            }
-            case 3: {
-                duration = levels.getInt("three.duration");
-                break;
-            }
-            case 4: {
-                duration = levels.getInt("four.duration");;
-                break;
-            }
-            case 5: {
-                duration = levels.getInt("five.duration");;
-                break;
-            }
-            default:
-                duration = 600;
-                break;
-        }
+        duration = levels.getInt("level_" + getLevelNumber() + ".duration");
+    }
+
+    private void initializeIngredients(){
+        allIngredients.put(Material.CARROT.toString(), new ItemStack(Material.CARROT));
+        allIngredients.put(Material.SUGAR.toString(), new ItemStack(Material.SUGAR));
+        allIngredients.put(Material.COCOA_BEANS.toString(), new ItemStack(Material.COCOA_BEANS));
+        allIngredients.put(Material.PORKCHOP.toString(), new ItemStack(Material.PORKCHOP));
+        allIngredients.put(Material.BEEF.toString(), new ItemStack(Material.BEEF));
+        allIngredients.put(Material.CHICKEN.toString(), new ItemStack(Material.CHICKEN));
+        allIngredients.put("ZVIERI_MILK_BUCKET", CustomItems.getCustomItemBuilder("ZVIERI_MILK").build());
+        allIngredients.put("ZVIERI_HONEY_BOTTLE", CustomItems.getCustomItemBuilder("ZVIERI_HONEY").build());
+        allIngredients.put(Material.PUFFERFISH.toString(), new ItemStack(Material.PUFFERFISH));
+        allIngredients.put(Material.POTION.toString(), new ItemStack(Material.POTATO));
+        allIngredients.put(Material.RABBIT_FOOT.toString(), new ItemStack(Material.RABBIT_FOOT));
+        allIngredients.put(Material.CREEPER_HEAD.toString(), new ItemStack(Material.CREEPER_HEAD));
+        allIngredients.put(Material.WHEAT.toString(), new ItemStack(Material.WHEAT));
+        allIngredients.put(Material.SALMON.toString(), new ItemStack(Material.SALMON));
+        allIngredients.put(Material.KELP.toString(), new ItemStack(Material.KELP));
+        allIngredients.put(Material.PUMPKIN.toString(), new ItemStack(Material.PUMPKIN));
+        allIngredients.put(Material.SWEET_BERRIES.toString(), new ItemStack(Material.SWEET_BERRIES));
+        allIngredients.put(Material.BEETROOT.toString(), new ItemStack(Material.BEETROOT));
+        allIngredients.put(Material.COAL.toString(), new ItemStack(Material.COAL));
+        allIngredients.put(Material.GLASS_BOTTLE.toString(), new ItemStack(Material.GLASS_BOTTLE));
+        allIngredients.put("ZVIERI_WATER_BUCKET", CustomItems.getCustomItemBuilder("ZVIERI_WATER").build());
     }
 
     public String getName(){
         Configuration config = ZvieriGamePlugin.getInstance().getConfig();
         ConfigurationSection levels = config.getConfigurationSection("levels");
-        switch (level) {
-            case 1: {
-                return levels.getString("one.name");
-            }
-            case 2: {
-                return levels.getString("two.name");
-            }
-            case 3: {
-                return levels.getString("three.name");
-            }
-            case 4: {
-                return levels.getString("four.name");
-            }
-            case 5: {
-                return levels.getString("five.name");
-            }
-            default:{
-                return "Secret";
-            }
-        }
+        return levels.getString("level_" + getLevelNumber() + ".name");
+    }
+
+    public int getThreshhold(){
+        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        ConfigurationSection levels = config.getConfigurationSection("levels");
+        return levels.getInt("level_" + getLevelNumber() + ".threshhold");
     }
 
     public int getLevelNumber(){
         return level;
     }
 
-    protected ItemStack[] getIngredients() {
+    protected HashMap<String,ItemStack> getIngredients() {
         return allIngredients;
     }
 }

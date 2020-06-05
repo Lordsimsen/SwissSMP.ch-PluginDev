@@ -15,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Furnace;
+import org.bukkit.block.Smoker;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -154,6 +155,11 @@ public class ZvieriGame implements Runnable{
         finish();
     }
 
+    /*
+    Removes all items lying around inside the arena (Could be abused if someone throws something outside the boundingBox)
+    which are tagged with "zvieriGameItem" or are empty buckets/bottles as they will be obtained during crafting
+    but can't properly be tagged (I think).
+     */
     public void clearArena(){
         World world = arena.getWorld();
         ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
@@ -163,7 +169,7 @@ public class ZvieriGame implements Runnable{
         for(Entity entity : arena.getWorld().getNearbyEntities(arenaBox)){
             if(!(entity instanceof Item)) continue;
             ItemStack item = ((Item) entity).getItemStack();
-            if(ItemUtil.getBoolean(item, "zvieriGameItem")) entity.remove();
+            if(ItemUtil.getBoolean(item, "zvieriGameItem") || item.getType() == Material.BUCKET || item.getType() == Material.GLASS_BOTTLE) entity.remove();
         }
         for(int i = min.getBlockX(); i <= max.getBlockX(); i++){
             for(int j = min.getBlockY(); j <= max.getBlockY(); j++){
@@ -174,18 +180,31 @@ public class ZvieriGame implements Runnable{
                     }
                     if(block.getType() == Material.BREWING_STAND){
                         ((BrewingStand) block.getState()).getInventory().clear();
+                        ((BrewingStand) block.getState()).setFuelLevel(0);
+                    }
+                    if(block.getType() == Material.SMOKER){
+                        ((Smoker) block.getState()).getInventory().clear();
                     }
                 }
             }
         }
     }
 
+    /*
+    Cleanses a players inventory from all items tagged with "zvieriGameItem" as well as all empty buckets and bottles,
+    because they will be obtained during crafting dishes, but can't easily be tagged (I think).
+     */
     public static void cleanseInventory(PlayerInventory inventory){
         for(int i = 0; i < inventory.getContents().length; i++){
-            if(ItemUtil.getBoolean(inventory.getContents()[i], "zvieriGameItem")){
-                inventory.remove(inventory.getContents()[i]);
+            ItemStack item = inventory.getContents()[i];
+            if(item == null || item.getType() == Material.AIR) continue;
+            if(ItemUtil.getBoolean(item, "zvieriGameItem") || item.getType() == Material.BUCKET || item.getType() == Material.GLASS_BOTTLE){
+                inventory.remove(item);
             }
         }
+        ItemStack helmet = inventory.getHelmet();
+        if(helmet == null || helmet.getType() == Material.AIR) return;
+        if(ItemUtil.getBoolean(helmet, "zvieriGameItem")) inventory.setHelmet(new ItemStack(Material.AIR));
     }
 
     private void complete(){

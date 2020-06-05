@@ -3,10 +3,13 @@ package ch.swisssmp.zvierigame;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
+import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvierigame.game.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -66,6 +69,10 @@ public class LevelSelectionView implements Listener {
         if (itemStack == null || itemStack.getType() == Material.AIR) return;
         if(!this.arena.isGamePreparing()) {
             Level level = new Level(event.getSlot() + 1);
+            if(!arena.canPlayLevel(level, player)) { // && !player.hasPermission("zvierigame.admin")
+                SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Du hast dieses Level noch nicht freigeschaltet!");
+                return;
+            }
             this.arena.prepareGame(level);
             this.arena.getGame().join((Player) event.getWhoClicked());
             player.closeInventory();
@@ -100,7 +107,7 @@ public class LevelSelectionView implements Listener {
         for(int i = 0; i < itemStack.length; i++){
 //            itemStack[i-1] = CustomItems.getCustomItemBuilder("ZVIERI_LEVEL_"+i).build(); // check enum once items exist
             CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("ZVIERI_ARENA");
-            itemBuilder.setDisplayName("Level " + (i+1));
+            itemBuilder.setDisplayName(ChatColor.YELLOW + "Level " + (i+1));
             itemBuilder.setLore(getDescription(i+1));
             ItemStack result = itemBuilder.build();
             ItemUtil.setString(result, "zvieriarena", arena.getId().toString());
@@ -110,33 +117,12 @@ public class LevelSelectionView implements Listener {
     }
 
     private List<String> getDescription(int i){
+        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        ConfigurationSection levels = config.getConfigurationSection("levels");
         List<String> description = new ArrayList<String>();
-        switch (i) {
-            case 1: {
-                description.add("Apprentis");
-                break;
-            }
-            case 2: {
-                description.add("Commis de Cuisine");
-                break;
-            }
-            case 3: {
-                description.add("Chef de Partie");
-                break;
-            }
-            case 4: {
-                description.add("Sous Chef");
-                break;
-            }
-            case 5: {
-                description.add("Chef de cuisine");
-                break;
-            }
-            default: {
-                description.add("Secret?!");
-                break;
-            }
-        }
+        description.add(levels.getString("level_" + i + ".name"));
+        description.add(ChatColor.WHITE + "Score um nächsten");
+        description.add(ChatColor.WHITE + "Level freizuschalten: " + ChatColor.AQUA + levels.getInt("level_" + i + ".threshhold"));
         return description;
     }
 

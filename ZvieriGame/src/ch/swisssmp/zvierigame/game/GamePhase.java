@@ -7,19 +7,26 @@ import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvierigame.ZvieriArena;
 import ch.swisssmp.zvierigame.ZvieriGame;
 import ch.swisssmp.zvierigame.ZvieriGamePlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.block.Chest;
+import ch.swisssmp.zvierigame.ZvieriSound;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.*;
+import org.bukkit.block.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
+import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? Ausführungsgeschwindigkeit bei bukkitrunnable 20/sekunde?
 
@@ -29,9 +36,8 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 
 	private long time = 0L;
 	private int score;
-	private double difficulty;
 	private Chest storageChest;
-	private ItemStack[] ingredients;
+	private HashMap<String,ItemStack> ingredients;
 	private ArrayList<Client> inQueue;
 	private ArrayList<Counter> counters;
 	private ScoreboardManager scoreBoardManager;
@@ -72,26 +78,72 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		for (Player player : game.getParticipants()) {
 			player.teleport(arena.getKitchen().getLocation(player.getWorld()));
 			player.sendTitle("",ChatColor.GREEN + "Au travail!", 5, 30, 5);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg am " + game.getArena().getArenaRegion() + " " + player.getName());
 		}
+		kickPlayersOutOfArena();
+		initializeBrewingStands();
 		this.objective = scoreboard.registerNewObjective("scoreboard", "dummy", ChatColor.YELLOW + "Saldo");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		score = 20;
 		displayScore();
+		playMusic();
+	}
+
+	private void playMusic(){
+		if(arena.getMusic() == null) return;
+		arena.getWorld().playSound(arena.getJukebox().getLocation(), arena.getMusic(), SoundCategory.RECORDS, 8f, 1f);
+	}
+
+	private void initializeBrewingStands(){
+		World world = arena.getWorld();
+		ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
+		BlockVector3 min = region.getMinimumPoint();
+		BlockVector3 max = region.getMaximumPoint();
+		for(int i = min.getBlockX(); i <= max.getBlockX(); i++){
+			for(int j = min.getBlockY(); j <= max.getBlockY(); j++){
+				for(int k = min.getBlockZ(); k <= max.getBlockZ(); k++){
+					Block block = arena.getWorld().getBlockAt(i, j, k);
+					if(block.getType() == Material.BREWING_STAND){
+						((BrewingStand) block.getState()).getInventory().clear();
+						((BrewingStand) block.getState()).setFuelLevel(20);
+					}
+				}
+			}
+		}
+	}
+
+	private void kickPlayersOutOfArena(){
+		ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(arena.getWorld())).getRegion(arena.getArenaRegion());
+		BlockVector3 min = region.getMinimumPoint();
+		BlockVector3 max = region.getMaximumPoint();
+		BoundingBox arenaBox = new BoundingBox(min.getX(),min.getY(),min.getZ(),max.getX(),max.getY(),max.getZ());
+		for(Entity entity : arena.getWorld().getNearbyEntities(arenaBox)){
+			if(!(entity instanceof Player)) continue;
+			Player player = (Player) entity;
+			if(game.getParticipants().contains(player)) continue;
+			player.teleport(arena.getEntry().getLocation(arena.getWorld()));
+		}
 	}
 
 	public void initializeStorage(){
-		//TODO can't access doublechest.. "über blockstate an inventoryholder ,dann zu doublechest casten" Didn't recognise it as doublechest I think.
 		storageChest.getBlockInventory().clear();
 		ConfigurationSection ingredientsSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("ingredients");
 
-		ItemStack[] result = new ItemStack[ingredients.length + level.getRecipes().length];
-		for(int i = 0; i < ingredients.length; i++){
-			result[i] = ingredients[i];
-			result[i].setAmount(ingredientsSection.getInt(ingredients[i].getType().toString() + ".initialAmount"));
-			ItemUtil.setBoolean(result[i], "zvieriGameItem", true);
+		ItemStack[] result = new ItemStack[ingredients.size() + level.getRecipes().length];
+		int j = 0;
+		for(String key : ingredients.keySet()){
+			result[j] = ingredients.get(key);
+			result[j].setAmount(ingredientsSection.getInt(key + ".initialAmount"));
+			ItemUtil.setBoolean(result[j], "zvieriGameItem", true);
+			j++;
 		}
-		for(int i = ingredients.length; i < ingredients.length + level.getRecipes().length; i++){
-			result[i] = level.getRecipes()[i-ingredients.length];
+//		for(int i = 0; i < ingredients.length; i++){
+//			result[i] = ingredients[i];
+//			result[i].setAmount(ingredientsSection.getInt(ingredients[i].getType().toString() + ".initialAmount"));
+//			ItemUtil.setBoolean(result[i], "zvieriGameItem", true);
+//		}
+		for(int i = ingredients.size(); i < ingredients.size() + level.getRecipes().length; i++){
+			result[i] = level.getRecipes()[i-ingredients.size()];
 			result[i].setAmount(1);
 		}
 		storageChest.getBlockInventory().setContents(result);
@@ -190,6 +242,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		for(Player p : game.getParticipants()) {
 			p.teleport(arena.getQueue().getLocation(p.getWorld()));
 			p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+			p.playSound(p.getLocation(), ZvieriSound.FAILED, SoundCategory.RECORDS, 1f, 1f);
 		}
 	}
 
@@ -208,6 +261,12 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		if(gamePhaseListener != null) {
 			HandlerList.unregisterAll(this.gamePhaseListener);
 			gamePhaseListener = null;
+		}
+		if(arena.getMusic() != null) {
+			for (Player player : arena.getWorld().getNearbyEntities(arena.getJukebox().getLocation(), 50, 50, 50)
+					.stream().filter(e -> e instanceof Player).map(e -> (Player) e).collect(Collectors.toList())) {
+				player.stopSound(arena.getMusic(), SoundCategory.RECORDS);
+			}
 		}
 	}
 

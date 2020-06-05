@@ -1,26 +1,36 @@
 levels:
-  one:
+  level_1:
     name: 'Apprentis'
-    duration: 300
+    unlocked: true
+    threshhold: 20
+    duration: 30
     firstclient: 10
     baseinterval: 20
-  two:
+  level_2:
     name: 'Commis de cuisine'
+    unlocked: false
+    threshhold: 250
     duration: 360
     firstclient: 10
     baseinterval: 20
-  three:
+  level_3:
     name: 'Chef de partie'
+    unlocked: false
+    threshhold: 350
     duration: 420
     firstclient: 10
     baseinterval: 15
-  four:
+  level_4:
     name: 'Sous Chef'
+    unlocked: false
+    threshhold: 400
     duration: 480
     firstclient: 5
     baseinterval: 15
-  five:
+  level_5:
     name: 'Chef de cuisine'
+    unlocked: false
+    threshhold: 500
     duration: 540
     firstclient: 5
     baseinterval: 15
@@ -66,7 +76,7 @@ dishes:
       - '1x Kartoffel'
   SCHNITZEL_FRIES:
     name: 'SchniPo'
-    price: 12
+    price: 16
     recipe:
       - '1x Gebratenes Schweinefleisch'
       - '1x Bratkartoffeln'
@@ -225,3 +235,7 @@ ingredients:
     initialAmount: 9
     buyAmount: 9
     price: 5
+  WATER_BUCKET:
+    initialAmount: 2
+    buyAmount: 2
+    price: 6
