@@ -97,12 +97,19 @@ public class RestockView implements Listener {
         inventory.setContents(itemStack);
     }
 
-    private void order(ItemStack ingredient){ // TODO adapt to hashmapping stuff
+    private void order(ItemStack ingredient){
+        HashMap<String,ItemStack> ingredients = gamePhase.getLevel().getIngredients();
+        Optional<String> ingredientIdQuery = ingredients.entrySet().stream()
+                .filter(e -> e.getValue().isSimilar(ingredient))
+                .map(Map.Entry::getKey).findAny();
+        if(!ingredientIdQuery.isPresent()) return;
+        String ingredientId = ingredientIdQuery.get();
+
         if(!gamePhase.isRestockAllowed()){
             SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Keine Bestellungen mehr möglich");
             return;
         }
-        int price = ingredientsSection.getInt(ingredient.getType().toString() + ".price");
+        int price = ingredientsSection.getInt(ingredientId + ".price");
         this.gamePhase.subtractFromScore(price);
         if(gamePhase.getScore() < 0){
             gamePhase.resetScore();
@@ -110,12 +117,12 @@ public class RestockView implements Listener {
             return;
         }
         gamePhase.displayScore();
-        ItemStack result = ingredient;
+        ItemStack result = ingredient.clone();
         ItemUtil.setBoolean(result, "zvieriGameItem", true);
         ItemMeta meta = result.getItemMeta();
         meta.setLore(new ArrayList<String>());
         result.setItemMeta(meta);
-        result.setAmount(ingredientsSection.getInt(result.getType().toString() + ".buyAmount"));
+        result.setAmount(ingredientsSection.getInt(ingredientId + ".buyAmount"));
 
         Inventory storage = this.arena.getStorageChest().getBlockInventory();
         Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {

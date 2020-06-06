@@ -184,16 +184,12 @@ public class EventListener implements Listener{
 	}
 
 	@EventHandler
-	private void onBookStealAttempt(PlayerTakeLecternBookEvent event){ //could this be done with worldguard?
-		Bukkit.getLogger().info("BookStealAttempt detected");
+	private void onBookStealAttempt(PlayerTakeLecternBookEvent event){
 		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())){
-			Bukkit.getLogger().info("Arena: " + arena.getName());
-			Bukkit.getLogger().info("Lectern: " + arena.getLectern());
-			Bukkit.getLogger().info("Event lectern: " + event.getLectern());
 			if(!arena.getLectern().equals(event.getLectern())) continue;
-			Bukkit.getLogger().info("Lectern found");
 //			if(event.getPlayer().hasPermission("zvierigame.admin")) return;
 			event.setCancelled(true);
+			return;
 		}
 	}
 
@@ -219,10 +215,10 @@ public class EventListener implements Listener{
 		event.setLine(0, "§4[Highscore Lvl " + level + "]");
 
 		Bukkit.getLogger().info("Getting highscore");
-		event.setLine(1, arena.getPlayerData().getHighscoreScore(level) + "");
+		event.setLine(1, arena.getPlayerDataContainer().getHighscoreScore(level) + "");
 
 		Bukkit.getLogger().info("Getting players");
-		List<String> players = arena.getPlayerData().getHighscorePlayers(level);
+		List<String> players = arena.getPlayerDataContainer().getHighscorePlayers(level);
 		Bukkit.getLogger().info(players.toString());
 		switch(players.size()){
 			case 1: {

@@ -33,7 +33,7 @@ public class Level {
 
     protected long duration;
 
-    public final HashMap<String, ItemStack> allIngredients = new HashMap<>();
+    private final HashMap<String, ItemStack> allIngredients = new HashMap<>();
 
     private final ItemStack[] allDishes = new ItemStack[]{
             (CustomItems.getCustomItemBuilder("HASH_BROWNS").build()), //0
@@ -398,10 +398,10 @@ public class Level {
         allIngredients.put(Material.PORKCHOP.toString(), new ItemStack(Material.PORKCHOP));
         allIngredients.put(Material.BEEF.toString(), new ItemStack(Material.BEEF));
         allIngredients.put(Material.CHICKEN.toString(), new ItemStack(Material.CHICKEN));
-        allIngredients.put("ZVIERI_MILK_BUCKET", CustomItems.getCustomItemBuilder("ZVIERI_MILK").build());
-        allIngredients.put("ZVIERI_HONEY_BOTTLE", CustomItems.getCustomItemBuilder("ZVIERI_HONEY").build());
+        allIngredients.put("ZVIERI_MILK_BUCKET", CustomItems.getCustomItemBuilder("ZVIERI_MILK_BUCKET").build());
+        allIngredients.put("ZVIERI_HONEY_BOTTLE", CustomItems.getCustomItemBuilder("ZVIERI_HONEY_BOTTLE").build());
         allIngredients.put(Material.PUFFERFISH.toString(), new ItemStack(Material.PUFFERFISH));
-        allIngredients.put(Material.POTION.toString(), new ItemStack(Material.POTATO));
+        allIngredients.put(Material.POTATO.toString(), new ItemStack(Material.POTATO));
         allIngredients.put(Material.RABBIT_FOOT.toString(), new ItemStack(Material.RABBIT_FOOT));
         allIngredients.put(Material.CREEPER_HEAD.toString(), new ItemStack(Material.CREEPER_HEAD));
         allIngredients.put(Material.WHEAT.toString(), new ItemStack(Material.WHEAT));
@@ -412,7 +412,7 @@ public class Level {
         allIngredients.put(Material.BEETROOT.toString(), new ItemStack(Material.BEETROOT));
         allIngredients.put(Material.COAL.toString(), new ItemStack(Material.COAL));
         allIngredients.put(Material.GLASS_BOTTLE.toString(), new ItemStack(Material.GLASS_BOTTLE));
-        allIngredients.put("ZVIERI_WATER_BUCKET", CustomItems.getCustomItemBuilder("ZVIERI_WATER").build());
+        allIngredients.put("ZVIERI_WATER_BUCKET", CustomItems.getCustomItemBuilder("ZVIERI_WATER_BUCKET").build());
     }
 
     public String getName(){

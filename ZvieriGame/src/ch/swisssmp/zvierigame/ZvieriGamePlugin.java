@@ -33,6 +33,7 @@ public class ZvieriGamePlugin extends JavaPlugin{
 		for (World world : Bukkit.getWorlds()) {
 			ZvieriArenen.load(world);
 		}
+		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 	
 	@Override
@@ -45,6 +46,7 @@ public class ZvieriGamePlugin extends JavaPlugin{
 			}
 		}
 		Bukkit.getScheduler().cancelTasks(this);
+		Bukkit.getLogger().info(getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
 	}
 	
 	public static String getPrefix() {

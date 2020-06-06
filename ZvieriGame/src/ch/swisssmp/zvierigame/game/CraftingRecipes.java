@@ -58,18 +58,18 @@ public class CraftingRecipes {
         hashBrownsIngredients.add(Material.BAKED_POTATO);
         registerCraftingRecipe("HASH_BROWNS", hashBrownsIngredients, null);
 
-        CustomItemBuilder hashBrownsBuilder = CustomItems.getCustomItemBuilder("HASH_BROWNS");
-        if(hashBrownsBuilder==null){
-            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-            return;
-        }
-        hashBrownsBuilder.setAmount(1);
-//        hashBrownsBuilder.setMaxStackSize(16);
-        ItemStack hashBrowns = hashBrownsBuilder.build();
-        ShapelessRecipe hashBrownsRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "hash_browns"), hashBrowns);
-        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
-        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
-        Bukkit.getServer().addRecipe(hashBrownsRecipe);
+//        CustomItemBuilder hashBrownsBuilder = CustomItems.getCustomItemBuilder("HASH_BROWNS");
+//        if(hashBrownsBuilder==null){
+//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
+//            return;
+//        }
+//        hashBrownsBuilder.setAmount(1);
+////        hashBrownsBuilder.setMaxStackSize(16);
+//        ItemStack hashBrowns = hashBrownsBuilder.build();
+//        ShapelessRecipe hashBrownsRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "hash_browns"), hashBrowns);
+//        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
+//        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
+//        Bukkit.getServer().addRecipe(hashBrownsRecipe);
 
         List<Material> meatFeastIngredients = new ArrayList<>();
         meatFeastIngredients.add(Material.COOKED_PORKCHOP);
@@ -91,10 +91,10 @@ public class CraftingRecipes {
 //        meatFeastRecipe.addIngredient(Material.COOKED_CHICKEN);
 //        Bukkit.getServer().addRecipe(meatFeastRecipe);
 
-        List<Material> honeyMilkIngredients = new ArrayList<>();
-        honeyMilkIngredients.add(Material.HONEY_BOTTLE);
-        honeyMilkIngredients.add(Material.MILK_BUCKET);
-        registerCraftingRecipe("HONEY_MILK", honeyMilkIngredients, null);
+        List<String> honeyMilkCustomIngredients = new ArrayList<>();
+        honeyMilkCustomIngredients.add("ZVIERI_HONEY_BOTTLE");
+        honeyMilkCustomIngredients.add("ZVIERI_MILK_BUCKET");
+        registerCraftingRecipe("HONEY_MILK", null, honeyMilkCustomIngredients);
 
 //        CustomItemBuilder honeyMilkBuilder = CustomItems.getCustomItemBuilder("HONEY_MILK");
 //        if(honeyMilkBuilder==null){
@@ -109,9 +109,10 @@ public class CraftingRecipes {
 //        Bukkit.getServer().addRecipe(honeyMilkRecipe);
 
         List<Material> ricePuddingIngredients = new ArrayList<>();
-        ricePuddingIngredients.add(Material.MILK_BUCKET);
         ricePuddingIngredients.add(Material.WHEAT);
-        registerCraftingRecipe("RICE_PUDDING", ricePuddingIngredients, null);
+        List<String> ricePuddingCustomIngredients = new ArrayList<>();
+        ricePuddingCustomIngredients.add("ZVIERI_MILK_BUCKET");
+        registerCraftingRecipe("RICE_PUDDING", ricePuddingIngredients, ricePuddingCustomIngredients);
 
 //        CustomItemBuilder ricePuddingBuilder = CustomItems.getCustomItemBuilder("RICE_PUDDING");
 //        if(ricePuddingBuilder==null){
@@ -230,10 +231,10 @@ public class CraftingRecipes {
 //        Bukkit.getServer().addRecipe(creeperSucreRecipe);
 
         List<Material> zurichGeschnetzeltesIngredients = new ArrayList<>();
-        zurichGeschnetzeltesIngredients.add(Material.MILK_BUCKET);
         zurichGeschnetzeltesIngredients.add(Material.COOKED_BEEF);
         List<String> zurichGeschnetzeltesCustomIngredients = new ArrayList<>();
         zurichGeschnetzeltesCustomIngredients.add("HASH_BROWNS");
+        zurichGeschnetzeltesCustomIngredients.add("ZVIERI_MILK_BUCKET");
         registerCraftingRecipe("ZURICH_GESCHNETZELTES", zurichGeschnetzeltesIngredients, zurichGeschnetzeltesCustomIngredients);
 
 //        CustomItemBuilder zurichGeschnetzeltesBuilder = CustomItems.getCustomItemBuilder("ZURICH_GESCHNETZELTES");
@@ -366,15 +367,16 @@ public class CraftingRecipes {
         }
         builder.setAmount(1);
         ItemStack item = builder.build();
+        ItemUtil.setBoolean(item, "zvieriGameItem", true);
         ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), customEnum.toLowerCase()), item);
-        if(!ingredients.isEmpty() || ingredients != null){
+        if(ingredients != null){
             for(Material ingredient : ingredients){
                 ItemStack ingredientStack = new ItemStack(ingredient);
                 ItemUtil.setBoolean(ingredientStack, "zvieriGameItem", true);
                 recipe.addIngredient(new RecipeChoice.ExactChoice(ingredientStack));
             }
         }
-        if(!customIngredientEnums.isEmpty() || customIngredientEnums != null){
+        if(customIngredientEnums != null){
             for(String customItemEnum : customIngredientEnums) {
                 ItemStack customIngredient = CustomItems.getCustomItemBuilder(customItemEnum).build();
                 ItemUtil.setBoolean(customIngredient, "zvieriGameItem", true);
@@ -385,7 +387,6 @@ public class CraftingRecipes {
     }
 
     public static void registerFurnaceRecipes(){
-        //Todo furnace recipe or smelting event? And how does one make them dependent on permission (given to participants)?
         registerFurnaceRecipe("red_sauce", CustomItems.getCustomItemBuilder("RED_SAUCE").build(), Material.BEETROOT, 0, 200);
         registerFurnaceRecipe("steamed_creeper_head", CustomItems.getCustomItemBuilder("STEAMED_CREEPER_HEAD").build(), Material.CREEPER_HEAD, 0, 600);
         registerFurnaceRecipe("steamed_pumpkin", CustomItems.getCustomItemBuilder("STEAMED_PUMPKIN").build(), Material.PUMPKIN, 0, 600);

@@ -30,7 +30,7 @@ levels:
   level_5:
     name: 'Chef de cuisine'
     unlocked: false
-    threshhold: 500
+    threshhold: 0
     duration: 540
     firstclient: 5
     baseinterval: 15
@@ -179,11 +179,11 @@ ingredients:
     initialAmount: 3
     buyAmount: 3
     price: 6
-  MILK_BUCKET:
+  ZVIERI_MILK_BUCKET:
     initialAmount: 3
     buyAmount: 3
     price: 6
-  HONEY_BOTTLE:
+  ZVIERI_HONEY_BOTTLE:
     initialAmount: 4
     buyAmount: 4
     price: 6
@@ -235,7 +235,7 @@ ingredients:
     initialAmount: 9
     buyAmount: 9
     price: 5
-  WATER_BUCKET:
+  ZVIERI_WATER_BUCKET:
     initialAmount: 2
     buyAmount: 2
     price: 6

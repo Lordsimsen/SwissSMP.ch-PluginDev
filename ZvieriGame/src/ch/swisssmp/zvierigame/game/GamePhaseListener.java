@@ -43,16 +43,17 @@ public class GamePhaseListener implements Listener {
     /*
     All items crafted by a participant are marked as zvieriGameItems and will be removed upon leaving/ending the game.
      */
-    @EventHandler
-    private void onZvieriItemCraft(PrepareItemCraftEvent event){
-        if(event.getView() == null) return;
-        if(event.getRecipe() == null) return;
-        if(!gamePhase.getGame().getParticipants().contains(event.getView().getPlayer())) return;
-        CraftingInventory inventory = event.getInventory();
-        ItemStack result = inventory.getResult();
-        ItemUtil.setBoolean(result, "zvieriGameItem", true);
-        (event.getInventory()).setResult(result);
-    }
+//    @EventHandler
+//    private void onZvieriItemCraft(PrepareItemCraftEvent event){
+//        if(event.getView() == null) return;
+//        if(event.getRecipe() == null) return;
+//        if(!gamePhase.getGame().getParticipants().contains(event.getView().getPlayer())) return;
+//        CraftingInventory inventory = event.getInventory();
+//        ItemStack result = inventory.getResult();
+//        if(result == null) return;
+//        ItemUtil.setBoolean(result, "zvieriGameItem", true);
+//        (event.getInventory()).setResult(result);
+//    }
 
 //    @EventHandler
 //    private void onZvieriItemCook(FurnaceSmeltEvent event){
