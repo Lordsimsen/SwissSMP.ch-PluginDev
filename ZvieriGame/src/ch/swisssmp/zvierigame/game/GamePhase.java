@@ -90,7 +90,10 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 	}
 
 	private void playMusic(){
-		if(arena.getMusic() == null) return;
+		if(arena.getMusic() == null || arena.getJukebox() == null) {
+			Bukkit.getLogger().info("Jukebox: " + arena.getJukebox());
+			return;
+		}
 		arena.getWorld().playSound(arena.getJukebox().getLocation(), arena.getMusic(), SoundCategory.RECORDS, 8f, 1f);
 	}
 
@@ -262,7 +265,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 			HandlerList.unregisterAll(this.gamePhaseListener);
 			gamePhaseListener = null;
 		}
-		if(arena.getMusic() != null) {
+		if(arena.getMusic() != null && arena.getJukebox() != null) {
 			for (Player player : arena.getWorld().getNearbyEntities(arena.getJukebox().getLocation(), 50, 50, 50)
 					.stream().filter(e -> e instanceof Player).map(e -> (Player) e).collect(Collectors.toList())) {
 				player.stopSound(arena.getMusic(), SoundCategory.RECORDS);

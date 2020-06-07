@@ -105,8 +105,7 @@ public class LevelSelectionView implements Listener {
     private void setItems(){
         ItemStack[] itemStack = new ItemStack[5];
         for(int i = 0; i < itemStack.length; i++){
-//            itemStack[i-1] = CustomItems.getCustomItemBuilder("ZVIERI_LEVEL_"+i).build(); // check enum once items exist
-            CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("ZVIERI_ARENA");
+            CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("ZVIERI_LEVEL_" + (i+1));
             itemBuilder.setDisplayName(ChatColor.YELLOW + "Level " + (i+1));
             itemBuilder.setLore(getDescription(i+1));
             ItemStack result = itemBuilder.build();

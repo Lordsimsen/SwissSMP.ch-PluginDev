@@ -45,7 +45,7 @@ public class ZvieriArena {
 	private Block jukebox;
 	private String arenaRegion;
 
-	private PlayerData playerData;
+	private PlayerDataContainer playerDataContainer;
 
 	private ZvieriGame game;
 	private boolean gameRunning;
@@ -83,7 +83,8 @@ public class ZvieriArena {
 			i++;
 			currentCounters++;
 		}
-		this.playerData = PlayerData.initialize(this);
+
+		this.playerDataContainer = PlayerDataContainer.initialize(this);
 	}
 	
 	public World getWorld() {
@@ -145,14 +146,14 @@ public class ZvieriArena {
 	}
 
 	public Jukebox getJukebox(){
-		if(this.jukebox instanceof Jukebox) {
-			return (Jukebox) jukebox;
+		if(jukebox.getState() instanceof Jukebox) {
+			return (Jukebox) jukebox.getState();
 		}
 		return null;
 	}
 
-	public PlayerData getPlayerData(){
-		return playerData;
+	public PlayerDataContainer getPlayerDataContainer(){
+		return playerDataContainer;
 	}
 
 	public boolean isGameRunning(){
@@ -208,8 +209,8 @@ public class ZvieriArena {
 		bookMeta.setAuthor("");
 		List<String> pages = new ArrayList<String>();
 		for(int i = 1; i <= 5; i++){
-			pages.add("Level " + i + ": " + playerData.getHighscoreScore(i) + "\n" + "\n" + "Spieler: " + "\n"
-					+ String.join(", ", playerData.getHighscorePlayers(i)));
+			pages.add("Level " + i + ": " + playerDataContainer.getHighscoreScore(i) + "\n" + "\n" + "Spieler: " + "\n"
+					+ String.join(", ", playerDataContainer.getHighscorePlayers(i)));
 		}
 		bookMeta.setPages(pages);
 		book.setItemMeta(bookMeta);
@@ -335,7 +336,7 @@ public class ZvieriArena {
 	}
 
 	public void setJukebox(Block jukebox){
-		this.jukebox = lectern;
+		this.jukebox = jukebox;
 		ZvieriArenen.save(world);
 	}
 	
@@ -438,6 +439,7 @@ public class ZvieriArena {
 					playerSection.set("player_" + i , participants.get(i-1).getDisplayName());
 				}
 				yamlConfiguration.save(dataFile);
+				playerDataContainer.reloadHighscores(level);
 				return true;
 			}
 			return false;
@@ -475,11 +477,13 @@ public class ZvieriArena {
 				}
 				unlockedLevelsSection.set("level_" + levelNumber, playersList);
 				yamlConfiguration.save(dataFile);
+				playerDataContainer.reloadUnlockedPlayers(levelNumber);
 				return;
 			} else {
 				List<String> playersList = players.stream().map(p -> p.getUniqueId().toString()).collect(Collectors.toList());
 				unlockedLevelsSection.set("level_" + levelNumber, playersList);
 				yamlConfiguration.save(dataFile);
+				playerDataContainer.reloadUnlockedPlayers(levelNumber);
 				return;
 			}
 		}
@@ -491,7 +495,7 @@ public class ZvieriArena {
 		org.bukkit.configuration.ConfigurationSection levels = config.getConfigurationSection("levels");
 		if(levels.getBoolean("level_" + levelNumber + ".unlocked")) return true;
 
-		List<String> playersList = playerData.getUnlockedPlayers(levelNumber);
+		List<String> playersList = playerDataContainer.getUnlockedPlayers(levelNumber);
 		if(!playersList.contains(player.getUniqueId().toString())) return false;
 		return true;
 	}
@@ -551,13 +555,13 @@ public class ZvieriArena {
 	}
 	
 	public boolean isSetupComplete() {
-		Bukkit.getLogger().info("Chest: " + storage);
 		return !(
 					this.entry == null ||
 					this.kitchen == null ||
 					this.queue == null ||
 					this.counters == null ||
 					this.storage == null ||
+					this.jukebox == null ||
 					this.arenaRegion == null);
 	}
 	
