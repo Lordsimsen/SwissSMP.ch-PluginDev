@@ -15,6 +15,12 @@ public class CameraStudioWorlds {
         return studioWorld;
     }
 
+    protected static void loadAll(){
+        for(World world : Bukkit.getWorlds()){
+            CameraStudioWorlds.load(world);
+        }
+    }
+
     protected static void unload(World world){
         CameraStudioWorld studioWorld = getWorld(world);
         if(studioWorld==null) return;
@@ -22,11 +28,31 @@ public class CameraStudioWorlds {
         worlds.remove(world);
     }
 
+    protected static void unloadAll(){
+        for(CameraStudioWorld world : worlds.values()){
+            world.unload();
+        }
+
+        worlds.clear();
+    }
+
+    public static Optional<CameraPathElement> getElement(UUID elementUid){
+
+        CameraPath cameraPath = CameraStudio.inst().getPath(elementUid).orElse(null);
+        if(cameraPath!=null){
+            return Optional.of(cameraPath);
+        }
+
+        CameraPathSequence sequence = CameraStudio.inst().getSequence(elementUid).orElse(null);
+        if(sequence!=null){
+            return Optional.of(sequence);
+        }
+
+        return Optional.empty();
+    }
+
     public static Optional<CameraPath> getPath(UUID pathUid){
-        Bukkit.getLogger().info("Trying to find the path "+pathUid);
-        Optional<CameraPath> result = worlds.values().stream().filter(w->w.hasPath(pathUid)).map(w->w.getPath(pathUid).orElse(null)).findAny();
-        Bukkit.getLogger().info(result.isPresent()?"Found it":"Not found");
-        return result;
+        return worlds.values().stream().filter(w->w.hasPath(pathUid)).map(w->w.getPath(pathUid).orElse(null)).findAny();
     }
 
     public static Collection<CameraPath> getAllPaths(){

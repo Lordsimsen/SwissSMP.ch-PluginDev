@@ -4,60 +4,95 @@ import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
+import ch.swisssmp.utils.URLEncoder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.md_5.bungee.api.chat.*;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
-public class CameraPathSequence {
+public class CameraPathSequence extends CameraPathElement {
 
-	public static final String UID_PROPERTY = "cameraStudioSequenceId";
-
-	private final UUID sequenceUid;
-	private final String name;
-	private final World world;
 	private final List<UUID> sequence;
-	private final HashMap<UUID,Integer> timings;
+	private final List<Integer> timings;
 
-	protected CameraPathSequence(UUID sequenceUid, World world, String name){
-		this(sequenceUid,world,name,new ArrayList<>(),new HashMap<>());
+	private ItemStack tourBookTemplate;
+
+	protected CameraPathSequence(CameraStudioWorld world, UUID sequenceUid, String name){
+		this(world, sequenceUid, name,new ArrayList<>(),new ArrayList<>(), null);
 	}
 
-	protected CameraPathSequence(UUID sequenceUid, World world, String name, List<UUID> sequence, HashMap<UUID,Integer> timings){
-		this.sequenceUid = sequenceUid;
-		this.name = name;
-		this.world = world;
+	protected CameraPathSequence(CameraStudioWorld world, UUID sequenceUid, String name, List<UUID> sequence, List<Integer> timings, ItemStack tourBook){
+		super(world, sequenceUid, name);
 		this.sequence = sequence;
 		this.timings = timings;
-	}
-	
-	public UUID getUniqueId(){
-		return this.sequenceUid;
-	}
-	
-	public String getName(){
-		return this.name;
+		this.tourBookTemplate = tourBook;
 	}
 
 	public List<UUID> getPathSequence(){return sequence;}
-	public HashMap<UUID,Integer> getTimings(){return timings;}
+	public List<Integer> getTimings(){return timings;}
 
+	public void setPathSequence(List<UUID> pathSequence, List<Integer> timings){
+		this.sequence.clear();
+		this.timings.clear();
+		this.sequence.addAll(pathSequence);
+		this.timings.addAll(timings);
+	}
+
+	@Override
 	public ItemStack getItemStack(){
 		CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(CameraStudioMaterial.PATH_SEQUENCE);
 		itemBuilder.setAmount(1);
-		itemBuilder.setDisplayName(ChatColor.AQUA+name);
+		itemBuilder.setDisplayName(ChatColor.AQUA+getName());
 		ItemStack itemStack = itemBuilder.build();
-		ItemUtil.setString(itemStack, UID_PROPERTY, sequenceUid.toString());
+		ItemUtil.setString(itemStack, UID_PROPERTY, getUniqueId().toString());
 		return itemStack;
 	}
 
+	public ItemStack getTourBookTemplate(){
+		return tourBookTemplate;
+	}
+
+	public void setTourBookTemplate(ItemStack itemStack){
+		tourBookTemplate = itemStack;
+	}
+
+	public ItemStack createTourBook(){
+		if(tourBookTemplate ==null) return null;
+		ItemStack tourBook = tourBookTemplate.clone();
+		BookMeta bookMeta = (BookMeta) tourBook.getItemMeta();
+		List<String> pageTexts = bookMeta.getPages();
+		List<BaseComponent[]> pages = new ArrayList<BaseComponent[]>();
+		for(String pageText : pageTexts){
+			List<BaseComponent> pageComponents = new ArrayList<>();
+			String[] parts = pageText.split(Pattern.quote("{start}"));
+			pageComponents.add(new TextComponent(parts[0]));
+			if(parts.length>1 || parts[0].length()<pageText.length()){
+				TextComponent startSequenceComponent = new TextComponent("["+(bookMeta.hasDisplayName() ? bookMeta.getDisplayName() : "Sequenz starten")+"]");
+				startSequenceComponent.setColor(net.md_5.bungee.api.ChatColor.DARK_GRAY);
+				startSequenceComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Klicke, um zu starten").create()));
+				startSequenceComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cam sequence "+getUniqueId()));
+				pageComponents.add(startSequenceComponent);
+				if(parts.length>1) pageComponents.add(new TextComponent(parts[1]));
+			}
+			BaseComponent[] componentsArray = new BaseComponent[pageComponents.size()];
+			pageComponents.toArray(componentsArray);
+			pages.add(componentsArray);
+		}
+		bookMeta.spigot().setPages(pages);
+		tourBook.setItemMeta(bookMeta);
+		return tourBook;
+	}
+
 	public boolean isSetupComplete(){
-		return !(name==null || name.isEmpty() || sequence.size()==0 || timings.size()<sequence.size());
+		return !(getName()==null || getName().isEmpty() || sequence.size()==0 || timings.size()<sequence.size());
 	}
 
 	public void run(Player player){
@@ -72,25 +107,31 @@ public class CameraPathSequence {
 
 	protected JsonObject save(){
 		JsonObject result = new JsonObject();
-		result.addProperty("sequence_uid", this.sequenceUid.toString());
-		result.addProperty("name", this.name);
+		result.addProperty("uid", this.getUniqueId().toString());
+		result.addProperty("name", this.getName());
 		JsonArray sequenceArray = new JsonArray();
 		for(UUID entryUid : sequence){
 			sequenceArray.add(entryUid.toString());
 		}
 		result.add("sequence", sequenceArray);
-		JsonObject timingsMap = new JsonObject();
-		for(Map.Entry<UUID,Integer> entry : timings.entrySet()){
-			timingsMap.addProperty(entry.getKey().toString(), entry.getValue());
+		JsonArray timingsMap = new JsonArray();
+		for(Integer entry : timings){
+			timingsMap.add(entry);
 		}
 		result.add("timings", timingsMap);
+		if(tourBookTemplate !=null) JsonUtil.set("tour_book", ItemUtil.serialize(tourBookTemplate), result);
 		return result;
 	}
+
+	@Override
+	public void remove() {
+		this.getWorld().remove(this);
+	}
 	
-	public static CameraPathSequence load(World world, JsonObject json){
+	public static CameraPathSequence load(CameraStudioWorld world, JsonObject json){
 		UUID sequenceUid;
 		try{
-			String sequenceUidString = json.get("sequence_uid").getAsString();
+			String sequenceUidString = json.get("uid").getAsString();
 			if(sequenceUidString==null) return null;
 			sequenceUid = UUID.fromString(sequenceUidString);
 		}
@@ -110,14 +151,15 @@ public class CameraPathSequence {
 			}
 		}
 
-		HashMap<UUID,Integer> timings = new HashMap<>();
+		List<Integer> timings = new ArrayList<>();
 		if(json.has("timings")){
-			for(Map.Entry<String,JsonElement> entry : json.getAsJsonObject("timings").entrySet()){
-				if(!entry.getValue().isJsonPrimitive()) continue;
-				timings.put(UUID.fromString(entry.getKey()), entry.getValue().getAsInt());
+			for(JsonElement element : json.getAsJsonArray("timings")){
+				if(!element.isJsonPrimitive()) continue;
+				timings.add(element.getAsInt());
 			}
 		}
 
-		return new CameraPathSequence(sequenceUid, world, name, sequence, timings);
+		ItemStack tourBook = json.has("tour_book") ? ItemUtil.deserialize(json.get("tour_book").getAsString()) : null;
+		return new CameraPathSequence(world, sequenceUid, name, sequence, timings, tourBook);
 	}
 }

@@ -21,7 +21,7 @@ public class CamCommand implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		final Player player = (sender instanceof Player) ? (Player) sender : null;
-		final String prefix = CameraStudioPlugin.getPrefix();
+		final String prefix = CameraStudioPlugin.getPrefix()+" ";
 		final CameraStudio cameraStudio = CameraStudio.inst();
 		if (args.length == 0) {
 			sender.sendMessage(
@@ -236,6 +236,7 @@ public class CamCommand implements CommandExecutor {
 				}
 				return true;
 			}
+			case "clear":
 			case "reset":{
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
@@ -257,6 +258,8 @@ public class CamCommand implements CommandExecutor {
 					return true;
 				}
 				CameraStudioPlugin.getInstance().reloadConfig();
+				CameraStudioWorlds.unloadAll();
+				CameraStudioWorlds.loadAll();
 				sender.sendMessage(prefix + ChatColor.YELLOW + "Konfiguration neu geladen!");
 				return true;
 			}
@@ -433,7 +436,7 @@ public class CamCommand implements CommandExecutor {
 				if (points.get(player.getUniqueId()) != null) {
 					List<Location> points = CamCommand.points.get(player.getUniqueId());
 					path.setPoints(points);
-					CameraStudioWorld.save(path.getWorld());
+					path.getWorld().save();
 					SwissSMPler.get(player).sendActionBar(prefix + ChatColor.BLUE + path.getName()
 							+ ChatColor.YELLOW + " gespeichert.");
 					return true;

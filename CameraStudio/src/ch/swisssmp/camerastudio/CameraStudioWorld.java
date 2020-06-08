@@ -25,26 +25,28 @@ public class CameraStudioWorld {
         this.sequences = new ArrayList<>();
     }
 
-    private CameraStudioWorld(World world, Collection<CameraPath> paths, Collection<CameraPathSequence> sequences){
-        this.world = world;
-        this.paths = paths;
-        this.sequences = sequences;
-    }
-
     public World getBukkitWorld(){
         return world;
     }
 
     public CameraPath createPath(String name){
-        CameraPath path = new CameraPath(UUID.randomUUID(), world, name);
+        CameraPath path = new CameraPath(this, UUID.randomUUID(), name);
         paths.add(path);
         return path;
     }
 
+    public void remove(CameraPath path){
+        this.paths.remove(path);
+    }
+
     public CameraPathSequence createSequence(String name){
-        CameraPathSequence sequence = new CameraPathSequence(UUID.randomUUID(), world, name);
+        CameraPathSequence sequence = new CameraPathSequence(this, UUID.randomUUID(), name);
         sequences.add(sequence);
         return sequence;
+    }
+
+    public void remove(CameraPathSequence sequence){
+        this.sequences.remove(sequence);
     }
 
     public boolean hasPath(UUID pathUid){
@@ -97,26 +99,24 @@ public class CameraStudioWorld {
     }
 
     protected static CameraStudioWorld load(World world){
+        CameraStudioWorld result = new CameraStudioWorld(world);
         File file = getStudioWorldFile(world);
         if(!file.exists()){
-            return new CameraStudioWorld(world);
+            return result;
         }
 
         JsonObject json = JsonUtil.parse(file);
         if(json==null){
-            return new CameraStudioWorld(world);
+            return result;
         }
-
-        Collection<CameraPath> paths = new ArrayList<>();
-        Collection<CameraPathSequence> sequences = new ArrayList<>();
 
         if(json.has("paths")){
             for(JsonElement element : json.getAsJsonArray("paths")){
                 if(!element.isJsonObject()) continue;
                 JsonObject pathSection = element.getAsJsonObject();
-                CameraPath path = CameraPath.load(world, pathSection);
+                CameraPath path = CameraPath.load(result, pathSection);
                 if(path==null) continue;
-                paths.add(path);
+                result.paths.add(path);
             }
         }
 
@@ -124,13 +124,13 @@ public class CameraStudioWorld {
             for(JsonElement element : json.getAsJsonArray("sequences")){
                 if(!element.isJsonObject()) continue;
                 JsonObject sequenceSection = element.getAsJsonObject();
-                CameraPathSequence sequence = CameraPathSequence.load(world, sequenceSection);
+                CameraPathSequence sequence = CameraPathSequence.load(result, sequenceSection);
                 if(sequence==null) continue;
-                sequences.add(sequence);
+                result.sequences.add(sequence);
             }
         }
 
-        return new CameraStudioWorld(world, paths, sequences);
+        return result;
     }
 
     public static CameraStudioWorld get(World world){

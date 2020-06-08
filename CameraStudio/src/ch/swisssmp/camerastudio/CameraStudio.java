@@ -54,11 +54,11 @@ public class CameraStudio {
     }
 
     public void travel(final Player player, CameraPath path, int time){
-        travel(player,path.getPoints(),time*20,null,null);
+        travel(player,path.getPoints(),time,null,null);
     }
 
     public void travel(final Player player ,CameraPath path, int time, Runnable callback){
-        travel(player,path.getPoints(),time*20,null,null,callback);
+        travel(player,path.getPoints(),time,null,null,callback);
     }
 
     public void travel(final Player player, List<Location> locations, int time, String FailMessage,
@@ -78,6 +78,7 @@ public class CameraStudio {
             player.teleport(start);
             loadChunkArea(player,start.getBlockX()>>4,start.getBlockZ()>>4,10);
             travelling.add(player.getUniqueId());
+            hidePlayer(player);
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 private int ticks = 0;
 
@@ -95,6 +96,7 @@ public class CameraStudio {
 
                         this.ticks += 1;
                     } else {
+                        unhidePlayer(player);
                         travelling.remove(player.getUniqueId());
                         if (CompletedMessage != null)
                             player.sendMessage(CompletedMessage);
@@ -108,6 +110,18 @@ public class CameraStudio {
         } catch (Exception e) {
             if (FailMessage != null)
                 player.sendMessage(FailMessage);
+        }
+    }
+
+    private void hidePlayer(Player player){
+        for(Player otherPlayer : Bukkit.getOnlinePlayers()){
+            otherPlayer.hidePlayer(CameraStudioPlugin.getInstance(), player);
+        }
+    }
+
+    private void unhidePlayer(Player player){
+        for(Player otherPlayer : Bukkit.getOnlinePlayers()){
+            otherPlayer.showPlayer(CameraStudioPlugin.getInstance(), player);
         }
     }
 

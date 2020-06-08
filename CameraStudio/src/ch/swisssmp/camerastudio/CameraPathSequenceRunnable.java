@@ -1,8 +1,11 @@
 package ch.swisssmp.camerastudio;
 
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +17,7 @@ public class CameraPathSequenceRunnable {
     private final Runnable callback;
 
     private final List<UUID> pathSequence;
-    private final HashMap<UUID,Integer> timings;
+    private final List<Integer> timings;
 
     private boolean finished;
 
@@ -37,18 +40,34 @@ public class CameraPathSequenceRunnable {
             return;
         }
         UUID elementUid = pathSequence.get(index);
-        CameraPath cameraPath = CameraStudio.inst().getPath(elementUid).orElse(null);
-        if(cameraPath!=null){
-            int duration = timings.get(cameraPath.getUniqueId());
-            CameraStudio.inst().travelSimple(player, cameraPath.getPoints(), duration*20, ()->runSequence(index+1));
-            return;
-        }
-        CameraPathSequence sequence = CameraStudio.inst().getSequence(elementUid).orElse(null);
-        if(sequence!=null){
-            sequence.run(player, ()->runSequence(index+1));
+        CameraPathElement element = CameraStudioWorlds.getElement(elementUid).orElse(null);
+        if(element!=null){
+            if(element instanceof CameraPath){
+                CameraPath path = (CameraPath) element;
+                CameraStudio.inst().travel(player, path, timings.get(index), ()->runSequence(index+1));
+                runCommands(path.getCommands());
+                return;
+            }
+            else if(element instanceof CameraPathSequence){
+                ((CameraPathSequence) element).run(player, ()->runSequence(index+1));
+            }
             return;
         }
         runSequence(index+1);
+    }
+
+    private void runCommands(Collection<String> commands){
+        CommandSender sender = Bukkit.getConsoleSender();
+        for(String c : commands){
+            String commandLine = c
+                    .replace("{player}", player.getName())
+                    .replace("{world}", sequence.getWorld().getBukkitWorld().getName());
+            try{
+                Bukkit.dispatchCommand(sender, commandLine);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     private void complete(){

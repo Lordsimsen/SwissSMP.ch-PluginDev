@@ -76,7 +76,7 @@ public class CameraPathsView extends CustomEditorView implements PaginatedView {
     }
 
     public static CameraPathsView open(Player player){
-        Collection<CameraPath> paths = CameraStudioWorlds.getAllPaths();
+        Collection<CameraPath> paths = CameraStudioWorld.get(player.getWorld()).getAllPaths();
         CameraPathsView view = new CameraPathsView(player, paths);
         view.open();
         return view;

@@ -4,6 +4,7 @@ import java.util.*;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.editor.Removable;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonArray;
@@ -14,36 +15,19 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
-public class CameraPath {
+public class CameraPath extends CameraPathElement {
 
-	public static final String UID_PROPERTY = "cameraStudioPathId";
-
-	private final World world;
-	private final UUID pathUid;
-	private final String name;
 	private final List<Location> points;
+	private final Collection<String> commands;
 
-	protected CameraPath(UUID pathUid, World world, String name){
-		this(pathUid, world, name, new ArrayList<>());
+	protected CameraPath(CameraStudioWorld world, UUID pathUid, String name){
+		this(world, pathUid, name, new ArrayList<>(), new ArrayList<>());
 	}
 
-	protected CameraPath(UUID pathUid, World world, String name, List<Location> points){
-		this.pathUid = pathUid;
-		this.world = world;
-		this.name = name;
+	protected CameraPath(CameraStudioWorld world, UUID pathUid, String name, List<Location> points, Collection<String> commands){
+		super(world, pathUid, name);
 		this.points = points;
-	}
-	
-	public UUID getUniqueId(){
-		return this.pathUid;
-	}
-
-	public World getWorld(){
-		return world;
-	}
-
-	public String getName(){
-		return this.name;
+		this.commands = commands;
 	}
 	
 	public List<Location> getPoints(){
@@ -55,23 +39,30 @@ public class CameraPath {
 		this.points.addAll(points);
 	}
 
+	public Collection<String> getCommands(){return this.commands;}
+
+	public void setCommands(Collection<String> commands){
+		this.commands.clear();
+		this.commands.addAll(commands);
+	}
+
+	@Override
 	public ItemStack getItemStack(){
 		CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(CameraStudioMaterial.PATH);
 		itemBuilder.setAmount(1);
-		itemBuilder.setDisplayName(ChatColor.AQUA+name);
+		itemBuilder.setDisplayName(ChatColor.AQUA+getName());
 		ItemStack itemStack = itemBuilder.build();
-		ItemUtil.setString(itemStack, UID_PROPERTY, pathUid.toString());
+		ItemUtil.setString(itemStack, UID_PROPERTY, getUniqueId().toString());
 		return itemStack;
 	}
 
 	public boolean isSetupComplete(){
-		return !(name==null || name.isEmpty() || points.size()==0);
+		return !(getName()==null || getName().isEmpty() || points.size()==0);
 	}
 
+	@Override
 	protected JsonObject save(){
-		JsonObject result = new JsonObject();
-		result.addProperty("path_uid", this.pathUid.toString());
-		result.addProperty("name", this.name);
+		JsonObject result = super.save();
 		JsonArray pointsArray = new JsonArray();
 		for(Location l : points){
 			JsonObject pointSection = new JsonObject();
@@ -82,8 +73,18 @@ public class CameraPath {
 			pointSection.addProperty("pitch", l.getPitch());
 			pointsArray.add(pointSection);
 		}
-		result.add("points", pointsArray);
+		if(pointsArray.size()>0) result.add("points", pointsArray);
+		JsonArray commandsArray = new JsonArray();
+		for(String c : commands){
+			commandsArray.add(c);
+		}
+		if(commandsArray.size()>0) result.add("commands", commandsArray);
 		return result;
+	}
+
+	@Override
+	public void remove() {
+		this.getWorld().remove(this);
 	}
 
 	public static Optional<CameraPath> get(UUID pathUid){
@@ -109,10 +110,10 @@ public class CameraPath {
 		return get(pathUid);
 	}
 
-	protected static CameraPath load(World world, JsonObject json){
+	protected static CameraPath load(CameraStudioWorld world, JsonObject json){
 		UUID pathUid;
 		try{
-			String pathUidString = JsonUtil.getString("path_uid", json);
+			String pathUidString = JsonUtil.getString("uid", json);
 			if(pathUidString==null){
 				return null;
 			}
@@ -127,12 +128,21 @@ public class CameraPath {
 			JsonArray pointsArray = json.getAsJsonArray("points");
 			for(JsonElement element : pointsArray){
 				if(!element.isJsonObject()) continue;
-				Location point = JsonUtil.getLocation(world, element.getAsJsonObject());
+				Location point = JsonUtil.getLocation(world.getBukkitWorld(), element.getAsJsonObject());
 				if(point==null) continue;
 				points.add(point);
 			}
 		}
 
-		return new CameraPath(pathUid, world, name, points);
+		Collection<String> commands = new ArrayList<>();
+		if(json.has("commands")){
+			JsonArray commandsArray = json.getAsJsonArray("commands");
+			for(JsonElement element : commandsArray){
+				if(!element.isJsonPrimitive()) continue;
+				commands.add(element.getAsString());
+			}
+		}
+
+		return new CameraPath(world, pathUid, name, points, commands);
 	}
 }

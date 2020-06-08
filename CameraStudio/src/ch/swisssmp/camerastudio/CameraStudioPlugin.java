@@ -39,14 +39,13 @@ public class CameraStudioPlugin extends JavaPlugin {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 
-		for(World world : Bukkit.getWorlds()){
-			CameraStudioWorlds.load(world);
-		}
+		CameraStudioWorlds.loadAll();
 
 		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 
 	public void onDisable() {
+		CameraStudioWorlds.unloadAll();
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);
 		Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");

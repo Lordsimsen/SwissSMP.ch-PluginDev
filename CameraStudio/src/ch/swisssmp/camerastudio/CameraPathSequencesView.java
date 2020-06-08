@@ -77,7 +77,7 @@ public class CameraPathSequencesView extends CustomEditorView implements Paginat
     }
 
     public static CameraPathSequencesView open(Player player){
-        Collection<CameraPathSequence> sequences = CameraStudioWorlds.getAllSequences();
+        Collection<CameraPathSequence> sequences = CameraStudioWorld.get(player.getWorld()).getAllPathSequences();
         CameraPathSequencesView view = new CameraPathSequencesView(player, sequences);
         view.open();
         return view;
