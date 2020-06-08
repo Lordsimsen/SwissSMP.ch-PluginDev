@@ -148,20 +148,25 @@ public class JsonUtil {
         json.add(key, locationData);
     }
 
-    public static Location getLocation(String key, World world, JsonObject json){
-        JsonElement locationElement = json.has(key) ? json.get(key) : null;
-        if(locationElement==null || !locationElement.isJsonObject()) return null;
-        JsonObject locationData = locationElement.getAsJsonObject();
-        double x = getDouble("x", locationData);
-        double y = getDouble("y", locationData);
-        double z = getDouble("z", locationData);
-        if(locationData.has("pitch") && locationData.has("yaw")){
-            float pitch = getFloat("pitch", locationData);
-            float yaw = getFloat("yaw", locationData);
+    public static Location getLocation(World world, JsonObject json){
+        if(json==null || !json.isJsonObject()) return null;
+        double x = getDouble("x", json);
+        double y = getDouble("y", json);
+        double z = getDouble("z", json);
+        if(json.has("pitch") && json.has("yaw")){
+            float pitch = getFloat("pitch", json);
+            float yaw = getFloat("yaw", json);
             return new Location(world, x, y, z, yaw, pitch);
         }
 
         return new Location(world, x, y, z);
+    }
+
+    public static Location getLocation(String key, World world, JsonObject json){
+        JsonElement locationElement = json.has(key) ? json.get(key) : null;
+        if(locationElement==null || !locationElement.isJsonObject()) return null;
+        JsonObject locationData = locationElement.getAsJsonObject();
+        return getLocation(world, locationData);
     }
 
     public static void set(String key, Location location, JsonObject json){
