@@ -22,7 +22,6 @@
 # Set if you want the points that the player has defined to be cleared when he 
 # logs out of the server.
 # ------------------------------------------------------------------------------
-show-join-message: false
 preview-time: 5
 maximum-points: 100
 allowed-gamemodes:

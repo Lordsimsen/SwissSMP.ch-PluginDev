@@ -13,7 +13,7 @@
       <module fileurl="file://$PROJECT_DIR$/AuctionHouse/AuctionHouse.iml" filepath="$PROJECT_DIR$/AuctionHouse/AuctionHouse.iml" />
       <module fileurl="file://$PROJECT_DIR$/BigDoors/BigDoors.iml" filepath="$PROJECT_DIR$/BigDoors/BigDoors.iml" />
       <module fileurl="file://$PROJECT_DIR$/BookAuthor/BookAuthor.iml" filepath="$PROJECT_DIR$/BookAuthor/BookAuthor.iml" />
-      <module fileurl="file://$PROJECT_DIR$/CamStudio/CamStudio.iml" filepath="$PROJECT_DIR$/CamStudio/CamStudio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CameraStudio/CameraStudio.iml" filepath="$PROJECT_DIR$/CameraStudio/CameraStudio.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChatLogger/ChatLogger.iml" filepath="$PROJECT_DIR$/ChatLogger/ChatLogger.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChatManager/ChatManager.iml" filepath="$PROJECT_DIR$/ChatManager/ChatManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChunkUpdater/ChunkUpdater.iml" filepath="$PROJECT_DIR$/ChunkUpdater/ChunkUpdater.iml" />

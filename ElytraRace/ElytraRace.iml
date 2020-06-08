@@ -27,6 +27,6 @@
     <orderEntry type="module" module-name="WaypointAPI" />
     <orderEntry type="module" module-name="WGRegionEvents" />
     <orderEntry type="module" module-name="WorldManager" />
-    <orderEntry type="module" module-name="CamStudio" />
+    <orderEntry type="module" module-name="CameraStudio" />
   </component>
 </module>

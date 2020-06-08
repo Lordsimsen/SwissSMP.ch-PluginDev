@@ -1,9 +1,9 @@
-name: CPCameraStudioReborn
-main: eu.crushedpixel.camerastudio.CameraStudio
+name: CameraStudio
+main: ch.swisssmp.camerastudio.CameraStudioPlugin
 authors: [CrushredPixel, chrismin13, detig_iii]
-version: 1.5
+version: 2.0
 api-version: 1.13
-depend: [CommandScheduler]
+depend: [SwissSMPUtils,CommandScheduler,WorldManager,CustomEditorAPI,CustomItems,ResourcepackManager]
 commands:
   cam:
     description: Hauptbefehl für CPCameraStudio
