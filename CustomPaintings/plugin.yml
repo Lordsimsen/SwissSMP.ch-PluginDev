@@ -1,0 +1,47 @@
+main: ch.swisssmp.custompaintings.CustomPaintingsPlugin
+version: 1.0
+api-version: 1.13
+name: CustomPaintings
+author: detig_iii
+description: Zusätzliche Gemälde
+depend: [SwissSMPUtils,CustomItems]
+permissions:
+  custompaintings.admin:
+    description: Ermöglicht Verwaltung des Plugins
+    default: op
+commands:
+  paintings:
+    description: Listet alle Gemälde auf
+    usage: "/<command>"
+    permission: custompaintings.admin
+  painting:
+    description: Basisbefehl
+    usage: "/<command> <subcommand>"
+    permission: custompaintings.admin
+
+  painting create:
+    description: Erzeugt ein Gemälde
+    usage:
+    - "/<command> <subcommand> [Id] [URL] [Breite] [Höhe]"
+    - "Id: lower_case_id - Identifiziert das Gemälde, muss eindeutig sein"
+    - "URL: https://www.domain.com/path/to/image.png - Quelle"
+    - "Breite: Zahl - Breite in Anzahl Blöcken"
+    - "Höhe: Zahl - Höhe in Anzahl Blöcken"
+    permission: custompaintings.admin
+  painting replace:
+    description: Ersetzt ein Gemälde
+    usage:
+      - "/<command> <subcommand> [Id] [URL]"
+      - "Id: lower_case_id - Identifiziert das Gemälde, muss eindeutig sein"
+      - "URL: https://www.domain.com/path/to/image.png - Quelle"
+    permission: custompaintings.admin
+  painting get:
+    description: Generiert ein Item für ein Gemälde
+    usage:
+      - "/<command> <subcommand> [Id]"
+    permission: custompaintings.admin
+  painting reload:
+    description: Lädt Gemälde neu
+    usage:
+      - "/<command> <subcommand>"
+    permission: custompaintings.admin

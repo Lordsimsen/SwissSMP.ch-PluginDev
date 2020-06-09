@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CustomPaintings:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="CustomPaintings.jar">
+      <element id="module-output" name="CustomPaintings" />
+      <element id="file-copy" path="$PROJECT_DIR$/CustomPaintings/plugin.yml" />
+    </root>
+  </artifact>
+</component>
