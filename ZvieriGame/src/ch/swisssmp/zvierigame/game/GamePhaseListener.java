@@ -10,8 +10,14 @@ import ch.swisssmp.zvierigame.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -19,10 +25,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
@@ -39,10 +44,6 @@ public class GamePhaseListener implements Listener {
         participants = gamePhase.getGame().getParticipants();
     }
 
-
-    /*
-    All items crafted by a participant are marked as zvieriGameItems and will be removed upon leaving/ending the game.
-     */
 //    @EventHandler
 //    private void onZvieriItemCraft(PrepareItemCraftEvent event){
 //        if(event.getView() == null) return;
@@ -55,26 +56,26 @@ public class GamePhaseListener implements Listener {
 //        (event.getInventory()).setResult(result);
 //    }
 
-//    @EventHandler
-//    private void onZvieriItemCook(FurnaceSmeltEvent event){
-//        if(arena == null) return;
-//        if(arena.getGame() == null) return;
-//        Block furnace = event.getBlock();
-//        World world = arena.getWorld();
-//        ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
-//        BlockVector3 min = region.getMinimumPoint();
-//        BlockVector3 max = region.getMaximumPoint();
-//        for(int i = min.getBlockX(); i <= max.getBlockX(); i++){
-//            for(int j = min.getBlockY(); j <= max.getBlockY(); j++){
-//                for(int k = min.getBlockZ(); k <= max.getBlockZ(); k++){
-//                    Block block = arena.getWorld().getBlockAt(i, j, k);
-//                    if (block.equals(furnace)) {
-//                        ItemUtil.setBoolean(event.getResult(), "zvieriGameItem", true);
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @EventHandler
+    private void onZvieriItemCook(FurnaceSmeltEvent event){
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
+        Block furnace = event.getBlock();
+        World world = arena.getWorld();
+        ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
+        BlockVector3 min = region.getMinimumPoint();
+        BlockVector3 max = region.getMaximumPoint();
+        for(int i = min.getBlockX(); i <= max.getBlockX(); i++){
+            for(int j = min.getBlockY(); j <= max.getBlockY(); j++){
+                for(int k = min.getBlockZ(); k <= max.getBlockZ(); k++){
+                    Block block = arena.getWorld().getBlockAt(i, j, k);
+                    if (block.equals(furnace)) {
+                        ItemUtil.setBoolean(event.getResult(), "zvieriGameItem", true);
+                    }
+                }
+            }
+        }
+    }
 
 //    @EventHandler
 //    private void onZvieriItemBrew(BrewEvent event){

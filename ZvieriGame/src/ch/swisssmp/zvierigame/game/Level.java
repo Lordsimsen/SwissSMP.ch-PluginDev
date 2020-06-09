@@ -392,6 +392,7 @@ public class Level {
     }
 
     private void initializeIngredients(){
+        allIngredients.put(Material.COCOA_BEANS.toString(), new ItemStack(Material.COCOA_BEANS));
         allIngredients.put(Material.CARROT.toString(), new ItemStack(Material.CARROT));
         allIngredients.put(Material.SUGAR.toString(), new ItemStack(Material.SUGAR));
         allIngredients.put(Material.COCOA_BEANS.toString(), new ItemStack(Material.COCOA_BEANS));

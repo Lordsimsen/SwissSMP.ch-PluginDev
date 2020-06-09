@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ZvieriArena {
 	
@@ -406,88 +405,104 @@ public class ZvieriArena {
 		}
 	}
 
-	public boolean updateHighscore(int level, int score, List<Player> participants) {
-		File dataFile = new File(world.getWorldFolder(), "plugindata/ZvieriGame/arenen.yml");
-		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(dataFile);
-		if (yamlConfiguration.contains("arenen")) {
-			ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
-			ConfigurationSection arenaSection = null;
-			for (String key : arenenSection.getKeys(false)) {
-				ConfigurationSection section = arenenSection.getConfigurationSection(key);
-				if (!UUID.fromString(section.getString("id")).equals(this.arena_id)) {
-					continue;
-				}
-				arenaSection = section;
-				break;
-			}
-			if (arenaSection == null) arenaSection = arenenSection.createSection("arena_" + arenenSection.getKeys(false).size());
-			if (!arenaSection.getKeys(false).contains("highscores")) {
-				arenaSection.createSection("highscores");
-			}
-			ConfigurationSection highscoreSection = arenaSection.getConfigurationSection("highscores");
-			if (!highscoreSection.getKeys(false).contains("level_" + level)) {
-				highscoreSection.createSection("level_" + level);
-			}
-			ConfigurationSection levelSection = highscoreSection.getConfigurationSection("level_" + level);
-			int highscore = levelSection.getInt("highscore");
-			if (score > highscore) {
-				highscore = score;
-				levelSection.set("highscore", highscore);
-				if(levelSection.getConfigurationSection("players") != null) levelSection.remove("players");
-				ConfigurationSection playerSection = levelSection.createSection("players");
-				for(int i = 1; i <= participants.size(); i++){
-					playerSection.set("player_" + i , participants.get(i-1).getDisplayName());
-				}
-				yamlConfiguration.save(dataFile);
-				playerDataContainer.reloadHighscores(level);
-				return true;
-			}
-			return false;
+	public boolean updateHighscore(int level, int score, List<Player> participants){
+		if(score > playerDataContainer.getHighscoreScore(level)) {
+			playerDataContainer.updateHighscore(level, score, participants);
+			return true;
 		}
 		return false;
 	}
 
-	public void updateLevelUnlock(List<Player> players, Level level){ //use stringlist
-		int levelNumber = level.getLevelNumber() + 1;
-		File dataFile = new File(world.getWorldFolder(), "plugindata/ZvieriGame/arenen.yml");
-		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(dataFile);
-		if (yamlConfiguration.contains("arenen")) {
-			ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
-			ConfigurationSection arenaSection = null;
-			for (String key : arenenSection.getKeys(false)) {
-				ConfigurationSection section = arenenSection.getConfigurationSection(key);
-				if (!UUID.fromString(section.getString("id")).equals(this.arena_id)) {
-					continue;
-				}
-				arenaSection = section;
-				break;
-			}
-			if(arenaSection == null) return;
-			ConfigurationSection unlockedLevelsSection;
-			if (arenaSection.getKeys(false).contains("unlockedLevels")) {
-				unlockedLevelsSection = arenaSection.getConfigurationSection("unlockedLevels");
-			} else {
-				unlockedLevelsSection = arenaSection.createSection("unlockedLevels");
-			}
-			if (unlockedLevelsSection.get("level_" + levelNumber) != null) {
-				List<String> playersList = unlockedLevelsSection.getStringList("level_" + levelNumber);
-				for(Player player : players){
-					String idString = player.getUniqueId().toString();
-					if(!playersList.contains(idString)) playersList.add(idString);
-				}
-				unlockedLevelsSection.set("level_" + levelNumber, playersList);
-				yamlConfiguration.save(dataFile);
-				playerDataContainer.reloadUnlockedPlayers(levelNumber);
-				return;
-			} else {
-				List<String> playersList = players.stream().map(p -> p.getUniqueId().toString()).collect(Collectors.toList());
-				unlockedLevelsSection.set("level_" + levelNumber, playersList);
-				yamlConfiguration.save(dataFile);
-				playerDataContainer.reloadUnlockedPlayers(levelNumber);
-				return;
-			}
+//	public boolean updateHighscore(int level, int score, List<Player> participants) {
+//		File dataFile = new File(world.getWorldFolder(), "plugindata/ZvieriGame/arenen.yml");
+//		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(dataFile);
+//		if (yamlConfiguration.contains("arenen")) {
+//			ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
+//			ConfigurationSection arenaSection = null;
+//			for (String key : arenenSection.getKeys(false)) {
+//				ConfigurationSection section = arenenSection.getConfigurationSection(key);
+//				if (!UUID.fromString(section.getString("id")).equals(this.arena_id)) {
+//					continue;
+//				}
+//				arenaSection = section;
+//				break;
+//			}
+//			if (arenaSection == null) arenaSection = arenenSection.createSection("arena_" + arenenSection.getKeys(false).size());
+//			if (!arenaSection.getKeys(false).contains("highscores")) {
+//				arenaSection.createSection("highscores");
+//			}
+//			ConfigurationSection highscoreSection = arenaSection.getConfigurationSection("highscores");
+//			if (!highscoreSection.getKeys(false).contains("level_" + level)) {
+//				highscoreSection.createSection("level_" + level);
+//			}
+//			ConfigurationSection levelSection = highscoreSection.getConfigurationSection("level_" + level);
+//			int highscore = levelSection.getInt("highscore");
+//			if (score > highscore) {
+//				highscore = score;
+//				levelSection.set("highscore", highscore);
+//				if(levelSection.getConfigurationSection("players") != null) levelSection.remove("players");
+//				ConfigurationSection playerSection = levelSection.createSection("players");
+//				for(int i = 1; i <= participants.size(); i++){
+//					playerSection.set("player_" + i , participants.get(i-1).getDisplayName());
+//				}
+//				yamlConfiguration.save(dataFile);
+//				playerDataContainer.reloadHighscore(level);
+//				return true;
+//			}
+//			return false;
+//		}
+//		return false;
+//	}
+
+	public void updateLevelUnlock(List<Player> players, Level level){
+		List<String> playerIds = new ArrayList<>();
+		for(Player player : players){
+			playerIds.add(player.getUniqueId().toString());
 		}
+		playerDataContainer.updateLevelUnlocks(level.getLevelNumber(), playerIds);
 	}
+
+//	public void updateLevelUnlock(List<Player> players, Level level){
+//		int levelNumber = level.getLevelNumber() + 1;
+//		File dataFile = new File(world.getWorldFolder(), "plugindata/ZvieriGame/arenen.yml");
+//		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(dataFile);
+//		if (yamlConfiguration.contains("arenen")) {
+//			ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
+//			ConfigurationSection arenaSection = null;
+//			for (String key : arenenSection.getKeys(false)) {
+//				ConfigurationSection section = arenenSection.getConfigurationSection(key);
+//				if (!UUID.fromString(section.getString("id")).equals(this.arena_id)) {
+//					continue;
+//				}
+//				arenaSection = section;
+//				break;
+//			}
+//			if(arenaSection == null) return;
+//			ConfigurationSection unlockedLevelsSection;
+//			if (arenaSection.getKeys(false).contains("unlockedLevels")) {
+//				unlockedLevelsSection = arenaSection.getConfigurationSection("unlockedLevels");
+//			} else {
+//				unlockedLevelsSection = arenaSection.createSection("unlockedLevels");
+//			}
+//			if (unlockedLevelsSection.get("level_" + levelNumber) != null) {
+//				List<String> playersList = unlockedLevelsSection.getStringList("level_" + levelNumber);
+//				for(Player player : players){
+//					String idString = player.getUniqueId().toString();
+//					if(!playersList.contains(idString)) playersList.add(idString);
+//				}
+//				unlockedLevelsSection.set("level_" + levelNumber, playersList);
+//				yamlConfiguration.save(dataFile);
+//				playerDataContainer.reloadUnlockedPlayers(levelNumber);
+//				return;
+//			} else {
+//				List<String> playersList = players.stream().map(p -> p.getUniqueId().toString()).collect(Collectors.toList());
+//				unlockedLevelsSection.set("level_" + levelNumber, playersList);
+//				yamlConfiguration.save(dataFile);
+//				playerDataContainer.reloadUnlockedPlayers(levelNumber);
+//				return;
+//			}
+//		}
+//	}
 
 	public boolean canPlayLevel(Level level, Player player){
 		int levelNumber = level.getLevelNumber();

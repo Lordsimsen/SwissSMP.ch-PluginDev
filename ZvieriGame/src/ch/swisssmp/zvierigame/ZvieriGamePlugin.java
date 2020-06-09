@@ -2,7 +2,6 @@ package ch.swisssmp.zvierigame;
 
 
 import ch.swisssmp.crafting.CustomRecipeAPI;
-import ch.swisssmp.zvierigame.game.CraftingRecipes;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;

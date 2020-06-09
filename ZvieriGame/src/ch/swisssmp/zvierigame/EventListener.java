@@ -19,10 +19,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
@@ -37,6 +39,45 @@ public class EventListener implements Listener{
 	private void onPlayerResourepackUpdate(PlayerResourcePackUpdateEvent event) {
 		event.addComponent("zvieri");
 	}
+
+
+	/*
+	Checks whether given Entity is a player playing a ZvieriGame and if so allows the event (if the item in question
+	is a zvieriGameItem of course).
+	 */
+	@EventHandler
+	private void onZvieriItemPickup(EntityPickupItemEvent event){
+		ItemStack item = event.getItem().getItemStack();
+		if(item.getType() == Material.AIR) return;
+		if(!ItemUtil.getBoolean(item, "zvieriGameItem")) return;
+
+		if(!(event.getEntity() instanceof Player)) return;
+		Player player = (Player) event.getEntity();
+		for(ZvieriArena arena : ZvieriArenen.get(player.getWorld())){
+			if(arena.getGame() == null || !arena.isGameRunning()) continue;
+			if(arena.getGame().getParticipants().contains(player)) return;
+		}
+		event.setCancelled(true);
+	}
+
+	/*
+	Checks whether opened Inventory contains zvieriGameItem and removes them if player isn't in a game.
+	 */
+	@EventHandler
+	private void onInventoryOpen(InventoryOpenEvent event){
+		Player player = (Player) event.getPlayer();
+		for(ZvieriArena arena : ZvieriArenen.get(player.getWorld())){
+			if(arena.getGame() == null || !arena.isGameRunning()) continue;
+			if(arena.getGame().getParticipants().contains(player)) return;
+		}
+		Inventory inventory = event.getInventory();
+		ItemStack[] contents = inventory.getContents();
+		for(int i = 0; i < contents.length; i++){
+			ItemStack item = contents[i];
+			if(ItemUtil.getBoolean(item, "zvieriGameItem")) inventory.remove(item);
+		}
+	}
+
 
 	@EventHandler
 	private void onPlayerInteract(PlayerInteractEvent e) {
@@ -55,7 +96,6 @@ public class EventListener implements Listener{
 			arena.openEditor(e.getPlayer());
 			return;
 		}
-		//Storagechest procedure
 		String arena_id = ItemUtil.getString(itemStack, "link_zvieriarena");
 		if(arena_id == null) {
 			return;

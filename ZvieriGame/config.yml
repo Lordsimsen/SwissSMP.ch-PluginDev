@@ -8,7 +8,7 @@ levels:
     baseinterval: 20
   level_2:
     name: 'Commis de cuisine'
-    unlocked: false
+    unlocked: true
     threshhold: 250
     duration: 360
     firstclient: 10
@@ -155,6 +155,10 @@ dishes:
       - '1x Sahne'
       - '1x Wildbeere'
 ingredients:
+  COCOA_BEANS:
+    initialAmount: 3
+    buyAmount: 3
+    price: 4
   CARROT:
     initialAmount: 3
     buyAmount: 3
