@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class CameraPathsView extends CustomEditorView implements PaginatedView {
 
@@ -76,7 +78,7 @@ public class CameraPathsView extends CustomEditorView implements PaginatedView {
     }
 
     public static CameraPathsView open(Player player){
-        Collection<CameraPath> paths = CameraStudioWorld.get(player.getWorld()).getAllPaths();
+        Collection<CameraPath> paths = CameraStudioWorld.get(player.getWorld()).getAllPaths().stream().sorted(Comparator.comparing(CameraPathElement::getName)).collect(Collectors.toList());
         CameraPathsView view = new CameraPathsView(player, paths);
         view.open();
         return view;
