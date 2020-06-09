@@ -19,7 +19,6 @@ public class CustomPaintingsPlugin extends JavaPlugin {
         PaintingRenderer.reloadDitherer();
 
         PaintingDataContainer.loadAll();
-        CustomPaintingContainers.loadAll();
         ChunkUtil.updateAll();
 
         Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
@@ -29,7 +28,6 @@ public class CustomPaintingsPlugin extends JavaPlugin {
     public void onDisable() {
         HandlerList.unregisterAll(this);
         PaintingDataContainer.unloadAll();
-        CustomPaintingContainers.unloadAll();
         Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
     }
 

@@ -25,7 +25,8 @@ public class PaintingPlacer {
         for(int y = 0; y < height; y++){
             Block rowStart = block.getRelative(up, y);
             for(int x = 0; x < width; x++){
-                int mapId = mapIds[mapIds.length-y-1][x]; // inverse y axis
+                int remappedY = mapIds.length-y-1;
+                int mapId = mapIds[remappedY][x]; // inverse y axis
                 MapView view = Bukkit.getMap(mapId);
                 if(view==null){
                     Bukkit.getLogger().warning(CustomPaintingsPlugin.getPrefix()+" Map "+mapId+" nicht gefunden!");
@@ -40,7 +41,7 @@ public class PaintingPlacer {
                 itemStack.setItemMeta(mapMeta);
                 ItemUtil.setString(itemStack, ID_PROPERTY, data.getId());
                 ItemUtil.setInt(itemStack, SLOT_X_PROPERTY, x);
-                ItemUtil.setInt(itemStack, SLOT_Y_PROPERTY, y);
+                ItemUtil.setInt(itemStack, SLOT_Y_PROPERTY, remappedY);
                 itemFrame.setItem(itemStack);
                 itemFrame.setRotation(getRotation(up,itemFrameFacing));
             }
