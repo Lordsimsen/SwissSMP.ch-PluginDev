@@ -3,10 +3,12 @@ package ch.swisssmp.citymapdisplays;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import ch.swisssmp.custompaintings.CustomPainting;
+import ch.swisssmp.custompaintings.CustomPaintings;
+import ch.swisssmp.custompaintings.PaintingPlacer;
+import ch.swisssmp.utils.PlayerRenameItemEvent;
+import ch.swisssmp.utils.SwissSMPler;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,15 +18,12 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.LecternInventory;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import ch.swisssmp.mapimageloader.MapViewComposition;
 
 public class EventListener implements Listener {
 	
 	@EventHandler
 	private void onPlayerInteract(PlayerInteractEvent event) {
-		if(event.getAction()!=Action.RIGHT_CLICK_AIR) return;
+		if(event.getAction()!=Action.RIGHT_CLICK_AIR && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		ItemStack itemStack = event.getItem();
 		if(itemStack==null || itemStack.getType()!=Material.WRITTEN_BOOK) {
 			// Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+" Not a written book.");
@@ -41,31 +40,23 @@ public class EventListener implements Listener {
 		}
 		CityMapDisplay display = displayQuery.get();
 		Player player = event.getPlayer();
-		if(player.isSneaking()) {
-			MapViewComposition[][] mapViews = display.getMapViews();
-			World world = player.getWorld();
-			Location dropLocation = player.getEyeLocation();
-			for(int y = 0; y < mapViews.length; y++) {
-				MapViewComposition[] row = mapViews[y];
-				for(int x = 0; x < row.length; x++) {
-					MapViewComposition composition = row[x];
-					if(composition==null) {
-						Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+" Display "+display.getUid()+" is missing a map view composition at "+x+","+y+"!");
-						continue;
-					}
-					ItemStack item = composition.createItemStack();
-					ItemMeta itemMeta = item.getItemMeta();
-					itemMeta.setLore(Arrays.asList((x+1)+","+(y+1)));
-					item.setItemMeta(itemMeta);
-					world.dropItem(dropLocation, item);
-				}
+		if(event.getAction()==Action.RIGHT_CLICK_BLOCK
+				&& player.hasPermission("citymapdisplays.admin")
+				&& player.getGameMode()==GameMode.CREATIVE
+				&& event.getClickedBlock().getType()!=Material.LECTERN){
+			CustomPainting painting = display.getPainting();
+			if(painting==null){
+				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Etwas ist schiefgelaufen.");
+				return;
 			}
 			event.setCancelled(true);
+			boolean success = CustomPaintings.place(painting, event);
+			if(!success){
+				SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED+"Nicht genügend Platz.");
+			}
 			return;
 		}
-		else {
-			display.updateItemStack(itemStack);
-		}
+		display.updateItemStack(itemStack);
 	}
 	
 	@EventHandler
@@ -78,5 +69,16 @@ public class EventListener implements Listener {
 		if(!displayQuery.isPresent()) return;
 		CityMapDisplay display = displayQuery.get();
 		display.updateItemStack(itemStack);
+		lecternInventory.setItem(0, itemStack);
+	}
+
+	@EventHandler
+	private void onItemRename(PlayerRenameItemEvent event){
+		if(!event.getPlayer().hasPermission("citymapdisplays.admin")) return;
+		CityMapDisplay display = CityMapDisplay.get(event.getItemStack()).orElse(null);
+		if(display==null) return;
+		display.setName(event.getNewName());
+		event.setName(ChatColor.RESET+display.getName());
+		CityMapDisplays.save();
 	}
 }

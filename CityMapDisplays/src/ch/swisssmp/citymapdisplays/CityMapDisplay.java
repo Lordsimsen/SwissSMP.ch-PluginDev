@@ -1,11 +1,17 @@
 package ch.swisssmp.citymapdisplays;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ch.swisssmp.custompaintings.CustomPainting;
+import ch.swisssmp.custompaintings.CustomPaintings;
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -19,10 +25,6 @@ import ch.swisssmp.city.CitizenInfo;
 import ch.swisssmp.city.City;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.livemap_render_api.LivemapView;
-import ch.swisssmp.mapimageloader.MapImage;
-import ch.swisssmp.mapimageloader.MapImages;
-import ch.swisssmp.mapimageloader.MapViewComposition;
-import ch.swisssmp.mapimageloader.MapViewCompositions;
 import ch.swisssmp.text.RawTextObject;
 import ch.swisssmp.text.properties.ClickEventProperty;
 import ch.swisssmp.text.properties.ColorProperty;
@@ -39,29 +41,40 @@ import net.md_5.bungee.api.chat.BaseComponent;
 public class CityMapDisplay {
 	
 	public final static String DisplayUidProperty = "city_handbook_id";
+	private final static int TILE_WIDTH = 128;
+	private final static int TILE_HEIGHT = 128;
 	
 	private final UUID uid;
-	private final MapImage[][] images;
-	private final MapViewComposition[][] mapViews;
+	private String name;
 	private int currentCityId;
 	
 	/**
 	 * Creates a new instance of CityMapdisplay
 	 * @param uid: The UUID of this display
-	 * @param imageUids: The image UUIDs that make up the display. These correspond to MapImages of the plugin MapImageLoader. Dimensions: String[height][width]
 	 */
-	public CityMapDisplay(UUID uid, MapImage[][] imageUids, MapViewComposition[][] mapViews) {
+	public CityMapDisplay(UUID uid, String name) {
 		this.uid = uid;
-		this.images = imageUids;
-		this.mapViews = mapViews;
+		this.name = name;
 	}
 	
 	public UUID getUid() {
 		return this.uid;
 	}
-	
-	public MapViewComposition[][] getMapViews(){
-		return mapViews;
+
+	public String getName(){
+		return name;
+	}
+
+	public void setName(String name){
+		this.name = name;
+		CustomPainting painting = getPainting();
+		if(painting==null) return;
+		painting.setName(name);
+		painting.save();
+	}
+
+	public CustomPainting getPainting(){
+		return CustomPainting.get(uid.toString()).orElse(null);
 	}
 	
 	public ItemStack getItemStack() {
@@ -87,30 +100,35 @@ public class CityMapDisplay {
 	}
 	
 	private void applyCity(City city, YamlConfiguration yamlConfiguration) {
+		CustomPainting painting = getPainting();
+		if(painting==null){
+			Bukkit.getLogger().warning(CityMapDisplaysPlugin.getPrefix()+" CustomPainting '"+name+"' mit id "+uid+" nicht gefunden!");
+			return;
+		}
+
 		ConfigurationSection citySection = yamlConfiguration.getConfigurationSection("city");
 		BlockVector min = citySection.getConfigurationSection("region_min").getVector().toBlockVector();
 		BlockVector max = citySection.getConfigurationSection("region_max").getVector().toBlockVector();
 
-		int width = mapViews[0].length;
-		int height = mapViews.length;
+		int width = painting.getWidth();
+		int height = painting.getHeight();
 		LivemapView view = new LivemapView(width, height, CityMapDisplaysPlugin.getLivemapInfo());
 		String[][] urls = view.getUrls(min, max);
-		for(int y = 0; y < urls.length; y++) {
-			String[] row = urls[y];
-			for(int x = 0; x < row.length; x++) {
-				String url = row[x];
-				MapImage image = images[y][x];
-				image.replace(url);
-			}
+		BufferedImage[][] images = CityMapBuilder.load(urls);
+		if(images==null){
+			Bukkit.getLogger().warning(CityMapDisplaysPlugin.getPrefix()+" CustomPainting '"+name+"' mit id "+uid+" konnte nicht geladen werden!");
+			return;
 		}
-		//int left = 0;
-		//int top = 0;
-		//MapViewComposition topCenterView = mapViews[top][left];
-		//topCenterView.addText("city_shadow", "§"+(MapPalette.VanillaColor.COLOR_GRAY.id * 4 + 2)+";"+city.getName(), 11, 1);
-		//topCenterView.addText("city", "§"+(MapPalette.VanillaColor.SNOW.id * 4 + 2)+";"+city.getName(), 10, 0);
-		//MapViewCompositions.save();
+
+		BufferedImage image = CityMapBuilder.stitch(images, width*TILE_WIDTH,height*TILE_HEIGHT,TILE_WIDTH,TILE_HEIGHT);
+		File file = CityMapBuilder.save(image, uid);
+		if(file==null){
+			Bukkit.getLogger().warning(CityMapDisplaysPlugin.getPrefix()+" CustomPainting '"+name+"' mit id "+uid+" konnte nicht zwischengespeichert werden!");
+			return;
+		}
+
+		CustomPaintings.replace(uid.toString(), file);
 		this.currentCityId = city.getId();
-		MapImages.save();
 		CityMapDisplays.save();
 	}
 	
@@ -179,94 +197,34 @@ public class CityMapDisplay {
 		bookMeta.spigot().setPages(pages);
 	}
 	
-	protected void save(ConfigurationSection dataSection) {
-		dataSection.set("width", this.images[0].length);
-		dataSection.set("height", this.images.length);
-		dataSection.set("current_city", this.currentCityId);
-		ConfigurationSection imagesSection = dataSection.createSection("images");
-		ConfigurationSection viewsSection = dataSection.createSection("views");
-		for(int y = 0; y < images.length; y++) {
-			MapImage[] row = images[y];
-			MapViewComposition[] viewRow = this.mapViews[y];
-			for(int x = 0; x < row.length; x++) {
-				MapImage image = row[x];
-				ConfigurationSection imageSection = imagesSection.createSection(image.getUid().toString());
-				imageSection.set("x", x);
-				imageSection.set("y", y);
-				MapViewComposition composition = viewRow[x];
-				ConfigurationSection viewSection = viewsSection.createSection(String.valueOf(composition.getMapId()));
-				viewSection.set("x", x);
-				viewSection.set("y", y);
-			}
-		}
+	protected JsonObject save() {
+		JsonObject result = new JsonObject();
+		JsonUtil.set("uid", uid, result);
+		JsonUtil.set("name", name, result);
+		JsonUtil.set("current_city", currentCityId, result);
+		return result;
 	}
 	
 	public void remove() {
 		CityMapDisplays.remove(this);
-		for(MapImage[] row : this.images) {
-			for(MapImage image : row) {
-				if(image==null) continue;
-				image.remove();
-			}
+		CityMapDisplays.save();
+		CustomPainting painting = getPainting();
+		if(painting!=null){
+			painting.remove();
 		}
-		for(MapViewComposition[] row : this.mapViews) {
-			for(MapViewComposition view : row) {
-				view.remove();
-			}
-		}
-		MapImages.save();
-		MapViewCompositions.save();
 	}
 	
 	protected void unload() {
 		// do nothing at this point
 	}
 	
-	public static CityMapDisplay load(UUID displayUid, ConfigurationSection dataSection) {
-		if(displayUid==null) throw new NullPointerException("Display UUID must not be empty.");
-		int width = dataSection.getInt("width");
-		int height = dataSection.getInt("height");
-		MapImage[][] images = new MapImage[height][width];
-		MapViewComposition[][] mapViews = new MapViewComposition[height][width];
-		ConfigurationSection imagesSection = dataSection.getConfigurationSection("images");
-		ConfigurationSection viewsSection = dataSection.getConfigurationSection("views");
-		for(String key : imagesSection.getKeys(false)) {
-			UUID imageUid;
-			try {
-				imageUid = UUID.fromString(key);
-			}
-			catch(Exception e) {
-				continue;
-			}
-			Optional<MapImage> imageQuery = MapImage.get(imageUid);
-			if(!imageQuery.isPresent()) continue;
-			MapImage image = imageQuery.get();
-			ConfigurationSection imageSection = imagesSection.getConfigurationSection(key);
-			int posX = imageSection.getInt("x");
-			int posY = imageSection.getInt("y");
-			if(posY>=0 && posY < height && posX>=0 && posX<width) images[posY][posX] = image;
-		}
-		for(String key : viewsSection.getKeys(false)) {
-			int mapId;
-			try {
-				mapId = Integer.parseInt(key);
-			}
-			catch(Exception e) {
-				Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+" Invalid map-id encountered when loading CityMapDisplay: "+key);
-				continue;
-			}
-			Optional<MapViewComposition> view = MapViewComposition.get(mapId);
-			if(!view.isPresent()) {
-				Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+" Missing MapViewComposition encountered when loading CityMapDisplay: "+mapId);
-				continue;
-			}
-			ConfigurationSection viewSection = viewsSection.getConfigurationSection(key);
-			int posX = viewSection.getInt("x");
-			int posY = viewSection.getInt("y");
-			if(posY>=0 && posY < height && posX>=0 && posX<width) mapViews[posY][posX] = view.get();
-		}
-		CityMapDisplay result = new CityMapDisplay(displayUid, images, mapViews);
-		result.currentCityId = dataSection.getInt("current_city");
+	public static CityMapDisplay load(JsonObject json) {
+		UUID uid = JsonUtil.getUUID("uid", json);
+		if(uid==null) throw new NullPointerException("Display UUID must not be empty.");
+		String name = JsonUtil.getString("name", json);
+		int currentCity = JsonUtil.getInt("current_city", json);
+		CityMapDisplay result = new CityMapDisplay(uid, name);
+		result.currentCityId = currentCity;
 		return result;
 	}
 	
@@ -292,26 +250,15 @@ public class CityMapDisplay {
 		return CityMapDisplay.get(displayUid);
 	}
 	
-	public static CityMapDisplay create(int width, int height) {
+	public static CityMapDisplay create(String name, int width, int height) {
 		UUID displayUid = UUID.randomUUID();
-		MapImage[][] images = new MapImage[height][width];
-		MapViewComposition[][] mapViews = new MapViewComposition[height][width];
-		for(int y = 0; y < height; y++) {
-			for(int x = 0; x < width; x++) {
-				MapImage mapImage = MapImage.create(null, false);
-				if(mapImage==null) {
-					new NullPointerException("There seems to be an error with MapImageLoader!").printStackTrace();
-					continue;
-				}
-				MapViewComposition composition = MapViewComposition.create();
-				composition.addImage(mapImage);
-				images[y][x] = mapImage;
-				mapViews[y][x] = composition;
-			}
+		CustomPainting painting = CustomPaintings.create(displayUid.toString(), name, width, height);
+		if(painting==null){
+			Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+" Konnte kein Gemälde erstellen.");
+			return null;
 		}
-		MapImages.save();
-		MapViewCompositions.save();
-		CityMapDisplay result = new CityMapDisplay(displayUid, images, mapViews);
+
+		CityMapDisplay result = new CityMapDisplay(displayUid, name);
 		CityMapDisplays.add(result);
 		return result;
 	}
