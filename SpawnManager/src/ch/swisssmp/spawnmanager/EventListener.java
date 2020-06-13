@@ -34,7 +34,7 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 public class EventListener implements Listener {
 
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 	private Random random = new Random();
 
 	private static void debug(String s){
