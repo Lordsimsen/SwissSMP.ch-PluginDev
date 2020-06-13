@@ -252,6 +252,12 @@ public class LiftTravel implements Runnable, Listener {
 	private Collection<Entity> getEntities(World world, LiftInstance lift){
 		return world.getNearbyEntities(lift.getBoundingBox(), e->e instanceof LivingEntity);
 	}
+
+	protected static void cancelAll(){
+		for(LiftTravel travel : travels.values()){
+			travel.cancel();
+		}
+	}
 	
 	public static LiftTravel get(LiftInstance instance){
 		return travels.get(instance);
