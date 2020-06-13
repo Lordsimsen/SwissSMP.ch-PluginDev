@@ -77,7 +77,7 @@ public class LevelSelectionView implements Listener {
             this.arena.getGame().join((Player) event.getWhoClicked());
             player.closeInventory();
             player.sendMessage(ZvieriGamePlugin.getPrefix() + " " + ChatColor.GRAY + level.getName() + " " + arena.getName() + " startet in 30 Sekunden.");
-            player.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Andere Spieler können jetzt beitreten.");
+            player.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Andere Spieler kÃ¶nnen jetzt beitreten.");
         } else{
             if(event.getSlot() == this.arena.getGame().getLevel().getLevelNumber() -1){
                 startNow();
@@ -120,7 +120,7 @@ public class LevelSelectionView implements Listener {
         ConfigurationSection levels = config.getConfigurationSection("levels");
         List<String> description = new ArrayList<String>();
         description.add(levels.getString("level_" + i + ".name"));
-        description.add(ChatColor.WHITE + "Score um nächsten");
+        description.add(ChatColor.WHITE + "Score um nÃ¤chsten");
         description.add(ChatColor.WHITE + "Level freizuschalten: " + ChatColor.AQUA + levels.getInt("level_" + i + ".threshhold"));
         return description;
     }

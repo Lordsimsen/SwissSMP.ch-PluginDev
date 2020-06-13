@@ -8,42 +8,42 @@ levels:
     baseinterval: 20
   level_2:
     name: 'Commis de cuisine'
-    unlocked: true
-    threshhold: 250
+    unlocked: false
+    threshhold: 300
     duration: 360
     firstclient: 10
     baseinterval: 20
   level_3:
     name: 'Chef de partie'
-    unlocked: true
-    threshhold: 350
+    unlocked: false
+    threshhold: 450
     duration: 420
     firstclient: 10
     baseinterval: 15
   level_4:
     name: 'Sous Chef'
-    unlocked: true
-    threshhold: 400
+    unlocked: false
+    threshhold: 500
     duration: 480
     firstclient: 5
     baseinterval: 15
   level_5:
     name: 'Chef de cuisine'
-    unlocked: true
+    unlocked: false
     threshhold: 0
     duration: 540
-    firstclient: 5
+    firstclient: 10
     baseinterval: 15
 dishes:
   HASH_BROWNS:
     name: 'Röschti'
-    price: 12
+    price: 14
     recipe:
       - '2x gebratene Kartoffeln'
       - 'neben-/übereinander'
   MEAT_FEAST:
     name: 'Fleischschmaus'
-    price: 16
+    price: 18
     recipe:
       - '1x Gebratenes Poulet'
       - '1x Gebratenes Steak'
@@ -51,21 +51,21 @@ dishes:
       - 'von links nach rechts/oben nach unten'
   HONEY_MILK:
     name: 'Honigmilch'
-    price: 6
+    price: 10
     recipe:
       - '1x Honigflasche'
       - 'über'
       - '1x Milcheimer'
   RICE_PUDDING:
     name: 'Milchreis'
-    price: 6
+    price: 9
     recipe:
       - '1x Weizen'
       - 'über'
       - '1x Milcheimer'
   SUSHI:
     name: 'Sushi'
-    price: 14
+    price: 16
     recipe:
       - '1x Roher Lachs'
       - '1x Getrocknetes Seegras'
@@ -73,7 +73,7 @@ dishes:
       - 'von oben nach unten'
   RABBIT_STEW:
     name: 'Hasenragout'
-    price: 12
+    price: 0
     recipe:
       - '1x Hasenfuss'
       - '1x Kochwasser'
@@ -81,7 +81,7 @@ dishes:
       - '1x Kartoffel'
   SCHNITZEL_FRIES:
     name: 'SchniPo'
-    price: 16
+    price: 17
     recipe:
       - '1x Weizen'
       - 'über'
@@ -90,7 +90,7 @@ dishes:
       - 'rechts davon'
   VEGGIES_DELIGHT:
     name: 'Veggies Delight'
-    price: 8
+    price: 12
     recipe:
       - '1x Seegras'
       - '1x Weizen'
@@ -98,7 +98,7 @@ dishes:
       - 'von links nach rechts/oben nach unten'
   SPAGHETTI_BOLOGNESE:
     name: 'Spaghetti Bolognese'
-    price: 24
+    price: 20
     recipe:
       - '1x Rote Sauce'
       - '1x Gebratenes Steak'
@@ -106,17 +106,17 @@ dishes:
       - 'von oben nach unten'
   CREEPER_SUCRE:
     name: 'Creeper sucré'
-    price: 24
+    price: 26
     recipe:
       - '1x Sahne'
       - '1x Pufferfischextrakt'
-      - '1x Gedünsteter Creeperkopf'
-      - 'von links nach rechts'
       - '1x Zucker'
+      - 'von links nach rechts'
+      - '1x gedünsteter Creeperkopf'
       - 'unter Pufferfischextrakt'
   ZURICH_GESCHNETZELTES:
     name: 'Zürigschnätzlets'
-    price: 20
+    price: 21
     recipe:
       - '1x Gebratenes Steak'
       - '1x Röschti'
@@ -142,7 +142,7 @@ dishes:
     name: 'Pizza Margherita'
     price: 24
     recipe:
-      - '1 Käse'
+      - '1x Käse'
       - '1x Rote Sauce'
       - '1x Brot'
       - 'von oben nach unten'
@@ -185,10 +185,6 @@ ingredients:
     initialAmount: 4
     buyAmount: 4
     price: 6
-  COCOA_BEANS:
-    initialAmount: 3
-    buyAmount: 3
-    price: 5
   PORKCHOP:
     initialAmount: 3
     buyAmount: 3
@@ -217,13 +213,13 @@ ingredients:
     initialAmount: 6
     buyAmount: 6
     price: 8
-  RABBIT_FOOT:
-    initialAmount: 2
-    buyAmount: 2
-    price: 4
+#  RABBIT_FOOT:
+#    initialAmount: 2
+#    buyAmount: 2
+#    price: 4
   CREEPER_HEAD:
-    initialAmount: 2
-    buyAmount: 2
+    initialAmount: 3
+    buyAmount: 3
     price: 6
   WHEAT:
     initialAmount: 6
@@ -234,16 +230,16 @@ ingredients:
     buyAmount: 3
     price: 6
   KELP:
+    initialAmount: 6
+    buyAmount: 6
+    price: 8
+  PUMPKIN:
     initialAmount: 3
     buyAmount: 3
     price: 6
-  PUMPKIN:
-    initialAmount: 2
-    buyAmount: 2
-    price: 6
   SWEET_BERRIES:
-    initialAmount: 2
-    buyAmount: 2
+    initialAmount: 3
+    buyAmount: 3
     price: 4
   BEETROOT:
     initialAmount: 3
@@ -258,6 +254,10 @@ ingredients:
     buyAmount: 9
     price: 5
   ZVIERI_WATER_BUCKET:
+    initialAmount: 2
+    buyAmount: 2
+    price: 6
+  BREAD:
     initialAmount: 2
     buyAmount: 2
     price: 6

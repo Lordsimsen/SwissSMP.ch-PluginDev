@@ -88,7 +88,7 @@ public class RestockView implements Listener {
             String ingredientId = entry.getKey();
             item.setAmount(ingredientsSection.getInt(ingredientId + ".buyAmount"));
             ItemMeta itemMeta = item.getItemMeta();
-            List<String> description = Arrays.asList(ingredientsSection.getInt(ingredientId + ".price") + " Smaragdmünzen");
+            List<String> description = Arrays.asList(ingredientsSection.getInt(ingredientId + ".price") + " SmaragdmÃ¼nzen");
             itemMeta.setLore(description);
             item.setItemMeta(itemMeta);
             itemStack[i] = item;
@@ -106,7 +106,7 @@ public class RestockView implements Listener {
         String ingredientId = ingredientIdQuery.get();
 
         if(!gamePhase.isRestockAllowed()){
-            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Keine Bestellungen mehr möglich");
+            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Keine Bestellungen mehr mÃ¶glich");
             return;
         }
         int price = ingredientsSection.getInt(ingredientId + ".price");

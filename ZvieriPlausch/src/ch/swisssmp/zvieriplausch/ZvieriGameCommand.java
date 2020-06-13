@@ -24,6 +24,18 @@ public class ZvieriGameCommand implements CommandExecutor {
             return false;
         }
         String arenaName = strings[1];
+//        try{
+//            if(strings[2].equalsIgnoreCase("all")){
+//                for(ZvieriArena arena : ZvieriArenen.getAll()){
+//                    if(arena.getGame() != null) arena.getGame().cancel();
+//                }
+//            }
+//        } catch (IndexOutOfBoundsException e){}
+//        if(strings.length > 2) {
+//            for (int i = 2; i < strings.length; i++) {
+//                arenaName += (" " + strings[i]);
+//            }
+//        }
         ZvieriArena arena = ZvieriArena.get(arenaName, true);
         if(arena==null) return false;
         arena.getGame().cancel();

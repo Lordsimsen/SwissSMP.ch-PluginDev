@@ -9,7 +9,6 @@ import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvieriplausch.game.PreparationPhase;
 import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
@@ -57,6 +56,7 @@ public class EventListener implements Listener{
 			if(arena.getGame().getParticipants().contains(player)) return;
 		}
 		event.setCancelled(true);
+		event.getItem().setItemStack(null);
 	}
 
 	/*
@@ -76,7 +76,6 @@ public class EventListener implements Listener{
 			if(ItemUtil.getBoolean(item, "zvieriGameItem")) inventory.remove(item);
 		}
 	}
-
 
 	@EventHandler
 	private void onPlayerInteract(PlayerInteractEvent e) {
@@ -147,7 +146,7 @@ public class EventListener implements Listener{
 		}
 		if(ItemUtil.getString(itemStack, "npc").equalsIgnoreCase("chef")) {
 			arena.setChef(npc);
-			SwissSMPler.get(p).sendActionBar(ChatColor.GREEN + "Küchenchef zugewiesen");
+			SwissSMPler.get(p).sendActionBar(ChatColor.GREEN + "KÃ¼chenchef zugewiesen");
 		} else if(ItemUtil.getString(itemStack, "npc").equalsIgnoreCase("logistics")){
 			arena.setLogisticsNPC(npc);
 			SwissSMPler.get(p).sendActionBar(ChatColor.GREEN + "Logistiker zugewiesen");
@@ -168,7 +167,7 @@ public class EventListener implements Listener{
 		String arena_id = json.get("zvieriarena").getAsString();
 		ZvieriArena arena = ZvieriArena.get(UUID.fromString(arena_id));
 		if(arena == null || !arena.isSetupComplete()) {
-			event.getPlayer().sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Arena existiert nicht oder ist nicht fertig aufgesetzt");
+			event.getPlayer().sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Momentan nicht benÃ¼tzbar.");
 			return;
 		}
 		if(!arena.isGamePreparing()){
@@ -176,7 +175,7 @@ public class EventListener implements Listener{
 				LevelSelectionView.open(player, arena);
 				return;
 			} else{
-				player.sendMessage(ZvieriGamePlugin.getPrefix() + " Es läuft bereits ein Spiel");
+				player.sendMessage(ZvieriGamePlugin.getPrefix() + " Es lÃ¤uft bereits ein Spiel");
 				return;
 			}
 		}
@@ -226,7 +225,7 @@ public class EventListener implements Listener{
 	private void onBookStealAttempt(PlayerTakeLecternBookEvent event){
 		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())){
 			if(!arena.getLectern().equals(event.getLectern())) continue;
-//			if(event.getPlayer().hasPermission("zvierigame.admin")) return;
+			if(event.getPlayer().hasPermission("zvierigame.admin")) return;
 			event.setCancelled(true);
 			return;
 		}
@@ -234,7 +233,6 @@ public class EventListener implements Listener{
 
 	@EventHandler
 	private void onSignPlace(SignChangeEvent event){
-		Bukkit.getLogger().info("SignPlace Event");
 		Player player = event.getPlayer();
 		String[] lines = event.getLines();
 		if(!lines[0].toLowerCase().equals("[zvierigame]")){
@@ -251,14 +249,11 @@ public class EventListener implements Listener{
 		}
 		int level = Integer.parseInt(lines[2]);
 		ZvieriArena arena = ZvieriArena.get(arenaString, true);
-		event.setLine(0, "§4[Highscore Lvl " + level + "]");
+		event.setLine(0, "Â§4[Highscore Lvl " + level + "]");
 
-		Bukkit.getLogger().info("Getting highscore");
 		event.setLine(1, arena.getPlayerDataContainer().getHighscoreScore(level) + "");
 
-		Bukkit.getLogger().info("Getting players");
 		List<String> players = arena.getPlayerDataContainer().getHighscorePlayers(level);
-		Bukkit.getLogger().info(players.toString());
 		switch(players.size()){
 			case 1: {
 				event.setLine(2, players.get(0));

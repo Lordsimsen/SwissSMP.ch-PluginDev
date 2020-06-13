@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? Ausführungsgeschwindigkeit bei bukkitrunnable 20/sekunde?
+public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? AusfÃ¼hrungsgeschwindigkeit bei bukkitrunnable 20/sekunde?
 
 	private final ZvieriGame game;
 	private final ZvieriArena arena;
@@ -73,13 +73,12 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 	public void initialize() {
 		restockAllowed = true;
 		initializeStorage();
+		for (Player player : game.getParticipants()) {
+			player.teleport(arena.getKitchen().getLocation(arena.getWorld()));
+			player.sendTitle("",ChatColor.GREEN + "Au travail!", 5, 30, 5);
+		}
 		gamePhaseListener = new GamePhaseListener(this);
 		Bukkit.getPluginManager().registerEvents(gamePhaseListener, ZvieriGamePlugin.getInstance());
-		for (Player player : game.getParticipants()) {
-			player.teleport(arena.getKitchen().getLocation(player.getWorld()));
-			player.sendTitle("",ChatColor.GREEN + "Au travail!", 5, 30, 5);
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg am " + game.getArena().getArenaRegion() + " " + player.getName());
-		}
 		kickPlayersOutOfArena();
 		initializeBrewingStands();
 		this.objective = scoreboard.registerNewObjective("scoreboard", "dummy", ChatColor.YELLOW + "Saldo");
@@ -117,7 +116,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		}
 	}
 
-	private void kickPlayersOutOfArena(){
+	protected void kickPlayersOutOfArena(){
 		ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(arena.getWorld())).getRegion(arena.getArenaRegion());
 		BlockVector3 min = region.getMinimumPoint();
 		BlockVector3 max = region.getMaximumPoint();
@@ -235,7 +234,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		this.scoreboard = scoreBoardManager.getNewScoreboard();
 		this.objective = scoreboard.registerNewObjective("scoreboard", "dummy", ChatColor.YELLOW + "Saldo");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-		Score score = objective.getScore(ChatColor.GREEN + "Smaragdmünzen: ");
+		Score score = objective.getScore(ChatColor.GREEN + "SmaragdmÃ¼nzen: ");
 		score.setScore(this.getScore());
 		for(Player player : game.getParticipants()){
 			player.setScoreboard(scoreboard);
@@ -278,7 +277,6 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 
 	@Override
 	public void complete(){
-		// nu'n
 	}
 
 	@Override

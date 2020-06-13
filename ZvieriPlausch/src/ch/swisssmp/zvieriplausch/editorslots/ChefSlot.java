@@ -28,7 +28,7 @@ public class ChefSlot extends PickItemSlot{
 		itemBuilder.setAmount(1);
 		itemBuilder.setDisplayName(this.getName());
 		List<String> description = new ArrayList<String>();
-		description.add(this.getDescriptionColor() + "NPC für Küchenchef");
+		description.add(this.getDescriptionColor() + "NPC fÃ¼r KÃ¼chenchef");
 		description.add(this.getSuggestActionColor() + "Rechtsklick auf NPC");
 		itemBuilder.setLore(description);		
 		ItemStack itemStack = itemBuilder.build();
@@ -46,12 +46,12 @@ public class ChefSlot extends PickItemSlot{
 
 	@Override
 	public String getName() {
-		return ChatColor.AQUA + "Küchenchef";
+		return ChatColor.AQUA + "KÃ¼chenchef";
 	}
 
 	@Override
 	protected List<String> getNormalDescription() {
-		return Arrays.asList("Küchenchef zuweisen");
+		return Arrays.asList("KÃ¼chenchef zuweisen");
 	}
 
 	@Override

@@ -44,7 +44,6 @@ public class EndingPhase extends Phase{
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
             ZvieriGame.cleanseInventory(player.getInventory());
             updateLevelUnlocks();
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg rm " + game.getArena().getArenaRegion() + " " + player.getName());
         }
         if (game.getArena().updateHighscore(game.getLevel().getLevelNumber(), game.getScore(), game.getParticipants())){
             String players = "";

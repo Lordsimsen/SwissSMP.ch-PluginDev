@@ -53,14 +53,6 @@ public class Level {
             (CustomItems.getCustomItemBuilder("LORDS_BLESSING").build()) //15
     };
 
-//    private final ItemStack[] easyDishes = new ItemStack[]{allDishes[0], allDishes[1], allDishes[2], allDishes[3],
-//                                                            allDishes[4], allDishes[6], allDishes[7], allDishes[5]};
-//
-//    private final ItemStack[] mediumDishes = new ItemStack[]{allDishes[8], allDishes[9], allDishes[10], allDishes[11],
-//                                                            allDishes[12], allDishes[13], allDishes[14], allDishes[15]};
-//
-//    private final ItemStack[] hardDishes = new ItemStack[]{allDishes[16]};
-
     public static HashMap<String, List<String>> recipes = new HashMap<String, List<String>>();
 
     /*
@@ -166,6 +158,9 @@ public class Level {
                         break;
                     }
                 }
+                npc.setIdentifier("client_" + clientCount);
+                clientCount++;
+                return npc;
             }
             case 3:
             case 4: {
@@ -192,6 +187,9 @@ public class Level {
                         break;
                     }
                 }
+                npc.setIdentifier("client_" + clientCount);
+                clientCount++;
+                return npc;
             }
             case 5: {
                 int random = new Random().nextInt(6);
@@ -221,6 +219,9 @@ public class Level {
                         break;
                     }
                 }
+                npc.setIdentifier("client_" + clientCount);
+                clientCount++;
+                return npc;
             }
             default: {
                 npc.setIdentifier("client_" + clientCount);
@@ -299,17 +300,17 @@ public class Level {
                                 ,getRecipe("RICE_PUDDING"), getRecipe("SUSHI")};
             }
             case 3: {
-                return new ItemStack[]{getRecipe("SCHNITZEL_FRIES"), getRecipe("VEGGIES_DELIGHT"),
-                                                    getRecipe("DAME_BLANCHE"), getRecipe("SPAGHETTI_BOLOGNESE")};
+                return new ItemStack[]{getRecipe("HASH_BROWNS"), getRecipe("SUSHI"),
+                                                    getRecipe("HOT_CHOCOLATE"), getRecipe("VEGGIES_DELIGHT")};
             }
             case 4: {
                 return new ItemStack[]{getRecipe("VEGGIES_DELIGHT"), getRecipe("DAME_BLANCHE"),
-                        getRecipe("SPAGHETTI_BOLOGNESE"), getRecipe("ZURICH_GESCHNETZELTES"), getRecipe("HOT_CHOCOLATE")};
+                        getRecipe("RICE_PUDDING"), getRecipe("SPAGHETTI_BOLOGNESE"), getRecipe("HOT_CHOCOLATE")};
 
             }
             case 5: {
                 return new ItemStack[]{getRecipe("CREEPER_SUCRE"), getRecipe("LORDS_BLESSING"),
-                        getRecipe("PIZZA_MARGHERITA"), getRecipe("DAME_BLANCHE"), getRecipe("SCHNITZEL_FRIES")};
+                        getRecipe("PIZZA_MARGHERITA"), getRecipe("DAME_BLANCHE")};
             }
             default: return null;
         }
@@ -322,9 +323,9 @@ public class Level {
         switch(level) {
             case 1: {
                 List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[0]);
-                dishes.add(allDishes[1]);
-                dishes.add(allDishes[2]);
+                dishes.add(allDishes[0]); //röschti
+                dishes.add(allDishes[1]); //Fleischschmaus
+                dishes.add(allDishes[2]); //Honigmilch
                 int random = new Random().nextInt(dishes.size());
                 ItemStack dish = dishes.get(random);
                 ItemUtil.setBoolean(dish, "zvieriGameItem", true);
@@ -334,8 +335,8 @@ public class Level {
                 List<ItemStack> dishes = new ArrayList<>();
                 dishes.add(allDishes[0]);
                 dishes.add(allDishes[2]);
-                dishes.add(allDishes[3]);
-                dishes.add(allDishes[4]);
+                dishes.add(allDishes[3]); //milchreis
+                dishes.add(allDishes[4]); //sushi
                 int random = new Random().nextInt(dishes.size());
                 ItemStack dish = dishes.get(random);
                 ItemUtil.setBoolean(dish, "zvieriGameItem", true);
@@ -343,10 +344,10 @@ public class Level {
             }
             case 3: {
                 List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[5]);
-                dishes.add(allDishes[6]);
-                dishes.add(allDishes[7]);
-                dishes.add(allDishes[8]);
+                dishes.add(allDishes[0]);
+                dishes.add(allDishes[4]);
+                dishes.add(allDishes[6]); //veggie
+                dishes.add(allDishes[10]); //hot choc
                 int random = new Random().nextInt(dishes.size());
                 ItemStack dish = dishes.get(random);
                 ItemUtil.setBoolean(dish, "zvieriGameItem", true);
@@ -354,11 +355,11 @@ public class Level {
             }
             case 4: {
                 List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[6]);
-                dishes.add(allDishes[7]);
-                dishes.add(allDishes[8]);
-                dishes.add(allDishes[9]);
-                dishes.add(allDishes[10]);
+                dishes.add(allDishes[3]);
+                dishes.add(allDishes[6]); //veggie
+                dishes.add(allDishes[7]); //spaghett'
+                dishes.add(allDishes[8]); //coupe dän
+                dishes.add(allDishes[10]); //hot choc
                 int random = new Random().nextInt(dishes.size());
                 ItemStack dish = dishes.get(random);
                 ItemUtil.setBoolean(dish, "zvieriGameItem", true);
@@ -366,17 +367,15 @@ public class Level {
             }
             case 5: {
                 List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[5]);
-                dishes.add(allDishes[8]);
-                dishes.add(allDishes[12]);
-                dishes.add(allDishes[14]);
-                dishes.add(allDishes[15]);
+//                dishes.add(allDishes[5]); //schnipo
+                dishes.add(allDishes[8]); //coupe dän
+                dishes.add(allDishes[12]); //pizza
+                dishes.add(allDishes[14]); //creep
+                dishes.add(allDishes[15]); //lords bliss
                 int random = new Random().nextInt(dishes.size());
                 ItemStack dish = dishes.get(random);
                 ItemUtil.setBoolean(dish, "zvieriGameItem", true);
                 return dish;
-//                int random = new Random().nextInt(allDishes.length);
-//                return allDishes[random];
             }
         }
         return null;
@@ -389,6 +388,7 @@ public class Level {
     }
 
     private void initializeIngredients(){
+        allIngredients.put(Material.BREAD.toString(), new ItemStack(Material.BREAD));
         allIngredients.put(Material.COCOA_BEANS.toString(), new ItemStack(Material.COCOA_BEANS));
         allIngredients.put(Material.CARROT.toString(), new ItemStack(Material.CARROT));
         allIngredients.put(Material.SUGAR.toString(), new ItemStack(Material.SUGAR));
@@ -400,7 +400,7 @@ public class Level {
         allIngredients.put("ZVIERI_HONEY_BOTTLE", CustomItems.getCustomItemBuilder("ZVIERI_HONEY_BOTTLE").build());
         allIngredients.put(Material.PUFFERFISH.toString(), new ItemStack(Material.PUFFERFISH));
         allIngredients.put(Material.POTATO.toString(), new ItemStack(Material.POTATO));
-        allIngredients.put(Material.RABBIT_FOOT.toString(), new ItemStack(Material.RABBIT_FOOT));
+//        allIngredients.put(Material.RABBIT_FOOT.toString(), new ItemStack(Material.RABBIT_FOOT));
         allIngredients.put(Material.CREEPER_HEAD.toString(), new ItemStack(Material.CREEPER_HEAD));
         allIngredients.put(Material.WHEAT.toString(), new ItemStack(Material.WHEAT));
         allIngredients.put(Material.SALMON.toString(), new ItemStack(Material.SALMON));

@@ -40,7 +40,7 @@ public class PreparationPhase extends Phase{
 
     private void sendCountdown(Player player, int remaining){
         if(remaining > 0) SwissSMPler.get(player).sendTitle("", "Spiel startet in " + remaining);
-        else SwissSMPler.get(player).sendTitle("", "� la cuisine!");
+        else SwissSMPler.get(player).sendTitle("", "A la cuisine!");
     }
 
     @Override

@@ -134,10 +134,10 @@ public class PlayerDataContainer {
     public void updateLevelUnlocks(int level, List<String> playerIds){
         try {
             for (String id : playerIds) {
-                if (!unlockedPlayers.get(level).contains(id)) unlockedPlayers.get(level).add(id);
+                if (!unlockedPlayers.get(level-1).contains(id)) unlockedPlayers.get(level-1).add(id);
             }
         } catch (IndexOutOfBoundsException e){
-            unlockedPlayers.add(playerIds); //without index..?
+            unlockedPlayers.add(playerIds);
         }
         save();
     }
@@ -145,7 +145,7 @@ public class PlayerDataContainer {
     public void updateHighscore(int level, int score, List<Player> participants) {
         List<String> participantsStrings = new ArrayList<>();
         for(Player player : participants){
-            participantsStrings.add(player.getDisplayName());
+            participantsStrings.add(player.getName());
         }
         try {
             highscorePlayers.remove(level - 1);
