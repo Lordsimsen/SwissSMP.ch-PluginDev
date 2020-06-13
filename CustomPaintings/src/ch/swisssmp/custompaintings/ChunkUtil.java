@@ -42,7 +42,7 @@ public class ChunkUtil {
         int slotX = ItemUtil.getInt(itemStack, CustomPainting.SLOT_X_PROPERTY, -1);
         int slotY = ItemUtil.getInt(itemStack, CustomPainting.SLOT_Y_PROPERTY, -1);
         if(slotX<0 || slotY<0) return;
-        PaintingData data = PaintingData.get(paintingId).orElse(null);
+        CustomPainting data = CustomPainting.get(paintingId).orElse(null);
         if(data==null) return;
         int[][] mapIds = data.getReservedMapIds();
         if(slotY>=mapIds.length || slotX >= mapIds[slotY].length) return;

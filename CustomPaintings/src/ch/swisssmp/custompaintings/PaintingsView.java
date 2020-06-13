@@ -18,13 +18,13 @@ public class PaintingsView extends CustomEditorView implements PaginatedView {
 
     private static final int COLUMNS = 8;
 
-    private final Collection<PaintingData> paintings;
+    private final Collection<CustomPainting> paintings;
     private final int pageSize;
     private final int maxPage;
 
     private int page = 0;
 
-    protected PaintingsView(Player player, Collection<PaintingData> paintings) {
+    protected PaintingsView(Player player, Collection<CustomPainting> paintings) {
         super(player);
         this.paintings = paintings;
         this.pageSize = Math.max(18, Math.min(54, Mathf.ceilToInt(paintings.size()/(float) COLUMNS)*9));
@@ -42,7 +42,7 @@ public class PaintingsView extends CustomEditorView implements PaginatedView {
         Collection<EditorSlot> slots = new ArrayList<>();
         if(page>0) slots.add(new ChangePageSlot(this, 8, false));
         if(page<maxPage) slots.add(new ChangePageSlot(this, pageSize-1, true));
-        for(PaintingData path : paintings){
+        for(CustomPainting path : paintings){
             int slot = remapSlot(index);
             slots.add(new PaintingDataSlot(this, slot, path));
             index++;
@@ -79,7 +79,7 @@ public class PaintingsView extends CustomEditorView implements PaginatedView {
     }
 
     public static PaintingsView open(Player player){
-        Collection<PaintingData> paths = PaintingDataContainer.getAll().stream().sorted(Comparator.comparing(PaintingData::getId)).collect(Collectors.toList());
+        Collection<CustomPainting> paths = CustomPaintingContainer.getAll().stream().sorted(Comparator.comparing(CustomPainting::getId)).collect(Collectors.toList());
         PaintingsView view = new PaintingsView(player, paths);
         view.open();
         return view;

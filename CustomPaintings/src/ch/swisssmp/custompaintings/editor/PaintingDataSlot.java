@@ -1,7 +1,7 @@
 package ch.swisssmp.custompaintings.editor;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
-import ch.swisssmp.custompaintings.PaintingData;
+import ch.swisssmp.custompaintings.CustomPainting;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.PickItemSlot;
 import org.bukkit.ChatColor;
@@ -12,9 +12,9 @@ import java.util.List;
 
 public class PaintingDataSlot extends PickItemSlot {
 
-    private final PaintingData painting;
+    private final CustomPainting painting;
 
-    public PaintingDataSlot(CustomEditorView view, int slot, PaintingData painting) {
+    public PaintingDataSlot(CustomEditorView view, int slot, CustomPainting painting) {
         super(view, slot);
         this.painting = painting;
     }

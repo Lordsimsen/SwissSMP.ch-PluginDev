@@ -14,7 +14,7 @@ public class Ditherer {
 
     public void ditherOnto(BufferedImage image, byte[][] imageData) {
         Color[][] pixels = new Color[image.getHeight()][image.getWidth()];
-        Bukkit.getLogger().info("Image: "+image.getWidth()+"x"+image.getHeight()+", Data: "+imageData.length+"x"+imageData[0].length+", Pixels: "+pixels.length+"x"+pixels[0].length);
+        // Bukkit.getLogger().info("Image: "+image.getWidth()+"x"+image.getHeight()+", Data: "+imageData.length+"x"+imageData[0].length+", Pixels: "+pixels.length+"x"+pixels[0].length);
         for(int y = 0; y < image.getHeight(); y++) {
             for(int x = 0; x < image.getWidth(); x++) {
                 java.awt.Color c = new java.awt.Color(image.getRGB(x, y), true);

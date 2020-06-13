@@ -9,8 +9,6 @@ import org.bukkit.map.MapView;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +28,7 @@ public class PaintingRenderer extends MapRenderer {
         ditherer = new Ditherer(MapPalette.getVanillaMap());
     }
 
-    protected static void render(PaintingData data){
+    protected static void render(CustomPainting data){
         File directory = new File(CustomPaintingsPlugin.getInstance().getDataFolder(), "images");
         File imageFile = new File(directory, data.getId()+".png");
         if(!imageFile.exists()){
@@ -54,7 +52,7 @@ public class PaintingRenderer extends MapRenderer {
         int croppedPixelHeight = Math.min(Mathf.roundToInt(fullWidth * aspectRatio), fullHeight);
         image = resize(image, fullWidth, croppedPixelHeight);
 
-        Bukkit.getLogger().info("Resized image: "+image.getWidth()+"x"+image.getHeight());
+        // Bukkit.getLogger().info("Resized image: "+image.getWidth()+"x"+image.getHeight());
         if(image.getWidth()>fullWidth || image.getHeight()>fullHeight){
             Bukkit.getLogger().warning("Resized image has incorrect size, skipping "+data.getId());
             return;

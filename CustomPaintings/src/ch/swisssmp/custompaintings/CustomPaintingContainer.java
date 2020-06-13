@@ -9,17 +9,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 
-public class PaintingDataContainer {
-    private final static HashMap<String,PaintingData> paintings = new HashMap<>();
+public class CustomPaintingContainer {
+    private final static HashMap<String, CustomPainting> paintings = new HashMap<>();
 
-    protected static PaintingData createPainting(String id, int width, int height, int[][] reservedMapIds){
-        PaintingData data = new PaintingData(id, width, height, reservedMapIds);
+    protected static CustomPainting createPainting(String id, String name, int width, int height, int[][] reservedMapIds){
+        CustomPainting data = new CustomPainting(id, name, width, height, reservedMapIds);
         paintings.put(id, data);
         data.save();
         return data;
     }
 
-    public static Collection<PaintingData> getAll(){
+    public static Collection<CustomPainting> getAll(){
         return paintings.values();
     }
 
@@ -36,7 +36,7 @@ public class PaintingDataContainer {
 
     protected static boolean load(File file){
         JsonObject json = JsonUtil.parse(file);
-        PaintingData data = PaintingData.load(json);
+        CustomPainting data = CustomPainting.load(json);
         if(data==null){
             return false;
         }
@@ -46,12 +46,12 @@ public class PaintingDataContainer {
     }
 
     public static void saveAll(){
-        for(PaintingData data : paintings.values()){
+        for(CustomPainting data : paintings.values()){
             data.save();
         }
     }
 
-    protected static void save(PaintingData data){
+    protected static void save(CustomPainting data){
         File paintingsDirectory = getPaintingsDirectory();
         if(!paintingsDirectory.exists()){
             paintingsDirectory.mkdirs();
@@ -65,7 +65,7 @@ public class PaintingDataContainer {
         paintings.clear();
     }
 
-    protected static Optional<PaintingData> getPainting(String paintingId){
+    protected static Optional<CustomPainting> getPainting(String paintingId){
         return paintings.containsKey(paintingId) ? Optional.of(paintings.get(paintingId)) : Optional.empty();
     }
 

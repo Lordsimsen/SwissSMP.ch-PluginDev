@@ -12,13 +12,15 @@ public class CustomPaintingsPlugin extends JavaPlugin {
     public void onEnable(){
         plugin = this;
 
+        MapPool.load();
+
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
         Bukkit.getPluginCommand("painting").setExecutor(new PaintingCommand());
         Bukkit.getPluginCommand("paintings").setExecutor(new PaintingsCommand());
 
         PaintingRenderer.reloadDitherer();
 
-        PaintingDataContainer.loadAll();
+        CustomPaintingContainer.loadAll();
         ChunkUtil.updateAll();
 
         Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
@@ -27,7 +29,7 @@ public class CustomPaintingsPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         HandlerList.unregisterAll(this);
-        PaintingDataContainer.unloadAll();
+        CustomPaintingContainer.unloadAll();
         Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
     }
 

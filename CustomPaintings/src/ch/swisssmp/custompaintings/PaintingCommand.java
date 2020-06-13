@@ -1,7 +1,10 @@
 package ch.swisssmp.custompaintings;
 
 import ch.swisssmp.utils.SwissSMPler;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,8 +20,9 @@ public class PaintingCommand implements CommandExecutor {
         String prefix = CustomPaintingsPlugin.getPrefix()+" ";
         switch(args[0].toLowerCase()){
             case "reload":{
-                PaintingDataContainer.unloadAll();
-                PaintingDataContainer.loadAll();
+                CustomPaintingContainer.unloadAll();
+                CustomPaintingContainer.loadAll();
+                ChunkUtil.updateAll();
                 sender.sendMessage(prefix+ ChatColor.GREEN+"Gemälde neu geladen!");
                 return true;
             }
@@ -30,7 +34,7 @@ public class PaintingCommand implements CommandExecutor {
                 if(args.length<2) return false;
                 Player player = (Player) sender;
                 String paintingId = args[1];
-                PaintingData painting = PaintingData.get(paintingId).orElse(null);
+                CustomPainting painting = CustomPainting.get(paintingId).orElse(null);
                 if(painting==null){
                     SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Gemälde "+paintingId+" nicht gefunden.");
                     return true;
@@ -53,7 +57,7 @@ public class PaintingCommand implements CommandExecutor {
                     return false;
                 }
 
-                PaintingData data = PaintingCreator.create(id, url, width, height);
+                CustomPainting data = CustomPaintings.create(id, width, height, url);
                 if(data!=null){
                     sender.sendMessage(prefix+ ChatColor.GREEN+"Gemälde erstellt!");
                 }
@@ -67,7 +71,7 @@ public class PaintingCommand implements CommandExecutor {
                 String id = args[1];
                 String url = args[2];
 
-                if(PaintingCreator.replace(id, url)){
+                if(CustomPaintings.replace(id, url)){
                     sender.sendMessage(prefix+ ChatColor.GREEN+"Gemälde ersetzt!");
                 }
                 else{
