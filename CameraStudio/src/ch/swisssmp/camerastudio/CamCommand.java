@@ -49,6 +49,9 @@ public class CamCommand implements CommandExecutor {
 		switch(subcmd.toLowerCase()){
 			case "erstelle":
 			case "create":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -82,6 +85,9 @@ public class CamCommand implements CommandExecutor {
 			}
 			case "pfade":
 			case "paths":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -95,6 +101,9 @@ public class CamCommand implements CommandExecutor {
 			}
 			case "sequenzen":
 			case "sequences":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -110,6 +119,9 @@ public class CamCommand implements CommandExecutor {
 			case "punkt":
 			case "point":
 			case "p":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -167,6 +179,9 @@ public class CamCommand implements CommandExecutor {
 			case "remove":
 			case "entferne":
 			case "r":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -214,6 +229,9 @@ public class CamCommand implements CommandExecutor {
 			case "punkte":
 			case "points":
 			case "list":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -238,6 +256,9 @@ public class CamCommand implements CommandExecutor {
 			}
 			case "clear":
 			case "reset":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -264,6 +285,9 @@ public class CamCommand implements CommandExecutor {
 				return true;
 			}
 			case "goto":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -296,6 +320,9 @@ public class CamCommand implements CommandExecutor {
 				return true;
 			}
 			case "stop":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -308,6 +335,9 @@ public class CamCommand implements CommandExecutor {
 				return true;
 			}
 			case "help":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -328,6 +358,9 @@ public class CamCommand implements CommandExecutor {
 				}
 			}
 			case "sequence":{
+				if(!sender.hasPermission("camerastudio.viewer")){
+					return true;
+				}
 				if(args.length<1) return false;
 				Player currentPlayer;
 				if(args.length<2) currentPlayer = player;
@@ -354,6 +387,9 @@ public class CamCommand implements CommandExecutor {
 				return true;
 			}
 			case "start":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -392,6 +428,9 @@ public class CamCommand implements CommandExecutor {
 			}
 			case "lade":
 			case "load":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
@@ -418,6 +457,9 @@ public class CamCommand implements CommandExecutor {
 			}
 			case "speichere":
 			case "save":{
+				if(!sender.hasPermission("camerastudio.admin")){
+					return true;
+				}
 				if(player==null){
 					sender.sendMessage("Befehl kann nur ingame verwendet werden.");
 					return true;
