@@ -29,6 +29,9 @@ permissions:
   smp.commands.amount:
     description: Erlaubt Verwendung des Befehls /amount
     default: op
+  smp.commands.gravity:
+    description: Erlaubt Verwendung des Befehls /gravity
+    default: op
 commands:
   help:
     description: Zeigt die Hilfe an
@@ -65,3 +68,6 @@ commands:
   choose:
     description: Entscheide bei einer Anfrage
     usage: /choose [ID der Anfrage] [Auswahl]
+  gravity:
+    description: Stellt Schwerkraft um
+    usage: /gravity (Spieler)
