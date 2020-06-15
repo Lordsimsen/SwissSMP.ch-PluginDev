@@ -25,7 +25,7 @@ public class CamCommand implements CommandExecutor {
 		final CameraStudio cameraStudio = CameraStudio.inst();
 		if (args.length == 0) {
 			sender.sendMessage(
-					prefix + ChatColor.RED + "Type " + ChatColor.WHITE + "/cam help" + ChatColor.RED + " for details");
+					prefix + ChatColor.RED + "Verwende " + ChatColor.WHITE + "/cam help" + ChatColor.RED + " für mehr Infos");
 			return true;
 		}
 
@@ -155,7 +155,7 @@ public class CamCommand implements CommandExecutor {
 									maxPoints = Integer.parseInt(substring);
 								} catch (NumberFormatException e) {
 									player.sendMessage(prefix + ChatColor.RED
-											+ "Berechtigungen nicht korrekt definiert. Bitte benachrichtige einen Ressortleiter.");
+											+ " Berechtigungen nicht korrekt definiert. Bitte benachrichtige einen Ressortleiter.");
 								}
 								break;
 							}
@@ -165,14 +165,34 @@ public class CamCommand implements CommandExecutor {
 
 				if (locs.size() >= maxPoints) {
 					player.sendMessage(
-							prefix + ChatColor.RED + "Du hast bereits " + maxPoints + " Punkte gesetzt.");
+							prefix + ChatColor.RED + " Du hast bereits " + maxPoints + " Punkte gesetzt.");
 					return true;
 				}
 
-				locs.add(player.getLocation());
+				Location location = player.getLocation();
+				int index;
+				if(args.length>0){
+					index = Integer.parseInt(args[0]);
+					if(index>=locs.size()){
+						locs.add(location);
+						index = locs.size();
+					}
+					else if(index<0){
+						locs.add(0, location);
+						index = 0;
+					}
+					else{
+						locs.add(index,location);
+					}
+				}
+				else{
+					locs.add(player.getLocation());
+					index = locs.size();
+				}
+
 				CamCommand.points.put(player.getUniqueId(), locs);
 
-				player.sendMessage(prefix + "Point " + locs.size() + " has been set");
+				player.sendMessage(prefix + "Punkt " + index + " gesetzt.");
 
 				return true;
 			}
@@ -247,7 +267,7 @@ public class CamCommand implements CommandExecutor {
 
 				int i = 1;
 				for (Location loc : locs) {
-					player.sendMessage(prefix + "Point " + i + ": " + cameraStudio.round(loc.getX(), 1) + ", "
+					player.sendMessage(prefix + "Punkt " + i + ": " + cameraStudio.round(loc.getX(), 1) + ", "
 							+ cameraStudio.round(loc.getY(), 1) + ", " + cameraStudio.round(loc.getZ(), 1) + " ("
 							+ cameraStudio.round(loc.getYaw(), 1) + ", " + cameraStudio.round(loc.getPitch(), 1) + ")");
 					i++;
@@ -330,7 +350,7 @@ public class CamCommand implements CommandExecutor {
 				if(!player.hasPermission("camerastudio.stop")){
 					return true;
 				}
-				cameraStudio.stop(player.getUniqueId());
+				cameraStudio.abort(player.getUniqueId());
 				player.sendMessage(prefix + "Kamerafahrt gestoppt.");
 				return true;
 			}
@@ -353,7 +373,7 @@ public class CamCommand implements CommandExecutor {
 					player.performCommand("help CPCameraStudioReborn " + Integer.parseInt(args[0]));
 					return true;
 				} catch (NumberFormatException e) {
-					player.sendMessage(prefix + ChatColor.YELLOW + args[0] + ChatColor.RED + "is not a number!");
+					player.sendMessage(prefix + ChatColor.YELLOW + args[0] + ChatColor.RED + " ist keine Zahl!");
 					return true;
 				}
 			}
@@ -381,6 +401,10 @@ public class CamCommand implements CommandExecutor {
 				CameraPathSequence sequence = cameraStudio.getSequence(sequenceUid).orElse(null);
 				if(sequence==null){
 					sender.sendMessage("[CamStudio] Sequenz nicht gefunden.");
+					return true;
+				}
+				if(sequence.getWorld().getBukkitWorld()!=player.getWorld()){
+					Bukkit.getLogger().warning(prefix+player.getName()+" attempted to watch the cam sequence '"+sequence.getName()+" ("+sequence.getUniqueId()+")"+"' outside their current world "+player.getWorld().getName()+". This is not allowed to prevent abuse!");
 					return true;
 				}
 				sequence.run(player);
@@ -417,9 +441,7 @@ public class CamCommand implements CommandExecutor {
 					if (subcmd.equalsIgnoreCase("start")) {
 						time = Integer.parseInt(args[0])*20;
 					}
-					cameraStudio.travel(currentPlayer, listOfLocs, time,
-							prefix + ChatColor.RED + "Ein Fehler ist aufgetreten.",
-							prefix + "Kamerafahrt beendet.");
+					cameraStudio.travel(currentPlayer, listOfLocs, time, true, ()->sender.sendMessage(prefix+ChatColor.GREEN+" Kamerafahrt beendet."));
 				} catch (Exception e) {
 					player.sendMessage(prefix + ChatColor.RED + "Du musst eine Dauer (in Sekunden) für die Kamerafahrt angeben."
 							+ ChatColor.YELLOW + "Beispiel: /cam start 60");

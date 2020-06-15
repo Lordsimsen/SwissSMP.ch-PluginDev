@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Consumer;
 
 public class CameraStudio {
 
@@ -18,7 +17,7 @@ public class CameraStudio {
     private final CameraStudioPlugin plugin;
 
     private final HashSet<UUID> travelling = new HashSet<UUID>();
-    private final HashSet<UUID> stopping = new HashSet<UUID>();
+    private final HashSet<UUID> aborting = new HashSet<UUID>();
 
     private CameraStudio(CameraStudioPlugin plugin){
         this.plugin = plugin;
@@ -47,60 +46,47 @@ public class CameraStudio {
         return rounded.doubleValue();
     }
 
-    public void travel(final Player player, UUID pathUid, int time){
+    public void travel(final Player player, UUID pathUid, int time, boolean stopViewingAfter){
         CameraPath path = CameraStudioWorlds.getPath(pathUid).orElse(null);
         if(path==null) return;
-        travel(player,path,time);
+        travel(player,path,time,stopViewingAfter);
     }
 
-    public void travel(final Player player, CameraPath path, int time){
-        travel(player,path.getPoints(),time,null,null);
+    public void travel(final Player player, CameraPath path, int time, boolean stopViewingAfter){
+        travel(player,path.getPoints(),time,stopViewingAfter);
     }
 
-    public void travel(final Player player ,CameraPath path, int time, Runnable callback){
-        travel(player,path.getPoints(),time,null,null,callback);
+    public void travel(final Player player, CameraPath path, int time, boolean stopViewingAfter, Runnable callback){
+        travel(player,path.getPoints(), time, stopViewingAfter, callback);
     }
 
-    public void travel(final Player player, List<Location> locations, int time, String FailMessage,
-                              final String CompletedMessage) {
-        travel(player,locations,time,FailMessage,CompletedMessage,null);
+    public void travel(final Player player, List<Location> locations, int time, boolean stopViewingAfter) {
+        travel(player,locations,time, stopViewingAfter,null);
     }
 
-    public void travel(final Player player, List<Location> locations, int time, String FailMessage,
-                              final String CompletedMessage, final Runnable callback) {
-
+    public void travel(final Player player, List<Location> locations, int time, boolean stopViewingAfter, final Runnable callback) {
+        if(!player.isOnline()) return;
+        aborting.remove(player.getUniqueId());
         final List<Location> motionPath = createMotionPath(player.getWorld(),locations,time);
 
         try {
-            final GameMode oldGameMode = player.getGameMode();
-            player.setGameMode(GameMode.SPECTATOR);
+            if(!travelling.contains(player.getUniqueId())) startViewing(player);
             Location start = motionPath.get(0);
             player.teleport(start);
             loadChunkArea(player,start.getBlockX()>>4,start.getBlockZ()>>4,10);
-            travelling.add(player.getUniqueId());
             hidePlayer(player);
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 private int ticks = 0;
 
                 public void run() {
-                    if (this.ticks < motionPath.size()) {
-
-                        player.teleport((Location) motionPath.get(this.ticks));
-
-                        if (!stopping.contains(player.getUniqueId())) {
-                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 1L);
-                        } else {
-                            stopping.remove(player.getUniqueId());
-                            travelling.remove(player.getUniqueId());
-                        }
-
+                    boolean abort = aborting.contains(player.getUniqueId());
+                    if (!abort && this.ticks < motionPath.size()) {
+                        player.teleport(motionPath.get(this.ticks));
+                        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 1L);
                         this.ticks += 1;
                     } else {
                         unhidePlayer(player);
-                        travelling.remove(player.getUniqueId());
-                        if (CompletedMessage != null)
-                            player.sendMessage(CompletedMessage);
-                        player.setGameMode(oldGameMode);
+                        if(stopViewingAfter || abort) stopViewing(player);
                         if(callback!=null){
                             callback.run();
                         }
@@ -108,9 +94,26 @@ public class CameraStudio {
                 }
             }, 1L);
         } catch (Exception e) {
-            if (FailMessage != null)
-                player.sendMessage(FailMessage);
+            e.printStackTrace();
         }
+    }
+
+    private void startViewing(Player player){
+        travelling.add(player.getUniqueId());
+        ViewerInfo info = ViewerInfo.of(player);
+        info.save();
+        player.setGameMode(GameMode.SPECTATOR);
+    }
+
+    private void stopViewing(Player player){
+        travelling.remove(player.getUniqueId());
+        aborting.remove(player.getUniqueId());
+        ViewerInfo info = ViewerInfo.load(player).orElse(null);
+        if(info==null){
+            return;
+        }
+        info.apply(player, false);
+        info.delete();
     }
 
     private void hidePlayer(Player player){
@@ -122,43 +125,6 @@ public class CameraStudio {
     private void unhidePlayer(Player player){
         for(Player otherPlayer : Bukkit.getOnlinePlayers()){
             otherPlayer.showPlayer(CameraStudioPlugin.getInstance(), player);
-        }
-    }
-
-    public void travelSimple(Player player, List<Location> locations, int time, Runnable callback){
-        final List<Location> motionPath = createMotionPath(player.getWorld(),locations,time);
-
-        try {
-            Location start = motionPath.get(0);
-            player.teleport(start);
-            loadChunkArea(player,start.getBlockX()>>4,start.getBlockZ()>>4,10);
-            travelling.add(player.getUniqueId());
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                private int ticks = 0;
-
-                public void run() {
-                    if (this.ticks < motionPath.size()) {
-
-                        player.teleport((Location) motionPath.get(this.ticks));
-
-                        if (!stopping.contains(player.getUniqueId())) {
-                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 1L);
-                        } else {
-                            stopping.remove(player.getUniqueId());
-                            travelling.remove(player.getUniqueId());
-                        }
-
-                        this.ticks += 1;
-                    } else {
-                        travelling.remove(player.getUniqueId());
-                        if(callback!=null){
-                            callback.run();
-                        }
-                    }
-                }
-            }, 1L);
-        } catch (Exception e) {
-
         }
     }
 
@@ -218,6 +184,18 @@ public class CameraStudio {
         return motionPath;
     }
 
+    /**
+     * Emergency eject button to prevent players from being stuck in spectator.
+     * Teleports the player to the main world's spawn, sets their GameMode to SURVIVAl, disables flying and enables
+     * gravity.
+     */
+    public static void resetPlayer(Player player){
+        player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setFlying(false);
+        player.setGravity(true);
+    }
+
     public void loadChunkArea(Player player, int chunk_x, int chunk_z, int radius){
         World world = player.getWorld();
         chunk_x-=radius;
@@ -262,13 +240,25 @@ public class CameraStudio {
     }
 
     public boolean isTravelling(UUID PlayerUUID) {
-        if (travelling.contains(PlayerUUID))
-            return true;
-        return false;
+        return travelling.contains(PlayerUUID);
     }
 
-    public void stop(final UUID playerUUID) {
-        stopping.add(playerUUID);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, ()-> stopping.remove(playerUUID), 2L);
+    public void abortAll(){
+        for(UUID player : new ArrayList<>(travelling)){
+            abort(player);
+        }
+    }
+
+    public void abort(final UUID playerUUID) {
+        Bukkit.getLogger().info(CameraStudioPlugin.getPrefix()+" Aborting camera motion for "+playerUUID);
+        Player player = Bukkit.getPlayer(playerUUID);
+        if(player!=null){
+            ViewerInfo info = ViewerInfo.load(player).orElse(null);
+            if(info!=null){
+                info.apply(player);
+                info.delete();
+            }
+        }
+        aborting.add(playerUUID);
     }
 }

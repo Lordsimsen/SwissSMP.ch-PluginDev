@@ -3,6 +3,7 @@ package ch.swisssmp.camerastudio;
 import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.PlayerRenameItemEvent;
 import ch.swisssmp.utils.SwissSMPler;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Lectern;
@@ -11,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
@@ -41,13 +43,24 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerLeave(final PlayerQuitEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event){
+        ViewerInfo info = ViewerInfo.load(event.getPlayer()).orElse(null);
+        if(info==null) return;
+        info.apply(event.getPlayer());
+        info.delete();
+    }
+
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent event) {
         if (plugin.getConfig().getBoolean("clear-points-on-disconnect")
-                && CamCommand.points.get(event.getPlayer().getUniqueId()) != null)
+                && CamCommand.points.get(event.getPlayer().getUniqueId()) != null){
             CamCommand.points.get(event.getPlayer().getUniqueId()).clear();
+        }
         CameraStudio cameraStudio = CameraStudio.inst();
+        Bukkit.getLogger().info(event.getPlayer().getUniqueId()+" quit");
         if(cameraStudio.isTravelling(event.getPlayer().getUniqueId())){
-            cameraStudio.stop(event.getPlayer().getUniqueId());
+            Bukkit.getLogger().info(event.getPlayer().getUniqueId()+" was travelling");
+            cameraStudio.abort(event.getPlayer().getUniqueId());
         }
     }
 

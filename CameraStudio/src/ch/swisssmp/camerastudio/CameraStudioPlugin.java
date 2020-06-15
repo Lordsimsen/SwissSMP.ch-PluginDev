@@ -1,29 +1,9 @@
 package ch.swisssmp.camerastudio;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-
-import net.minecraft.server.v1_15_R1.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_15_R1.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CameraStudioPlugin extends JavaPlugin {
@@ -40,11 +20,18 @@ public class CameraStudioPlugin extends JavaPlugin {
 		saveConfig();
 
 		CameraStudioWorlds.loadAll();
+		for(Player player : Bukkit.getOnlinePlayers()){
+			ViewerInfo info = ViewerInfo.load(player).orElse(null);
+			if(info==null) continue;
+			info.apply(player);
+			info.delete();
+		}
 
 		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 
 	public void onDisable() {
+		CameraStudio.inst().abortAll();
 		CameraStudioWorlds.unloadAll();
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);

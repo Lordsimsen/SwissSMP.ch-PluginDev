@@ -35,7 +35,8 @@ public class CameraPathSequenceRunnable {
     }
 
     private void runSequence(int index){
-        if(index>=this.pathSequence.size()){
+        int pathSequenceSize = this.pathSequence.size();
+        if(index>=pathSequenceSize){
             complete();
             return;
         }
@@ -44,7 +45,8 @@ public class CameraPathSequenceRunnable {
         if(element!=null){
             if(element instanceof CameraPath){
                 CameraPath path = (CameraPath) element;
-                CameraStudio.inst().travel(player, path, timings.get(index), ()->runSequence(index+1));
+                boolean isLastPath = index+1>=pathSequenceSize;
+                CameraStudio.inst().travel(player, path, timings.get(index), isLastPath, ()->runSequence(index+1));
                 runCommands(path.getCommands());
                 return;
             }
