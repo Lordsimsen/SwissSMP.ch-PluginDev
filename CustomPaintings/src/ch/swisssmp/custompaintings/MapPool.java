@@ -31,7 +31,10 @@ public class MapPool {
             try{
                 int id = unusedIds.pop();
                 MapView view = Bukkit.getMap(id);
-                if(view!=null) return view;
+                if(view!=null){
+                    save();
+                    return view;
+                }
             }
             catch(Exception e){
                 e.printStackTrace();

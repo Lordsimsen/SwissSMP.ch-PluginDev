@@ -103,8 +103,10 @@ public class CustomPaintings {
 
     protected static void unlink(String id){
         File imageFile = getImageFile(id);
-        if(!imageFile.exists()) return;
-        imageFile.delete();
+
+        if(imageFile.exists()){
+            imageFile.delete();
+        }
     }
 
     private static File getImagesDirectory(){

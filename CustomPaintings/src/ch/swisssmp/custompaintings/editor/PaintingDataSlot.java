@@ -31,7 +31,7 @@ public class PaintingDataSlot extends PickItemSlot {
 
     @Override
     public String getName() {
-        return ChatColor.RESET+painting.getId();
+        return ChatColor.RESET+painting.getDisplayName();
     }
 
     @Override

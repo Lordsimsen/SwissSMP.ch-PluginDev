@@ -45,12 +45,14 @@ public class PaintingRenderer extends MapRenderer {
             return;
         }
 
-        double aspectRatio = image.getWidth() / (double) image.getHeight();
         int fullWidth = data.getWidth() * 128;
         int fullHeight = data.getHeight() * 128;
 
-        int croppedPixelHeight = Math.min(Mathf.roundToInt(fullWidth * aspectRatio), fullHeight);
-        image = resize(image, fullWidth, croppedPixelHeight);
+        double xScaling = image.getWidth() / (double) fullWidth;
+        double yScaling = image.getHeight() / (double) fullHeight;
+        int sizeX = xScaling>yScaling ? fullWidth : Mathf.roundToInt(image.getWidth() / yScaling);
+        int sizeY = yScaling>xScaling ? fullHeight : Mathf.roundToInt(image.getHeight() / xScaling);
+        image = resize(image, sizeX, sizeY);
 
         // Bukkit.getLogger().info("Resized image: "+image.getWidth()+"x"+image.getHeight());
         if(image.getWidth()>fullWidth || image.getHeight()>fullHeight){

@@ -61,6 +61,15 @@ public class CustomPaintingContainer {
         data.save(paintingFile);
     }
 
+    protected static void removePainting(String paintingId){
+        CustomPainting painting = getPainting(paintingId).orElse(null);
+        File file = new File(getPaintingsDirectory(), paintingId+".json");
+        if(file.exists()) file.delete();
+        paintings.remove(paintingId);
+        if(painting==null) return;
+        painting.unlink();
+    }
+
     protected static void unloadAll(){
         paintings.clear();
     }

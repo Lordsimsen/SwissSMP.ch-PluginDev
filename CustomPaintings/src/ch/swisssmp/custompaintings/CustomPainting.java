@@ -61,10 +61,14 @@ public class CustomPainting {
         return reservedMapIds;
     }
 
+    public String getDisplayName(){
+        return (name!=null ? name : "Gemälde ("+id+")");
+    }
+
     public ItemStack getItemStack(){
         ItemStack itemStack = new ItemStack(Material.PAINTING);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.RESET+(name!=null ? name : "Gemälde ("+id+")"));
+        itemMeta.setDisplayName(ChatColor.RESET+getDisplayName());
         itemStack.setItemMeta(itemMeta);
         ItemUtil.setString(itemStack, CustomPainting.ID_PROPERTY, id);
         return itemStack;
@@ -79,6 +83,10 @@ public class CustomPainting {
     }
 
     public void remove(){
+        CustomPaintingContainer.removePainting(id);
+    }
+
+    protected void unlink(){
         CustomPaintings.unlink(id);
         Collection<MapView> views = new ArrayList<>();
         for(int y = 0; y < height; y++){
