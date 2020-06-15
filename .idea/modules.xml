@@ -33,6 +33,7 @@
       <module fileurl="file://$PROJECT_DIR$/CustomEntities/CustomEntities.iml" filepath="$PROJECT_DIR$/CustomEntities/CustomEntities.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomItems/CustomItems.iml" filepath="$PROJECT_DIR$/CustomItems/CustomItems.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomPaintings/CustomPaintings.iml" filepath="$PROJECT_DIR$/CustomPaintings/CustomPaintings.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CustomPortals/CustomPortals.iml" filepath="$PROJECT_DIR$/CustomPortals/CustomPortals.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomRecipeAPI/CustomRecipeAPI.iml" filepath="$PROJECT_DIR$/CustomRecipeAPI/CustomRecipeAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" filepath="$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" />
       <module fileurl="file://$PROJECT_DIR$/DeathMessages/DeathMessages.iml" filepath="$PROJECT_DIR$/DeathMessages/DeathMessages.iml" />
@@ -73,7 +74,6 @@
       <module fileurl="file://$PROJECT_DIR$/PermissionManager/PermissionManager.iml" filepath="$PROJECT_DIR$/PermissionManager/PermissionManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/PersonalSaddles/PersonalSaddles.iml" filepath="$PROJECT_DIR$/PersonalSaddles/PersonalSaddles.iml" />
       <module fileurl="file://$PROJECT_DIR$/PlayerStatues/PlayerStatues.iml" filepath="$PROJECT_DIR$/PlayerStatues/PlayerStatues.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Portals/Portals.iml" filepath="$PROJECT_DIR$/Portals/Portals.iml" />
       <module fileurl="file://$PROJECT_DIR$/PreventEntityExploit/PreventEntityExploit.iml" filepath="$PROJECT_DIR$/PreventEntityExploit/PreventEntityExploit.iml" />
       <module fileurl="file://$PROJECT_DIR$/PrismSearch/PrismSearch.iml" filepath="$PROJECT_DIR$/PrismSearch/PrismSearch.iml" />
       <module fileurl="file://$PROJECT_DIR$/PublicTransportation/PublicTransportation.iml" filepath="$PROJECT_DIR$/PublicTransportation/PublicTransportation.iml" />
