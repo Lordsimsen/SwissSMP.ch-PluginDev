@@ -65,6 +65,31 @@ public class PlayerCommand implements CommandExecutor{
 				sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+ChatColor.GREEN+" Anzeige erstellt.");
 				return true;
 			}
+			case "remove":{
+				if(!sender.hasPermission("citymapdisplays.admin")){
+					return true;
+				}
+				if(args.length<2) return false;
+				String key = args[1];
+				UUID displayUid;
+				try {
+					displayUid = UUID.fromString(key);
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Anzeige nicht gefunden.");
+					return true;
+				}
+				Optional<CityMapDisplay> displayQuery = CityMapDisplay.get(displayUid);
+				if(!displayQuery.isPresent()){
+					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Anzeige nicht gefunden.");
+					return true;
+				}
+
+				displayQuery.get().remove();
+				sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Anzeige "+displayQuery.get().getName()+" entfernt.");
+				return true;
+			}
 			case "show":{
 				if(!sender.hasPermission("citymapdisplays.viewer")){
 					return true;

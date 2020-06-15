@@ -1,5 +1,5 @@
 main: ch.swisssmp.citymapdisplays.CityMapDisplaysPlugin
-version: 2.01
+version: 2.2
 api-version: 1.13
 name: CityMapDisplays
 author: detig_iii
@@ -24,10 +24,13 @@ commands:
     aliases: [citydisplay]
   citymapdisplay create:
     description: Erstellt eine neue Anzeige
-    usage: "Verwendung: /<command> <subcommand> [width] [height]"
+    usage: "Verwendung: /<command> create [width] [height]"
+  citymapdisplay remove:
+    description: Entfernt eine Anzeige
+    usage: "Verwendung: /<command> remove"
   citymapdisplay reload:
     description: Lädt Anzeigen neu
-    usage: "Verwendung: /<command> <subcommand>"
+    usage: "Verwendung: /<command> reload"
   citymapdisplay show:
     description: Zeigt eine Stadt
-    usage: "Verwendung: /<command> <subcommand> [display-id] [city-id]"
+    usage: "Verwendung: /<command> show [display-id] [city-id]"

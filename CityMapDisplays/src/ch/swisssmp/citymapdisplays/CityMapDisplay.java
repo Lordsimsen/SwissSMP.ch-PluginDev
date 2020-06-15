@@ -140,7 +140,6 @@ public class CityMapDisplay {
 	}
 	
 	public void updateContents(BookMeta bookMeta) {
-		Bukkit.getLogger().info("Update Book contents");
 		bookMeta.setTitle("Städte");
 		bookMeta.setGeneration(Generation.ORIGINAL);
 		bookMeta.setAuthor("");
