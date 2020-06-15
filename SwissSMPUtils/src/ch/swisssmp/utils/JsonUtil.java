@@ -7,6 +7,8 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.FileReader;
@@ -178,5 +180,75 @@ public class JsonUtil {
         locationData.addProperty("yaw", location.getYaw());
 
         json.add(key, locationData);
+    }
+
+    public static Position getPosition(JsonObject json){
+        if(json==null || !json.isJsonObject()) return null;
+        double x = getDouble("x", json);
+        double y = getDouble("y", json);
+        double z = getDouble("z", json);
+        if(json.has("pitch") && json.has("yaw")){
+            float pitch = getFloat("pitch", json);
+            float yaw = getFloat("yaw", json);
+            return new Position(x, y, z, yaw, pitch);
+        }
+
+        return new Position(x, y, z);
+    }
+
+    public static Position getPosition(String key, JsonObject json){
+        JsonElement positionElement = json.has(key) ? json.get(key) : null;
+        if(positionElement==null || !positionElement.isJsonObject()) return null;
+        JsonObject locationData = positionElement.getAsJsonObject();
+        return getPosition(locationData);
+    }
+
+    public static void set(String key, Position position, JsonObject json){
+        JsonObject positionData = new JsonObject();
+        positionData.addProperty("x", position.getX());
+        positionData.addProperty("y", position.getY());
+        positionData.addProperty("z", position.getZ());
+        positionData.addProperty("pitch", position.getPitch());
+        positionData.addProperty("yaw", position.getYaw());
+
+        json.add(key, positionData);
+    }
+
+    public static Vector getVector(JsonObject json){
+        if(json==null || !json.isJsonObject()) return null;
+        double x = getDouble("x", json);
+        double y = getDouble("y", json);
+        double z = getDouble("z", json);
+
+        return new Vector(x, y, z);
+    }
+
+    public static Vector getVector(String key, JsonObject json){
+        JsonElement vectorElement = json.has(key) ? json.get(key) : null;
+        if(vectorElement==null || !vectorElement.isJsonObject()) return null;
+        JsonObject locationData = vectorElement.getAsJsonObject();
+        return getVector(locationData);
+    }
+
+    public static void set(String key, Vector vector, JsonObject json){
+        JsonObject positionData = new JsonObject();
+        positionData.addProperty("x", vector.getX());
+        positionData.addProperty("y", vector.getY());
+        positionData.addProperty("z", vector.getZ());
+        json.add(key, positionData);
+    }
+
+    public static ItemStack getItemStack(String key, JsonObject json){
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        if(element==null || !element.isJsonPrimitive()) return null;
+        return ItemUtil.deserialize(element.getAsString());
+    }
+
+    public static void set(String key, ItemStack itemStack, JsonObject json){
+        if(itemStack==null){
+            if(json.has(key)) json.remove(key);
+            return;
+        }
+        json.addProperty(key, ItemUtil.serialize(itemStack));
     }
 }
