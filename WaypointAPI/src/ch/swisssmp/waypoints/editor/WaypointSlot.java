@@ -31,6 +31,8 @@ public abstract class WaypointSlot extends ValueSlot {
 		Position position = ItemUtil.getPosition(itemStack, "waypoint");
 		if(position==null) return false;
 		this.applyWaypoint(position);
+		World attachedWorld = WaypointAPI.getAttachedWorld(itemStack);
+		if(attachedWorld!=null) applyAttachedWorld(attachedWorld);
 		return true;
 	}
 	
@@ -72,4 +74,7 @@ public abstract class WaypointSlot extends ValueSlot {
 	protected abstract MarkerType getMarkerType();
 	protected abstract Position getWaypoint();
 	protected abstract void applyWaypoint(Position position);
+	protected void applyAttachedWorld(World world){
+		//empty, to be overriden by implementing classes}
+	}
 }
