@@ -57,9 +57,9 @@ public class EventListener implements Listener {
             CamCommand.points.get(event.getPlayer().getUniqueId()).clear();
         }
         CameraStudio cameraStudio = CameraStudio.inst();
-        Bukkit.getLogger().info(event.getPlayer().getUniqueId()+" quit");
+        // Bukkit.getLogger().info(event.getPlayer().getUniqueId()+" quit");
         if(cameraStudio.isTravelling(event.getPlayer().getUniqueId())){
-            Bukkit.getLogger().info(event.getPlayer().getUniqueId()+" was travelling");
+            // Bukkit.getLogger().info(event.getPlayer().getUniqueId()+" was travelling");
             cameraStudio.abort(event.getPlayer().getUniqueId());
         }
     }

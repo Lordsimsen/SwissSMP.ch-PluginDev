@@ -250,7 +250,7 @@ public class CameraStudio {
     }
 
     public void abort(final UUID playerUUID) {
-        Bukkit.getLogger().info(CameraStudioPlugin.getPrefix()+" Aborting camera motion for "+playerUUID);
+        // Bukkit.getLogger().info(CameraStudioPlugin.getPrefix()+" Aborting camera motion for "+playerUUID);
         Player player = Bukkit.getPlayer(playerUUID);
         if(player!=null){
             ViewerInfo info = ViewerInfo.load(player).orElse(null);
