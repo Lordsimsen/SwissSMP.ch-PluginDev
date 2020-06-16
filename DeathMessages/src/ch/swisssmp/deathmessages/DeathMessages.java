@@ -1,110 +1,163 @@
 package ch.swisssmp.deathmessages;
 
-import java.util.ArrayList;
-import java.util.logging.Logger;
-
-import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Zombie;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.projectiles.BlockProjectileSource;
-import org.bukkit.projectiles.ProjectileSource;
-
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.utils.JsonUtil;
+import ch.swisssmp.utils.Random;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
-import ch.swisssmp.webcore.RequestMethod;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.bukkit.entity.Player;
 
-public class DeathMessages extends JavaPlugin implements Listener{
-	protected static Logger logger;
-	protected static PluginDescriptionFile pdfFile;
-	protected static DeathMessages plugin;
-	
-	@Override
-	public void onEnable() {
-		plugin = this;
-		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
-		
-		Bukkit.getPluginManager().registerEvents(this, this);
-	}
-	
-	@EventHandler
-	private void onPlayerDeath(PlayerDeathEvent event){
-		Player player = event.getEntity();
-		ArrayList<String> arguments = new ArrayList<String>();
-		arguments.add("player="+URLEncoder.encode(player.getDisplayName()));
-		if(player.getKiller()!=null){
-			arguments.add("killer="+URLEncoder.encode(player.getKiller().getDisplayName()));
-		}
-		arguments.add("message="+URLEncoder.encode(event.getDeathMessage()));
-		arguments.add("world="+URLEncoder.encode(player.getWorld().getName()));
-		EntityDamageEvent lastDamage = player.getLastDamageCause();
-		if(lastDamage!=null){
-			arguments.add("cause="+lastDamage.getCause());
-			if(lastDamage instanceof EntityDamageByEntityEvent){
-				EntityDamageByEntityEvent damageByEntity = (EntityDamageByEntityEvent) lastDamage;
-				Entity entity = damageByEntity.getDamager();
-				if(entity!=null){
-					if(entity instanceof Projectile){
-						Projectile projectile = (Projectile) entity;
-						arguments.add("arguments[projectile]="+projectile.getShooter());
-						ProjectileSource projectileSource = projectile.getShooter();
-						if(projectileSource instanceof Entity){
-							Entity shooter = (Entity)projectileSource;
-							arguments.add("arguments[entity]="+(shooter.getType()));
-							if(shooter.getCustomName()!=null) arguments.add("killer="+URLEncoder.encode(shooter.getCustomName()));
-						}
-						else if(projectileSource instanceof BlockProjectileSource){
-							BlockProjectileSource blockSource = (BlockProjectileSource) projectileSource;
-							arguments.add("arguments[block]="+blockSource.getBlock().getType());
-						}
-						
-					}
-					else{
-						if(entity instanceof Zombie && ((Zombie)entity).isBaby()){
-							arguments.add("arguments[entity]=BABY_"+entity.getType());
-						}
-						else{
-							arguments.add("arguments[entity]="+entity.getType());
-						}
-						if(entity.getCustomName()!=null) arguments.add("killer="+URLEncoder.encode(entity.getCustomName()));
-					}
-				}
-			}
-			else if(lastDamage instanceof EntityDamageByBlockEvent){
-				EntityDamageByBlockEvent damageByBlock = (EntityDamageByBlockEvent) lastDamage;
-				Block block = damageByBlock.getDamager();
-				if(block!=null)
-					arguments.add("arguments[block]="+block.getType());
-			}
-		}
-		HTTPRequest request = DataSource.getResponse(plugin, "death.php", arguments.toArray(new String[arguments.size()]), RequestMethod.POST_SYNC);
-		YamlConfiguration yamlConfiguration = request.getYamlResponse();
-		if(yamlConfiguration==null) return;
-		if(yamlConfiguration.contains("message")){
-			event.setDeathMessage(yamlConfiguration.getString("message"));
-		}
-	}
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
-	@Override
-	public void onDisable() {
-		HandlerList.unregisterAll((JavaPlugin)this);
-		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
-	}
+public class DeathMessages {
+    private static final ArrayList<VanillaDeathMessage> vanillaDethMessages = new ArrayList<>();
+    private static final ArrayList<CustomDeathMessage> customDeathMessages = new ArrayList<>();
+    private static final String using = "using";
+
+    public static void reload() {
+        reload(null);
+    }
+
+    public static void reload(Consumer<String> sendResult) {
+        HTTPRequest request = DataSource.getResponse(DeathMessagesPlugin.getInstance(), "messages.php");
+        request.onFinish(() -> {
+            JsonObject jsonResponse = request.getJsonResponse();
+            if (jsonResponse == null || jsonResponse.isJsonNull()) {
+                if (sendResult != null) {
+                    sendResult.accept("Aktualisierung der Todesnachrichten fehlgeschlagen.");
+                }
+                return;
+            }
+            reload(sendResult, jsonResponse);
+        });
+    }
+
+    public String GetCustomDeathMessage(Player player, String oldMessage, String entity, String block, String killer) {
+        Optional<VanillaDeathMessage> vanillaDeathMessageOpt = vanillaDethMessages.stream()
+                .filter(msg -> oldMessage.contains(msg.signature))
+                .filter(msg -> oldMessage.contains(using) == msg.message.contains(using))
+                .sorted(Comparator.comparingInt(msg -> msg.message.length()))
+                .findFirst();
+
+        if (!vanillaDeathMessageOpt.isPresent())
+            return oldMessage;
+        VanillaDeathMessage vanillaDeathMessage = vanillaDeathMessageOpt.get();
+
+        Random r = new Random();
+        List<CustomDeathMessage> matchingCustomDeathMessages = customDeathMessages.stream()
+                .filter(msg -> msg.vanillaId == vanillaDeathMessage.id)
+                .filter(msg -> msg.entity.equals(entity))
+                .filter(msg -> msg.block.equals(block))
+                .collect(Collectors.toList());
+        CustomDeathMessage randomMessage = matchingCustomDeathMessages.get(r.nextInt(matchingCustomDeathMessages.size() - 1));
+
+        JsonObject mask = JsonUtil.parse(vanillaDeathMessage.mask);
+        JsonArray maskJsonArray = mask.getAsJsonArray();
+        String vanillaMessage = vanillaDeathMessage.message;
+        String customMessage = randomMessage.message;
+        ArrayList<String> masks = new ArrayList<>();
+        for (JsonElement maskElement : maskJsonArray) {
+            masks.add(maskElement.getAsString());
+        }
+        for (String maskString : masks) {
+            vanillaMessage = vanillaMessage.replace(maskString, ",");
+        }
+        String oldCopy = new StringBuffer(oldMessage).toString();
+        String[] splitVanillaMessage = vanillaMessage.split(";");
+
+        for(String splitVanillaMessagePart : splitVanillaMessage){
+            oldCopy = oldCopy.replace(splitVanillaMessagePart,"\n");
+        }
+        String[] splitOldMessage = oldCopy.split("\n");
+        for(String maskElement : masks){
+            String asdf = new String();
+            if("{Player}".equals(maskElement))
+                asdf = player.getDisplayName();
+            else if (("{Mob}".equals(maskElement) || "{Killer}".equals(maskElement)) && !killer.isEmpty()){
+                asdf = killer;
+            }
+            else{
+                asdf = splitOldMessage[masks.indexOf(maskElement)];
+            }
+            customMessage = customMessage.replace(maskElement, asdf);
+        }
+        return customMessage;
+    }
+
+    private static void reload(Consumer<String> sendResult, JsonObject deathMessageData) {
+        JsonArray rawVanillaDeathMessages = deathMessageData.getAsJsonArray("vanilla_messages");
+        JsonArray rawCustomDeathMessages = deathMessageData.getAsJsonArray("messages");
+        if (rawVanillaDeathMessages == null || rawCustomDeathMessages == null) {
+            return;
+        }
+
+        vanillaDethMessages.clear();
+        for (JsonElement rawVanillaDeathMessage : rawVanillaDeathMessages) {
+            if (rawVanillaDeathMessage.isJsonObject()) {
+                vanillaDethMessages.add(loadVanillaDeathMessage(rawVanillaDeathMessage.getAsJsonObject()));
+            }
+        }
+        customDeathMessages.clear();
+        for (JsonElement rawCustomDeathMessage : rawCustomDeathMessages) {
+            if (rawCustomDeathMessage.isJsonObject()) {
+                customDeathMessages.add(loadCustomDeathMessage(rawCustomDeathMessage.getAsJsonObject()));
+            }
+        }
+    }
+
+    private static VanillaDeathMessage loadVanillaDeathMessage(JsonObject rawVanillaDeathMessage) {
+        return new VanillaDeathMessage(
+                JsonUtil.getInt("id", rawVanillaDeathMessage),
+                JsonUtil.getString("message", rawVanillaDeathMessage),
+                JsonUtil.getString("signature", rawVanillaDeathMessage),
+                JsonUtil.getString("mask", rawVanillaDeathMessage));
+    }
+
+    private static CustomDeathMessage loadCustomDeathMessage(JsonObject rawCustomDeathMessage) {
+        return new CustomDeathMessage(
+                JsonUtil.getInt("deathmessage_id", rawCustomDeathMessage),
+                JsonUtil.getString("entity", rawCustomDeathMessage),
+                JsonUtil.getString("message", rawCustomDeathMessage),
+                JsonUtil.getString("cause", rawCustomDeathMessage),
+                JsonUtil.getString("block", rawCustomDeathMessage));
+    }
+
+    public static class VanillaDeathMessage {
+        public int id;
+        public String message;
+        public String signature;
+        public String mask;
+
+        public VanillaDeathMessage(int id, String message, String signature, String mask) {
+            this.id = id;
+            this.message = message;
+            this.signature = signature;
+            this.mask = mask;
+        }
+    }
+
+    public static class CustomDeathMessage {
+        public int vanillaId;
+        public String entity;
+        public String message;
+        public String cause;
+        public String block;
+
+        public CustomDeathMessage(int vanillaId, String entity, String message, String cause, String block) {
+            this.vanillaId = vanillaId;
+            this.entity = entity;
+            this.message = message;
+            this.cause = cause;
+            this.block = block;
+        }
+
+    }
 }
