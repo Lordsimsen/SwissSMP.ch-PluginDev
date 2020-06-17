@@ -4,11 +4,10 @@ import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.world.WorldManager;
 import com.google.gson.JsonObject;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ZoneCollection {
 
@@ -32,7 +31,20 @@ public class ZoneCollection {
     }
 
     public Zone createZone(String name){
-        Zone zone = type.createZone(name);
+        UUID uid = UUID.randomUUID();
+        return createZone(uid, uid.toString(), name);
+    }
+
+    public Zone createZone(String regionId, String name){
+        UUID uid = UUID.randomUUID();
+        return createZone(uid, regionId, name);
+    }
+
+    public Zone createZone(UUID uid, String regionId, String name){
+        Zone zone = type.getRegionType()==RegionType.CUBOID ? new CuboidZone(this, uid, regionId, type) : new PolygonZone(this, uid, regionId, type);
+        zone.setName(name);
+        zone.updateWorldGuardRegion();
+        zone.save();
         zones.add(zone);
         return zone;
     }
@@ -65,5 +77,9 @@ public class ZoneCollection {
         }
 
         return collection;
+    }
+
+    public static Optional<ZoneCollection> get(World world, ZoneType type){
+        return ZoneContainer.get(world).getCollection(type);
     }
 }

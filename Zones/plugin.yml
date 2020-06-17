@@ -2,4 +2,22 @@ main: ch.swisssmp.zones.ZonesPlugin
 version: 1.0
 api-version: 1.13
 name: Zones
+description: Ermöglicht Verwaltung von Zonen aufgrund von WorldGuard-Regionen
 depend: [WorldEdit,WorldGuard,CustomEditorAPI,ResourcepackManager,SwissSMPUtils,CustomItems,WorldManager]
+permissions:
+  zones.admin:
+    description: Erlaubt Verwaltung des Plugins
+    default: op
+commands:
+  zones:
+    description: Zeigt alle Zonen in der aktuellen Welt
+    usage: "/<command>"
+    permission: zones.admin
+  zone:
+    description: Basisbefehl zur Verwaltung von Zonen
+    usage: "/<command> <subcommand>"
+    permission: zones.admin
+  zone create:
+    description: Erstellt eine Zone in der aktuellen Welt
+    usage: "/<command> create [Typ] [Name]"
+    permission: zones.admin

@@ -17,9 +17,20 @@ public class PolygonZone extends Zone {
     private BlockVector min;
     private BlockVector max;
 
-    protected PolygonZone(ZoneCollection collection, UUID uid, ZoneType type){
-        super(collection, uid, type);
+    protected PolygonZone(ZoneCollection collection, UUID uid, String regionId, ZoneType type){
+        super(collection, uid, regionId, type);
 
+    }
+
+    public List<BlockVector> getPoints(){
+        return new ArrayList<>(points);
+    }
+
+    public void setPoints(List<BlockVector> points){
+        this.points.clear();
+        this.points.addAll(points);
+        this.recalculateBounds();
+        updateWorldGuardRegion();
     }
 
     @Override
@@ -40,11 +51,25 @@ public class PolygonZone extends Zone {
         );
     }
 
+    private void recalculateBounds(){
+        min = WorldGuardHandler.getMin(points);
+        max = WorldGuardHandler.getMax(points);
+    }
+
     @Override
-    public void createWorldGuardRegion(){
-        String regionId = getUniqueId().toString();
+    public void updateWorldGuardRegion(){
+        String regionId = getRegionId();
         World world = getWorld();
-        WorldGuardHandler.createPolygonRegion(world, regionId, points);
+        List<BlockVector> points = new ArrayList<>(this.points);
+        if(points.size()==0){
+            points.add(new BlockVector(0,64,0));
+        }
+        if(points.size()<3){
+            for(int i = points.size(); i < 3; i++){
+                points.add(points.get(0));
+            }
+        }
+        WorldGuardHandler.updatePolygonRegion(world, regionId, points);
     }
 
     @Override

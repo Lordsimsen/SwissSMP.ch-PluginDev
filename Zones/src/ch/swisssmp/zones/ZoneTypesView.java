@@ -6,27 +6,30 @@ import ch.swisssmp.editor.slot.ChangePageSlot;
 import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.zones.editor.ZoneSlot;
+import ch.swisssmp.zones.editor.ZoneTypeSlot;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
-public class ZonesView extends CustomEditorView implements PaginatedView {
+public class ZoneTypesView extends CustomEditorView implements PaginatedView {
 
     private static final int COLUMNS = 8;
 
-    private final Collection<Zone> zones;
+    private final Collection<ZoneType> zoneTypes;
 
     private final int pageSize;
     private final int maxPage;
 
     private int page = 0;
 
-    protected ZonesView(Player player, Collection<Zone> zones) {
+    protected ZoneTypesView(Player player, Collection<ZoneType> zoneTypes) {
         super(player);
-        this.zones = zones;
-        this.pageSize = Math.max(18, Math.min(54, Mathf.ceilToInt(zones.size()/(float) COLUMNS)*9));
-        this.maxPage = Math.max(0, Mathf.ceilToInt(zones.size() / (double) pageSize) - 1);
+        this.zoneTypes = zoneTypes;
+        this.pageSize = Math.max(18, Math.min(54, Mathf.ceilToInt(zoneTypes.size()/(float) COLUMNS)*9));
+        this.maxPage = Math.max(0, Mathf.ceilToInt(zoneTypes.size() / (double) pageSize) - 1);
     }
 
     @Override
@@ -40,9 +43,9 @@ public class ZonesView extends CustomEditorView implements PaginatedView {
         Collection<EditorSlot> slots = new ArrayList<>();
         if(page>0) slots.add(new ChangePageSlot(this, 8, false));
         if(page<maxPage) slots.add(new ChangePageSlot(this, pageSize-1, true));
-        for(Zone zone : zones){
+        for(ZoneType type : zoneTypes){
             int slot = remapSlot(index);
-            slots.add(new ZoneSlot(this, slot, zone));
+            slots.add(new ZoneTypeSlot(this, slot, type));
             index++;
         }
         return slots;
@@ -50,7 +53,7 @@ public class ZonesView extends CustomEditorView implements PaginatedView {
 
     @Override
     public String getTitle() {
-        return "Zonen";
+        return "Zonen-Typen";
     }
 
     public void pageUp() {
@@ -76,13 +79,9 @@ public class ZonesView extends CustomEditorView implements PaginatedView {
         return row * 9 + column;
     }
 
-    public static CustomEditorView open(Player player, ZoneType zoneType){
-        ZoneCollection collection = ZoneContainer.get(player.getWorld()).getCollection(zoneType).orElse(null);
-        if(collection==null){
-            return ZoneTypesView.open(player);
-        }
-        Collection<Zone> displays = collection.getAllZones();
-        ZonesView view = new ZonesView(player, displays);
+    public static ZoneTypesView open(Player player){
+        Collection<ZoneType> types = ZoneTypes.getAll().stream().sorted(Comparator.comparing(ZoneType::getName)).collect(Collectors.toList());
+        ZoneTypesView view = new ZoneTypesView(player, types);
         view.open();
         return view;
     }

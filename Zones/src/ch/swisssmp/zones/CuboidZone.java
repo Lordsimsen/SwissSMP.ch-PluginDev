@@ -12,9 +12,15 @@ public class CuboidZone extends Zone {
     private BlockVector min;
     private BlockVector max;
 
-    protected CuboidZone(ZoneCollection collection, UUID uid, ZoneType type){
-        super(collection, uid, type);
+    protected CuboidZone(ZoneCollection collection, UUID uid, String regionId, ZoneType type){
+        super(collection, uid, regionId, type);
 
+    }
+
+    public void setPoints(BlockVector min, BlockVector max){
+        this.min = min;
+        this.max = max;
+        updateWorldGuardRegion();
     }
 
     @Override
@@ -37,10 +43,10 @@ public class CuboidZone extends Zone {
     }
 
     @Override
-    public void createWorldGuardRegion(){
-        String regionId = getUniqueId().toString();
+    public void updateWorldGuardRegion(){
+        String regionId = getRegionId();
         World world = getWorld();
-        WorldGuardHandler.createCuboidRegion(world, regionId, min, max);
+        WorldGuardHandler.updateCuboidRegion(world, regionId, min, max);
     }
 
     @Override

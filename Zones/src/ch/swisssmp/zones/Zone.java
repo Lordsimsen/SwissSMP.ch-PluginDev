@@ -19,17 +19,17 @@ public abstract class Zone {
 
     private final ZoneCollection collection;
     private final UUID uid;
+    private final String regionId;
     private final ZoneType type;
     private final RegionType regionType;
     private String name;
 
     private final List<BlockVector> points = new ArrayList<>();
-    private BlockVector min;
-    private BlockVector max;
 
-    protected Zone(ZoneCollection collection, UUID uid, ZoneType type){
+    protected Zone(ZoneCollection collection, UUID uid, String regionId, ZoneType type){
         this.collection = collection;
         this.uid = uid;
+        this.regionId = regionId;
         this.type = type;
         this.regionType = type.getRegionType();
     }
@@ -48,6 +48,10 @@ public abstract class Zone {
 
     public UUID getUniqueId(){
         return uid;
+    }
+
+    public String getRegionId(){
+        return regionId;
     }
 
     public ZoneType getType(){
@@ -81,21 +85,16 @@ public abstract class Zone {
 
     public abstract boolean isSetupComplete();
 
-    public abstract void createWorldGuardRegion();
-
+    protected abstract void updateWorldGuardRegion();
     private void removeWorldGuardRegion(){
         String regionId = uid.toString();
         WorldGuardHandler.removeRegion(getWorld(), regionId);
     }
 
-    private void recalculateBounds(){
-        min = WorldGuardHandler.getMin(points);
-        max = WorldGuardHandler.getMax(points);
-    }
-
     public void save(){
         JsonObject json = new JsonObject();
         JsonUtil.set("uuid", uid, json);
+        JsonUtil.set("region_id", regionId, json);
         JsonUtil.set("name", name, json);
         json.add("data", saveData());
         File file = getFile();
@@ -125,10 +124,12 @@ public abstract class Zone {
             return Optional.empty();
         }
 
-        if(uid==null) return Optional.empty();
+        String regionId = JsonUtil.getString("region_id", json);
+
+        if(uid==null || regionId==null) return Optional.empty();
 
         ZoneType type = collection.getZoneType();
-        Zone zone = type.getRegionType()==RegionType.CUBOID ? new CuboidZone(collection, uid, type) : new PolygonZone(collection, uid, type);
+        Zone zone = type.getRegionType()==RegionType.CUBOID ? new CuboidZone(collection, uid, regionId, type) : new PolygonZone(collection, uid, regionId, type);
         zone.name = JsonUtil.getString("name", json);
 
         return Optional.of(zone);

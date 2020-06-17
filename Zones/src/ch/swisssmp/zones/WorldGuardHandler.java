@@ -5,6 +5,7 @@ import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.managers.RemovalStrategy;
 import com.sk89q.worldguard.protection.managers.storage.StorageException;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
@@ -15,11 +16,10 @@ import org.bukkit.util.BlockVector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public class WorldGuardHandler {
 
-    protected static ProtectedCuboidRegion createCuboidRegion(World world, String id, BlockVector min, BlockVector max){
+    private static ProtectedCuboidRegion createCuboidRegion(World world, String id, BlockVector min, BlockVector max){
         RegionManager manager = getManager(world);
         ProtectedCuboidRegion region = new ProtectedCuboidRegion(id, BlockVector3.at(min.getBlockX(),min.getBlockY(),min.getBlockZ()), BlockVector3.at(max.getBlockX(),max.getBlockY(),max.getBlockZ()));
         manager.addRegion(region);
@@ -31,7 +31,27 @@ public class WorldGuardHandler {
         return region;
     }
 
-    protected static ProtectedPolygonalRegion createPolygonRegion(World world, String id, Collection<BlockVector> points){
+    protected static ProtectedCuboidRegion updateCuboidRegion(World world, String id, BlockVector min, BlockVector max){
+        RegionManager manager = getManager(world);
+        ProtectedRegion existing = manager.getRegion(id);
+        if(!(existing instanceof ProtectedCuboidRegion)){
+            if(existing!=null) manager.removeRegion(id, RemovalStrategy.UNSET_PARENT_IN_CHILDREN);
+            ProtectedCuboidRegion region = createCuboidRegion(world, id, min, max);
+            if(existing!=null) region.copyFrom(existing);
+            return region;
+        }
+        ProtectedCuboidRegion region = (ProtectedCuboidRegion) existing;
+        region.setMinimumPoint(adapt(min));
+        region.setMaximumPoint(adapt(max));
+        try {
+            manager.save();
+        } catch (StorageException e) {
+            e.printStackTrace();
+        }
+        return region;
+    }
+
+    private static ProtectedPolygonalRegion createPolygonRegion(World world, String id, Collection<BlockVector> points){
         if(points.size()<3) return null;
         List<BlockVector2> corners = new ArrayList<>();
         int minY = Integer.MAX_VALUE;
@@ -52,10 +72,37 @@ public class WorldGuardHandler {
         return region;
     }
 
-    protected static Optional<ProtectedRegion> getRegion(World world, String id){
+    protected static ProtectedPolygonalRegion updatePolygonRegion(World world, String id, Collection<BlockVector> points){
+        if(points.size()<3) return null;
+        List<BlockVector2> corners = new ArrayList<>();
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        for(BlockVector p : points){
+            corners.add(BlockVector2.at(p.getBlockX(),p.getBlockZ()));
+            minY = Math.min(minY, p.getBlockY());
+            maxY = Math.max(maxY, p.getBlockY());
+        }
         RegionManager manager = getManager(world);
-        ProtectedRegion region = manager.getRegion(id);
-        return region!=null ? Optional.of(region) : Optional.empty();
+        ProtectedRegion existing = manager.getRegion(id);
+        ProtectedPolygonalRegion result;
+        if(!(existing instanceof ProtectedPolygonalRegion)){
+            if(existing!=null) manager.removeRegion(id, RemovalStrategy.UNSET_PARENT_IN_CHILDREN);
+            result = createPolygonRegion(world, id, points);
+            if(existing!=null) result.copyFrom(existing);
+        }
+        else{
+            ProtectedPolygonalRegion region = (ProtectedPolygonalRegion) existing;
+            manager.removeRegion(region.getId());
+            result = new ProtectedPolygonalRegion(id, corners, minY, maxY);
+            result.copyFrom(region);
+            manager.addRegion(result);
+        }
+        try {
+            manager.save();
+        } catch (StorageException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     protected static void removeRegion(World world, String id){
