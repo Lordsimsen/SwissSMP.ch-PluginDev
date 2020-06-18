@@ -1,101 +1,72 @@
 package ch.swisssmp.zones;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.bukkit.GameMode;
+import ch.swisssmp.utils.JsonUtil;
+import ch.swisssmp.world.WorldManager;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.managers.storage.StorageException;
-
-import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.zones.zoneinfos.ZoneInfo;
+import java.io.File;
+import java.util.*;
 
 public class ZoneContainer {
-	
-	private final World world;
-	private final HashMap<String,ZoneInfo> zones = new HashMap<String,ZoneInfo>();
-	
-	private ZoneContainer(World world){
-		this.world = world;
-	}
-	
-	public World getWorld(){
-		return world;
-	}
-	
-	public Collection<ZoneInfo> getZones(){
-		return zones.values();
-	}
-	
-	public void add(ZoneInfo zoneInfo){
-		String id = zoneInfo.getId();
-		if(id==null) return;
-		zones.put(id, zoneInfo);
-	}
-	
-	public void remove(ZoneInfo zoneInfo){
-		zones.remove(zoneInfo.getId());
-	}
-	
-	public ZoneInfo getZone(String zoneId){
-		return zones.get(zoneId);
-	}
-	
-	public List<ZoneInfo> getZones(Player player){
-		return zones.values().stream()
-				.filter(z->(z.getMembers().containsKey(player.getUniqueId()) || (player.isOp() && player.getGameMode()==GameMode.CREATIVE)))
-				.collect(Collectors.toList());
-	}
-	
-	private void load(){
-		YamlConfiguration yamlConfiguration = ZoneUtil.getZonesData(world);
-		if(yamlConfiguration==null || !yamlConfiguration.contains("zones")) return;
-		ConfigurationSection zonesSection = yamlConfiguration.getConfigurationSection("zones");
-		for(String key : zonesSection.getKeys(false)){
-			ConfigurationSection zoneSection = zonesSection.getConfigurationSection(key);
-			ZoneInfo zoneInfo = ZoneInfo.load(world, key, zoneSection);
-			if(zoneInfo==null) continue;
-			zones.put(key, zoneInfo);
-		}
-	}
-	
-	public void save(){
-		YamlConfiguration yamlConfiguration = new YamlConfiguration();
-		ConfigurationSection zonesSection = yamlConfiguration.createSection("zones");
-		for(ZoneInfo zoneInfo : getZones()){
-			ConfigurationSection zoneSection = zonesSection.createSection(zoneInfo.getId());
-			zoneInfo.save(zoneSection);
-		}
-		ZoneUtil.saveZonesData(world, yamlConfiguration);
-		
-		try {
-			RegionManager manager = WorldGuardUtil.getManager(world);
-			manager.save();
-		} catch (StorageException e) {
-			e.printStackTrace();
-		} catch(NoClassDefFoundError e){
-			//do nothing
-		}
-	}
-	
-	protected static ZoneContainer load(World world){
-		ZoneContainer result = new ZoneContainer(world);
-		result.load();
-		ZoneContainers.add(world, result);
-		return result;
-	}
-	
-	protected static void unload(World world){
-		ZoneContainers.remove(world);
-	}
-	
-	public static ZoneContainer get(World world){
-		return ZoneContainers.get(world);
-	}
+
+    private final World world;
+    private final Set<ZoneCollection> collections = new HashSet<>();
+
+    private ZoneContainer(World world){
+        this.world = world;
+    }
+
+    public World getBukkitWorld(){
+        return world;
+    }
+
+    public Optional<ZoneCollection> getCollection(ZoneType type){
+        return getCollection(type.getKey());
+    }
+
+    public Optional<ZoneCollection> getCollection(NamespacedKey key){
+        return collections.stream().filter(c->c.getZoneType().getKey().equals(key)).findAny();
+    }
+
+    protected void unload(){
+        for(ZoneCollection collection : collections){
+            collection.unload();
+        }
+
+        collections.clear();
+    }
+
+    protected void loadCollection(ZoneType type){
+        ZoneCollection collection = ZoneCollection.load(this, type);
+        if(collection==null) return;
+        collections.add(collection);
+    }
+
+    protected void unloadCollection(ZoneType type){
+        ZoneCollection collection = getCollection(type).orElse(null);
+        if(collection==null) return;
+        collection.unload();
+        collections.remove(collection);
+    }
+
+    protected static ZoneContainer load(World world){
+        ZoneContainer result = new ZoneContainer(world);
+        for(ZoneType type : ZoneTypes.getAll()){
+            result.loadCollection(type);
+        }
+
+        return result;
+    }
+
+    public static ZoneContainer get(World world){
+        return ZoneContainers.get(world);
+    }
+
+    private static File getFile(World world){
+        return new File(WorldManager.getPluginDirectory(ZonesPlugin.getInstance(), world), "zones.json");
+    }
 }

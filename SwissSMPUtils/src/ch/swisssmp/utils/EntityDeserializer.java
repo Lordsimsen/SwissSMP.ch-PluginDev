@@ -89,11 +89,7 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.entity.ZombieVillager;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.material.Colorable;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
@@ -731,6 +727,12 @@ public class EntityDeserializer {
 
 		if(section.has("c")) entity.setColor(Horse.Color.valueOf(section.get("c").getAsString()));
 		if(section.has("s")) entity.setStyle(Horse.Style.valueOf(section.get("s").getAsString()));
+
+		if(section.has("i")) deserializeHorseInventory(entity.getInventory(), section.getAsJsonObject("i"));
+	}
+	private static void deserializeHorseInventory(HorseInventory inventory, JsonObject data){
+		if(data.has("s")) inventory.setSaddle(ItemUtil.deserialize(data.get("s").getAsString()));
+		if(data.has("a")) inventory.setArmor(ItemUtil.deserialize(data.get("a").getAsString()));
 	}
 	private static void deserializeHumanEntitySettings(HumanEntity entity, JsonObject data){
 		String key = "human_entity";

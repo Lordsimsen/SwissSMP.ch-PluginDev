@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="UtilityCommands:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="UtilityCommands.jar">
+      <element id="module-output" name="UtilityCommands" />
+      <element id="file-copy" path="$PROJECT_DIR$/UtilityCommands/plugin.yml" />
+    </root>
+  </artifact>
+</component>

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,5 +38,9 @@ public class SpawnManager extends JavaPlugin {
 	
 	public static SpawnManager getInstance(){
 		return plugin;
+	}
+
+	public static String getPrefix(){
+		return "["+ChatColor.GRAY+plugin.getName()+ ChatColor.RESET+"]";
 	}
 }

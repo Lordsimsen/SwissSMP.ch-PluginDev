@@ -22,6 +22,7 @@ public class UtilityCommands extends JavaPlugin{
 		this.getCommand("amount").setExecutor(playerCommand);
 		this.getCommand("hauptstadt").setExecutor(playerCommand);
 		this.getCommand("choose").setExecutor(playerCommand);
+		this.getCommand("gravity").setExecutor(playerCommand);
 		this.getCommand("rename").setExecutor(new RenameCommand());
 		
 		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");

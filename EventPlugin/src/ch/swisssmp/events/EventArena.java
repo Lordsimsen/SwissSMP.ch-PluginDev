@@ -19,6 +19,7 @@ import java.util.UUID;
 public abstract class EventArena {
     private final World world;
     private final UUID arena_id;
+    private EventArenas arenas;
 
     private String name;
 
@@ -76,7 +77,7 @@ public abstract class EventArena {
                 if (itemStack == null) {
                     continue;
                 }
-                EventArena arena = EventArena.get(itemStack);
+                EventArena arena = arenas.get(itemStack);
                 if(arena != this) {
                     continue;
                 }
@@ -85,46 +86,11 @@ public abstract class EventArena {
         }
     }
 
-    public static EventArena get(UUID arena_id) {
-        for(EventArena arena : EventArenas.getArenasList()){
-            if(arena.getArena_id().equals(arena_id)) return arena;
-        }
-        return null;
-    }
-
-    public static EventArena get(String name, boolean exactMatch){
-        for(EventArena arena : EventArenas.getArenasList()){
-            if(exactMatch && !arena.getName().toLowerCase().equals(name.toLowerCase())) {
-                continue;
-            }
-            if(arena.getName().toLowerCase().contains(name.toLowerCase())) {
-                return arena;
-            }
-        }
-        return null;
-    }
-
-    public static EventArena get(ItemStack tokenStack){
-        String uuidString = ItemUtil.getString(tokenStack, "arena");
-        if(uuidString == null) {
-            return null;
-        }
-        UUID arena_id = UUID.fromString(uuidString);
-        if(arena_id == null) {
-            return null;
-        }
-        return get(arena_id);
-    }
-
     public abstract EventArenaEditor openEditor(Player player);
 
     public abstract EventArena create(World world, String name);
 
     public abstract EventArena create(World world, UUID arena_id, String name);
-
-    public void remove(){
-        EventArenas.remove(this);
-    }
 
     public void save(ConfigurationSection dataSection) {
         dataSection.set("name", this.name);
@@ -143,5 +109,9 @@ public abstract class EventArena {
 
     public static EventArena load(World world, ConfigurationSection dataSection) {
         return null;
+    }
+
+    public void remove(){
+        arenas.remove(this);
     }
 }

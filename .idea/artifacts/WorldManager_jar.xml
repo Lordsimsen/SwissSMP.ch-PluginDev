@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="WorldManager:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="WorldManager.jar">
+      <element id="module-output" name="WorldManager" />
+      <element id="file-copy" path="$PROJECT_DIR$/WorldManager/plugin.yml" />
+    </root>
+  </artifact>
+</component>

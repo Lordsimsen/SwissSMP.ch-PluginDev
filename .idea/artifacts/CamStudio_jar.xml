@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="CamStudio:jar">
-    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
-    <root id="archive" name="CamStudio.jar">
-      <element id="module-output" name="CamStudio" />
-      <element id="file-copy" path="$PROJECT_DIR$/CamStudio/plugin.yml" />
-    </root>
-  </artifact>
-</component>

@@ -1,7 +1,7 @@
 main: ch.swisssmp.livemap_render_api.LivemapRenderAPI
-version: 1.0
+version: 1.4
 api-version: 1.13
 name: LivemapRenderAPI
 author: detig_iii
 description: Standardisiert Mapping von Livemap-Ausschnitten auf Ingame-Karten
-depend: [MapImageLoader]
+depend: [WebCore,SwissSMPUtils]

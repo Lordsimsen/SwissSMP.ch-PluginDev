@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TravelSystem:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="TravelSystem.jar">
+      <element id="module-output" name="TravelSystem" />
+      <element id="file-copy" path="$PROJECT_DIR$/TravelSystem/plugin.yml" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,7 @@
+main: ch.swisssmp.servernetwork.ServerNetworkPlugin
+version: 1.0
+api-version: 1.13
+name: ResourcepackManager
+author: detig_iii
+description: Erlaubt Kommunikation mehrerer Server untereinander
+depend: [WebCore]

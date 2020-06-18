@@ -1,12 +1,18 @@
 package ch.swisssmp.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.utils.nbt.NBTTagCompound;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ItemUtil {
 	
@@ -171,5 +177,22 @@ public class ItemUtil {
 		net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 		if(!nmsStack.hasTag()) return null;
 		return new NBTTagCompound(nmsStack.getTag());
+	}
+
+	public static void updateItemsGlobal(Function<ItemStack,Boolean> filter, Consumer<ItemStack> callback){
+		for(Player player : Bukkit.getOnlinePlayers()){
+			updateItems(player.getInventory(), filter, callback);
+			if(player.getOpenInventory()!=null){
+				updateItems(player.getOpenInventory().getTopInventory(), filter, callback);
+			}
+		}
+	}
+
+	public static void updateItems(Inventory inventory, Function<ItemStack,Boolean> filter, Consumer<ItemStack> callback){
+		for(ItemStack itemStack : inventory){
+			if(itemStack==null || itemStack.getType()==Material.AIR) continue;
+			if(!filter.apply(itemStack)) continue;
+			callback.accept(itemStack);
+		}
 	}
 }

@@ -13,7 +13,7 @@
       <module fileurl="file://$PROJECT_DIR$/AuctionHouse/AuctionHouse.iml" filepath="$PROJECT_DIR$/AuctionHouse/AuctionHouse.iml" />
       <module fileurl="file://$PROJECT_DIR$/BigDoors/BigDoors.iml" filepath="$PROJECT_DIR$/BigDoors/BigDoors.iml" />
       <module fileurl="file://$PROJECT_DIR$/BookAuthor/BookAuthor.iml" filepath="$PROJECT_DIR$/BookAuthor/BookAuthor.iml" />
-      <module fileurl="file://$PROJECT_DIR$/CamStudio/CamStudio.iml" filepath="$PROJECT_DIR$/CamStudio/CamStudio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CameraStudio/CameraStudio.iml" filepath="$PROJECT_DIR$/CameraStudio/CameraStudio.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChatLogger/ChatLogger.iml" filepath="$PROJECT_DIR$/ChatLogger/ChatLogger.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChatManager/ChatManager.iml" filepath="$PROJECT_DIR$/ChatManager/ChatManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChunkUpdater/ChunkUpdater.iml" filepath="$PROJECT_DIR$/ChunkUpdater/ChunkUpdater.iml" />
@@ -32,12 +32,15 @@
       <module fileurl="file://$PROJECT_DIR$/CustomEditorAPI/CustomEditorAPI.iml" filepath="$PROJECT_DIR$/CustomEditorAPI/CustomEditorAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomEntities/CustomEntities.iml" filepath="$PROJECT_DIR$/CustomEntities/CustomEntities.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomItems/CustomItems.iml" filepath="$PROJECT_DIR$/CustomItems/CustomItems.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CustomPaintings/CustomPaintings.iml" filepath="$PROJECT_DIR$/CustomPaintings/CustomPaintings.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CustomPortals/CustomPortals.iml" filepath="$PROJECT_DIR$/CustomPortals/CustomPortals.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomRecipeAPI/CustomRecipeAPI.iml" filepath="$PROJECT_DIR$/CustomRecipeAPI/CustomRecipeAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" filepath="$PROJECT_DIR$/CustomVehicles/CustomVehicles.iml" />
       <module fileurl="file://$PROJECT_DIR$/DeathMessages/DeathMessages.iml" filepath="$PROJECT_DIR$/DeathMessages/DeathMessages.iml" />
       <module fileurl="file://$PROJECT_DIR$/Deluminator/Deluminator.iml" filepath="$PROJECT_DIR$/Deluminator/Deluminator.iml" />
       <module fileurl="file://$PROJECT_DIR$/DungeonGenerator/DungeonGenerator.iml" filepath="$PROJECT_DIR$/DungeonGenerator/DungeonGenerator.iml" />
       <module fileurl="file://$PROJECT_DIR$/ElytraRace/ElytraRace.iml" filepath="$PROJECT_DIR$/ElytraRace/ElytraRace.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EntitySafety/EntitySafety.iml" filepath="$PROJECT_DIR$/EntitySafety/EntitySafety.iml" />
       <module fileurl="file://$PROJECT_DIR$/EventPlugin/EventPlugin.iml" filepath="$PROJECT_DIR$/EventPlugin/EventPlugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/EventPoints/EventPoints.iml" filepath="$PROJECT_DIR$/EventPoints/EventPoints.iml" />
       <module fileurl="file://$PROJECT_DIR$/FlyDay/FlyDay.iml" filepath="$PROJECT_DIR$/FlyDay/FlyDay.iml" />
@@ -52,6 +55,7 @@
       <module fileurl="file://$PROJECT_DIR$/InteractiveLore/InteractiveLore.iml" filepath="$PROJECT_DIR$/InteractiveLore/InteractiveLore.iml" />
       <module fileurl="file://$PROJECT_DIR$/JP2048/JP2048.iml" filepath="$PROJECT_DIR$/JP2048/JP2048.iml" />
       <module fileurl="file://$PROJECT_DIR$/KnightsTournament/KnightsTournament.iml" filepath="$PROJECT_DIR$/KnightsTournament/KnightsTournament.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LaPoste/LaPoste.iml" filepath="$PROJECT_DIR$/LaPoste/LaPoste.iml" />
       <module fileurl="file://$PROJECT_DIR$/Lift/Lift.iml" filepath="$PROJECT_DIR$/Lift/Lift.iml" />
       <module fileurl="file://$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" filepath="$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" filepath="$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" />
@@ -65,12 +69,12 @@
       <module fileurl="file://$PROJECT_DIR$/Monuments/Monuments.iml" filepath="$PROJECT_DIR$/Monuments/Monuments.iml" />
       <module fileurl="file://$PROJECT_DIR$/NPCs/NPCs.iml" filepath="$PROJECT_DIR$/NPCs/NPCs.iml" />
       <module fileurl="file://$PROJECT_DIR$/NetherPortalFixer/NetherPortalFixer.iml" filepath="$PROJECT_DIR$/NetherPortalFixer/NetherPortalFixer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NightSkipper/NightSkipper.iml" filepath="$PROJECT_DIR$/NightSkipper/NightSkipper.iml" />
       <module fileurl="file://$PROJECT_DIR$/Observatorium/Observatorium.iml" filepath="$PROJECT_DIR$/Observatorium/Observatorium.iml" />
       <module fileurl="file://$PROJECT_DIR$/ParticleSystemsAPI/ParticleSystemsAPI.iml" filepath="$PROJECT_DIR$/ParticleSystemsAPI/ParticleSystemsAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/PermissionManager/PermissionManager.iml" filepath="$PROJECT_DIR$/PermissionManager/PermissionManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/PersonalSaddles/PersonalSaddles.iml" filepath="$PROJECT_DIR$/PersonalSaddles/PersonalSaddles.iml" />
       <module fileurl="file://$PROJECT_DIR$/PlayerStatues/PlayerStatues.iml" filepath="$PROJECT_DIR$/PlayerStatues/PlayerStatues.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Portals/Portals.iml" filepath="$PROJECT_DIR$/Portals/Portals.iml" />
       <module fileurl="file://$PROJECT_DIR$/PreventEntityExploit/PreventEntityExploit.iml" filepath="$PROJECT_DIR$/PreventEntityExploit/PreventEntityExploit.iml" />
       <module fileurl="file://$PROJECT_DIR$/PrismSearch/PrismSearch.iml" filepath="$PROJECT_DIR$/PrismSearch/PrismSearch.iml" />
       <module fileurl="file://$PROJECT_DIR$/PublicTransportation/PublicTransportation.iml" filepath="$PROJECT_DIR$/PublicTransportation/PublicTransportation.iml" />
@@ -82,6 +86,7 @@
       <module fileurl="file://$PROJECT_DIR$/RemoteEventListener/RemoteEventListener.iml" filepath="$PROJECT_DIR$/RemoteEventListener/RemoteEventListener.iml" />
       <module fileurl="file://$PROJECT_DIR$/ResourcepackManager/ResourcepackManager.iml" filepath="$PROJECT_DIR$/ResourcepackManager/ResourcepackManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/ServerManagerDONTUSE/ServerManager.iml" filepath="$PROJECT_DIR$/ServerManagerDONTUSE/ServerManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" filepath="$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" />
       <module fileurl="file://$PROJECT_DIR$/SewersFishing/SewersFishing.iml" filepath="$PROJECT_DIR$/SewersFishing/SewersFishing.iml" />
       <module fileurl="file://$PROJECT_DIR$/Shops/Shops.iml" filepath="$PROJECT_DIR$/Shops/Shops.iml" />
       <module fileurl="file://$PROJECT_DIR$/SmartDismount/SmartDismount.iml" filepath="$PROJECT_DIR$/SmartDismount/SmartDismount.iml" />
@@ -107,7 +112,7 @@
       <module fileurl="file://$PROJECT_DIR$/WorldGuardTools/WorldGuardTools.iml" filepath="$PROJECT_DIR$/WorldGuardTools/WorldGuardTools.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldManager/WorldManager.iml" filepath="$PROJECT_DIR$/WorldManager/WorldManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/Zones/Zones.iml" filepath="$PROJECT_DIR$/Zones/Zones.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ZvieriGame/ZvieriGame.iml" filepath="$PROJECT_DIR$/ZvieriGame/ZvieriGame.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ZvieriPlausch/ZvieriPlausch.iml" filepath="$PROJECT_DIR$/ZvieriPlausch/ZvieriPlausch.iml" />
     </modules>
   </component>
 </project>

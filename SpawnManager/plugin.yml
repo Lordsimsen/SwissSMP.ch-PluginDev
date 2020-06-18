@@ -1,5 +1,5 @@
 main: ch.swisssmp.spawnmanager.SpawnManager
-version: 1.9
+version: 2.0
 api-version: 1.13
 name: SpawnManager
 author: detig_iii

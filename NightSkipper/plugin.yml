@@ -1,0 +1,11 @@
+main: ch.swisssmp.nightskipper.NightSkipperPlugin
+version: 1.0
+api-version: 1.13
+name: NightSkipper
+author: detig_iii
+description: Ermöglicht überspringen der Nacht wenn eine gewisse Anzahl Spieler schläft
+depend: [SwissSMPUtils]
+permissions:
+  nightskipper.ignore:
+    description: Schliesst einen Spieler von der Zählung aus
+    default: false

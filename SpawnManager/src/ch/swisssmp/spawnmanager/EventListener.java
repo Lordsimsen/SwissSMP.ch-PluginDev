@@ -2,6 +2,8 @@ package ch.swisssmp.spawnmanager;
 
 import java.util.Random;
 
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -28,15 +30,30 @@ import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 public class EventListener implements Listener {
-	
+
+	private static final boolean debug = false;
 	private Random random = new Random();
+
+	private static void debug(String s){
+		debug(s, false);
+	}
+
+	private static void debug(String s, boolean force){
+		if(!debug && !force) return;
+		Bukkit.getLogger().info(SpawnManager.getPrefix()+" "+s);
+	}
 	
 	@EventHandler
 	private void onPlayerJoin(PlayerJoinEvent event){
+		onReturningPlayerJoin(event);
+	}
+
+	private void onReturningPlayerJoin(PlayerJoinEvent event){
 		HTTPRequest request = DataSource.getResponse(SpawnManager.getInstance(), "last_world.php", new String[]{
-			"player="+event.getPlayer().getUniqueId()	
+				"player="+event.getPlayer().getUniqueId()
 		});
 		request.onFinish(()->{
 			String worldName = request.getResponse();
@@ -50,6 +67,34 @@ public class EventListener implements Listener {
 				});
 			}
 		});
+	}
+
+	@EventHandler
+	private void onPlayerSpawnLocation(PlayerSpawnLocationEvent event){
+		if(!event.getPlayer().hasPlayedBefore()){
+			onFirstPlayerJoin(event);
+		}
+	}
+
+	private void onFirstPlayerJoin(PlayerSpawnLocationEvent event){
+		HTTPRequest request = DataSource.getResponse(SpawnManager.getInstance(), "first_join.php", new String[]{
+				"player="+event.getPlayer().getUniqueId()
+		}, RequestMethod.POST_SYNC);
+
+		JsonObject json = request.getJsonResponse();
+		if(json==null || !json.has("spawn")) return;
+		JsonObject spawnSection = json.get("spawn").getAsJsonObject();
+		World world = Bukkit.getWorld(spawnSection.get("world").getAsString());
+		if(world==null){
+			debug("Spawn world for "+event.getPlayer().getName()+" not found: "+json.toString());
+			return;
+		}
+		Location spawnLocation = JsonUtil.getLocation("spawn", world, json);
+		if(spawnLocation==null){
+			debug("Spawn location for "+event.getPlayer().getName()+" not found: '"+json.toString());
+			return;
+		}
+		event.setSpawnLocation(spawnLocation);
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)

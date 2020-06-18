@@ -1,18 +1,23 @@
 package ch.swisssmp.citymapdisplays;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
 
 public class CityMapDisplays {
-	private static List<CityMapDisplay> displays = new ArrayList<CityMapDisplay>();
+	private static final List<CityMapDisplay> displays = new ArrayList<CityMapDisplay>();
+
+	protected static Collection<CityMapDisplay> getAll(){
+		return displays;
+	}
 	
 	protected static void add(CityMapDisplay display) {
 		displays.add(display);
@@ -27,16 +32,15 @@ public class CityMapDisplays {
 	}
 	
 	protected static void save() {
-		YamlConfiguration yamlConfiguration = new YamlConfiguration();
-		ConfigurationSection displaysSection = yamlConfiguration.createSection("displays");
+		JsonObject json = new JsonObject();
+		JsonArray displaysArray = new JsonArray();
 		for(CityMapDisplay display : displays) {
-			ConfigurationSection displaySection = displaysSection.createSection(display.getUid().toString());
-			display.save(displaySection);
+			JsonObject displayData = display.save();
+			displaysArray.add(displayData);
 		}
-		
+		json.add("displays", displaysArray);
 		File file = getFile();
-		if(!file.getParentFile().exists()) file.getParentFile().mkdirs();
-		yamlConfiguration.save(file);
+		JsonUtil.save(file, json);
 	}
 	
 	protected static void load() {
@@ -46,27 +50,20 @@ public class CityMapDisplays {
 			Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+" Cannot load existing CityMapDisplays because there is no save file.");
 			return;
 		}
-		YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
-		if(yamlConfiguration==null) {
+		JsonObject json = JsonUtil.parse(file);
+		if(json==null) {
 			Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+" Cannot load existing CityMapDisplays because the save file is invalid.");
 			return;
 		}
-		ConfigurationSection displaysSection = yamlConfiguration.getConfigurationSection("displays");
-		if(displaysSection!=null) {
-			for(String key : displaysSection.getKeys(false)) {
-				UUID displayUid;
-				try {
-					displayUid = UUID.fromString(key);
-				}
-				catch(Exception e) {
-					continue;
-				}
-				ConfigurationSection displaySection = displaysSection.getConfigurationSection(key);
-				CityMapDisplay display = CityMapDisplay.load(displayUid, displaySection);
+		JsonArray displaysArray = json.has("displays") ? json.getAsJsonArray("displays") : null;
+		if(displaysArray!=null) {
+			for(JsonElement element : displaysArray) {
+				if(!element.isJsonObject()) continue;
+				JsonObject displayData = element.getAsJsonObject();
+				CityMapDisplay display = CityMapDisplay.load(displayData);
 				displays.add(display);
 			}
 		}
-		Bukkit.getLogger().info("Loaded "+displays.size()+" displays.");
 	}
 	
 	protected static void unload() {

@@ -1,5 +1,6 @@
 package ch.swisssmp.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 

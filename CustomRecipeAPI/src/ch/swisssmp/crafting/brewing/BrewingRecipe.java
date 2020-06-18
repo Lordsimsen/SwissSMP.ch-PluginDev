@@ -17,7 +17,7 @@ public class BrewingRecipe extends CustomRecipe {
     private final BrewingFilter filter;
     private final BrewingAction action;
 
-    private BrewingRecipe(NamespacedKey key, ItemStack ingredient, int time, BrewingFilter resultFilter, BrewingAction action){
+    public BrewingRecipe(NamespacedKey key, ItemStack ingredient, int time, BrewingFilter resultFilter, BrewingAction action){
         super(key);
         this.ingredient = ingredient;
         this.time = time;
@@ -25,7 +25,7 @@ public class BrewingRecipe extends CustomRecipe {
         this.action = action;
     }
 
-    private BrewingRecipe(NamespacedKey key, ItemStack ingredient, BrewingFilter resultFilter, BrewingAction action){
+    public BrewingRecipe(NamespacedKey key, ItemStack ingredient, BrewingFilter resultFilter, BrewingAction action){
         this(key, ingredient, DEFAULT_BREWING_TIME, resultFilter, action);
     }
 

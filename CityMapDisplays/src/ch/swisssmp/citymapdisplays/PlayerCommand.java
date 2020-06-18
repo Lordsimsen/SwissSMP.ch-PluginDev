@@ -23,11 +23,17 @@ public class PlayerCommand implements CommandExecutor{
 		if(args!=null && args.length>0){
 			switch(args[0].toLowerCase()){
 			case "reload":{
+				if(!sender.hasPermission("citymapdisplays.admin")){
+					return true;
+				}
 				CityMapDisplays.load();
 				sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+ChatColor.GREEN+" Anzeigen neu geladen.");
 				return true;
 			}
 			case "create":{
+				if(!sender.hasPermission("citymapdisplays.admin")){
+					return true;
+				}
 				if(args.length<2) return false;
 				int width;
 				int height;
@@ -38,7 +44,18 @@ public class PlayerCommand implements CommandExecutor{
 				catch(Exception e) {
 					return false;
 				}
-				CityMapDisplay display = CityMapDisplay.create(width, height);
+				String name;
+				if(args.length>3){
+					String[] nameParts = new String[args.length-3];
+					for(int i = 3; i < args.length; i++){
+						nameParts[i-3] = args[i];
+					}
+					name = String.join(" ", nameParts);
+				}
+				else{
+					name = null;
+				}
+				CityMapDisplay display = CityMapDisplay.create(name, width, height);
 				if(sender instanceof Player) {
 					ItemStack itemStack = display.getItemStack();
 					Player player = (Player) sender;
@@ -49,29 +66,7 @@ public class PlayerCommand implements CommandExecutor{
 				return true;
 			}
 			case "remove":{
-				if(args.length<2) return false;
-				String key = args[1];
-				UUID displayUid;
-				try {
-					displayUid = UUID.fromString(key);
-				}
-				catch(Exception e) {
-					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+ChatColor.RED+" Keine gültige Id.");
-					return true;
-				}
-				Optional<CityMapDisplay> display = CityMapDisplay.get(displayUid);
-				if(!display.isPresent()) {
-					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+ChatColor.RED+" Anzeige nicht gefunden.");
-					return true;
-				}
-				display.get().remove();
-				CityMapDisplays.save();
-				sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+ChatColor.GREEN+" Anzeige entfernt.");
-				return true;
-			}
-			case "book":{
-				if(!(sender instanceof Player)){
-					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Befehl kann nur ngame verwendet werden.");
+				if(!sender.hasPermission("citymapdisplays.admin")){
 					return true;
 				}
 				if(args.length<2) return false;
@@ -81,23 +76,24 @@ public class PlayerCommand implements CommandExecutor{
 					displayUid = UUID.fromString(key);
 				}
 				catch(Exception e) {
-					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+ChatColor.RED+" Keine gültige Id.");
+					e.printStackTrace();
+					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Anzeige nicht gefunden.");
 					return true;
 				}
-				Optional<CityMapDisplay> display = CityMapDisplay.get(displayUid);
-				if(!display.isPresent()) {
-					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+ChatColor.RED+" Anzeige nicht gefunden.");
+				Optional<CityMapDisplay> displayQuery = CityMapDisplay.get(displayUid);
+				if(!displayQuery.isPresent()){
+					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Anzeige nicht gefunden.");
 					return true;
 				}
-				ItemStack itemStack = display.get().getItemStack();
-				Player player = (Player) sender;
-				player.getWorld().dropItem(player.getEyeLocation(), itemStack);
-				return true;
-			}
-			case "list":{
+
+				displayQuery.get().remove();
+				sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Anzeige "+displayQuery.get().getName()+" entfernt.");
 				return true;
 			}
 			case "show":{
+				if(!sender.hasPermission("citymapdisplays.viewer")){
+					return true;
+				}
 				if(args.length<3) return false;
 				String key = args[1];
 				String cityIdString = args[2];

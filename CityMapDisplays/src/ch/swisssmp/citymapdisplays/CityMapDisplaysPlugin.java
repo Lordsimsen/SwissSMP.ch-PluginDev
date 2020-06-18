@@ -9,7 +9,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ch.swisssmp.livemap_render_api.LivemapInfo;
 
 public class CityMapDisplaysPlugin extends JavaPlugin {
-	protected static PluginDescriptionFile pdfFile;
 	protected static CityMapDisplaysPlugin plugin;
 	
 	protected static boolean debug = false;
@@ -17,13 +16,13 @@ public class CityMapDisplaysPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		plugin = this;
-		pdfFile = getDescription();
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		Bukkit.getPluginCommand("citymapdisplay").setExecutor(new PlayerCommand());
+		Bukkit.getPluginCommand("citymapdisplays").setExecutor(new CityMapDisplaysCommand());
 		CityMapDisplays.load();
 		
-		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 
 	@Override
@@ -31,8 +30,7 @@ public class CityMapDisplaysPlugin extends JavaPlugin {
 		CityMapDisplays.unload();
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
 	}
 	
 	public static CityMapDisplaysPlugin getInstance() {

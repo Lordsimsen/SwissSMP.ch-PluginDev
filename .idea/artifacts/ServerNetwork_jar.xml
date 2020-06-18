@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ServerNetwork:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="ServerNetwork.jar">
+      <element id="module-output" name="ServerNetwork" />
+      <element id="file-copy" path="$PROJECT_DIR$/ServerNetwork/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/ServerNetwork/config.yml" />
+    </root>
+  </artifact>
+</component>

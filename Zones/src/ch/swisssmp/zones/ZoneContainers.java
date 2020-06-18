@@ -1,30 +1,52 @@
 package ch.swisssmp.zones;
 
-import java.util.Collection;
-import java.util.HashMap;
-
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import java.util.HashMap;
+
 public class ZoneContainers {
-	private final static HashMap<World,ZoneContainer> containers = new HashMap<World,ZoneContainer>();
-	
-	protected static ZoneContainer get(World world){
-		return containers.get(world);
-	}
-	
-	public static Collection<ZoneContainer> getAll(){
-		return containers.values();
-	}
-	
-	protected static void add(World world, ZoneContainer zoneContainer){
-		containers.put(world, zoneContainer);
-	}
-	
-	protected static void remove(World world){
-		containers.remove(world);
-	}
-	
-	protected static void clear(){
-		containers.clear();
-	}
+    private static final HashMap<World,ZoneContainer> containers = new HashMap<>();
+
+    protected static ZoneContainer load(World world){
+        ZoneContainer container = ZoneContainer.load(world);
+        containers.put(world,container);
+        return container;
+    }
+
+    protected static void unload(World world){
+        ZoneContainer container = get(world);
+        container.unload();
+        containers.remove(world);
+    }
+
+    protected static ZoneContainer get(World world){
+        return containers.get(world);
+    }
+
+    protected static void loadAll(){
+        for(World world : Bukkit.getWorlds()){
+            load(world);
+        }
+    }
+
+    protected static void loadAll(ZoneType type){
+        for(ZoneContainer container : containers.values()){
+            container.loadCollection(type);
+        }
+    }
+
+    protected static void unloadAll(){
+        for(ZoneContainer container : containers.values()){
+            container.unload();
+        }
+
+        containers.clear();
+    }
+
+    protected static void unloadAll(ZoneType type){
+        for(ZoneContainer container : containers.values()){
+            container.unloadCollection(type);
+        }
+    }
 }

@@ -1,0 +1,24 @@
+main: ch.swisssmp.customportals.CustomPortalsPlugin
+version: 2.0
+api-version: 1.13
+name: CustomPortals
+author: detig_iii
+description: Erstelle und editiere Portale
+depend: [SwissSMPUtils,CustomEditorAPI,CustomItems,WaypointAPI,WGRegionEvents,WorldGuard,WorldManager,ResourcepackManager,RandomItemAPI]
+permissions:
+  portals.admin:
+    description: Ermöglicht Verwaltung des Plugins
+    default: op
+commands:
+  portals:
+    description: Zeigt alle Portale
+    usage: "/portals"
+    permission: portals.admin
+  portal:
+    description: Basisbefehl
+    usage: "/<command> <subcommand>"
+    permission: portals.admin
+  portal create:
+    description: Erstellt ein Portal
+    usage: "/<command> create [Name]"
+    permission: portals.admin

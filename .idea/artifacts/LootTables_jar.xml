@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LootTables:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="LootTables.jar">
+      <element id="module-output" name="LootTables" />
+      <element id="file-copy" path="$PROJECT_DIR$/LootTables/plugin.yml" />
+    </root>
+  </artifact>
+</component>

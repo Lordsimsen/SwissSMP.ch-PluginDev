@@ -1,18 +1,22 @@
 package ch.swisssmp.events;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.YamlConfiguration;
 import org.bukkit.World;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public abstract class EventArenas {
+public class EventArenas {
 
     private static List<EventArena> arenasList;
+    private EventPlugin plugin;
 
-    public static List<EventArena> getArenasList(){
+    public List<EventArena> getArenasList(){
         return arenasList;
     }
 
@@ -26,9 +30,46 @@ public abstract class EventArenas {
         return result;
     }
 
+    public EventArenas(EventPlugin plugin){
+        this.plugin = plugin;
+        arenasList = new ArrayList<>();
+    }
 
-    public static void save(World world, String pluginDirectoryName) {
-        File pluginDirectory = new File(world.getWorldFolder(), "plugindata/" + pluginDirectoryName);
+    public EventArena get(String name, boolean exactMatch){
+        for(EventArena arena : arenasList){
+            if(exactMatch && !arena.getName().toLowerCase().equals(name.toLowerCase())) {
+                continue;
+            }
+            if(arena.getName().toLowerCase().contains(name.toLowerCase())) {
+                return arena;
+            }
+        }
+        return null;
+    }
+
+    public EventArena get(UUID arena_id) {
+        for(EventArena arena : arenasList){
+            if(arena.getArena_id().equals(arena_id)) return arena;
+        }
+        return null;
+    }
+
+    public EventArena get(ItemStack tokenStack){
+        String uuidString = ItemUtil.getString(tokenStack, "arena");
+        if(uuidString == null) {
+            return null;
+        }
+        UUID arena_id = UUID.fromString(uuidString);
+        if(arena_id == null) {
+            return null;
+        }
+        return get(arena_id);
+    }
+
+
+
+    public void save(World world) {
+        File pluginDirectory = plugin.getDataFolder();
         File dataFile = new File(pluginDirectory, "arenen.yml");
 
         if(!pluginDirectory.exists()) {
@@ -45,9 +86,9 @@ public abstract class EventArenas {
         yamlConfiguration.save(dataFile);
     }
 
-    public static void load(World world, String pluginDirectoryName) {
+    public void load(World world) {
         unload(world);
-        File dataFile = new File(world.getWorldFolder(), "plugindata/" + pluginDirectoryName + "/arenen.yml");
+        File dataFile = new File(plugin.getDataFolder(), "arenen.yml");
         if(dataFile.exists()) {
             EventArenas.load(world, dataFile);
         }
@@ -65,14 +106,14 @@ public abstract class EventArenas {
         }
     }
 
-    public static void unload(World world) {
+    public void unload(World world) {
         for(EventArena arena : EventArenas.getArenas(world)) {
             remove(arena);
         }
     }
 
-    protected static void remove(EventArena arena){
+    protected void remove(EventArena arena){
         arenasList.remove(arena);
-        save(arena.getWorld(), EventPlugin.getDefaultDirectoryName());
+        save(arena.getWorld());
     }
 }

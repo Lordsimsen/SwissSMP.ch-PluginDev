@@ -1,0 +1,263 @@
+levels:
+  level_1:
+    name: 'Apprentis'
+    unlocked: true
+    threshhold: 250
+    duration: 300
+    firstclient: 10
+    baseinterval: 13
+  level_2:
+    name: 'Commis de cuisine'
+    unlocked: false
+    threshhold: 350
+    duration: 360
+    firstclient: 10
+    baseinterval: 12
+  level_3:
+    name: 'Chef de partie'
+    unlocked: false
+    threshhold: 4500
+    duration: 420
+    firstclient: 10
+    baseinterval: 13
+  level_4:
+    name: 'Sous Chef'
+    unlocked: false
+    threshhold: 800
+    duration: 480
+    firstclient: 5
+    baseinterval: 15
+  level_5:
+    name: 'Chef de cuisine'
+    unlocked: false
+    threshhold: 0
+    duration: 540
+    firstclient: 10
+    baseinterval: 15
+dishes:
+  HASH_BROWNS:
+    name: 'Röschti'
+    price: 14
+    recipe:
+      - '2x gebratene Kartoffeln'
+      - 'neben-/übereinander'
+  MEAT_FEAST:
+    name: 'Fleischschmaus'
+    price: 18
+    recipe:
+      - '1x Gebratenes Poulet'
+      - '1x Gebratenes Steak'
+      - '1x Gebratenes Schweinefleisch'
+      - 'von links nach rechts/oben nach unten'
+  HONEY_MILK:
+    name: 'Honigmilch'
+    price: 10
+    recipe:
+      - '1x Honigflasche'
+      - 'über'
+      - '1x Milcheimer'
+  RICE_PUDDING:
+    name: 'Milchreis'
+    price: 9
+    recipe:
+      - '1x Weizen'
+      - 'über'
+      - '1x Milcheimer'
+  SUSHI:
+    name: 'Sushi'
+    price: 16
+    recipe:
+      - '1x Roher Lachs'
+      - '1x Getrocknetes Seegras'
+      - '1x Weizen'
+      - 'von oben nach unten'
+  RABBIT_STEW:
+    name: 'Hasenragout'
+    price: 0
+    recipe:
+      - '1x Hasenfuss'
+      - '1x Kochwasser'
+      - '1x Karotte'
+      - '1x Kartoffel'
+  SCHNITZEL_FRIES:
+    name: 'SchniPo'
+    price: 17
+    recipe:
+      - '1x Weizen'
+      - 'über'
+      - '1x Gebratenes Schweinefleisch'
+      - '1x Bratkartoffeln'
+      - 'rechts davon'
+  VEGGIES_DELIGHT:
+    name: 'Veggies Delight'
+    price: 12
+    recipe:
+      - '1x Seetang'
+      - '1x Weizen'
+      - '1x Karotte'
+      - 'von links nach rechts/oben nach unten'
+  SPAGHETTI_BOLOGNESE:
+    name: 'Spaghetti Bolognese'
+    price: 20
+    recipe:
+      - '1x Rote Sauce'
+      - '1x Gebratenes Steak'
+      - '1x Pasta'
+      - 'von oben nach unten'
+  CREEPER_SUCRE:
+    name: 'Creeper sucré'
+    price: 26
+    recipe:
+      - '1x Sahne'
+      - '1x Pufferfischextrakt'
+      - '1x Zucker'
+      - 'von links nach rechts'
+      - '1x gedünsteter Creeperkopf'
+      - 'unter Pufferfischextrakt'
+  ZURICH_GESCHNETZELTES:
+    name: 'Zürigschnätzlets'
+    price: 21
+    recipe:
+      - '1x Gebratenes Steak'
+      - '1x Röschti'
+      - '1x Milch'
+      - 'von links nach rechts'
+  HOT_CHOCOLATE:
+    name: 'Heissi Schoggi'
+    price: 16
+    recipe:
+      - '1x Zucker'
+      - '1x Schoggipulver'
+      - '1x Milch'
+      - 'von oben nach unten'
+  PEKING_DUCK:
+    name: 'Peking Ente'
+    price: 20
+    recipe:
+      - '1x Zucker'
+      - '1x Gebratenes Poulet'
+      - '1x Kochwasser'
+      - 'von oben nach unten'
+  PIZZA_MARGHERITA:
+    name: 'Pizza Margherita'
+    price: 24
+    recipe:
+      - '1x Käse'
+      - '1x Rote Sauce'
+      - '1x Brot'
+      - 'von oben nach unten'
+  MARITIME_PLATTER:
+    name: 'Maritimer Meeresplatte'
+    price: 24
+    recipe:
+      - '1x Gebtrocknetes Seegras'
+      - '1x Gebratener Lachs'
+      - '1x Pufferfischextrakt'
+      - 'von links nach rechts/oben nach unten'
+  LORDS_BLESSING:
+    name: 'The lords blessing'
+    price: 28
+    recipe:
+      - '1x Sahne'
+      - '1x Gedünsteter Kürbis'
+      - '1x Bratkartoffel'
+      - 'von links nach rechts'
+      - '1x Kochwasser'
+      - 'unter gedünsteten Kürbis'
+  DAME_BLANCHE:
+    name: 'Coupe Dänemark'
+    price: 28
+    recipe:
+      - '1x Wildbeere'
+      - '1x Heissi Schoggi'
+      - '1x Sahne'
+      - 'von oben nach unten'
+ingredients:
+  COCOA_BEANS:
+    initialAmount: 3
+    buyAmount: 3
+    price: 4
+  CARROT:
+    initialAmount: 3
+    buyAmount: 3
+    price: 5
+  SUGAR:
+    initialAmount: 4
+    buyAmount: 4
+    price: 6
+  PORKCHOP:
+    initialAmount: 3
+    buyAmount: 3
+    price: 6
+  BEEF:
+    initialAmount: 3
+    buyAmount: 3
+    price: 6
+  CHICKEN:
+    initialAmount: 3
+    buyAmount: 3
+    price: 6
+  ZVIERI_MILK_BUCKET:
+    initialAmount: 3
+    buyAmount: 3
+    price: 6
+  ZVIERI_HONEY_BOTTLE:
+    initialAmount: 4
+    buyAmount: 4
+    price: 6
+  PUFFERFISH:
+    initialAmount: 3
+    buyAmount: 3
+    price: 5
+  POTATO:
+    initialAmount: 6
+    buyAmount: 6
+    price: 8
+#  RABBIT_FOOT:
+#    initialAmount: 2
+#    buyAmount: 2
+#    price: 4
+  CREEPER_HEAD:
+    initialAmount: 3
+    buyAmount: 3
+    price: 6
+  WHEAT:
+    initialAmount: 6
+    buyAmount: 6
+    price: 8
+  SALMON:
+    initialAmount: 3
+    buyAmount: 3
+    price: 6
+  KELP:
+    initialAmount: 6
+    buyAmount: 6
+    price: 8
+  PUMPKIN:
+    initialAmount: 3
+    buyAmount: 3
+    price: 6
+  SWEET_BERRIES:
+    initialAmount: 3
+    buyAmount: 3
+    price: 4
+  BEETROOT:
+    initialAmount: 3
+    buyAmount: 3
+    price: 4
+  COAL:
+    initialAmount: 10
+    buyAmount: 10
+    price: 20
+  GLASS_BOTTLE:
+    initialAmount: 9
+    buyAmount: 9
+    price: 5
+  ZVIERI_WATER_BUCKET:
+    initialAmount: 2
+    buyAmount: 2
+    price: 6
+  BREAD:
+    initialAmount: 2
+    buyAmount: 2
+    price: 6
