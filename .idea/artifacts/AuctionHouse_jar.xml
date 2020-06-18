@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="AuctionHouse:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="AuctionHouse.jar">
+      <element id="module-output" name="AuctionHouse" />
+      <element id="module-output" name="SwissSMPUtils" />
+      <element id="module-output" name="WebCore" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../SwissSMP.ch-WebCore/lib/commons-net-3.6.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/AuctionHouse/plugin.yml" />
+    </root>
+  </artifact>
+</component>

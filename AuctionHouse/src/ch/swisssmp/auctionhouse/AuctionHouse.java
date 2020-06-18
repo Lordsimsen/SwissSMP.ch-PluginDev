@@ -19,37 +19,29 @@ import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
 public class AuctionHouse extends JavaPlugin{
-	protected static Logger logger;
 	protected static File configFile;
 	protected static YamlConfiguration config;
-	protected static PluginDescriptionFile pdfFile;
-
 	protected static File dataFolder;
 	protected static AuctionHouse plugin;
 	protected static boolean debug;
-	
-	protected EventListener eventListener;
 	
 	private static Random random = new Random();
 	
 	@Override
 	public void onEnable() {
 		plugin = this;
-		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
-		
+
 		this.getCommand("auction").setExecutor(new PlayerCommand());
-		
-		eventListener = new EventListener();
-		Bukkit.getPluginManager().registerEvents(eventListener, this);
+
+		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+
+		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 
 	@Override
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
 	}
 
 	public static AuctionHouse getInstance(){

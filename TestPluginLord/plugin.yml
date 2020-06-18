@@ -1,0 +1,7 @@
+name: TestPluginLord
+version: 0.1
+api-version: 1.13 (immer nötig)
+description: Test Plugin
+author oder authors: Lordsimsen
+main: ch.swisssmp.testpluginlord.TestPluginLordPlugin
+depend:

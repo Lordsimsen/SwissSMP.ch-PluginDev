@@ -55,6 +55,7 @@
       <module fileurl="file://$PROJECT_DIR$/Lift/Lift.iml" filepath="$PROJECT_DIR$/Lift/Lift.iml" />
       <module fileurl="file://$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" filepath="$PROJECT_DIR$/LivemapMarkerAPI/LivemapMarkerAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" filepath="$PROJECT_DIR$/LivemapRenderAPI/LivemapRenderAPI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LizenzVerleih/LizenzVerleih.iml" filepath="$PROJECT_DIR$/LizenzVerleih/LizenzVerleih.iml" />
       <module fileurl="file://$PROJECT_DIR$/LoginRewards/LoginRewards.iml" filepath="$PROJECT_DIR$/LoginRewards/LoginRewards.iml" />
       <module fileurl="file://$PROJECT_DIR$/LoginTroll/LoginTroll.iml" filepath="$PROJECT_DIR$/LoginTroll/LoginTroll.iml" />
       <module fileurl="file://$PROJECT_DIR$/LootTables/LootTables.iml" filepath="$PROJECT_DIR$/LootTables/LootTables.iml" />
@@ -93,6 +94,7 @@
       <module fileurl="file://$PROJECT_DIR$/SwissSMPUtils/SwissSMPUtils.iml" filepath="$PROJECT_DIR$/SwissSMPUtils/SwissSMPUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/TabList/TabList.iml" filepath="$PROJECT_DIR$/TabList/TabList.iml" />
       <module fileurl="file://$PROJECT_DIR$/TaxCollector/TaxCollector.iml" filepath="$PROJECT_DIR$/TaxCollector/TaxCollector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TestPluginLord/TestPluginLord.iml" filepath="$PROJECT_DIR$/TestPluginLord/TestPluginLord.iml" />
       <module fileurl="file://$PROJECT_DIR$/TowerControl/TowerControl.iml" filepath="$PROJECT_DIR$/TowerControl/TowerControl.iml" />
       <module fileurl="file://$PROJECT_DIR$/TravelSystem/TravelSystem.iml" filepath="$PROJECT_DIR$/TravelSystem/TravelSystem.iml" />
       <module fileurl="file://$PROJECT_DIR$/TrophyPedestals/TrophyPedestals.iml" filepath="$PROJECT_DIR$/TrophyPedestals/TrophyPedestals.iml" />
