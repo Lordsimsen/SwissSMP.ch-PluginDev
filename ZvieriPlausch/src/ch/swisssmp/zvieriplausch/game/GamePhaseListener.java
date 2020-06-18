@@ -6,6 +6,7 @@ import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
+import ch.swisssmp.zvieriplausch.ZvieriArenen;
 import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
@@ -16,9 +17,11 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.Lectern;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -27,6 +30,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -159,8 +164,8 @@ public class GamePhaseListener implements Listener {
         if(arena == null) return;
         if(arena.getGame() == null) return;
         SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED + "Du kannst während einem laufenden Spiel nicht in die Lokalität!");
-        event.setCancelled(true);
         event.getPlayer().teleport(arena.getEntry().getLocation(arena.getWorld()));
+//        event.setCancelled(true);
     }
 
     @EventHandler

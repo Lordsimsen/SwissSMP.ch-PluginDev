@@ -108,16 +108,22 @@ public class EventListener implements Listener{
 			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Lagerkiste  zugewiesen");
 			e.setCancelled(true);
 			itemStack.setAmount(0);
-		} else if(ItemUtil.getString(itemStack, "zvieritool").equalsIgnoreCase("lectern")){
-			if(!(e.getClickedBlock().getState() instanceof Lectern)) return;
-			arena.setLectern(e.getClickedBlock());
+		} else if(ItemUtil.getString(itemStack, "zvieritool").equalsIgnoreCase("highscores_lectern")) {
+			if (!(e.getClickedBlock().getState() instanceof Lectern)) return;
+			arena.setHighscoresLectern(e.getClickedBlock());
 			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Highscores-Lesepult  zugewiesen");
+			e.setCancelled(true);
+			itemStack.setAmount(0);
+		} else if(ItemUtil.getString(itemStack, "zvieritool").equalsIgnoreCase("recipes_lectern")){
+			if(!(e.getClickedBlock().getState() instanceof Lectern)) return;
+			arena.setRecipesLectern(e.getClickedBlock());
+			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Rezepte-Lesepult  zugewiesen");
 			e.setCancelled(true);
 			itemStack.setAmount(0);
 		} else if(ItemUtil.getString(itemStack, "zvieritool").equalsIgnoreCase("jukebox")){
 			if(!e.getClickedBlock().getType().equals(Material.JUKEBOX)) return;
 			arena.setJukebox(e.getClickedBlock());
-			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Jukebox  zugewiesen");
+			SwissSMPler.get(e.getPlayer()).sendActionBar(ChatColor.GREEN + "Jukebox zugewiesen");
 			e.setCancelled(true);
 			itemStack.setAmount(0);
 		}
@@ -208,7 +214,7 @@ public class EventListener implements Listener{
 		ItemStack itemStack = lecternInventory.getItem(0);
 		ZvieriArena zvieriArena = null;
 		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())) {
-			Lectern lectern = arena.getLectern();
+			Lectern lectern = arena.getHighscoresLectern();
 			if(lectern == null) continue;
 			if (!lectern.getLocation().equals(event.getInventory().getLocation())) continue;
 			zvieriArena = arena;
@@ -217,14 +223,14 @@ public class EventListener implements Listener{
 		if(itemStack == null || itemStack.getType() != Material.WRITTEN_BOOK){
 			itemStack = new ItemStack(Material.WRITTEN_BOOK);
 		}
-		zvieriArena.getHighscoreBook(itemStack);
+		zvieriArena.getHighscoreBook(itemStack, event.getPlayer().getUniqueId());
 		lecternInventory.setItem(0, itemStack);
 	}
 
 	@EventHandler
 	private void onBookStealAttempt(PlayerTakeLecternBookEvent event){
 		for(ZvieriArena arena : ZvieriArenen.get(event.getPlayer().getWorld())){
-			if(!arena.getLectern().equals(event.getLectern())) continue;
+			if(!arena.getHighscoresLectern().equals(event.getLectern()) && !arena.getRecipesLectern().equals(event.getLectern())) continue;
 			if(event.getPlayer().hasPermission("zvierigame.admin")) return;
 			event.setCancelled(true);
 			return;

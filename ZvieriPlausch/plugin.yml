@@ -1,10 +1,10 @@
 name: ZvieriPlausch
-version: '1.0'
+version: '1.1'
 api-version: '1.13'
 main: ch.swisssmp.zvieriplausch.ZvieriGamePlugin
 author: WhiteGuggi
 description: Zvieri Minigame
-depend: [SwissSMPUtils,CustomEditorAPI,NPCs,WaypointAPI,CustomItems,ResourcepackManager,WorldEdit,WorldGuard,WGRegionEvents,CustomRecipeAPI]
+depend: [SwissSMPUtils,CustomEditorAPI,NPCs,WaypointAPI,CustomItems,ResourcepackManager,WorldEdit,WorldGuard,WGRegionEvents,CustomRecipeAPI,CustomPaintings,RawTextBuilderAPI]
 permissions:
   zvierigame.admin:
     default: op
@@ -25,6 +25,18 @@ commands:
     description: Öffnet Übersicht über bisher erstellte Arenen
     permission: zvierigame.admin
   zvierigame:
-    usage: "/<command> <subcommand>"
+    usage: "/zvierigame <subcommand>"
     description: Erlaubt Abbruch eines Spiels und reloaden der Config
     permission: zvierigame.admin
+  zvierigame reload:
+    usage: "/zvierigame reload"
+    description: Erlaubt reloaden der Config
+    permission: zvierigame.admin
+  zvierigame cancel:
+    usage: "/zvierigame cancel [Arenaname]"
+    description: Erlaubt abbrechen eines Spiels
+    permission: zvierigame.admin
+  zvierirecipedisplay:
+    usage: "/zvierirecipedisplay show [Arena-ID] [Gericht-Enum]"
+    description: Erlaubt Ändern der Rezeptanzeige
+    permission: zvierigame.play

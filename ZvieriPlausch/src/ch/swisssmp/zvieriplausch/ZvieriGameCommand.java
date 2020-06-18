@@ -1,5 +1,6 @@
 package ch.swisssmp.zvieriplausch;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,33 +10,40 @@ public class ZvieriGameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if(strings.length > 2) {
-            return false;
-        }
         if(strings.length == 1){
-            if(!strings[0].equalsIgnoreCase("reload")) {
-                return false;
+            switch(strings[0]){
+                case "reload":{
+                    ZvieriGamePlugin.getInstance().reloadConfig();
+                    commandSender.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GREEN + " Reloaded config");
+                    return true;
+                }
+                case "resethighscores":{
+                    for(ZvieriArena arena : ZvieriArenen.getAll()){
+                        arena.getPlayerDataContainer().resetHighscores();
+                    }
+                    commandSender.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GREEN + " Highscores reset. Please play one round, so that the changes are saved.");
+                    return true;
+                }
             }
-            ZvieriGamePlugin.getInstance().reloadConfig();
-            commandSender.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GREEN + " Reloaded config");
-            return true;
         }
         if(!strings[0].equalsIgnoreCase("cancel")) {
             return false;
         }
-        String arenaName = strings[1];
-//        try{
-//            if(strings[2].equalsIgnoreCase("all")){
-//                for(ZvieriArena arena : ZvieriArenen.getAll()){
-//                    if(arena.getGame() != null) arena.getGame().cancel();
-//                }
-//            }
-//        } catch (IndexOutOfBoundsException e){}
-//        if(strings.length > 2) {
-//            for (int i = 2; i < strings.length; i++) {
-//                arenaName += (" " + strings[i]);
-//            }
-//        }
+        String arenaName;
+        if(strings.length > 2){
+            String[] nameParts = new String[strings.length-1];
+            for(int i = 1; i < strings.length; i++){
+                nameParts[i-1] = strings[i];
+            }
+            arenaName = String.join(" ", nameParts);
+        }
+        else{
+            try {
+                arenaName = strings[1];
+            } catch (Exception e){
+                return false;
+            }
+        }
         ZvieriArena arena = ZvieriArena.get(arenaName, true);
         if(arena==null) return false;
         arena.getGame().cancel();
