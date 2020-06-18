@@ -1,4 +1,4 @@
-package ch.swisssmp.city.ceremony;
+package ch.swisssmp.ceremonies;
 
 public abstract class Phase {
 	private boolean completed = false;

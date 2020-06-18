@@ -1,13 +1,12 @@
-package ch.swisssmp.city.ceremony;
+package ch.swisssmp.ceremonies;
 
+import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import ch.swisssmp.utils.SwissSMPler;
 
 public class SpectateCommand implements CommandExecutor {
 
@@ -19,7 +18,7 @@ public class SpectateCommand implements CommandExecutor {
 			SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Befehl funktioniert nur in der Hauptwelt");
 			return true;
 		}
-		Ceremony ceremony = args!=null && args.length>0 ? Ceremony.get(args[0].toLowerCase()) : Ceremony.getLast();
+		Ceremony ceremony = args!=null && args.length>0 ? Ceremonies.get(args[0].toLowerCase()) : Ceremonies.getLast();
 		if(ceremony==null){
 			SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Momentan läuft keine Zeremonie.");
 			return true;

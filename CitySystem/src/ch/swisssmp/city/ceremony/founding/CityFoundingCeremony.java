@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ch.swisssmp.ceremonies.Ceremony;
+import ch.swisssmp.ceremonies.Phase;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -20,12 +22,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
-import ch.swisssmp.city.ceremony.Ceremony;
-import ch.swisssmp.city.ceremony.Phase;
 import ch.swisssmp.city.ceremony.founding.phases.BaptisePhase;
 import ch.swisssmp.city.ceremony.founding.phases.BeginPhase;
 import ch.swisssmp.city.ceremony.founding.phases.ForgeRingPhase;
@@ -189,8 +190,8 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	}
 	
 	@Override
-	public void begin(){
-		super.begin();
+	public void begin(JavaPlugin plugin){
+		super.begin(CitySystemPlugin.getInstance());
 		this.updateSpectatorLocation();
 		Location center = fire.getLocation().clone().add(0.5, 0.5, 0.5);
 		ringEffect = new FoundingCeremonyCircleEffect(center);
@@ -305,7 +306,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 		CityFoundingCeremony result = new CityFoundingCeremony(fire, initiator);
 		ceremonies.add(result);
 		Bukkit.getPluginManager().registerEvents(result, CitySystemPlugin.getInstance());
-		result.begin();
+		result.begin(CitySystemPlugin.getInstance());
 		return result;
 	}
 	

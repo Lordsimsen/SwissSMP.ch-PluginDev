@@ -6,7 +6,6 @@ import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
-import ch.swisssmp.zvieriplausch.ZvieriArenen;
 import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
@@ -16,12 +15,8 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.Lectern;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -30,8 +25,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -163,15 +156,18 @@ public class GamePhaseListener implements Listener {
         ZvieriArena arena = ZvieriArena.get(event.getRegion().getId());
         if(arena == null) return;
         if(arena.getGame() == null) return;
+        GameMode gameMode = event.getPlayer().getGameMode();
+        if(gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
         SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED + "Du kannst während einem laufenden Spiel nicht in die Lokalität!");
         event.getPlayer().teleport(arena.getEntry().getLocation(arena.getWorld()));
-//        event.setCancelled(true);
     }
 
     @EventHandler
     private void onArenaInfiltrated(RegionEnteredEvent event){
         if(!event.getRegion().getId().equals(arena.getArenaRegion())) return;
         Player player = event.getPlayer();
+        GameMode gameMode = player.getGameMode();
+        if(gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
         if(!participants.contains(player)) player.teleport(arena.getEntry().getLocation(arena.getWorld()));
     }
 

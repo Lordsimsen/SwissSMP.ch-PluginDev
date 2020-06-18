@@ -1,5 +1,9 @@
 package ch.swisssmp.city.ceremony.founding.phases;
 
+import ch.swisssmp.ceremonies.ISacrificeListener;
+import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.ceremonies.effects.CircleBurstEffect;
+import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -11,11 +15,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
-import ch.swisssmp.city.ceremony.ISacrificeListener;
-import ch.swisssmp.city.ceremony.Phase;
-import ch.swisssmp.city.ceremony.founding.CircleBurstEffect;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
-import ch.swisssmp.city.ceremony.founding.FireBurstEffect;
 import ch.swisssmp.city.ceremony.founding.FoundingCeremonyCircleEffect.RingEffectType;
 
 public class ForgeRingPhase extends Phase implements ISacrificeListener {
@@ -89,7 +89,7 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 		ceremony.setRingMaterials(baseStack.getType(), coreStack.getType());
 		Color colorA = ItemManager.getMaterialColor(baseStack.getType());
 		Color colorB = ItemManager.getMaterialColor(coreStack.getType());
-		CircleBurstEffect.play(ceremony.getFire(), CityFoundingCeremony.ceremonyRange, colorA, colorB);
+		CircleBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), CityFoundingCeremony.ceremonyRange, colorA, colorB);
 	}
 	
 	@Override
@@ -126,7 +126,7 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 		}
 		
 		Color color = ItemManager.getMaterialColor(itemStack.getType());
-		FireBurstEffect.play(ceremony.getFire(), 3, color, color);
+		FireBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), 3, color, color);
 		for(int i = previousAmount; i < submittedBaseCount + submittedCoreCount; i++) {
 			ceremony.getRingEffect().setColor(i, color);
 		}

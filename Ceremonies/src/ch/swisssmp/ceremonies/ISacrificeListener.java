@@ -1,4 +1,4 @@
-package ch.swisssmp.city.ceremony;
+package ch.swisssmp.ceremonies;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

@@ -1,22 +1,17 @@
-package ch.swisssmp.city.ceremony.founding;
+package ch.swisssmp.ceremonies.effects;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import ch.swisssmp.utils.Mathf;
+import ch.swisssmp.utils.Random;
+import ch.swisssmp.utils.Targetable;
+import ch.swisssmp.utils.splines.Spline3D;
+import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
-import org.bukkit.World;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.utils.Random;
-import ch.swisssmp.utils.Mathf;
-import ch.swisssmp.utils.Targetable;
-import ch.swisssmp.utils.splines.Spline3D;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LightParticles implements Runnable {
 
@@ -89,9 +84,9 @@ public class LightParticles implements Runnable {
 		this.world.spawnParticle(Particle.REDSTONE, location, 1, dustOptions);
 	}
 	
-	public static LightParticles spawn(Location from, Targetable to, long delay, Color color){
+	public static LightParticles spawn(JavaPlugin plugin, Location from, Targetable to, long delay, Color color){
 		LightParticles result = new LightParticles(from,to, Mathf.roundToInt(from.distance(to.getLocation())*3.5), 4, color);
-		result.task = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), result, delay, 1);
+		result.task = Bukkit.getScheduler().runTaskTimer(plugin, result, delay, 1);
 		return result;
 	}
 }

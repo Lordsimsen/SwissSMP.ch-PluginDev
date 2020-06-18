@@ -10,6 +10,7 @@ import ch.swisssmp.zvieriplausch.game.PreparationPhase;
 import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Lectern;
@@ -55,8 +56,10 @@ public class EventListener implements Listener{
 			if(arena.getGame() == null || !arena.isGameRunning()) continue;
 			if(arena.getGame().getParticipants().contains(player)) return;
 		}
-		event.setCancelled(true);
-		event.getItem().setItemStack(null);
+		if(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR){
+			return;
+		}
+		event.getItem().remove();
 	}
 
 	/*

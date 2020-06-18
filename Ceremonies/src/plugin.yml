@@ -1,0 +1,7 @@
+main: ch.swisssmp.ceremonies.ceremoniesplugin
+version: 0.1
+api-version: 1.13
+name: Ceremonies
+authors: [detig_iii,WhiteGuggi]
+description: Vorlage für Zeremonien aller Art
+depend: [SwissSMPUtils]
