@@ -22,6 +22,8 @@ import java.util.Optional;
 public class WorldGuardHandler {
 
     private static ProtectedCuboidRegion createCuboidRegion(World world, String id, BlockVector min, BlockVector max){
+        if(min==null) min = new BlockVector();
+        if(max==null) max = new BlockVector();
         RegionManager manager = getManager(world);
         ProtectedCuboidRegion region = new ProtectedCuboidRegion(id, BlockVector3.at(min.getBlockX(),min.getBlockY(),min.getBlockZ()), BlockVector3.at(max.getBlockX(),max.getBlockY(),max.getBlockZ()));
         manager.addRegion(region);

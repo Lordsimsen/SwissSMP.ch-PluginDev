@@ -64,6 +64,10 @@ public class ZoneCollection {
         zones.clear();
     }
 
+    protected Optional<Zone> findZone(UUID zoneUid){
+        return zones.stream().filter(z->z.getUniqueId().equals(zoneUid)).findAny();
+    }
+
     protected File getDirectory(){
         NamespacedKey key = this.type.getKey();
         File pluginDirectory = WorldManager.getPluginDirectory(ZonesPlugin.getInstance(), container.getBukkitWorld());

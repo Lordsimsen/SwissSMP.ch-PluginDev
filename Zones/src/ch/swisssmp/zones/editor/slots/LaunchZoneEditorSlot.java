@@ -22,8 +22,7 @@ public class LaunchZoneEditorSlot extends ButtonSlot {
 
     @Override
     protected void triggerOnClick(ClickType clickType) {
-        getView().closeLater();
-        ZoneEditor.start(getView().getPlayer(), zone);
+        getView().closeLater(()-> ZoneEditor.start(getView().getPlayer(), zone));
     }
 
     @Override

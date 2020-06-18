@@ -17,6 +17,7 @@ commands:
     description: Basisbefehl zur Verwaltung von Zonen
     usage: "/<command> <subcommand>"
     permission: zones.admin
+    aliases: [z]
   zone create:
     description: Erstellt eine Zone in der aktuellen Welt
     usage: "/<command> create [Typ] [Name]"

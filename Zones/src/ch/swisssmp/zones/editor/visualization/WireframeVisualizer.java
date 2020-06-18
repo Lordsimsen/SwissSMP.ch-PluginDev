@@ -82,6 +82,7 @@ public class WireframeVisualizer extends BukkitRunnable {
     }
 
     public static WireframeVisualizer start(Player player, Color color){
+        Bukkit.getLogger().info("Starting visualizer with color "+(color.getRed()+","+color.getGreen()+","+color.getBlue()));
         WireframeVisualizer result = new WireframeVisualizer(player, color);
         result.runTaskTimer(ZonesPlugin.getInstance(), 0, 1);
         return result;

@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ZoneContainers {
     private static final HashMap<World,ZoneContainer> containers = new HashMap<>();
@@ -48,5 +50,14 @@ public class ZoneContainers {
         for(ZoneContainer container : containers.values()){
             container.unloadCollection(type);
         }
+    }
+
+    protected static Optional<Zone> findZone(UUID zoneUid){
+        for(ZoneContainer c : containers.values()){
+            Optional<Zone> result = c.findZone(zoneUid);
+            if(result.isPresent()) return result;
+        }
+        
+        return Optional.empty();
     }
 }

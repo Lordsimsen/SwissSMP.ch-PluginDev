@@ -5,6 +5,7 @@ import ch.swisssmp.zones.editor.visualization.VisualizationColorScheme;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BlockVector;
 
@@ -38,7 +39,7 @@ public abstract class ZoneType {
     public abstract String getDisplayName(String name);
     public abstract List<String> getItemLore(Zone zone);
     public abstract RegionType getRegionType();
-    public abstract PointSelector createSelector(Zone zone);
+    public abstract PointSelector createSelector(Player player, Zone zone);
     public abstract VisualizationColorScheme getVisualizationColorScheme();
 
     protected List<String> getDefaultLore(Zone zone){
@@ -46,7 +47,9 @@ public abstract class ZoneType {
         result.add(ChatColor.GRAY+zone.getCollection().getContainer().getBukkitWorld().getName());
         BlockVector min = zone.getMin();
         BlockVector max = zone.getMax();
-        result.add(ChatColor.GRAY+""+min.getBlockX()+","+min.getBlockY()+","+min.getBlockZ()+" bis "+max.getBlockX()+","+max.getBlockY()+","+max.getBlockZ());
+        if(min!=null && max!=null){
+            result.add(ChatColor.GRAY+""+min.getBlockX()+","+min.getBlockY()+","+min.getBlockZ()+" bis "+max.getBlockX()+","+max.getBlockY()+","+max.getBlockZ());
+        }
         return result;
     }
 

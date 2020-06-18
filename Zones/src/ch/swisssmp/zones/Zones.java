@@ -1,6 +1,11 @@
 package ch.swisssmp.zones;
 
+import ch.swisssmp.utils.ItemUtil;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public class Zones {
 
@@ -33,5 +38,23 @@ public class Zones {
 
     public static void unregisterZoneTypes(Plugin plugin){
         ZoneTypes.unregister(plugin);
+    }
+
+    public static Optional<Zone> getZone(ItemStack itemStack){
+        String zoneIdString = ItemUtil.getString(itemStack, Zone.ID_PROPERTY);
+        if(zoneIdString==null) return Optional.empty();
+        UUID zoneUid;
+        try{
+            zoneUid = UUID.fromString(zoneIdString);
+        }
+        catch(Exception e){
+            return Optional.empty();
+        }
+
+        return Zones.findZone(zoneUid);
+    }
+
+    public static Optional<Zone> findZone(UUID zoneUid){
+        return ZoneContainers.findZone(zoneUid);
     }
 }

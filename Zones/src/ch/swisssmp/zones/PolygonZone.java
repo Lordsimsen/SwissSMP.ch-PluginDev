@@ -2,6 +2,7 @@ package ch.swisssmp.zones;
 
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.World;
 import org.bukkit.util.BlockVector;
@@ -70,8 +71,6 @@ public class PolygonZone extends Zone {
 
     @Override
     public boolean tryLoadWorldGuardRegion(){
-        String regionId = getRegionId();
-        World world = getWorld();
         return WorldGuardHandler.loadPolygonRegion(this);
     }
 
@@ -99,12 +98,22 @@ public class PolygonZone extends Zone {
             pointsArray.add(JsonUtil.toJsonObject(v));
         }
         json.add("points", pointsArray);
+        JsonUtil.set("min_y", minY, json);
+        JsonUtil.set("max_y", maxY, json);
         return json;
     }
 
     @Override
     protected void loadData(JsonObject json) {
-        min = JsonUtil.getBlockVector("min", json);
-        max = JsonUtil.getBlockVector("max", json);
+        JsonArray pointsArray = json.getAsJsonArray("points");
+        points.clear();
+        for(JsonElement element : pointsArray){
+            if(!element.isJsonObject()) continue;
+            BlockVector vector = JsonUtil.getBlockVector(element.getAsJsonObject());
+            if(vector==null) continue;
+            this.points.add(vector);
+        }
+        this.minY = JsonUtil.getInt("min_y", json);
+        this.maxY = JsonUtil.getInt("max_y", json);
     }
 }

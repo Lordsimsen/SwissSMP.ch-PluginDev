@@ -64,8 +64,8 @@ public class CuboidZone extends Zone {
     @Override
     protected JsonObject saveData() {
         JsonObject json = new JsonObject();
-        JsonUtil.set("min", min, json);
-        JsonUtil.set("max", max, json);
+        if(min!=null) JsonUtil.set("min", min, json);
+        if(max!=null) JsonUtil.set("max", max, json);
         return json;
     }
 

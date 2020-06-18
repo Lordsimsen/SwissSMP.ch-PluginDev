@@ -137,6 +137,7 @@ public abstract class Zone implements Removable {
         ZoneType type = collection.getZoneType();
         Zone zone = type.getRegionType()==RegionType.CUBOID ? new CuboidZone(collection, uid, regionId, type) : new PolygonZone(collection, uid, regionId, type);
         zone.name = JsonUtil.getString("name", json);
+        if(json.has("data")) zone.loadData(json.getAsJsonObject("data"));
 
         return Optional.of(zone);
     }

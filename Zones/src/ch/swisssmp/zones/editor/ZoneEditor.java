@@ -38,9 +38,24 @@ public class ZoneEditor implements Listener {
     }
 
     private void initialize(){
+        if(selector==null){
+            Bukkit.getLogger().info("ZoneEditor is missing its selector!");
+            return;
+        }
+        selector.initialize();
         visualizer = WireframeVisualizer.start(player, getVisualizationColor());
+        visualizer.setEdges(selector.getEdges());
         Bukkit.getPluginManager().registerEvents(this, ZonesPlugin.getInstance());
         ZoneEditors.add(player,this);
+        SwissSMPler.get(player).sendMessage("["+ChatColor.YELLOW+"Zonen"+ChatColor.RESET+"] "+ChatColor.YELLOW+"Auswahl-Modus gestartet! Punkte mit Rechtsklick hinzufügen und mit Linksklick entfernen. Beende die Auswahl mit Schleichen + Rechtsklick.");
+    }
+
+    public Player getPlayer(){
+        return player;
+    }
+
+    public Zone getZone(){
+        return zone;
     }
 
     @EventHandler
@@ -48,18 +63,9 @@ public class ZoneEditor implements Listener {
         if(event.getPlayer()!=player) return;
         if(event.getAction()!= Action.RIGHT_CLICK_BLOCK && event.getAction()!=Action.LEFT_CLICK_BLOCK) return;
         Player player = event.getPlayer();
-        ClickType click;
-        if(event.getAction()==Action.LEFT_CLICK_BLOCK){
-            click = ClickType.LEFT;
-        }
-        else{
-            click = player.isSneaking() ? ClickType.SHIFT_RIGHT : ClickType.RIGHT;
-        }
+        if(player.isSneaking()) return;
+        ClickType click = event.getAction()==Action.LEFT_CLICK_BLOCK ? ClickType.LEFT : ClickType.RIGHT;
         event.setCancelled(true);
-        if(click==ClickType.SHIFT_RIGHT){
-            complete();
-            return;
-        }
         boolean changed = selector.click(event.getClickedBlock(), click);
         if(!changed) return;
         visualizer.setEdges(selector.getEdges());
@@ -96,6 +102,7 @@ public class ZoneEditor implements Listener {
     }
 
     private void finish(){
+        visualizer.cancel();
         HandlerList.unregisterAll(this);
         ZoneEditors.remove(player);
     }
@@ -103,7 +110,7 @@ public class ZoneEditor implements Listener {
     public static ZoneEditor start(Player player, Zone zone){
         Optional<ZoneEditor> existing = get(player);
         existing.ifPresent(ZoneEditor::cancel);
-        PointSelector selector = zone.getType().createSelector(zone);
+        PointSelector selector = zone.getType().createSelector(player, zone);
         VisualizationColorScheme colorScheme = zone.getType().getVisualizationColorScheme();
         ZoneEditor editor = new ZoneEditor(player, zone, selector, colorScheme);
         editor.initialize();

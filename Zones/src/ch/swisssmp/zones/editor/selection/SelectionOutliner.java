@@ -13,11 +13,11 @@ public class SelectionOutliner {
     protected static List<Edge> buildPolygonEdges(List<Block> points) {
         List<Edge> edges = new ArrayList<>();
         for (int i = 0; i < points.size() - 1; i++) {
-            Edge edge = new Edge(points.get(i).getLocation(), points.get(i + 1).getLocation());
+            Edge edge = new Edge(points.get(i).getLocation().add(0.5,0.5,0.5), points.get(i + 1).getLocation().add(0.5,0.5,0.5));
             edges.add(edge);
         }
         if (points.size() > 2) {
-            Edge edge = new Edge(points.get(points.size() - 1).getLocation(), points.get(0).getLocation());
+            Edge edge = new Edge(points.get(points.size() - 1).getLocation().add(0.5,0.5,0.5), points.get(0).getLocation().add(0.5,0.5,0.5));
             edges.add(edge);
         }
         return edges;
@@ -25,12 +25,12 @@ public class SelectionOutliner {
 
     protected static List<Edge> buildBoxEdges(Block a, Block b) {
         World world = a.getWorld();
-        double minX = a.getX();
-        double minY = a.getY();
-        double minZ = a.getZ();
-        double maxX = b.getX();
-        double maxY = b.getY();
-        double maxZ = b.getZ();
+        double minX = a.getX()+0.5;
+        double minY = a.getY()+0.5;
+        double minZ = a.getZ()+0.5;
+        double maxX = b.getX()+0.5;
+        double maxY = b.getY()+0.5;
+        double maxZ = b.getZ()+0.5;
         Location LA = new Location(world, minX, minY, minZ);
         Location LB = new Location(world, maxX, minY, minZ);
         Location LC = new Location(world, maxX, minY, maxZ);
