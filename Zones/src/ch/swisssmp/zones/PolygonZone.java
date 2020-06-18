@@ -13,6 +13,8 @@ import java.util.UUID;
 public class PolygonZone extends Zone {
 
     private final List<BlockVector> points = new ArrayList<>();
+    private int minY;
+    private int maxY;
 
     private BlockVector min;
     private BlockVector max;
@@ -26,9 +28,19 @@ public class PolygonZone extends Zone {
         return new ArrayList<>(points);
     }
 
-    public void setPoints(List<BlockVector> points){
+    public int getMaxY(){
+        return maxY;
+    }
+
+    public int getMinY(){
+        return minY;
+    }
+
+    public void setPoints(List<BlockVector> points, int minY, int maxY){
         this.points.clear();
         this.points.addAll(points);
+        this.minY = minY;
+        this.maxY = maxY;
         this.recalculateBounds();
         updateWorldGuardRegion();
     }
@@ -52,8 +64,15 @@ public class PolygonZone extends Zone {
     }
 
     private void recalculateBounds(){
-        min = WorldGuardHandler.getMin(points);
-        max = WorldGuardHandler.getMax(points);
+        min = WorldGuardHandler.getMin(points, minY);
+        max = WorldGuardHandler.getMax(points, maxY);
+    }
+
+    @Override
+    public boolean tryLoadWorldGuardRegion(){
+        String regionId = getRegionId();
+        World world = getWorld();
+        return WorldGuardHandler.loadPolygonRegion(this);
     }
 
     @Override
@@ -69,7 +88,7 @@ public class PolygonZone extends Zone {
                 points.add(points.get(0));
             }
         }
-        WorldGuardHandler.updatePolygonRegion(world, regionId, points);
+        WorldGuardHandler.updatePolygonRegion(world, regionId, points, minY, maxY);
     }
 
     @Override

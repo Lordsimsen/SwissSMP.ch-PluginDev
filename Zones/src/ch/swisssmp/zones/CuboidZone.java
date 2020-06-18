@@ -3,6 +3,7 @@ package ch.swisssmp.zones;
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.util.BlockVector;
 
 import java.util.UUID;
@@ -23,6 +24,12 @@ public class CuboidZone extends Zone {
         updateWorldGuardRegion();
     }
 
+    public void setPoints(Block min, Block max){
+        this.min = new BlockVector(min.getX(), min.getY(), min.getZ());
+        this.max = new BlockVector(max.getX(), max.getY(), max.getZ());
+        updateWorldGuardRegion();
+    }
+
     @Override
     public BlockVector getMin() {
         return min;
@@ -40,6 +47,11 @@ public class CuboidZone extends Zone {
                 max==null ||
                 getName()==null
         );
+    }
+
+    @Override
+    public boolean tryLoadWorldGuardRegion(){
+        return WorldGuardHandler.loadCuboidRegion(this);
     }
 
     @Override

@@ -1,5 +1,10 @@
 package ch.swisssmp.zones;
 
+import ch.swisssmp.zones.editor.selection.DefaultCuboidSelector;
+import ch.swisssmp.zones.editor.selection.DefaultPolygonSelector;
+import ch.swisssmp.zones.editor.selection.PointSelector;
+import ch.swisssmp.zones.editor.visualization.VisualizationColorScheme;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 
@@ -34,5 +39,22 @@ public class GenericZoneType extends ZoneType {
     @Override
     public RegionType getRegionType() {
         return regionType;
+    }
+
+    @Override
+    public PointSelector createSelector(Zone zone) {
+        switch (regionType){
+            case CUBOID:return new DefaultCuboidSelector((CuboidZone) zone);
+            case POLYGON:return new DefaultPolygonSelector((PolygonZone) zone);
+            default:{
+                Bukkit.getLogger().warning(ZonesPlugin.getPrefix()+" GenericZoneType can't create a PointSelector for RegionType "+regionType+"!");
+                return null;
+            }
+        }
+    }
+
+    @Override
+    public VisualizationColorScheme getVisualizationColorScheme() {
+        return getDefaultVisualizationColorScheme();
     }
 }

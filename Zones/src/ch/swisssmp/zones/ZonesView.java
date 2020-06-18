@@ -5,7 +5,8 @@ import ch.swisssmp.editor.PaginatedView;
 import ch.swisssmp.editor.slot.ChangePageSlot;
 import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.utils.Mathf;
-import ch.swisssmp.zones.editor.ZoneSlot;
+import ch.swisssmp.zones.editor.slots.ZoneSlot;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -16,15 +17,17 @@ public class ZonesView extends CustomEditorView implements PaginatedView {
     private static final int COLUMNS = 8;
 
     private final Collection<Zone> zones;
+    private final ZoneType type;
 
     private final int pageSize;
     private final int maxPage;
 
     private int page = 0;
 
-    protected ZonesView(Player player, Collection<Zone> zones) {
+    protected ZonesView(Player player, ZoneType type, Collection<Zone> zones) {
         super(player);
         this.zones = zones;
+        this.type = type;
         this.pageSize = Math.max(18, Math.min(54, Mathf.ceilToInt(zones.size()/(float) COLUMNS)*9));
         this.maxPage = Math.max(0, Mathf.ceilToInt(zones.size() / (double) pageSize) - 1);
     }
@@ -50,7 +53,7 @@ public class ZonesView extends CustomEditorView implements PaginatedView {
 
     @Override
     public String getTitle() {
-        return "Zonen";
+        return "Zonen ("+type.getName()+ ChatColor.RESET+")";
     }
 
     public void pageUp() {
@@ -82,7 +85,7 @@ public class ZonesView extends CustomEditorView implements PaginatedView {
             return ZoneTypesView.open(player);
         }
         Collection<Zone> displays = collection.getAllZones();
-        ZonesView view = new ZonesView(player, displays);
+        ZonesView view = new ZonesView(player, zoneType, displays);
         view.open();
         return view;
     }

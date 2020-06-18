@@ -21,3 +21,7 @@ commands:
     description: Erstellt eine Zone in der aktuellen Welt
     usage: "/<command> create [Typ] [Name]"
     permission: zones.admin
+  zone import:
+    description: Importiert eine WorldGuard-Region als Zone in der aktuellen Welt
+    usage: "/<command> import [Id] [Name]"
+    permission: zones.admin

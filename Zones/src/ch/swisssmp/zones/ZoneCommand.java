@@ -1,6 +1,8 @@
 package ch.swisssmp.zones;
 
+import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -49,6 +51,37 @@ public class ZoneCommand implements CommandExecutor {
                     return true;
                 }
                 sender.sendMessage(prefix+ChatColor.GREEN+"Zone "+name+" erstellt!");
+                return true;
+            }
+            case "import":{
+                if(args.length<2){
+                    return false;
+                }
+                String regionId = args[1];
+                String name;
+                if(args.length>2){
+                    String[] nameParts = new String[args.length-2];
+                    System.arraycopy(args, 2, nameParts, 0, args.length - 2);
+                    name = String.join(" ", nameParts);
+                }
+                else{
+                    name = regionId;
+                }
+                World world = player.getWorld();
+                RegionType regionType = WorldGuardHandler.getRegionType(world, regionId);
+                if(regionType==null){
+                    sender.sendMessage(prefix+ChatColor.RED+"Region "+regionId+" nicht gefunden!");
+                    return true;
+                }
+
+                Zone zone = WorldGuardHandler.importRegion(world, regionType, regionId, name).orElse(null);
+                if(zone==null){
+                    sender.sendMessage(prefix+ChatColor.RED+"Region "+regionId+" konnte nicht importiert werden.");
+                    return true;
+                }
+
+                player.getInventory().addItem(zone.getItemStack());
+                SwissSMPler.get(player).sendActionBar(ChatColor.GREEN+"Region "+regionId+" als "+name+" importiert!");
                 return true;
             }
             case "list":{

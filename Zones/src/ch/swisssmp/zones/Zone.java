@@ -2,6 +2,7 @@ package ch.swisssmp.zones;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.editor.Removable;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonObject;
@@ -13,7 +14,7 @@ import org.bukkit.util.BlockVector;
 import java.io.File;
 import java.util.*;
 
-public abstract class Zone {
+public abstract class Zone implements Removable {
 
     public static final String ID_PROPERTY = "ZoneId";
 
@@ -85,6 +86,7 @@ public abstract class Zone {
 
     public abstract boolean isSetupComplete();
 
+    protected abstract boolean tryLoadWorldGuardRegion();
     protected abstract void updateWorldGuardRegion();
     private void removeWorldGuardRegion(){
         String regionId = uid.toString();
@@ -99,6 +101,10 @@ public abstract class Zone {
         json.add("data", saveData());
         File file = getFile();
         JsonUtil.save(file, json);
+    }
+
+    public void remove(){
+        collection.removeZone(this);
     }
 
     protected void unlink(){

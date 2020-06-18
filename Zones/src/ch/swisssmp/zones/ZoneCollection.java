@@ -43,10 +43,17 @@ public class ZoneCollection {
     public Zone createZone(UUID uid, String regionId, String name){
         Zone zone = type.getRegionType()==RegionType.CUBOID ? new CuboidZone(this, uid, regionId, type) : new PolygonZone(this, uid, regionId, type);
         zone.setName(name);
-        zone.updateWorldGuardRegion();
+        if(!zone.tryLoadWorldGuardRegion()){
+            zone.updateWorldGuardRegion();
+        }
         zone.save();
         zones.add(zone);
         return zone;
+    }
+
+    public void removeZone(Zone zone){
+        this.zones.remove(zone);
+        zone.unlink();
     }
 
     public void unload(){

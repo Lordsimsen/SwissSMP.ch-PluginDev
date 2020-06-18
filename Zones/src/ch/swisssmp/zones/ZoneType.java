@@ -1,11 +1,13 @@
 package ch.swisssmp.zones;
 
+import ch.swisssmp.zones.editor.selection.PointSelector;
+import ch.swisssmp.zones.editor.visualization.VisualizationColorScheme;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BlockVector;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,14 +38,20 @@ public abstract class ZoneType {
     public abstract String getDisplayName(String name);
     public abstract List<String> getItemLore(Zone zone);
     public abstract RegionType getRegionType();
+    public abstract PointSelector createSelector(Zone zone);
+    public abstract VisualizationColorScheme getVisualizationColorScheme();
 
     protected List<String> getDefaultLore(Zone zone){
         List<String> result = new ArrayList<>();
         result.add(ChatColor.GRAY+zone.getCollection().getContainer().getBukkitWorld().getName());
         BlockVector min = zone.getMin();
         BlockVector max = zone.getMax();
-        result.add(ChatColor.GRAY+""+min.getBlockX()+","+min.getBlockY()+","+min.getBlockZ()+" - "+max.getBlockX()+","+max.getBlockY()+","+max.getBlockZ());
+        result.add(ChatColor.GRAY+""+min.getBlockX()+","+min.getBlockY()+","+min.getBlockZ()+" bis "+max.getBlockX()+","+max.getBlockY()+","+max.getBlockZ());
         return result;
+    }
+
+    protected VisualizationColorScheme getDefaultVisualizationColorScheme(){
+        return new VisualizationColorScheme(Color.YELLOW, Color.GREEN, Color.RED);
     }
 
     public static Optional<ZoneType> get(NamespacedKey key){

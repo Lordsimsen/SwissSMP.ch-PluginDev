@@ -1,5 +1,6 @@
 package ch.swisssmp.zones;
 
+import ch.swisssmp.zones.editor.ZoneEditors;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +33,7 @@ public class ZonesPlugin extends JavaPlugin {
         ZoneContainers.unloadAll();
         Zones.unregisterZoneTypes(this);
         HandlerList.unregisterAll(this);
+        ZoneEditors.cancelAll();
         Bukkit.getScheduler().cancelTasks(this);
 
         Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");

@@ -1,4 +1,4 @@
-package ch.swisssmp.zones.editor;
+package ch.swisssmp.zones.editor.slots;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;

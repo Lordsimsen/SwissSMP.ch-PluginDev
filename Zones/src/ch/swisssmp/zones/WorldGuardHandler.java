@@ -10,12 +10,14 @@ import com.sk89q.worldguard.protection.managers.storage.StorageException;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.util.BlockVector;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class WorldGuardHandler {
 
@@ -51,15 +53,24 @@ public class WorldGuardHandler {
         return region;
     }
 
-    private static ProtectedPolygonalRegion createPolygonRegion(World world, String id, Collection<BlockVector> points){
+    protected static boolean loadCuboidRegion(CuboidZone zone){
+        World world = zone.getWorld();
+        String regionId = zone.getRegionId();
+        RegionManager manager = getManager(world);
+        ProtectedRegion region = manager.getRegion(regionId);
+        if(!(region instanceof ProtectedCuboidRegion)) return false;
+        ProtectedCuboidRegion cuboidRegion = (ProtectedCuboidRegion) region;
+        BlockVector min = adapt(cuboidRegion.getMinimumPoint());
+        BlockVector max = adapt(cuboidRegion.getMaximumPoint());
+        zone.setPoints(min, max);
+        return true;
+    }
+
+    private static ProtectedPolygonalRegion createPolygonRegion(World world, String id, Collection<BlockVector> points, int minY, int maxY){
         if(points.size()<3) return null;
         List<BlockVector2> corners = new ArrayList<>();
-        int minY = Integer.MAX_VALUE;
-        int maxY = Integer.MIN_VALUE;
         for(BlockVector p : points){
             corners.add(BlockVector2.at(p.getBlockX(),p.getBlockZ()));
-            minY = Math.min(minY, p.getBlockY());
-            maxY = Math.max(maxY, p.getBlockY());
         }
         RegionManager manager = getManager(world);
         ProtectedPolygonalRegion region = new ProtectedPolygonalRegion(id, corners, minY, maxY);
@@ -72,22 +83,18 @@ public class WorldGuardHandler {
         return region;
     }
 
-    protected static ProtectedPolygonalRegion updatePolygonRegion(World world, String id, Collection<BlockVector> points){
+    protected static ProtectedPolygonalRegion updatePolygonRegion(World world, String id, Collection<BlockVector> points, int minY, int maxY){
         if(points.size()<3) return null;
         List<BlockVector2> corners = new ArrayList<>();
-        int minY = Integer.MAX_VALUE;
-        int maxY = Integer.MIN_VALUE;
         for(BlockVector p : points){
             corners.add(BlockVector2.at(p.getBlockX(),p.getBlockZ()));
-            minY = Math.min(minY, p.getBlockY());
-            maxY = Math.max(maxY, p.getBlockY());
         }
         RegionManager manager = getManager(world);
         ProtectedRegion existing = manager.getRegion(id);
         ProtectedPolygonalRegion result;
         if(!(existing instanceof ProtectedPolygonalRegion)){
             if(existing!=null) manager.removeRegion(id, RemovalStrategy.UNSET_PARENT_IN_CHILDREN);
-            result = createPolygonRegion(world, id, points);
+            result = createPolygonRegion(world, id, points, minY, maxY);
             if(existing!=null) result.copyFrom(existing);
         }
         else{
@@ -105,6 +112,24 @@ public class WorldGuardHandler {
         return result;
     }
 
+    protected static boolean loadPolygonRegion(PolygonZone zone){
+        World world = zone.getWorld();
+        String regionId = zone.getRegionId();
+        RegionManager manager = getManager(world);
+        ProtectedRegion region = manager.getRegion(regionId);
+        if(!(region instanceof ProtectedPolygonalRegion)) return false;
+        ProtectedPolygonalRegion polygonRegion = (ProtectedPolygonalRegion) region;
+        List<BlockVector> points = new ArrayList<>();
+        int minY = polygonRegion.getMinimumPoint().getY();
+        int maxY = polygonRegion.getMaximumPoint().getY();
+        for(BlockVector2 v : polygonRegion.getPoints()){
+            points.add(new BlockVector(v.getX(),minY,v.getZ()));
+        }
+
+        zone.setPoints(points, minY, maxY);
+        return true;
+    }
+
     protected static void removeRegion(World world, String id){
         RegionManager manager = getManager(world);
         manager.removeRegion(id);
@@ -115,28 +140,62 @@ public class WorldGuardHandler {
         }
     }
 
-    protected static BlockVector getMin(Collection<BlockVector> points){
+    protected static Optional<Zone> importRegion(World world, RegionType regionType, String regionId, String name){
+        ZoneType type;
+        switch (regionType){
+            case CUBOID:{
+                type = Zones.getGenericCuboidZoneType();
+                break;
+            }
+            case POLYGON:{
+                type = Zones.getGenericPolygonZoneType();
+                break;
+            }
+            default: {
+                Bukkit.getLogger().warning(ZonesPlugin.getPrefix()+" Kann eine Region vom Typ "+regionType+" nicht importieren!");
+                return Optional.empty();
+            }
+        }
+
+        ZoneCollection collection = ZoneCollection.get(world, type).orElse(null);
+        if(collection==null){
+            Bukkit.getLogger().warning(ZonesPlugin.getPrefix()+" ZoneType "+type.getKey()+" ist nicht initiiert.");
+            return Optional.empty();
+        }
+
+        return Optional.of(collection.createZone(regionId, name));
+    }
+
+    protected static RegionType getRegionType(World world, String regionId){
+        RegionManager manager = getManager(world);
+        ProtectedRegion region = manager.getRegion(regionId);
+        if(region==null) return null;
+        switch(region.getType()){
+            case CUBOID:return RegionType.CUBOID;
+            case POLYGON:return RegionType.POLYGON;
+            case GLOBAL:return RegionType.GLOBAL;
+            default: return null;
+        }
+    }
+
+    protected static BlockVector getMin(Collection<BlockVector> points, int minY){
         int x = Integer.MAX_VALUE;
-        int y = Integer.MAX_VALUE;
         int z = Integer.MAX_VALUE;
         for(BlockVector v : points){
             x = Math.min(x,v.getBlockX());
-            y = Math.min(y,v.getBlockX());
             z = Math.min(z,v.getBlockX());
         }
-        return new BlockVector(x,y,z);
+        return new BlockVector(x,minY,z);
     }
 
-    protected static BlockVector getMax(Collection<BlockVector> points){
+    protected static BlockVector getMax(Collection<BlockVector> points, int maxY){
         int x = Integer.MIN_VALUE;
-        int y = Integer.MIN_VALUE;
         int z = Integer.MIN_VALUE;
         for(BlockVector v : points){
             x = Math.max(x,v.getBlockX());
-            y = Math.max(y,v.getBlockX());
             z = Math.max(z,v.getBlockX());
         }
-        return new BlockVector(x,y,z);
+        return new BlockVector(x,maxY,z);
     }
 
     protected static BlockVector3 adapt(BlockVector v){

@@ -5,8 +5,7 @@ import ch.swisssmp.editor.PaginatedView;
 import ch.swisssmp.editor.slot.ChangePageSlot;
 import ch.swisssmp.editor.slot.EditorSlot;
 import ch.swisssmp.utils.Mathf;
-import ch.swisssmp.zones.editor.ZoneSlot;
-import ch.swisssmp.zones.editor.ZoneTypeSlot;
+import ch.swisssmp.zones.editor.slots.ZoneTypeSlot;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
