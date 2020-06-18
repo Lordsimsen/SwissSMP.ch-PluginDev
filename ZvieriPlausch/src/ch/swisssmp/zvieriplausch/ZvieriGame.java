@@ -122,6 +122,7 @@ public class ZvieriGame implements Runnable{
     }
 
     private void start(){
+        arena.getRecipeDisplay().setLevel(level);
         this.currentPhase = new PreparationPhase(this, PREPARATION_TIME);
         task = Bukkit.getScheduler().runTaskTimer(ZvieriGamePlugin.getInstance(), this, 0, 1);
     }

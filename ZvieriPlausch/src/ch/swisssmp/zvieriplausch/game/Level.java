@@ -5,6 +5,7 @@ import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.utils.Random;
+import ch.swisssmp.zvieriplausch.Dish;
 import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
 import com.google.gson.JsonObject;
 import org.bukkit.ChatColor;
@@ -18,11 +19,11 @@ import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Level {
+
+    private static final Random random = new Random();
 
     private final int level;
 
@@ -32,26 +33,7 @@ public class Level {
 
     private final HashMap<String, ItemStack> allIngredients = new HashMap<>();
 
-    private final ItemStack[] allDishes = new ItemStack[]{
-            (CustomItems.getCustomItemBuilder("HASH_BROWNS").build()), //0
-            CustomItems.getCustomItemBuilder("MEAT_FEAST").build(),
-            (CustomItems.getCustomItemBuilder("HONEY_MILK").build()),//2
-            (CustomItems.getCustomItemBuilder("RICE_PUDDING").build()),
-            (CustomItems.getCustomItemBuilder("SUSHI").build()), //4
-            (CustomItems.getCustomItemBuilder("SCHNITZEL_FRIES").build()), //5
-            (CustomItems.getCustomItemBuilder("VEGGIES_DELIGHT").build()),
 
-            (CustomItems.getCustomItemBuilder("SPAGHETTI_BOLOGNESE").build()), //7
-            (CustomItems.getCustomItemBuilder("DAME_BLANCHE").build()),
-
-            (CustomItems.getCustomItemBuilder("ZURICH_GESCHNETZELTES").build()), //9
-            (CustomItems.getCustomItemBuilder("HOT_CHOCOLATE").build()),
-            (CustomItems.getCustomItemBuilder("PEKING_DUCK").build()), //11
-            (CustomItems.getCustomItemBuilder("PIZZA_MARGHERITA").build()),
-            (CustomItems.getCustomItemBuilder("MARITIME_PLATTER").build()), //13
-            (CustomItems.getCustomItemBuilder("CREEPER_SUCRE").build()),
-            (CustomItems.getCustomItemBuilder("LORDS_BLESSING").build()) //15
-    };
 
     public static HashMap<String, List<String>> recipes = new HashMap<String, List<String>>();
 
@@ -247,7 +229,7 @@ public class Level {
 //                npc.setName("Schmied");
 //                npc.setNameVisible(true);
                 JsonUtil.set("baseTip", 5, json);
-                JsonUtil.set("patience", 0.75, json);
+                JsonUtil.set("patience", 0.8, json);
                 break;
             }
             case 2:{
@@ -255,7 +237,7 @@ public class Level {
 //                npc.setName("Gelehrter");
 //                npc.setNameVisible(true);
                 JsonUtil.set("baseTip", 10, json);
-                JsonUtil.set("patience", 0.4, json);
+                JsonUtil.set("patience", 0.6, json);
                 break;
             }
             case 3: {
@@ -263,7 +245,7 @@ public class Level {
 //                npc.setName("Alchemist");
 //                npc.setNameVisible(true);
                 JsonUtil.set("baseTip", 7, json);
-                JsonUtil.set("patience", 0.6, json);
+                JsonUtil.set("patience", 0.7, json);
                 break;
             }
             case 4: {
@@ -279,40 +261,21 @@ public class Level {
 //                npc.setName("Aristokrat");
 //                npc.setNameVisible(true);
                 JsonUtil.set("baseTip", 20, json);
-                JsonUtil.set("patience", 0.2, json);
+                JsonUtil.set("patience", 0.4, json);
                 break;
             }
         }
         npc.setJsonData(json);
     }
 
-    /*
-    Returns the recipes as papers with ingredients as lore for dishes that can be ordered in the selected level.
-    Done manually, so watch out when modifying the dishes order and stuff.
-     */
-    protected ItemStack[] getRecipes(){
+    public Dish[] getDishes(){
         switch(level){
-            case 1: {
-                return new ItemStack[]{getRecipe("MEAT_FEAST"), getRecipe("HONEY_MILK"), getRecipe("HASH_BROWNS")};
-            }
-            case 2: {
-                return new ItemStack[]{getRecipe("HONEY_MILK"), getRecipe("HASH_BROWNS")
-                                ,getRecipe("RICE_PUDDING"), getRecipe("SUSHI")};
-            }
-            case 3: {
-                return new ItemStack[]{getRecipe("HASH_BROWNS"), getRecipe("SUSHI"),
-                                                    getRecipe("HOT_CHOCOLATE"), getRecipe("VEGGIES_DELIGHT")};
-            }
-            case 4: {
-                return new ItemStack[]{getRecipe("VEGGIES_DELIGHT"), getRecipe("DAME_BLANCHE"),
-                        getRecipe("RICE_PUDDING"), getRecipe("SPAGHETTI_BOLOGNESE"), getRecipe("HOT_CHOCOLATE")};
-
-            }
-            case 5: {
-                return new ItemStack[]{getRecipe("CREEPER_SUCRE"), getRecipe("LORDS_BLESSING"),
-                        getRecipe("PIZZA_MARGHERITA"), getRecipe("DAME_BLANCHE")};
-            }
-            default: return null;
+            case 1: return new Dish[]{Dish.HASH_BROWNS, Dish.MEAT_FEAST, Dish.HONEY_MILK};
+            case 2: return new Dish[]{Dish.HASH_BROWNS, Dish.HONEY_MILK, Dish.RICE_PUDDING, Dish.SUSHI};
+            case 3: return new Dish[]{Dish.HASH_BROWNS, Dish.SUSHI, Dish.VEGGIES_DELIGHT, Dish.HOT_CHOCOLATE};
+            case 4: return new Dish[]{Dish.RICE_PUDDING, Dish.VEGGIES_DELIGHT, Dish.SPAGHETTI_BOLOGNESE, Dish.HOT_CHOCOLATE, Dish.DAME_BLANCHE};
+            case 5: return new Dish[]{Dish.DAME_BLANCHE, Dish.PIZZA_MARGHERITA, Dish.CREEPER_SUCRE, Dish.LORDS_BLESSING};
+            default: return new Dish[0];
         }
     }
 
@@ -320,65 +283,11 @@ public class Level {
     Returns one of some selected dishes, depending on the selected level.
      */
     protected ItemStack getRandomDish(){
-        switch(level) {
-            case 1: {
-                List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[0]); //röschti
-                dishes.add(allDishes[1]); //Fleischschmaus
-                dishes.add(allDishes[2]); //Honigmilch
-                int random = new Random().nextInt(dishes.size());
-                ItemStack dish = dishes.get(random);
-                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
-                return dish;
-            }
-            case 2: {
-                List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[0]);
-                dishes.add(allDishes[2]);
-                dishes.add(allDishes[3]); //milchreis
-                dishes.add(allDishes[4]); //sushi
-                int random = new Random().nextInt(dishes.size());
-                ItemStack dish = dishes.get(random);
-                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
-                return dish;
-            }
-            case 3: {
-                List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[0]);
-                dishes.add(allDishes[4]);
-                dishes.add(allDishes[6]); //veggie
-                dishes.add(allDishes[10]); //hot choc
-                int random = new Random().nextInt(dishes.size());
-                ItemStack dish = dishes.get(random);
-                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
-                return dish;
-            }
-            case 4: {
-                List<ItemStack> dishes = new ArrayList<>();
-                dishes.add(allDishes[3]);
-                dishes.add(allDishes[6]); //veggie
-                dishes.add(allDishes[7]); //spaghett'
-                dishes.add(allDishes[8]); //coupe dän
-                dishes.add(allDishes[10]); //hot choc
-                int random = new Random().nextInt(dishes.size());
-                ItemStack dish = dishes.get(random);
-                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
-                return dish;
-            }
-            case 5: {
-                List<ItemStack> dishes = new ArrayList<>();
-//                dishes.add(allDishes[5]); //schnipo
-                dishes.add(allDishes[8]); //coupe dän
-                dishes.add(allDishes[12]); //pizza
-                dishes.add(allDishes[14]); //creep
-                dishes.add(allDishes[15]); //lords bliss
-                int random = new Random().nextInt(dishes.size());
-                ItemStack dish = dishes.get(random);
-                ItemUtil.setBoolean(dish, "zvieriGameItem", true);
-                return dish;
-            }
-        }
-        return null;
+        Dish[] dishes = getDishes();
+        int index = random.nextInt(dishes.length);
+        ItemStack dish = dishes[index].getItemStack();
+        ItemUtil.setBoolean(dish, "zvieriGameItem", true);
+        return dish;
     }
 
     private void setDuration() {

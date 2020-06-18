@@ -46,26 +46,6 @@ public class CraftingRecipes {
         Bukkit.getServer().addRecipe(pastaVerticalRecipe);
         Bukkit.getServer().addRecipe(pastaRecipe);
 
-//        List<Material> pastaIngredients = new ArrayList<>();
-//        pastaIngredients.add(Material.WHEAT);
-//        pastaIngredients.add(Material.WHEAT);
-//        List<String> pastaCustomIngredients = new ArrayList<>();
-//        pastaCustomIngredients.add("BOILED_WATER");
-//        registerCraftingRecipe("PASTA", pastaIngredients, pastaCustomIngredients);
-
-//        CustomItemBuilder pastaBuilder = CustomItems.getCustomItemBuilder("PASTA");
-//        if(pastaBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        pastaBuilder.setAmount(1);
-////        pastaBuilder.setMaxStackSize(16);
-//        ItemStack pasta = pastaBuilder.build();
-//        ShapelessRecipe pastaRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "pasta"), pasta);
-//        pastaRecipe.addIngredient(Material.WHEAT);
-//        pastaRecipe.addIngredient(Material.WHEAT);
-//        pastaRecipe.addIngredient(new RecipeChoice.ExactChoice(CustomItems.getCustomItemBuilder("BOILED_WATER").build()));
-//        Bukkit.getServer().addRecipe(pastaRecipe);
 
         ItemStack hashBrowns = getTaggedCustomItemStack("HASH_BROWNS");
         ShapedRecipe hashBrownsRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "hash_browns_horizontal"), hashBrowns);
@@ -84,23 +64,6 @@ public class CraftingRecipes {
         Bukkit.getServer().addRecipe(hashBrownsVerticalRecipe);
         Bukkit.getServer().addRecipe(hashBrownsRecipe);
 
-//        List<Material> hashBrownsIngredients = new ArrayList<>();
-//        hashBrownsIngredients.add(Material.BAKED_POTATO);
-//        hashBrownsIngredients.add(Material.BAKED_POTATO);
-//        registerCraftingRecipe("HASH_BROWNS", hashBrownsIngredients, null);
-
-//        CustomItemBuilder hashBrownsBuilder = CustomItems.getCustomItemBuilder("HASH_BROWNS");
-//        if(hashBrownsBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        hashBrownsBuilder.setAmount(1);
-////        hashBrownsBuilder.setMaxStackSize(16);
-//        ItemStack hashBrowns = hashBrownsBuilder.build();
-//        ShapelessRecipe hashBrownsRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "hash_browns"), hashBrowns);
-//        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
-//        hashBrownsRecipe.addIngredient(Material.BAKED_POTATO);
-//        Bukkit.getServer().addRecipe(hashBrownsRecipe);
 
         ItemStack meatFeast = getTaggedCustomItemStack("MEAT_FEAST");
         ShapedRecipe meatFeastRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "meat_feast_horizontal"), meatFeast);
@@ -124,25 +87,6 @@ public class CraftingRecipes {
         Bukkit.getServer().addRecipe(meatFeastHorizontalRecipe);
         Bukkit.getServer().addRecipe(meatFeastRecipe);
 
-//        List<Material> meatFeastIngredients = new ArrayList<>();
-//        meatFeastIngredients.add(Material.COOKED_PORKCHOP);
-//        meatFeastIngredients.add(Material.COOKED_BEEF);
-//        meatFeastIngredients.add(Material.COOKED_CHICKEN);
-//        registerCraftingRecipe("MEAT_FEAST", meatFeastIngredients, null);
-
-//        CustomItemBuilder meatFeastBuilder = CustomItems.getCustomItemBuilder("MEAT_FEAST");
-//        if(meatFeastBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        meatFeastBuilder.setAmount(1);
-////        meatFeastBuilder.setMaxStackSize(16);
-//        ItemStack meatFeast = meatFeastBuilder.build();
-//        ShapelessRecipe meatFeastRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "meat_feast"), meatFeast);
-//        meatFeastRecipe.addIngredient(Material.COOKED_BEEF);
-//        meatFeastRecipe.addIngredient(Material.COOKED_PORKCHOP);
-//        meatFeastRecipe.addIngredient(Material.COOKED_CHICKEN);
-//        Bukkit.getServer().addRecipe(meatFeastRecipe);
 
         ItemStack honeyMilk = getTaggedCustomItemStack("HONEY_MILK");
         ShapedRecipe honeyMilkRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "honey_milk"), honeyMilk);
@@ -155,22 +99,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(honeyMilkRecipe);
 
-//        List<String> honeyMilkCustomIngredients = new ArrayList<>();
-//        honeyMilkCustomIngredients.add("ZVIERI_HONEY_BOTTLE");
-//        honeyMilkCustomIngredients.add("ZVIERI_MILK_BUCKET");
-//        registerCraftingRecipe("HONEY_MILK", null, honeyMilkCustomIngredients);
-
-//        CustomItemBuilder honeyMilkBuilder = CustomItems.getCustomItemBuilder("HONEY_MILK");
-//        if(honeyMilkBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        honeyMilkBuilder.setAmount(1);
-//        ItemStack honeyMilk = honeyMilkBuilder.build();
-//        ShapelessRecipe honeyMilkRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "honey_milk"), honeyMilk);
-//        honeyMilkRecipe.addIngredient(Material.HONEY_BOTTLE);
-//        honeyMilkRecipe.addIngredient(Material.MILK_BUCKET);
-//        Bukkit.getServer().addRecipe(honeyMilkRecipe);
 
         ItemStack ricePudding = getTaggedCustomItemStack("RICE_PUDDING");
         ShapedRecipe ricePuddingRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "rice_pudding"), ricePudding);
@@ -183,23 +111,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(ricePuddingRecipe);
 
-//        List<Material> ricePuddingIngredients = new ArrayList<>();
-//        ricePuddingIngredients.add(Material.WHEAT);
-//        List<String> ricePuddingCustomIngredients = new ArrayList<>();
-//        ricePuddingCustomIngredients.add("ZVIERI_MILK_BUCKET");
-//        registerCraftingRecipe("RICE_PUDDING", ricePuddingIngredients, ricePuddingCustomIngredients);
-
-//        CustomItemBuilder ricePuddingBuilder = CustomItems.getCustomItemBuilder("RICE_PUDDING");
-//        if(ricePuddingBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        ricePuddingBuilder.setAmount(1);
-//        ItemStack ricePudding = ricePuddingBuilder.build();
-//        ShapelessRecipe ricePuddingRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "rice_pudding"), ricePudding);
-//        ricePuddingRecipe.addIngredient(Material.MILK_BUCKET);
-//        ricePuddingRecipe.addIngredient(Material.WHEAT);
-//        Bukkit.getServer().addRecipe(ricePuddingRecipe);
 
         ItemStack sushi = getTaggedCustomItemStack("SUSHI");
         ShapedRecipe sushiRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "sushi"), sushi);
@@ -214,25 +125,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(sushiRecipe);
 
-//        List<Material> sushiIngredients = new ArrayList<>();
-//        sushiIngredients.add(Material.SALMON);
-//        sushiIngredients.add(Material.DRIED_KELP);
-//        sushiIngredients.add(Material.WHEAT);
-//        registerCraftingRecipe("SUSHI", sushiIngredients, null);
-
-//        CustomItemBuilder sushiBuilder = CustomItems.getCustomItemBuilder("SUSHI");
-//        if(sushiBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        sushiBuilder.setAmount(1);
-////        sushiBuilder.setMaxStackSize(16);
-//        ItemStack sushi = sushiBuilder.build();
-//        ShapelessRecipe sushiRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "sushi"), sushi);
-//        sushiRecipe.addIngredient(Material.SALMON);
-//        sushiRecipe.addIngredient(Material.DRIED_KELP);
-//        sushiRecipe.addIngredient(Material.WHEAT);
-//        Bukkit.getServer().addRecipe(sushiRecipe);
 
         ItemStack schniPo = getTaggedCustomItemStack("SCHNITZEL_FRIES");
         ShapedRecipe schniPoRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "schnitzel_fries"), schniPo);
@@ -246,25 +138,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(schniPoRecipe);
 
-//        List<Material> schnitzelFriesIngredients = new ArrayList<>();
-//        schnitzelFriesIngredients.add(Material.COOKED_PORKCHOP);
-//        schnitzelFriesIngredients.add(Material.BAKED_POTATO);
-//        schnitzelFriesIngredients.add(Material.WHEAT);
-//        registerCraftingRecipe("SCHNITZEL_FRIES", schnitzelFriesIngredients, null);
-
-//        CustomItemBuilder schniPoBuilder = CustomItems.getCustomItemBuilder("SCHNITZEL_FRIES");
-//        if(schniPoBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        schniPoBuilder.setAmount(1);
-////        schniPoBuilder.setMaxStackSize(16);
-//        ItemStack schniPo = schniPoBuilder.build();
-//        ShapelessRecipe schniPoRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "schnitzel_fries"), schniPo);
-//        schniPoRecipe.addIngredient(Material.COOKED_PORKCHOP);
-//        schniPoRecipe.addIngredient(Material.BAKED_POTATO);
-//        schniPoRecipe.addIngredient(Material.WHEAT);
-//        Bukkit.getServer().addRecipe(schniPoRecipe);
 
         ItemStack veggie = getTaggedCustomItemStack("VEGGIES_DELIGHT");
         ShapedRecipe veggieRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "veggies_delight_horizontal"), veggie);
@@ -288,25 +161,6 @@ public class CraftingRecipes {
         Bukkit.getServer().addRecipe(veggieVerticalRecipe);
         Bukkit.getServer().addRecipe(veggieRecipe);
 
-//        List<Material> veggieIngredients = new ArrayList<>();
-//        veggieIngredients.add(Material.KELP);
-//        veggieIngredients.add(Material.WHEAT);
-//        veggieIngredients.add(Material.CARROT);
-//        registerCraftingRecipe("VEGGIES_DELIGHT", veggieIngredients, null);
-
-//        CustomItemBuilder veggieBuilder = CustomItems.getCustomItemBuilder("VEGGIES_DELIGHT");
-//        if(veggieBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        veggieBuilder.setAmount(1);
-////        veggieBuilder.setMaxStackSize(16);
-//        ItemStack veggiesDelight = veggieBuilder.build();
-//        ShapelessRecipe veggiesDelightRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "veggies_delight"), veggiesDelight);
-//        veggiesDelightRecipe.addIngredient(Material.KELP);
-//        veggiesDelightRecipe.addIngredient(Material.WHEAT);
-//        veggiesDelightRecipe.addIngredient(Material.CARROT);
-//        Bukkit.getServer().addRecipe(veggiesDelightRecipe);
 
         ItemStack spaghetti = getTaggedCustomItemStack("SPAGHETTI_BOLOGNESE");
         ShapedRecipe spaghettiRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "spaghetti_bolognese"), spaghetti);
@@ -321,26 +175,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(spaghettiRecipe);
 
-//        List<Material> spaghettiIngredients = new ArrayList<>();
-//        spaghettiIngredients.add(Material.COOKED_BEEF);
-//        List<String> spaghettiCustomIngredients = new ArrayList<>();
-//        spaghettiCustomIngredients.add("PASTA");
-//        spaghettiCustomIngredients.add("RED_SAUCE");
-//        registerCraftingRecipe("SPAGHETTI_BOLOGNESE", spaghettiIngredients, spaghettiCustomIngredients);
-
-//        CustomItemBuilder spaghettiBuilder = CustomItems.getCustomItemBuilder("SPAGHETTI_BOLOGNESE");
-//        if(spaghettiBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        spaghettiBuilder.setAmount(1);
-////        spaghettiBuilder.setMaxStackSize(16);
-//        ItemStack spaghetti = spaghettiBuilder.build();
-//        ShapelessRecipe spaghettiRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "spaghetti_bolognese"), spaghetti);
-//        spaghettiRecipe.addIngredient(CustomItems.getCustomItemBuilder("PASTA").build().getType());
-//        spaghettiRecipe.addIngredient(CustomItems.getCustomItemBuilder("RED_SAUCE").build().getType());
-//        spaghettiRecipe.addIngredient(Material.COOKED_BEEF);
-//        Bukkit.getServer().addRecipe(spaghettiRecipe);
 
         ItemStack creeperSucre = getTaggedCustomItemStack("CREEPER_SUCRE");
         ShapedRecipe creeperSucreRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "creeper_sucre"), creeperSucre);
@@ -355,28 +189,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(creeperSucreRecipe);
 
-//        List<Material> creeperSucreIngredients = new ArrayList<>();
-//        creeperSucreIngredients.add(Material.SUGAR);
-//        List<String> creeperSucreCustomIngredients = new ArrayList<>();
-//        creeperSucreCustomIngredients.add("STEAMED_CREEPER_HEAD");
-//        creeperSucreCustomIngredients.add("WHIPPED_CREAM");
-//        creeperSucreCustomIngredients.add("PUFFERFISH_EXTRACT");
-//        registerCraftingRecipe("CREEPER_SUCRE", creeperSucreIngredients, creeperSucreCustomIngredients);
-
-//        CustomItemBuilder creeperSucreBuilder = CustomItems.getCustomItemBuilder("CREEPER_SUCRE");
-//        if(creeperSucreBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        creeperSucreBuilder.setAmount(1);
-////        creeperSucreBuilder.setMaxStackSize(16);
-//        ItemStack creeperSucre = creeperSucreBuilder.build();
-//        ShapelessRecipe creeperSucreRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "creeper_sucre"), creeperSucre);
-//        creeperSucreRecipe.addIngredient(Material.CREEPER_HEAD);
-//        creeperSucreRecipe.addIngredient(Material.SUGAR);
-//        creeperSucreRecipe.addIngredient(CustomItems.getCustomItemBuilder("WHIPPED_CREAM").build().getType());
-//        creeperSucreRecipe.addIngredient(CustomItems.getCustomItemBuilder("PUFFERFISH_EXTRACT").build().getType());
-//        Bukkit.getServer().addRecipe(creeperSucreRecipe);
 
         ItemStack zhGeschnetzeltes = getTaggedCustomItemStack("ZURICH_GESCHNETZELTES");
         ShapedRecipe zhGeschnetzeltesRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "zurich_geschnetzeltes"), zhGeschnetzeltes);
@@ -389,26 +201,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(zhGeschnetzeltesRecipe);
 
-//        List<Material> zurichGeschnetzeltesIngredients = new ArrayList<>();
-//        zurichGeschnetzeltesIngredients.add(Material.COOKED_BEEF);
-//        List<String> zurichGeschnetzeltesCustomIngredients = new ArrayList<>();
-//        zurichGeschnetzeltesCustomIngredients.add("HASH_BROWNS");
-//        zurichGeschnetzeltesCustomIngredients.add("ZVIERI_MILK_BUCKET");
-//        registerCraftingRecipe("ZURICH_GESCHNETZELTES", zurichGeschnetzeltesIngredients, zurichGeschnetzeltesCustomIngredients);
-
-//        CustomItemBuilder zurichGeschnetzeltesBuilder = CustomItems.getCustomItemBuilder("ZURICH_GESCHNETZELTES");
-//        if(zurichGeschnetzeltesBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        zurichGeschnetzeltesBuilder.setAmount(1);
-////        zurichGeschnetzeltesBuilder.setMaxStackSize(16);
-//        ItemStack zhSliced = zurichGeschnetzeltesBuilder.build();
-//        ShapelessRecipe zhSlicedRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "zurich_geschnetzeltes"), zhSliced);
-//        zhSlicedRecipe.addIngredient(Material.MILK_BUCKET);
-//        zhSlicedRecipe.addIngredient(Material.COOKED_BEEF);
-//        zhSlicedRecipe.addIngredient(CustomItems.getCustomItemBuilder("HASH_BROWNS").build().getType());
-//        Bukkit.getServer().addRecipe(zhSlicedRecipe);
 
         ItemStack pekingDuck = getTaggedCustomItemStack("PEKING_DUCK");
         ShapedRecipe pekingDuckRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "peking_duck"), pekingDuck);
@@ -423,26 +215,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(pekingDuckRecipe);
 
-//        List<Material> pekingDuckIngredients = new ArrayList<>();
-//        pekingDuckIngredients.add(Material.COOKED_CHICKEN);
-//        pekingDuckIngredients.add(Material.SUGAR);
-//        List<String> pekingDuckCustomIngredients = new ArrayList<>();
-//        pekingDuckCustomIngredients.add("BOILED_WATER");
-//        registerCraftingRecipe("PEKING_DUCK", pekingDuckIngredients, pekingDuckCustomIngredients);
-
-//        CustomItemBuilder pekingDuckBuilder = CustomItems.getCustomItemBuilder("PEKING_DUCK");
-//        if(pekingDuckBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        pekingDuckBuilder.setAmount(1);
-////        pekingDuckBuilder.setMaxStackSize(16);
-//        ItemStack pekingDuck = pekingDuckBuilder.build();
-//        ShapelessRecipe pekingDuckRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "peking_duck"), pekingDuck);
-//        pekingDuckRecipe.addIngredient(Material.COOKED_CHICKEN);
-//        pekingDuckRecipe.addIngredient(Material.SUGAR);
-//        pekingDuckRecipe.addIngredient(CustomItems.getCustomItemBuilder("BOILED_WATER").build().getType());
-//        Bukkit.getServer().addRecipe(pekingDuckRecipe);
 
         ItemStack pizza = getTaggedCustomItemStack("PIZZA_MARGHERITA");
         ShapedRecipe pizzaRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "pizza_margherita"), pizza);
@@ -457,26 +229,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(pizzaRecipe);
 
-//        List<Material> pizzaIngredients = new ArrayList<>();
-//        pizzaIngredients.add(Material.BREAD);
-//        List<String> pizzaCustomIngredients = new ArrayList<>();
-//        pizzaCustomIngredients.add("RED_SAUCE");
-//        pizzaCustomIngredients.add("CHEESE");
-//        registerCraftingRecipe("PIZZA_MARGHERITA", pizzaIngredients, pizzaCustomIngredients);
-
-//        CustomItemBuilder pizzaBuilder = CustomItems.getCustomItemBuilder("PIZZA_MARGHERITA");
-//        if(pizzaBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        pizzaBuilder.setAmount(1);
-////        pizzaBuilder.setMaxStackSize(16);
-//        ItemStack pizza = pizzaBuilder.build();
-//        ShapelessRecipe pizzaRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "pizza_margherita"), pizza);
-//        pizzaRecipe.addIngredient(Material.BREAD);
-//        pizzaRecipe.addIngredient(CustomItems.getCustomItemBuilder("RED_SAUCE").build().getType());
-//        pizzaRecipe.addIngredient(CustomItems.getCustomItemBuilder("CHEESE").build().getType());
-//        Bukkit.getServer().addRecipe(pizzaRecipe);
 
         ItemStack maritimePlatter = getTaggedCustomItemStack("MARITIME_PLATTER");
         ShapedRecipe maritimePlatterRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "maritime_platter"), maritimePlatter);
@@ -500,26 +252,6 @@ public class CraftingRecipes {
         Bukkit.getServer().addRecipe(maritimePlatterVerticalRecipe);
         Bukkit.getServer().addRecipe(maritimePlatterRecipe);
 
-//        List<Material> maritimePlatterIngredients = new ArrayList<>();
-//        maritimePlatterIngredients.add(Material.COOKED_SALMON);
-//        maritimePlatterIngredients.add(Material.DRIED_KELP);
-//        List<String> maritimePlatterCustomIngredients = new ArrayList<>();
-//        maritimePlatterCustomIngredients.add("PUFFERFISH_EXTRACT");
-//        registerCraftingRecipe("MARITIME_PLATTER", maritimePlatterIngredients, maritimePlatterCustomIngredients);
-
-//        CustomItemBuilder maritimePlatterBuilder = CustomItems.getCustomItemBuilder("MARITIME_PLATTER");
-//        if(maritimePlatterBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        maritimePlatterBuilder.setAmount(1);
-////        maritimePlatterBuilder.setMaxStackSize(16);
-//        ItemStack maritimePlatter = maritimePlatterBuilder.build();
-//        ShapelessRecipe maritimePlatterRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "maritime_platter"), maritimePlatter);
-//        maritimePlatterRecipe.addIngredient(Material.COOKED_SALMON);
-//        maritimePlatterRecipe.addIngredient(Material.DRIED_KELP);
-//        pizzaRecipe.addIngredient(CustomItems.getCustomItemBuilder("PUFFERFISH_EXTRACT").build().getType());
-//        Bukkit.getServer().addRecipe(maritimePlatterRecipe);
 
         ItemStack lordsBlessing = getTaggedCustomItemStack("LORDS_BLESSING");
         ShapedRecipe lordsBlessingRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "lords_blessing"), lordsBlessing);
@@ -534,28 +266,6 @@ public class CraftingRecipes {
 
         Bukkit.getServer().addRecipe(lordsBlessingRecipe);
 
-//        List<Material> lordsBlessingIngredients = new ArrayList<>();
-//        lordsBlessingIngredients.add(Material.BAKED_POTATO);
-//        List<String> lordsBlessingCustomIngredients = new ArrayList<>();
-//        lordsBlessingCustomIngredients.add("BOILED_WATER");
-//        lordsBlessingCustomIngredients.add("WHIPPED_CREAM");
-//        lordsBlessingCustomIngredients.add("STEAMED_PUMPKIN");
-//        registerCraftingRecipe("LORDS_BLESSING", lordsBlessingIngredients, lordsBlessingCustomIngredients);
-
-//        CustomItemBuilder lordsBlessingBuilder = CustomItems.getCustomItemBuilder("LORDS_BLESSING");
-//        if(lordsBlessingBuilder==null){
-//            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Rezept konnte nicht geladen werden");
-//            return;
-//        }
-//        lordsBlessingBuilder.setAmount(1);
-////        lordsBlessingBuilder.setMaxStackSize(16);
-//        ItemStack lordsBlessing = lordsBlessingBuilder.build();
-//        ShapelessRecipe lordsBlessingRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "lords_blessing"), lordsBlessing);
-//        lordsBlessingRecipe.addIngredient(Material.BAKED_POTATO);
-//        lordsBlessingRecipe.addIngredient(CustomItems.getCustomItemBuilder("BOILED_WATER").build().getType());
-//        lordsBlessingRecipe.addIngredient(CustomItems.getCustomItemBuilder("WHIPPED_CREAM").build().getType());
-//        lordsBlessingRecipe.addIngredient(CustomItems.getCustomItemBuilder("STEAMED_PUMPKIN").build().getType());
-//        Bukkit.getServer().addRecipe(lordsBlessingRecipe);
 
         ItemStack dameBlanche = getTaggedCustomItemStack("DAME_BLANCHE");
         ShapedRecipe dameBlancheRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "dame_blanche"), dameBlanche);
@@ -569,24 +279,6 @@ public class CraftingRecipes {
         dameBlancheRecipe.setIngredient('w', new RecipeChoice.ExactChoice(getTaggedCustomItemStack("WHIPPED_CREAM")));
 
         Bukkit.getServer().addRecipe(dameBlancheRecipe);
-
-//        List<Material> dameBlancheIngredients = new ArrayList<>();
-//        dameBlancheIngredients.add(Material.SWEET_BERRIES);
-//        List<String> dameBlancheCustomIngredients = new ArrayList<>();
-//        dameBlancheCustomIngredients.add("HOT_CHOCOLATE");
-//        dameBlancheCustomIngredients.add("WHIPPED_CREAM");
-//        registerCraftingRecipe("DAME_BLANCHE", dameBlancheIngredients, dameBlancheCustomIngredients);
-
-//        CustomItemBuilder dameBlancheBuilder = CustomItems.getCustomItemBuilder("DAME_BLANCHE");
-//        if(builderIsNull(dameBlancheBuilder) return;
-//        dameBlancheBuilder.setAmount(1);
-//        dameBlancheBuilder.setMaxStackSize(16);
-//        ItemStack dameBlanche = dameBlancheBuilder.build();
-//        ShapelessRecipe dameBlancheRecipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "dame_blanche"), dameBlanche);
-//        dameBlancheRecipe.addIngredient(Material.SWEET_BERRIES);
-//        dameBlancheRecipe.addIngredient(new RecipeChoice.ExactChoice(CustomItems.getCustomItemBuilder("HOT_CHOCOLATE").build()));
-//        dameBlancheRecipe.addIngredient(new RecipeChoice.ExactChoice(CustomItems.getCustomItemBuilder("WHIPPED_CREAM").build()));
-//        Bukkit.getServer().addRecipe(dameBlancheRecipe);
     }
 
     private static ItemStack getTaggedCustomItemStack(String customEnum){
@@ -609,29 +301,6 @@ public class CraftingRecipes {
             throw new NullPointerException(ZvieriGamePlugin.getPrefix() + " ItemBuilder " + builder + " konnte nicht geladen werden");
         };
     }
-
-//    private static void registerCraftingRecipe(String customEnum, List<Material> ingredients, List<String> customIngredientEnums){
-//        CustomItemBuilder builder = CustomItems.getCustomItemBuilder(customEnum);
-//        builder.setAmount(1);
-//        ItemStack item = builder.build();
-//        ItemUtil.setBoolean(item, "zvieriGameItem", true);
-//        ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), customEnum.toLowerCase()), item);
-//        if(ingredients != null){
-//            for(Material ingredient : ingredients){
-//                ItemStack ingredientStack = new ItemStack(ingredient);
-//                ItemUtil.setBoolean(ingredientStack, "zvieriGameItem", true);
-//                recipe.addIngredient(new RecipeChoice.ExactChoice(ingredientStack));
-//            }
-//        }
-//        if(customIngredientEnums != null){
-//            for(String customItemEnum : customIngredientEnums) {
-//                ItemStack customIngredient = CustomItems.getCustomItemBuilder(customItemEnum).build();
-//                ItemUtil.setBoolean(customIngredient, "zvieriGameItem", true);
-//                recipe.addIngredient(new RecipeChoice.ExactChoice(customIngredient));
-//            }
-//        }
-//        Bukkit.getServer().addRecipe(recipe);
-//    }
 
     public static void registerFurnaceRecipes(){
         registerFurnaceRecipe("red_sauce", CustomItems.getCustomItemBuilder("RED_SAUCE").build(), Material.BEETROOT, 0, 200);

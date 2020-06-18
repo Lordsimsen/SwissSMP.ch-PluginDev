@@ -24,6 +24,9 @@ public class ZvieriGamePlugin extends JavaPlugin{
 		Bukkit.getPluginCommand("zvieriarena").setExecutor(new ZvieriArenaCommand());
 		Bukkit.getPluginCommand("zvieriarenen").setExecutor(new ZvieriArenenCommand());
 		Bukkit.getPluginCommand("zvierigame").setExecutor(new ZvieriGameCommand());
+		Bukkit.getPluginCommand("zvierirecipedisplay").setExecutor(new RecipeDisplayCommand());
+
+		RecipePaintings.download();
 
 		CraftingRecipes.registerCraftingRecipes();
 		CraftingRecipes.registerFurnaceRecipes();

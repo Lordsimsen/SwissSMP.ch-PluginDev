@@ -40,12 +40,13 @@ public class EndingPhase extends Phase{
         for(Player player : game.getParticipants()){
             Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {
                 SwissSMPler.get(player).sendTitle(ChatColor.GREEN + "Fin de partie!", "Score: " + ChatColor.YELLOW + game.getScore());
+                SwissSMPler.get(player).sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Du hast " + ChatColor.YELLOW + game.getScore()
+                + ChatColor.GRAY + " Smaragdmünzen in " + game.getLevel().getName() + " " + arena.getName() + " erreicht!");
             }, 1L);
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
             ZvieriGame.cleanseInventory(player.getInventory());
-            updateLevelUnlocks();
         }
-        if (game.getArena().updateHighscore(game.getLevel().getLevelNumber(), game.getScore(), game.getParticipants())){
+        if(game.getArena().isHighscore(game.getLevel().getLevelNumber(), game.getScore())){
             String players = "";
             List<Player> participants = game.getParticipants();
             if(participants.size() == 1) {
@@ -62,6 +63,7 @@ public class EndingPhase extends Phase{
         } else{
             playFinishSound(false);
         }
+        game.getArena().updatePlayerData(game.getLevel(), game.getScore(), game.getParticipants());
     }
 
     private void playFinishSound(boolean highscore){
@@ -77,12 +79,12 @@ public class EndingPhase extends Phase{
         }
     }
 
-    private void updateLevelUnlocks(){
-        int threshhold = game.getLevel().getThreshhold();
-        if(game.getScore() >= threshhold){
-            game.getArena().updateLevelUnlock(game.getParticipants(), game.getLevel());
-        }
-    }
+//    private void updateLevelUnlocks(){
+//        int threshhold = game.getLevel().getThreshhold();
+//        if(game.getScore() >= threshhold){
+//            game.getArena().updateLevelUnlock(game.getParticipants(), game.getLevel());
+//        }
+//    }
 
     @Override
     public void initialize() {

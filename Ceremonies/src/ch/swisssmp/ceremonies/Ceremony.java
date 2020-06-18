@@ -1,9 +1,4 @@
-package ch.swisssmp.city.ceremony;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+package ch.swisssmp.ceremonies;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,12 +15,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import ch.swisssmp.city.CitySystemPlugin;
+import java.util.HashMap;
+import java.util.UUID;
 
 public abstract class Ceremony implements Listener, Runnable {
-	private static List<Ceremony> ceremonies = new ArrayList<Ceremony>();
+
+	private JavaPlugin plugin;
 	
 	private BukkitTask task;
 	private Phase current;
@@ -50,24 +48,24 @@ public abstract class Ceremony implements Listener, Runnable {
 		}
 	}
 	
-	public void begin(){
-		ceremonies.add(this);
-		this.task = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), this, 1L, 1L);
+	public void begin(JavaPlugin plugin){
+		Ceremonies.add(this);
+		this.task = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
 		this.current = this.getNextPhase();
 		if(this.current!=null) this.current.begin();
-		Bukkit.getPluginManager().registerEvents(this, CitySystemPlugin.getInstance());
+		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
-	
+
 	protected void complete(){
 		this.finish();
 	}
-	
+
 	public void cancel(){
 		this.finish();
 	}
 	
 	protected void finish(){
-		ceremonies.remove(this);
+		Ceremonies.remove(this);
 		HandlerList.unregisterAll(this);
 		if(this.task!=null){
 			this.task.cancel();
@@ -77,7 +75,7 @@ public abstract class Ceremony implements Listener, Runnable {
 			this.current.finish();
 		}
 		for(Spectator spectator : this.spectators.values()){
-			Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()->{
+			Bukkit.getScheduler().runTaskLater(plugin, ()->{
 				spectator.leave();
 			}, 1L);
 		}
@@ -111,7 +109,7 @@ public abstract class Ceremony implements Listener, Runnable {
 			return;
 		}
 		Item item = event.getItemDrop();
-		item.setMetadata("ceremony_owner", new FixedMetadataValue(CitySystemPlugin.getInstance(),player.getUniqueId()));
+		item.setMetadata("ceremony_owner", new FixedMetadataValue(plugin,player.getUniqueId()));
 	}
 
 	@EventHandler
@@ -120,12 +118,12 @@ public abstract class Ceremony implements Listener, Runnable {
 		Item item = (Item) event.getEntity();
 		if(!item.hasMetadata("ceremony_owner")) return;
 		MetadataValue value = item.getMetadata("ceremony_owner").stream()
-				.filter(data->data.getOwningPlugin()==CitySystemPlugin.getInstance())
+				.filter(data->data.getOwningPlugin()==plugin)
 				.findFirst()
 				.orElse(null);
 		if(value==null) return;
 		ItemStack itemStack = item.getItemStack();
-		item.removeMetadata("ceremony_owner", CitySystemPlugin.getInstance());
+		item.removeMetadata("ceremony_owner", plugin);
 		item.remove();
 		Player player = Bukkit.getPlayer((UUID) value.value());
 		if(player==null || !(current instanceof ISacrificeListener)) return;
@@ -134,7 +132,7 @@ public abstract class Ceremony implements Listener, Runnable {
 	
 	public void addSpectator(Player player){
 		if(spectators.containsKey(player.getUniqueId()) || !player.hasPermission("citysystem.spectate") || this.isParticipant(player)) return;
-		Spectator spectator = new Spectator(this, player);
+		Spectator spectator = new Spectator(plugin, this, player);
 		spectators.put(player.getUniqueId(), spectator);
 		spectator.initialize();
 	}
@@ -144,26 +142,6 @@ public abstract class Ceremony implements Listener, Runnable {
 		Spectator spectator = this.spectators.get(player.getUniqueId());
 		spectator.leave();
 		this.spectators.remove(player.getUniqueId());
-	}
-	
-	public static Ceremony get(String key){
-		for(Ceremony ceremony : ceremonies){
-			if(!ceremony.isMatch(key)) continue;
-			return ceremony;
-		}
-		return null;
-	}
-	
-	public static Ceremony getLast(){
-		if(ceremonies.size()==0) return null;
-		return ceremonies.get(ceremonies.size()-1);
-	}
-	
-	public static boolean isParticipantAnywhere(Player player){
-		for(Ceremony ceremony : ceremonies){
-			if(ceremony.isParticipant(player)) return true;
-		}
-		return false;
 	}
 	
 	protected abstract boolean isMatch(String key);

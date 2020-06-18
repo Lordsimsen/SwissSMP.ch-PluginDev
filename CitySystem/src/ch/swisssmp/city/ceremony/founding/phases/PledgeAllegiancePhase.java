@@ -2,6 +2,9 @@ package ch.swisssmp.city.ceremony.founding.phases;
 
 import java.util.List;
 
+import ch.swisssmp.ceremonies.ISacrificeListener;
+import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -10,10 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.ceremony.ISacrificeListener;
-import ch.swisssmp.city.ceremony.Phase;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
-import ch.swisssmp.city.ceremony.founding.FireBurstEffect;
 import ch.swisssmp.utils.SwissSMPler;
 
 public class PledgeAllegiancePhase extends Phase implements ISacrificeListener {
@@ -65,7 +65,7 @@ public class PledgeAllegiancePhase extends Phase implements ISacrificeListener {
 	@Override
 	public void complete(){
 		super.complete();
-		FireBurstEffect.play(ceremony.getFire(), 5, Color.fromRGB(255, 150, 0), Color.fromRGB(255, 100, 0));
+		FireBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), 5, Color.fromRGB(255, 150, 0), Color.fromRGB(255, 100, 0));
 	}
 	
 	@Override
@@ -103,6 +103,6 @@ public class PledgeAllegiancePhase extends Phase implements ISacrificeListener {
 			return;
 		}
 		ceremony.addParticipant(player);
-		FireBurstEffect.play(ceremony.getFire(), 3, Color.fromRGB(255, 200, 20), Color.fromRGB(255, 100, 20));
+		FireBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), 3, Color.fromRGB(255, 200, 20), Color.fromRGB(255, 100, 20));
 	}
 }

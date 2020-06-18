@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class LecternSlot extends PickItemSlot {
+public class RecipesLecternSlot extends PickItemSlot {
 
     private final ZvieriArenaEditor view;
 
-    public LecternSlot(ZvieriArenaEditor view, int slot) {
+    public RecipesLecternSlot(ZvieriArenaEditor view, int slot) {
         super(view, slot);
         this.view = view;
     }
@@ -29,12 +29,12 @@ public class LecternSlot extends PickItemSlot {
         itemBuilder.setAmount(1);
         itemBuilder.setDisplayName(this.getName());
         List<String> description = new ArrayList<String>();
-        description.add(this.getDescriptionColor() + "Lesepult zuweisen");
+        description.add(this.getDescriptionColor() + "Rezepte-Lesepult zuweisen");
         description.add(this.getSuggestActionColor() + "Rechtsklick auf Lesepult");
         itemBuilder.setLore(description);
         ItemStack itemStack = itemBuilder.build();
         ItemUtil.setString(itemStack, "link_zvieriarena", this.view.getArena().getId().toString());
-        ItemUtil.setString(itemStack, "zvieritool", "lectern");
+        ItemUtil.setString(itemStack, "zvieritool", "recipes_lectern");
         return itemStack;
     }
 
@@ -45,12 +45,12 @@ public class LecternSlot extends PickItemSlot {
 
     @Override
     public String getName() {
-        return ChatColor.AQUA + "Highscore-Lesepult";
+        return ChatColor.AQUA + "Rezepte-Lesepult";
     }
 
     @Override
     protected List<String> getNormalDescription() {
-        return Arrays.asList("Lesepult zuweisen");
+        return Arrays.asList("Rezepte-Lesepult zuweisen");
     }
 
     @Override

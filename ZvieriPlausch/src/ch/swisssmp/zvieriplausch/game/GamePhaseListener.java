@@ -15,9 +15,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
@@ -158,8 +156,9 @@ public class GamePhaseListener implements Listener {
         ZvieriArena arena = ZvieriArena.get(event.getRegion().getId());
         if(arena == null) return;
         if(arena.getGame() == null) return;
+        GameMode gameMode = event.getPlayer().getGameMode();
+        if(gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
         SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED + "Du kannst während einem laufenden Spiel nicht in die Lokalität!");
-        event.setCancelled(true);
         event.getPlayer().teleport(arena.getEntry().getLocation(arena.getWorld()));
     }
 
@@ -167,6 +166,8 @@ public class GamePhaseListener implements Listener {
     private void onArenaInfiltrated(RegionEnteredEvent event){
         if(!event.getRegion().getId().equals(arena.getArenaRegion())) return;
         Player player = event.getPlayer();
+        GameMode gameMode = player.getGameMode();
+        if(gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
         if(!participants.contains(player)) player.teleport(arena.getEntry().getLocation(arena.getWorld()));
     }
 

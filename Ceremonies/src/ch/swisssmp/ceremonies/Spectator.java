@@ -1,14 +1,14 @@
-package ch.swisssmp.city.ceremony;
+package ch.swisssmp.ceremonies;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import ch.swisssmp.city.CitySystemPlugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class Spectator {
-	
+
+	private final JavaPlugin plugin;
 	private final Ceremony ceremony;
 	private final Player player;
 	private Location originalLocation;
@@ -16,7 +16,8 @@ public class Spectator {
 	
 	private boolean ready = false;
 	
-	protected Spectator(Ceremony ceremony, Player player){
+	protected Spectator(JavaPlugin plugin, Ceremony ceremony, Player player){
+		this.plugin = plugin;
 		this.ceremony = ceremony;
 		this.player = player;
 	}
@@ -27,7 +28,7 @@ public class Spectator {
 		this.player.teleport(ceremony.getInitialSpectatorLocation());
 		this.player.setGameMode(GameMode.ADVENTURE);
 		player.setInvulnerable(true);
-		Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(plugin, ()->{
 			ready = true;
 			player.setInvulnerable(false);
 			player.setGameMode(GameMode.SPECTATOR);
@@ -41,7 +42,7 @@ public class Spectator {
 	
 	public void leave(){
 		player.setGameMode(originalGameMode);
-		Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(plugin, ()->{
 			this.player.teleport(originalLocation);
 		}, 5L);
 	}

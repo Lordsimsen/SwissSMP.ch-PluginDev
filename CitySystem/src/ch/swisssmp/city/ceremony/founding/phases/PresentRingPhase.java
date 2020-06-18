@@ -3,6 +3,7 @@ package ch.swisssmp.city.ceremony.founding.phases;
 import java.util.Collection;
 import java.util.List;
 
+import ch.swisssmp.ceremonies.Phase;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.SoundCategory;
@@ -15,7 +16,6 @@ import ch.swisssmp.city.City;
 import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
-import ch.swisssmp.city.ceremony.Phase;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.utils.PlayerInfo;
 import ch.swisssmp.utils.YamlConfiguration;

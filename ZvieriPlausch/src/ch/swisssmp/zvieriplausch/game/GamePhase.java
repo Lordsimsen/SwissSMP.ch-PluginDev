@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.LecternInventory;
 import org.bukkit.scoreboard.*;
 import org.bukkit.util.BoundingBox;
 
@@ -73,9 +74,10 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 	public void initialize() {
 		restockAllowed = true;
 		initializeStorage();
+		setRecipesBook();
 		for (Player player : game.getParticipants()) {
 			player.teleport(arena.getKitchen().getLocation(arena.getWorld()));
-			player.sendTitle("",ChatColor.GREEN + "Au travail!", 5, 30, 5);
+			player.sendTitle(ChatColor.GREEN + "Au travail!", "", 5, 30, 5);
 		}
 		gamePhaseListener = new GamePhaseListener(this);
 		Bukkit.getPluginManager().registerEvents(gamePhaseListener, ZvieriGamePlugin.getInstance());
@@ -129,11 +131,11 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		}
 	}
 
-	public void initializeStorage(){
+	private void initializeStorage(){
 		storageChest.getBlockInventory().clear();
 		ConfigurationSection ingredientsSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("ingredients");
 
-		ItemStack[] result = new ItemStack[ingredients.size() + level.getRecipes().length];
+		ItemStack[] result = new ItemStack[ingredients.size()];
 		int j = 0;
 		for(String key : ingredients.keySet()){
 			result[j] = ingredients.get(key);
@@ -141,22 +143,27 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 			ItemUtil.setBoolean(result[j], "zvieriGameItem", true);
 			j++;
 		}
-//		for(int i = 0; i < ingredients.length; i++){
-//			result[i] = ingredients[i];
-//			result[i].setAmount(ingredientsSection.getInt(ingredients[i].getType().toString() + ".initialAmount"));
-//			ItemUtil.setBoolean(result[i], "zvieriGameItem", true);
-//		}
-		for(int i = ingredients.size(); i < ingredients.size() + level.getRecipes().length; i++){
-			result[i] = level.getRecipes()[i-ingredients.size()];
-			result[i].setAmount(1);
-		}
 		storageChest.getBlockInventory().setContents(result);
+	}
+
+	private void setRecipesBook(){
+		Lectern lectern = arena.getRecipesLectern();
+		LecternInventory inventory = (LecternInventory) lectern.getInventory();
+		ItemStack book = arena.getRecipeDisplay().getItemStack();
+		Bukkit.getLogger().info("" + ItemUtil.serialize(book));
+		inventory.setItem(0, book);
+	}
+
+	private void removeRecipeBook(){
+		Lectern lectern = arena.getRecipesLectern();
+		LecternInventory inventory = (LecternInventory) lectern.getInventory();
+		inventory.clear();
 	}
 
 	@Override
 	public void run() {
 		time++; //time in ticks
-		if(time % (117*20) == 0) playMusic();
+		if(time % (117*20) == 0) playMusic(); //only works with FRENCH MUSIC
 		int remaining = Mathf.ceilToInt(level.duration - time/20);
 		if(remaining < 21) restockAllowed = false;
 		sendCountdown(remaining);
@@ -218,21 +225,29 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 	}
 	
 	private void sendCountdown(int remaining){
-		if (remaining % 60 == 0){
+		if(remaining == level.duration) return;
+		if (time % (30*20) == 0){
 			for(Player player : game.getParticipants()) {
-				SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Noch " + ChatColor.AQUA + remaining + ChatColor.YELLOW + " Sekunden");
+				SwissSMPler.get(player).sendTitle("", ChatColor.YELLOW + "Noch " + ChatColor.AQUA + remaining + ChatColor.YELLOW + " Sekunden");
 			}
 		}
-		if(level.duration - (time/20) < 11) {
+		if((level.duration*20) - (time) < (89*20)) {
+			if(time % (15*20) == 0 && time % (30*20) != 0 && remaining > 10){
+				for(Player player : game.getParticipants()) {
+					SwissSMPler.get(player).sendTitle("", ChatColor.YELLOW + "Noch " + ChatColor.AQUA + remaining + ChatColor.YELLOW + " Sekunden");
+				}
+			}
+		}
+		if(level.duration*20 - (time) < 11*20 && time % 20 == 0 && !(time >= level.duration * 20)) {
 			for(Player player : game.getParticipants()) {
-				SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Noch " + ChatColor.AQUA + remaining + ChatColor.RED + " Sekunden");
+				SwissSMPler.get(player).sendTitle("", ChatColor.RED + "Noch " + ChatColor.AQUA + remaining + ChatColor.RED + " Sekunden");
 			}
 		}
 	}
 
 	protected void displayScore(){
 		this.scoreboard = scoreBoardManager.getNewScoreboard();
-		this.objective = scoreboard.registerNewObjective("scoreboard", "dummy", ChatColor.YELLOW + "Saldo");
+		this.objective = scoreboard.registerNewObjective("scoreboard", "dummy", ChatColor.YELLOW + "Zvieriplausch");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		Score score = objective.getScore(ChatColor.GREEN + "Smaragdmünzen: ");
 		score.setScore(this.getScore());
@@ -254,6 +269,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 	@Override
 	public void finish() {
 		storageChest.getBlockInventory().clear();
+		removeRecipeBook();
 		for(int i = 0; i < arena.getCounters().length; i++) {
 			arena.getCounters()[i].reset();
 			}
