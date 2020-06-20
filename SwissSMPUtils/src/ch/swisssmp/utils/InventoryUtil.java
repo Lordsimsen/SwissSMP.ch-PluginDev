@@ -31,11 +31,7 @@ public class InventoryUtil {
 	 */
 	public static void refillInventorySlot(Inventory inventory, int slot, ItemStack itemStack){
 		if(itemStack==null) return;
-		Bukkit.getScheduler().runTaskLater(SwissSMPUtils.plugin, new Runnable(){
-			public void run(){
-				inventory.setItem(slot, itemStack);
-			}
-		}, 1L);
+		Bukkit.getScheduler().runTaskLater(SwissSMPUtils.plugin, () -> inventory.setItem(slot, itemStack), 1L);
 	}
 	
 	public static JsonObject serialize(Inventory inventory) {
