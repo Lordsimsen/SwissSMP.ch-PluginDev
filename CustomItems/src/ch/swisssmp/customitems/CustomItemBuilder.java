@@ -64,15 +64,28 @@ public class CustomItemBuilder {
 	private final List<CustomItemBuilderModifier> components = new ArrayList<CustomItemBuilderModifier>();
 	
 	public CustomItemBuilder(){
+		this.amount = 1;
 	}
-	
-	public void setMaterial(Material material){
+
+	public CustomItemBuilder(Material material){
 		this.material = material;
+		this.amount = 1;
 	}
-	public void setAmount(int amount){
+
+	public CustomItemBuilder(Material material, int amount){
+		this.material = material;
 		this.amount = amount;
 	}
-	public void setDurability(short durability){
+	
+	public CustomItemBuilder setMaterial(Material material){
+		this.material = material;
+		return this;
+	}
+	public CustomItemBuilder setAmount(int amount){
+		this.amount = amount;
+		return this;
+	}
+	public CustomItemBuilder setDurability(short durability){
 		this.durability = durability;
 		if(!this.customEnum.isEmpty() && this.durability>=0){
 			this.unbreakable = true;
@@ -80,77 +93,95 @@ public class CustomItemBuilder {
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
 			}
 		}
+		return this;
 	}
-	public void setMaxCustomDurability(int maxCustomDurability){
+	public CustomItemBuilder setMaxCustomDurability(int maxCustomDurability){
 		this.useNMS = true;
 		this.maxCustomDurability = maxCustomDurability;
+		return this;
 	}
-	public void setCustomDurability(int customDurability){
+	public CustomItemBuilder setCustomDurability(int customDurability){
 		this.customDurability = customDurability;
+		return this;
 	}
-	public void setCustomModelId(int customModelId) {
+	public CustomItemBuilder setCustomModelId(int customModelId) {
 		this.customModelId = customModelId;
 		this.useCustomModelDataProperty = true;
+		return this;
 	}
 
 	public int getCustomModelId(){
 		return customModelId;
 	}
 
-	public void setUseCustomModelDataProperty(boolean use) {
+	public CustomItemBuilder setUseCustomModelDataProperty(boolean use) {
 		this.useCustomModelDataProperty = use;
+		return this;
 	}
-	public void addEnchantments(List<EnchantmentData> enchantments){
+	public CustomItemBuilder addEnchantments(List<EnchantmentData> enchantments){
 		this.enchantments.addAll(enchantments);
+		return this;
 	}
-	public void addEnchantment(EnchantmentData enchantmentData){
+	public CustomItemBuilder addEnchantment(EnchantmentData enchantmentData){
 		this.enchantments.add(enchantmentData);
+		return this;
 	}
-	public void addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction){
+	public CustomItemBuilder addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction){
 		enchantments.add(new EnchantmentData(enchantment, level, ignoreLevelRestriction));
+		return this;
 	}
-	public void addItemFlags(List<ItemFlag> itemFlags){
+	public CustomItemBuilder addItemFlags(List<ItemFlag> itemFlags){
 		itemFlags.addAll(itemFlags);
+		return this;
 	}
-	public void addItemFlags(ItemFlag... itemFlags){
+	public CustomItemBuilder addItemFlags(ItemFlag... itemFlags){
 		for(int i = 0; i < itemFlags.length; i++){
 			this.itemFlags.add(itemFlags[i]);
 		}
+		return this;
 	}
-	public void setDisplayName(String displayName){
+	public CustomItemBuilder setDisplayName(String displayName){
 		this.displayName = displayName;
+		return this;
 	}
-	public void setLocalizedName(String localizedName){
+	public CustomItemBuilder setLocalizedName(String localizedName){
 		this.localizedName = localizedName;
+		return this;
 	}
-	public void setLore(List<String> lore){
+	public CustomItemBuilder setLore(List<String> lore){
 		this.lore = lore;
+		return this;
 	}
-	public void setUnbreakable(boolean unbreakable){
+	public CustomItemBuilder setUnbreakable(boolean unbreakable){
 		this.unbreakable = unbreakable;
+		return this;
 	}
-	public void setSkullOwner(UUID owner){
+	public CustomItemBuilder setSkullOwner(UUID owner){
 		this.skullOwner = owner;
+		return this;
 	}
-	public void addComponent(CustomItemBuilderModifier component) {
+	public CustomItemBuilder addComponent(CustomItemBuilderModifier component) {
 		this.components.add(component);
+		return this;
 	}
 	/**
 	 * Setzt wann der ItemStack aus Inventaren entfernt werden soll
 	 * @param expirationDate - Timestamp in Sekunden
 	 */
-	public void setExpirationDate(int expirationDate){
+	public CustomItemBuilder setExpirationDate(int expirationDate){
 		this.expirationDate = expirationDate;
 		this.useNMS = useNMS || expirationDate>0;
+		return this;
 	}
 	
-	public void setCustomEnum(String customEnum){
+	public CustomItemBuilder setCustomEnum(String customEnum){
 		this.setCustomEnum(customEnum, null);
+		return this;
 	}
 	
-	protected void setCustomEnum(String customEnum, CustomMaterialTemplate template){
+	protected CustomItemBuilder setCustomEnum(String customEnum, CustomMaterialTemplate template){
 		this.customEnum = customEnum;
-		if(this.customEnum==null) return;
+		if(this.customEnum==null) return this;
 		if(this.material==null){
 			if(template==null){
 				template = CustomMaterialTemplate.get(customEnum);
@@ -170,38 +201,47 @@ public class CustomItemBuilder {
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
 			}
 		}
+		return this;
 	}
 
-	public void setAttackDamage(double attackDamage){
+	public CustomItemBuilder setAttackDamage(double attackDamage){
 		this.useNMS = true;
 		this.attackDamage = attackDamage;
+		return this;
 	}
-	public void setAttackSpeed(double attackSpeed){
+	public CustomItemBuilder setAttackSpeed(double attackSpeed){
 		this.useNMS = true;
 		this.attackSpeed = attackSpeed;
+		return this;
 	}
-	public void setMaxHealth(double maxHealth){
+	public CustomItemBuilder setMaxHealth(double maxHealth){
 		this.useNMS = true;
 		this.maxHealth = maxHealth;
+		return this;
 	}
-	public void setArmor(double armor){
+	public CustomItemBuilder setArmor(double armor){
 		this.useNMS = true;
 		this.armor = armor;
+		return this;
 	}
-	public void setMovementSpeed(double movementSpeed){
+	public CustomItemBuilder setMovementSpeed(double movementSpeed){
 		this.useNMS = true;
 		this.movementSpeed = movementSpeed;
+		return this;
 	}
-	public void setLuck(double luck){
+	public CustomItemBuilder setLuck(double luck){
 		this.useNMS = true;
 		this.luck = luck;
+		return this;
 	}
-	public void setCustomPotionColor(int customPotionColor){
+	public CustomItemBuilder setCustomPotionColor(int customPotionColor){
 		this.useNMS = true;
 		this.customPotionColor = customPotionColor;
+		return this;
 	}
-	public void setMaxStackSize(int maxStackSize){
+	public CustomItemBuilder setMaxStackSize(int maxStackSize){
 		this.maxStackSize = maxStackSize;
+		return this;
 	}
 	/**
 	 * To check validity
@@ -315,6 +355,7 @@ public class CustomItemBuilder {
 		}
 		return modifiers;
 	}
+
 	public ItemStack build(){
 		if(material==null){
 			Bukkit.getLogger().info("[CustomItems] ItemStack konnte nicht kreiiert werden, da kein Material angegeben wurde.");
@@ -325,7 +366,14 @@ public class CustomItemBuilder {
 		this.update(result);
 		return result;
 	}
-	public void update(ItemStack itemStack){
+
+	/**
+	 * Aktualisiert alle Eigenschaften des ItemStacks, inklusive Material, solange diese im CustomItemBuilder festgelegt
+	 * sind. Die Anzahl bleibt unverändert.
+	 * @param itemStack - Der zu aktualisierende ItemStack
+	 * @return Derselbe CustomItemBuilder zur Verkettung von Befehlen
+	 */
+	public CustomItemBuilder update(ItemStack itemStack){
 		if(this.material!=null) itemStack.setType(material);
 		if(useNMS){
 			NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
@@ -378,5 +426,7 @@ public class CustomItemBuilder {
 				e.printStackTrace();
 			}
 		}
+
+		return this;
 	}
 }
