@@ -1,5 +1,5 @@
 main: ch.swisssmp.world.WorldManager
-version: 3.1
+version: 3.2
 api-version: 1.13
 name: WorldManager
 author: detig_iii
