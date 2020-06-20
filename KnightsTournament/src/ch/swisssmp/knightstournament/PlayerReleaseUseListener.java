@@ -9,7 +9,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import org.bukkit.entity.Player;
 
-public class PlayerDiggingListener {
+public class PlayerReleaseUseListener {
 
     protected static void register(){
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(KnightsTournamentPlugin.getInstance(), ListenerPriority.NORMAL, PacketType.Play.Client.BLOCK_DIG) {

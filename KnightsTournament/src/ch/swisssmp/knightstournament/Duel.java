@@ -1,6 +1,6 @@
 package ch.swisssmp.knightstournament;
 
-import ch.swisssmp.utils.Position;
+import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.*;
@@ -8,24 +8,27 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.RenderType;
 import org.bukkit.util.Vector;
 
-public class Duel implements Listener, Runnable {
+public class Duel extends BukkitRunnable implements Listener {
 
 	private static final int BLOCK_TIME = 10;
-	private static final int BLOCK_COOLDOWN = 40;
+	private static final int BLOCK_COOLDOWN = 30;
+	private static final int NO_SHOW_TIMEOUT = 1200; // 1 minute
+	private static final double ATTACK_DAMAGE = 8;
+	private static final double PARRY_DAMAGE = 6;
 
 	private static final Random random = new Random();
 
@@ -37,6 +40,9 @@ public class Duel implements Listener, Runnable {
 	private final Player playerTwo;
 	private Horse horseOne;
 	private Horse horseTwo;
+
+	private Objective sidebarHealthObjective;
+	private Objective belowNameHealthObjective;
 	
 	private Waypoint waypointOne;
 	private Waypoint waypointTwo;
@@ -48,16 +54,9 @@ public class Duel implements Listener, Runnable {
 	private long playerTwoBlockTime = 0;
 	private long playerOneBlockCooldown = 0;
 	private long playerTwoBlockCooldown = 0;
-	
-	private Vector playerOneVector;
-	private Vector playerTwoVector;
-	private Vector playerOneToTwo;
-	private Vector playerTwoToOne;
-	private float lanceRangeSquared = 16f;
-	boolean playerOneThrownOff = false;
-	boolean playerTwoThrownOff = false;
 
-	private BukkitTask task;
+	private NoShowTimeout noShowTimeout = null;
+
 	private boolean running = false;
 	private boolean decided = false;
 	
@@ -78,10 +77,23 @@ public class Duel implements Listener, Runnable {
 	
 	public void prepare(){
 		if(this.checkForfeit()) return;
+
+		Objective sidebarHealthObjective = tournament.getScoreboard().registerNewObjective("health1", "health", "Duell", RenderType.HEARTS);
+		this.sidebarHealthObjective = sidebarHealthObjective;
+
+		Objective belowNameHealthObjective = tournament.getScoreboard().registerNewObjective("health2", "health", ChatColor.RED+"♥", RenderType.HEARTS);
+		this.belowNameHealthObjective = belowNameHealthObjective;
+
 		this.tournament.getArena().playCallSound();
 		this.tournament.announce(this.name, this.playerOne.getDisplayName()+"§r§E vs. §r"+this.playerTwo.getDisplayName());
 		playerOne.setHealth(playerOne.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		tournament.getTeamRed().addEntry(playerOne.getName());
+		sidebarHealthObjective.getScore(playerOne.getName()).setScore(Mathf.roundToInt(playerOne.getHealth()));
+		belowNameHealthObjective.getScore(playerOne.getName()).setScore(Mathf.roundToInt(playerOne.getHealth()));
 		playerTwo.setHealth(playerTwo.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		tournament.getTeamBlue().addEntry(playerTwo.getName());
+		sidebarHealthObjective.getScore(playerTwo.getName()).setScore(Mathf.roundToInt(playerTwo.getHealth()));
+		belowNameHealthObjective.getScore(playerTwo.getName()).setScore(Mathf.roundToInt(playerTwo.getHealth()));
 		participantOne.sendMessage(KnightsTournamentPlugin.prefix+" Begib dich zur §cROTEN §rMarkierung.");
 		participantTwo.sendMessage(KnightsTournamentPlugin.prefix+" Begib dich zur §9BLAUEN §rMarkierung.");
 		if(horseOne!=null){
@@ -91,61 +103,80 @@ public class Duel implements Listener, Runnable {
 			horseTwo.removePotionEffect(PotionEffectType.SLOW);
 		}
 		KnightsArena arena = this.tournament.getArena();
-		waypointOne = new Waypoint(playerOne, arena.getPosOne(), 2f, Color.RED, new Runnable(){
-			public void run(){
-				if(participantOne.getHorse()==null){
-					participantOne.sendActionBar("§cDu brauchst ein Pferd.");
-					return;
-				}
-				horseOne = participantOne.getHorse();
-				participantOne.getHorse().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 9999, 10));
-				playerOneReady = true;
-				if(playerOneReady && playerTwoReady) start();
+		waypointOne = new Waypoint(playerOne, arena.getPosOne(), 2f, Color.RED, () -> {
+			if(participantOne.getHorse()==null){
+				participantOne.sendActionBar("§cDu brauchst ein Pferd.");
+				return;
 			}
+			horseOne = participantOne.getHorse();
+			participantOne.getHorse().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 9999, 10));
+			playerOneReady = true;
+			if(playerOneReady && playerTwoReady) start();
 		});
-		waypointTwo = new Waypoint(playerTwo, arena.getPosTwo(), 2f, Color.BLUE, new Runnable(){
-			public void run(){
-				if(participantTwo.getHorse()==null){
-					participantTwo.sendActionBar("§cDu brauchst ein Pferd.");
-					return;
-				}
-				horseTwo = participantTwo.getHorse();
-				participantTwo.getHorse().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 9999, 10));
-				playerTwoReady = true;
-				if(playerOneReady && playerTwoReady) start();
+		waypointTwo = new Waypoint(playerTwo, arena.getPosTwo(), 2f, Color.BLUE, () -> {
+			if(participantTwo.getHorse()==null){
+				participantTwo.sendActionBar("§cDu brauchst ein Pferd.");
+				return;
 			}
+			horseTwo = participantTwo.getHorse();
+			participantTwo.getHorse().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 9999, 10));
+			playerTwoReady = true;
+			if(playerOneReady && playerTwoReady) start();
 		});
+
+		NoShowTimeout noShowTimeout = new NoShowTimeout(this::checkNoShow);
+		noShowTimeout.runTaskLater(KnightsTournamentPlugin.getInstance(), NO_SHOW_TIMEOUT);
+		this.noShowTimeout = noShowTimeout;
+	}
+
+	private void checkNoShow(){
+		// Bukkit.getLogger().info("Check no show");
+		if(this.playerOneReady && !this.playerTwoReady){
+			this.forfeit(participantOne);
+		}
+		if(this.playerTwoReady && !this.playerOneReady){
+			this.forfeit(participantTwo);
+		}
+		if(!this.playerOneReady && !this.playerTwoReady){
+			this.cancel();
+		}
 	}
 	
 	private boolean checkForfeit(){
-		if(decided)return true;
-		boolean forfeitOne = (playerOne==null || !playerOne.isOnline());
-		boolean forfeitTwo = (playerTwo==null || !playerTwo.isOnline());
+		if(decided) return true;
+		boolean forfeitOne = (playerOne==null || !playerOne.isOnline() || participantOne.isOut());
+		boolean forfeitTwo = (playerTwo==null || !playerTwo.isOnline() || participantTwo.isOut());
 		if(forfeitOne && !forfeitTwo){
-			decided = true;
 			this.tournament.announce(playerTwo.getDisplayName(), "gewinnt automatisch.");
-			this.finish(this.participantTwo, this.participantOne);
+			this.forfeit(this.participantTwo);
 			return true;
 		}
 		else if(!forfeitOne && forfeitTwo){
-			decided = true;
 			this.tournament.announce(playerOne.getDisplayName(), "gewinnt automatisch.");
-			this.finish(this.participantOne, this.participantTwo);
+			this.forfeit(this.participantOne);
 			return true;
 		}
 		else if(forfeitOne && forfeitTwo){
-			decided = true;
 			this.tournament.announce("", "Teilnehmer offline, überspringe Match...");
-			this.finish(this.participantOne, this.participantTwo);
+			this.cancel();
 			return true;
 		}
 		return false;
 	}
 	
 	public void start(){
+		if(this.noShowTimeout!=null) this.noShowTimeout.cancel();
 		if(this.checkForfeit()) return;
-		if(playerOne!=null) heal(playerOne);
-		if(playerTwo!=null) heal(playerTwo);
+		if(playerOne!=null){
+			heal(playerOne);
+			playerOne.setGameMode(GameMode.SURVIVAL);
+			playerOne.setInvulnerable(false);
+		}
+		if(playerTwo!=null){
+			heal(playerTwo);
+			playerTwo.setGameMode(GameMode.SURVIVAL);
+			playerTwo.setInvulnerable(false);
+		}
 		participantOne.getHorse().removePotionEffect(PotionEffectType.SLOW);
 		participantTwo.getHorse().removePotionEffect(PotionEffectType.SLOW);
 		this.waypointOne = null;
@@ -154,8 +185,11 @@ public class Duel implements Listener, Runnable {
 		this.tournament.getArena().playCallSound();
 		this.running = true;
 
+		this.sidebarHealthObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		this.belowNameHealthObjective.setDisplaySlot(DisplaySlot.BELOW_NAME);
+
 		Bukkit.getPluginManager().registerEvents(this, KnightsTournamentPlugin.getInstance());
-		this.task = Bukkit.getScheduler().runTaskTimer(KnightsTournamentPlugin.getInstance(), this, 0, 1L);
+		this.runTaskTimer(KnightsTournamentPlugin.getInstance(), 0, 1L);
 	}
 
 	@EventHandler(ignoreCancelled = false)
@@ -202,6 +236,11 @@ public class Duel implements Listener, Runnable {
 	}
 
 	protected void onHit(EntityDamageByLanceAttackEvent event){
+		if(!running || decided){
+			event.setCancelled(true);
+			return;
+		}
+
 		long blockTime = (event.getEntity()==this.playerOne ? playerOneBlockTime : playerTwoBlockTime);
 		if(blockTime>0){
 			event.setDamage(0);
@@ -215,80 +254,22 @@ public class Duel implements Listener, Runnable {
 				Location particleLocation = location.clone().add(randomOffset.multiply(0.3f));
 				world.spawnParticle(Particle.REDSTONE, particleLocation, 1, new Particle.DustOptions(Color.WHITE, 5));
 			}
+
+			onDamage(event.getDamager(), PARRY_DAMAGE);
+			event.getDamager().damage(Math.min(PARRY_DAMAGE, event.getDamager().getHealth()-1));
+
 			return;
 		}
 
-		event.setDamage(8);
-
-		if(event.getFinalDamage()>=((Player) event.getEntity()).getHealth()){
-			this.win(this.getParticipant(event.getDamager()), this.getOpponent(event.getDamager()));
-			event.setDamage(0);
-		}
-		//Bukkit.getLogger().info("Damage: "+event.getDamage());
+		onDamage((Player) event.getEntity(), ATTACK_DAMAGE);
+		event.setDamage(Math.min(ATTACK_DAMAGE, ((Player)event.getEntity()).getHealth()-1));
 	}
-	
-//	@Override
-//	public void run() {
-//		if(playerOne.getLocation().distanceSquared(playerTwo.getLocation())>this.lanceRangeSquared){
-//			return;
-//		}
-//		playerOneVector = playerOne.getEyeLocation().toVector().clone().setY(0);
-//		playerTwoVector = playerTwo.getEyeLocation().toVector().clone().setY(0);
-//		playerOneToTwo = playerTwoVector.clone().subtract(playerOneVector).normalize();
-//		playerTwoToOne = playerOneVector.clone().subtract(playerTwoVector).normalize();
-//		if(!playerOne.isBlocking() && playerOne.getEyeLocation().getDirection().setY(0).normalize().subtract(playerOneToTwo).lengthSquared()<0.05f){
-//			if(!playerTwo.isBlocking()){
-//				if(playerTwo.getNoDamageTicks()==0){
-//					if(playerTwo.getHealth()>5f){
-//						playerTwo.playEffect(EntityEffect.HURT);
-//						playerTwo.setHealth(playerTwo.getHealth()-5f);
-//						playerTwo.setNoDamageTicks(20);
-//						playerTwo.getWorld().playSound(playerTwo.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 10, 1);
-//					}
-//					else{
-//						playerTwoThrownOff = true;
-//					}
-//				}
-//			}
-//			else{
-//				playerOne.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 40, 3));
-//			}
-//		}
-//		if(!playerTwo.isBlocking() && playerTwo.getEyeLocation().getDirection().setY(0).normalize().subtract(playerTwoToOne).lengthSquared()<0.05f){
-//			if(!playerOne.isBlocking()){
-//				if(playerOne.getNoDamageTicks()==0){
-//					if(playerOne.getHealth()>5f){
-//						playerOne.playEffect(EntityEffect.HURT);
-//						playerOne.setHealth(playerOne.getHealth()-5f);
-//						playerOne.setNoDamageTicks(20);
-//						playerOne.getWorld().playSound(playerOne.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 10, 1);
-//					}
-//					else{
-//						playerOneThrownOff = true;
-//					}
-//				}
-//			}
-//			else{
-//				playerTwo.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 40, 1));
-//			}
-//		}
-//		if(playerOneThrownOff && !playerTwoThrownOff){
-//			this.decided = true;
-//			horseOne.eject();
-//			playerOne.playEffect(EntityEffect.HURT);
-//			win(participantTwo, participantOne);
-//		}
-//		else if(playerTwoThrownOff && !playerOneThrownOff){
-//			this.decided = true;
-//			horseTwo.eject();
-//			playerTwo.playEffect(EntityEffect.HURT);
-//			win(participantOne, participantTwo);
-//		}
-//		else if(playerOneThrownOff && playerTwoThrownOff){
-//			playerOneThrownOff = false;
-//			playerTwoThrownOff = false;
-//		}
-//	}
+
+	private void onDamage(Player damagee, double amount){
+		if(amount>=damagee.getHealth()){
+			this.win(this.getOpponent(damagee), this.getParticipant(damagee), 30L);
+		}
+	}
 	
 	public boolean isDecided(){
 		return this.decided;
@@ -309,58 +290,104 @@ public class Duel implements Listener, Runnable {
 		else if(playerTwo==player) return this.participantOne;
 		else return null;
 	}
-	
+
 	public void win(TournamentParticipant winner, TournamentParticipant loser){
+		this.win(winner, loser, 0);
+	}
+
+	public void win(TournamentParticipant winner, TournamentParticipant loser, long delay){
 		if(decided) return;
 		decided = true;
+		this.resetScoreboard();
+		this.tournament.addScore(winner);
 		this.tournament.broadcast(Bukkit.getPlayer(winner.getPlayerUUID()).getDisplayName()+"§r besiegt "+Bukkit.getPlayer(loser.getPlayerUUID()).getDisplayName()+"!");
 		this.tournament.announce(Bukkit.getPlayer(winner.getPlayerUUID()).getDisplayName(), "besiegt "+Bukkit.getPlayer(loser.getPlayerUUID()).getDisplayName()+"§r!");
 
-		if(this.running){
-			this.running = false;
+		Player loserPlayer = loser.getPlayer();
+		if(loserPlayer!=null && loserPlayer.getVehicle()!=null){
+			loserPlayer.getVehicle().removePassenger(loserPlayer);
 		}
-		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
-			public void run(){
-				finish(winner, loser);
-			}
-		}, 60L);
+
+		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, () -> finish(winner, loser), delay);
+	}
+
+	public void forfeit(TournamentParticipant winner){
+		if(decided) return;
+		decided = true;
+		this.tournament.addScore(winner);
+		this.resetScoreboard();
+		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, () -> finish(winner, null), 0);
+	}
+
+	@Override
+	public void cancel(){
+		if(this.decided) return;
+		this.decided = true;
+		this.resetScoreboard();
+		this.finish(null, null);
 	}
 	
-	public void finish(TournamentParticipant winner, TournamentParticipant loser){
-		if(!this.decided) this.decided = true;
-		if(this.running) this.running = false;
-		HandlerList.unregisterAll(this);
-		if(task!=null) task.cancel();
-		if(winner!=null && loser!=null){
-			winner.addWonAgainst(loser);
-			loser.setLostAgainst(winner);
+	private void finish(TournamentParticipant winner, TournamentParticipant loser){
+		//cancel the loop task
+		if(this.running){
+			this.running = false;
+			super.cancel(); // cancel the task which this object extends
 		}
-		if(winner!=null) heal(winner.getPlayer());
-		if(loser!=null) heal(loser.getPlayer());
+		if(this.noShowTimeout!=null) this.noShowTimeout.cancel();
+
+		HandlerList.unregisterAll(this);
+
+		if(playerOne!=null) heal(playerOne);
+		if(playerTwo!=null) heal(playerTwo);
+		if(participantOne!=winner) participantOne.setOut();
+		if(participantTwo!=winner) participantTwo.setOut();
+
 		if(horseOne!=null){
 			horseOne.removePotionEffect(PotionEffectType.SLOW);
 		}
 		if(horseTwo!=null){
 			horseTwo.removePotionEffect(PotionEffectType.SLOW);
 		}
-		//cancel the loop task
-		if(this.running){
-			this.running = false;
-		}
 		//remove the waypoints
 		if(this.waypointOne != null) this.waypointOne.cancel();
 		if(this.waypointTwo != null) this.waypointTwo.cancel();
-		if(this.tournament.runningDuel==this) this.tournament.runningDuel = null;
-		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, new Runnable(){
-			public void run(){
-				tournament.proceed(winner);
-			}
-		}, 60L);
+
+		tournament.concludeDuel(this, winner, 60);
+	}
+
+	private void resetScoreboard(){
+		tournament.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+		tournament.getScoreboard().clearSlot(DisplaySlot.BELOW_NAME);
+		if(sidebarHealthObjective!=null){
+			sidebarHealthObjective.unregister();
+		}
+		if(belowNameHealthObjective!=null){
+			belowNameHealthObjective.unregister();
+		}
+		this.tournament.clearTeams();
+		this.tournament.showScores();
 	}
 
 	private void heal(Player player){
 		if(player==null) return;
 		player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		player.setSaturation(20);
+	}
+
+	private class NoShowTimeout extends BukkitRunnable{
+
+		private final Runnable callback;
+		private boolean executed = false;
+
+		public NoShowTimeout(Runnable callback){
+			this.callback = callback;
+		}
+
+		@Override
+		public void run() {
+			if(executed) return;
+			executed = true;
+			callback.run();
+		}
 	}
 }

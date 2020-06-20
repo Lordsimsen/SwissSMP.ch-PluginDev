@@ -12,9 +12,8 @@ import org.bukkit.entity.Player;
 import ch.swisssmp.utils.SwissSMPler;
 
 public class TournamentParticipant {
-	private UUID player_uuid;
-	private final List<TournamentParticipant> wonAgainst = new ArrayList<TournamentParticipant>();
-	private TournamentParticipant lostAgainst = null;
+	private final UUID player_uuid;
+	private boolean out = false;
 	public TournamentParticipant(Player player){
 		if(player!=null)
 			this.player_uuid = player.getUniqueId();
@@ -23,9 +22,6 @@ public class TournamentParticipant {
 	}
 	public UUID getPlayerUUID(){
 		return this.player_uuid;
-	}
-	public void setPlayerUUID(UUID player_uuid){
-		this.player_uuid = player_uuid;
 	}
 	public Player getPlayer(){
 		return Bukkit.getPlayer(this.player_uuid);
@@ -38,20 +34,11 @@ public class TournamentParticipant {
 		else if(!(vehicle instanceof Horse)) return null;
 		else return (Horse) vehicle;
 	}
-	public void addWonAgainst(TournamentParticipant loser){
-		this.wonAgainst.add(loser);
-	}
-	public TournamentParticipant[] getWonAgainst(){
-		return wonAgainst.toArray(new TournamentParticipant[this.wonAgainst.size()]);
-	}
-	public void setLostAgainst(TournamentParticipant winner){
-		this.lostAgainst = winner;
-	}
-	public TournamentParticipant getLostAgainst(){
-		return this.lostAgainst;
+	public void setOut(){
+		out = true;
 	}
 	public boolean isOut(){
-		return this.lostAgainst!=null;
+		return out;
 	}
 	public void sendMessage(String message){
 		Player player = Bukkit.getPlayer(this.player_uuid);

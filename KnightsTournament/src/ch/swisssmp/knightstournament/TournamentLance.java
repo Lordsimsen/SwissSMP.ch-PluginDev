@@ -7,6 +7,7 @@ import ch.swisssmp.utils.nbt.NBTTagCompound;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
@@ -48,6 +49,12 @@ public class TournamentLance {
 		recipe.setIngredient('w', new RecipeChoice.MaterialChoice(Material.OAK_PLANKS, Material.ACACIA_PLANKS,
 				Material.BIRCH_PLANKS, Material.DARK_OAK_PLANKS, Material.JUNGLE_PLANKS, Material.SPRUCE_PLANKS));
 		Bukkit.getServer().addRecipe(recipe);
+	}
+
+	protected static void updateLegacyLances(){
+		for(Player player : Bukkit.getOnlinePlayers()){
+			updateLegacyLances(player.getInventory());
+		}
 	}
 
 	protected static void updateLegacyLances(Inventory inventory){

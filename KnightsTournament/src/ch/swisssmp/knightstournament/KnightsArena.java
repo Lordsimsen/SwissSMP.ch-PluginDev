@@ -28,7 +28,8 @@ import ch.swisssmp.world.WorldManager;
 
 public class KnightsArena {
 	protected static final String arenaIdProperty = "KnightsArenaId";
-	private static List<KnightsArena> loadedArenas = new ArrayList<KnightsArena>();
+	private static final List<KnightsArena> loadedArenas = new ArrayList<>();
+
 	private final World world;
 	private final UUID id;
 	private String name;
@@ -234,6 +235,12 @@ public class KnightsArena {
 		
 		return json;
 	}
+
+	public void remove(KnightsArena arena) {
+		if(arena.tournament!=null) tournament.cancel();
+		loadedArenas.remove(arena);
+		save(arena.getWorld());
+	}
 	
 	public static boolean save(World world) {
 		Collection<KnightsArena> arenas = loadedArenas
@@ -296,11 +303,11 @@ public class KnightsArena {
 				.collect(Collectors.toList());
 		for(KnightsArena arena : arenas) {
 			if(arena.tournament==null) continue;
-			arena.tournament.finish();
+			arena.tournament.cancel();
 		}
 		loadedArenas.removeAll(arenas);
 
-		Bukkit.getLogger().info("Arenas: " + loadedArenas.size());
+		// Bukkit.getLogger().info("Arenas: " + loadedArenas.size());
 	}
 	
 	public static Optional<KnightsArena> get(World world, String name){
@@ -326,10 +333,7 @@ public class KnightsArena {
 		return arena;
 	}
 
-	
-	public void remove(KnightsArena arena) {
-		if(arena.tournament!=null) tournament.finish();
-		loadedArenas.remove(arena);
-		save(arena.getWorld());
+	public static Optional<KnightsArena> getByRegion(String regionId){
+		return loadedArenas.stream().filter(a->regionId.equals(a.getArenaRegion())).findAny();
 	}
 }

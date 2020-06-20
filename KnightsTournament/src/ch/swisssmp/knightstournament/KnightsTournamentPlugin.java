@@ -1,26 +1,16 @@
 package ch.swisssmp.knightstournament;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
-import ch.swisssmp.customitems.CustomItems;
 
 public class KnightsTournamentPlugin extends JavaPlugin{
 	protected static KnightsTournamentPlugin plugin;
@@ -50,13 +40,11 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 			KnightsArena.load(world);
 		}
 
-		for(Player player : Bukkit.getOnlinePlayers()){
-			TournamentLance.updateLegacyLances(player.getInventory());
-		}
-
+		LoanerEquipment.resetAll();
+		TournamentLance.updateLegacyLances();
 		TournamentLance.registerCraftingRecipe();
 
-		PlayerDiggingListener.register();
+		PlayerReleaseUseListener.register();
 		
 		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 		
@@ -67,6 +55,11 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
 		LanceCharge.cancelAll();
+		LoanerEquipment.resetAll();
+		for(KnightsArena arena : KnightsArena.getLoadedArenas()){
+			if(arena.getTournament()==null) continue;
+			arena.getTournament().cancel();
+		}
 		Bukkit.getScheduler().cancelTasks(this);
 		PluginDescriptionFile pdfFile = getDescription();
 		ProtocolLibrary.getProtocolManager().removePacketListeners(this);
@@ -76,4 +69,6 @@ public class KnightsTournamentPlugin extends JavaPlugin{
 	public static KnightsTournamentPlugin getInstance(){
 		return plugin;
 	}
+
+	public static String getPrefix(){return "["+ ChatColor.GREEN+plugin.getName()+ChatColor.RESET+"]";}
 }

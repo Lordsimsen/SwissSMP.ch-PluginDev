@@ -1,14 +1,17 @@
 package ch.swisssmp.knightstournament;
 
+import ch.swisssmp.customitems.CustomItemBuilder;
+import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.*;
 import ch.swisssmp.utils.Random;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -29,6 +32,8 @@ public class LanceCharge implements Runnable{
     private final static HashMap<UUID,LanceCharge> charges = new HashMap<UUID, LanceCharge>();
     private final Player player;
     private final ItemStack lance;
+    private ItemStack replaced;
+    private int replacedSlot;
     private final EquipmentSlot hand;
     private final List<Vector> trackedPositions = new ArrayList<Vector>();
 
@@ -52,11 +57,27 @@ public class LanceCharge implements Runnable{
 
     private void initialize(){
         previousSpeedEffect = player.hasPotionEffect(PotionEffectType.SPEED) ? player.getPotionEffect(PotionEffectType.SPEED) : null;
-//        setSpeedEffect(1);
         walkSpeed = player.getWalkSpeed();
-//        player.setWalkSpeed(1f);
         applySpeedBuff = player.getVehicle() instanceof AbstractHorse;
-        //Bukkit.getLogger().info("Start charge!");
+
+        PlayerInventory inventory = player.getInventory();
+        replacedSlot = getReplacementSlot();
+        replaced = inventory.getItem(replacedSlot);
+
+        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("FAKE_ARROW_SHIELD");
+        inventory.setItem(replacedSlot, itemBuilder.build());
+
+        LanceChargerData.of(player, replacedSlot, replaced).save();
+    }
+
+    private int getReplacementSlot(){
+        return player.getInventory().getItemInOffHand().equals(lance) ? player.getInventory().getHeldItemSlot() : 40;
+        /*
+        for(int i = 9; i < inventory.getSize(); i++){
+            if(inventory.getItem(i)==null) return i;
+        }
+        return -1;
+         */
     }
 
     private void setSpeedEffect(int level){
@@ -80,9 +101,11 @@ public class LanceCharge implements Runnable{
         if(trackedPositions.size()>4){
             trackedPositions.remove(trackedPositions.size()-1);
         }
-        Location hitBoxCenter = getHitBoxCenter();
-        Collection<LivingEntity> entities = checkHitBox(hitBoxCenter, 2);
-        if(entities.size()>0) hit(entities);
+        if(chargeTime>20){
+            Location hitBoxCenter = getHitBoxCenter();
+            Collection<LivingEntity> entities = checkHitBox(hitBoxCenter, 2);
+            if(entities.size()>0) hit(entities);
+        }
         if(completed) {
             finish();
         }
@@ -219,7 +242,10 @@ public class LanceCharge implements Runnable{
                             );
         }
         player.setWalkSpeed(walkSpeed);
-        //Bukkit.getLogger().info("Finish charge!");
+        if(replacedSlot>=0){
+            player.getInventory().setItem(replacedSlot, replaced);
+        }
+        LanceChargerData.load(player).ifPresent(LanceChargerData::delete);
     }
 
     protected void complete(){
