@@ -106,69 +106,102 @@ public class EventListener implements Listener {
     private void onInventoryClick(InventoryClickEvent event) {
         InventoryView view = event.getView();
         Inventory inventory = event.getClickedInventory();
+
+        // ignore non crafting views
         if (!(inventory instanceof CraftingInventory)) {
-            //Bukkit.getLogger().info("inventoryclickTWO");
             return;
         }
+
         CraftingInventory craftingInventory = (CraftingInventory) inventory;
+        // ignore clicks outside of result slot
         if (event.getSlot() != 0) {
-            //Bukkit.getLogger().info("inventoryclickTHREE");
             return;
         }
         ItemStack result = craftingInventory.getResult();
+        // ignore results that aren't lances
         if (!TournamentLance.isLance(result)) {
-            //Bukkit.getLogger().info("inventoryclickFOUR");
             return;
         }
+
+        // clone the result to make sure the stack is not modified afterwards
         ItemStack lance = result.clone();
+        // cancel the event to prevent vanilla interaction
         event.setCancelled(true);
+
+        // handle shift click
         if (event.getClick().isShiftClick()) {
-            //Bukkit.getLogger().info("IsShiftClick");
+            // do nothing if there is no space in the bottom inventory
             if (view.getBottomInventory().firstEmpty() < 0) return;
-        } else if ((view.getCursor() != null && view.getCursor().getType() != Material.AIR)) {
+        }
+        // cannot pick anything with a cursor that already contains something
+        else if ((view.getCursor() != null && view.getCursor().getType() != Material.AIR)) {
             //Bukkit.getLogger().info("inventoryclickFIVE");
             return;
         }
-        //Bukkit.getLogger().info("inventoryclickPOSITIVE");
+
+        // check what dyes are needed
+        NBTTagCompound nbt = ItemUtil.getData(result);
+        NBTTagCompound lanceNbt = nbt.getCompound(TournamentLance.dataProperty);
+        LanceColor primary = LanceColor.of(lanceNbt.getString(TournamentLance.primaryColorProperty));
+        LanceColor secondary = LanceColor.of(lanceNbt.getString(TournamentLance.secondaryColorProperty));
+
+        // find all three stacks, cancel if anything else is found
+        ItemStack primaryDyeStack = null;
+        ItemStack secondaryDyeStack = null;
+        ItemStack baseLanceStack = null;
+
         for (ItemStack itemStack : craftingInventory.getMatrix()) {
             if (itemStack == null) continue;
             LanceColor color = LanceColor.of(itemStack.getType());
-            if (color != null) {
-                itemStack.setAmount(itemStack.getAmount() - 1);
+            if (color == null){
+                // must be a lance and the first one to be found, otherwise cancel
+                if(baseLanceStack!=null || !TournamentLance.isLance(itemStack)) return;
+                baseLanceStack = itemStack;
                 continue;
             }
-            itemStack.setAmount(itemStack.getAmount() - 1); //Does this one kill materials if you craft bare lances?
-        }
-        craftingInventory.setResult(null);
-
-
-        if (event.getClick().isShiftClick()) {
-            int itemsChecked = 0;
-            int possibleCreations = 1;
-            if (event.isShiftClick())
-                for (ItemStack item : craftingInventory.getMatrix()) {
-                    if (item != null && !item.getType().equals(Material.AIR)) {
-                        System.out.println(item.toString());
-                        if (itemsChecked == 0)
-                            possibleCreations = item.getAmount();
-                        else
-                            possibleCreations = Math.min(possibleCreations, item.getAmount());
-                        itemsChecked++;
-                    }
-                }
-            for (int i = 0; i < possibleCreations; i++) {
-                if (view.getBottomInventory().firstEmpty() < 0) {
-                    return;
-                }
-                view.getBottomInventory().addItem(lance);
-                for (ItemStack item : craftingInventory.getMatrix()) {
-                    if (item != null && !item.getType().equals(Material.AIR)) {
-                        item.setAmount(item.getAmount() - 1);
-                    }
-                }
+            if(color==primary){
+                // cancel if primary dye has already been found
+                if(primaryDyeStack!=null) return;
+                primaryDyeStack = itemStack;
             }
+            else if(color==secondary){
+                // cancel if secondary dye has already been found
+                if(secondaryDyeStack!=null) return;
+                secondaryDyeStack = itemStack;
+            }
+            else{
+                // invalid dye
+                return;
+            }
+        }
+
+        // cancel if any of the stacks has not been found
+        if(baseLanceStack==null || primaryDyeStack==null || secondaryDyeStack==null){
             return;
         }
+
+        // subtract the consumed items
+        int consumed = result.getAmount();
+        baseLanceStack.setAmount(baseLanceStack.getAmount()-consumed);
+        primaryDyeStack.setAmount(primaryDyeStack.getAmount()-consumed);
+        secondaryDyeStack.setAmount(secondaryDyeStack.getAmount()-consumed);
+
+        // clear the result slot, the result is added to the cursor or the bottom inventory directly further down
+        craftingInventory.setResult(null);
+
+        // trigger another prepare item craft event to allow crafting more lances afterwards
+        Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
+            PrepareItemCraftEvent prepareCraftEvent = new PrepareItemCraftEvent(craftingInventory, event.getView(), false);
+            Bukkit.getPluginManager().callEvent(prepareCraftEvent);
+        }, 1L);
+
+        // add the lance directly to the inventory on shift click
+        if (event.getClick().isShiftClick()) {
+            view.getBottomInventory().addItem(lance);
+            return;
+        }
+
+        // add the lance to the cursor, must be later because Bukkit does not like cursor modification in the click event
         Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), () -> {
             view.setCursor(lance);
         }, 1L);
