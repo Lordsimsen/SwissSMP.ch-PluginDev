@@ -150,7 +150,6 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		Lectern lectern = arena.getRecipesLectern();
 		LecternInventory inventory = (LecternInventory) lectern.getInventory();
 		ItemStack book = arena.getRecipeDisplay().getItemStack();
-		Bukkit.getLogger().info("" + ItemUtil.serialize(book));
 		inventory.setItem(0, book);
 	}
 

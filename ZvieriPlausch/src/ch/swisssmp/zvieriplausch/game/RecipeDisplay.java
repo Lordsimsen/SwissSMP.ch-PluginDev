@@ -92,7 +92,7 @@ public class RecipeDisplay {
                         ChatColor.ITALIC + ChatColor.GRAY + "um es zu betrachten." + ChatColor.RESET + "\n" + "\n");
         currentPage.add(helpText.toSpigot());
 
-        int line = 5;
+        int line = 3;
         for(Dish dish : level.getDishes()){
             ItemStack dishStack = dish.getItemStack();
             RawTextObject recipeEntry = new RawTextObject(dishStack.getItemMeta().getDisplayName()
