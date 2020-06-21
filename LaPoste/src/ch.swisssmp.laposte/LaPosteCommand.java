@@ -14,13 +14,8 @@ public class LaPosteCommand implements CommandExecutor {
         String sender = strings[0];
         String recipient = strings[1];
         Player player = Bukkit.getPlayer(recipient);
-        Bukkit.getScheduler().runTaskLater(LaPostePlugin.getInstance(), ()->{
-            try {
-                player.sendMessage(LaPostePlugin.getPrefix() + " Du hast soeben Post von " + ChatColor.AQUA + sender + ChatColor.RESET + " erhalten!");
-            } catch (NullPointerException e){
-                return;
-            }
-        },100L);
+        if(player==null) return true;
+        player.sendMessage(LaPostePlugin.getPrefix() + " Du hast soeben Post von " + ChatColor.AQUA + sender + ChatColor.RESET + " erhalten!");
         return true;
     }
 }
