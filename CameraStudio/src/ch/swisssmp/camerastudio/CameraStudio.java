@@ -116,13 +116,13 @@ public class CameraStudio {
         info.delete();
     }
 
-    private void hidePlayer(Player player){
+    public void hidePlayer(Player player){
         for(Player otherPlayer : Bukkit.getOnlinePlayers()){
             otherPlayer.hidePlayer(CameraStudioPlugin.getInstance(), player);
         }
     }
 
-    private void unhidePlayer(Player player){
+    public void unhidePlayer(Player player){
         for(Player otherPlayer : Bukkit.getOnlinePlayers()){
             otherPlayer.showPlayer(CameraStudioPlugin.getInstance(), player);
         }
