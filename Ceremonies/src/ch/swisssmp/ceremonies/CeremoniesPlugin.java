@@ -15,6 +15,7 @@ public class CeremoniesPlugin extends JavaPlugin {
 
     @Override
     public void onDisable(){
+        Ceremonies.cancelAll();
         HandlerList.unregisterAll(this);
         Bukkit.getScheduler().cancelTasks(this);
         Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");

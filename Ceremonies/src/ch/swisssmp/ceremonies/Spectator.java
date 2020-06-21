@@ -30,13 +30,18 @@ public class Spectator {
 		CameraStudio.inst().hidePlayer(player);
 		Bukkit.getScheduler().runTaskLater(plugin, ()->{
 			ready = true;
-			player.setGameMode(GameMode.SPECTATOR);
+			player.setGameMode(GameMode.ADVENTURE);
+			player.setInvulnerable(true);
 		}, 5L);
 	}
 	
 	public void update(Location location){
 		if(!ready) return;
 		this.player.teleport(location);
+	}
+
+	public void cancel(){
+		ready = false;
 	}
 	
 	public void leave(){

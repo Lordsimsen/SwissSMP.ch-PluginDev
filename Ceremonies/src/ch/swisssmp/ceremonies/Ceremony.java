@@ -10,7 +10,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,12 +23,20 @@ import java.util.UUID;
 
 public abstract class Ceremony implements Listener, Runnable {
 
-	private JavaPlugin plugin;
+	private final JavaPlugin plugin;
 	
 	private BukkitTask task;
 	private Phase current;
 	
 	private HashMap<UUID,Spectator> spectators = new HashMap<UUID,Spectator>();
+
+	public Ceremony(JavaPlugin plugin){
+		this.plugin = plugin;
+	}
+
+	public JavaPlugin getPlugin(){
+		return plugin;
+	}
 	
 	@Override
 	public void run(){
@@ -94,7 +104,7 @@ public abstract class Ceremony implements Listener, Runnable {
 	
 	@EventHandler
 	public void onSpectatorQuit(PlayerQuitEvent event){
-		this.removeSpectator(event.getPlayer());
+		this.cancelSpectator(event.getPlayer());
 	}
 	
 	@EventHandler
@@ -106,6 +116,20 @@ public abstract class Ceremony implements Listener, Runnable {
 		}
 		Item item = event.getItemDrop();
 		TributeItem.setOwner(item.getItemStack(), player.getUniqueId());
+	}
+
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event){
+		if(this.spectators.containsKey(event.getPlayer().getUniqueId())){
+			event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onPlayerInteract(InventoryOpenEvent event){
+		if(this.spectators.containsKey(event.getPlayer().getUniqueId())){
+			event.setCancelled(true);
+		}
 	}
 
 	@EventHandler
@@ -127,7 +151,14 @@ public abstract class Ceremony implements Listener, Runnable {
 		spectators.put(player.getUniqueId(), spectator);
 		spectator.initialize();
 	}
-	
+
+	public void cancelSpectator(Player player){
+		if(!this.spectators.containsKey(player.getUniqueId())) return;
+		Spectator spectator = this.spectators.get(player.getUniqueId());
+		spectator.cancel();
+		this.spectators.remove(player.getUniqueId());
+	}
+
 	public void removeSpectator(Player player){
 		if(!this.spectators.containsKey(player.getUniqueId())) return;
 		Spectator spectator = this.spectators.get(player.getUniqueId());

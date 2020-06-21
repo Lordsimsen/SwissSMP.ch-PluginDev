@@ -60,6 +60,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	private Location spectatorLocation;
 	
 	private CityFoundingCeremony(Block fire, Player initiator){
+		super(CitySystemPlugin.getInstance());
 		this.fire = fire;
 		this.initiator = initiator;
 		participants.add(initiator);

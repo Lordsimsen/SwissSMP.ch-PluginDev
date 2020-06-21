@@ -30,6 +30,12 @@ public class Ceremonies {
         return ceremonies.get(ceremonies.size()-1);
     }
 
+    public static void cancelAll(){
+        for(Ceremony ceremony : new ArrayList<>(ceremonies)){
+            ceremony.cancel();
+        }
+    }
+
     public static boolean isParticipantAnywhere(Player player){
         for(Ceremony ceremony : ceremonies){
             if(ceremony.isParticipant(player)) return true;
