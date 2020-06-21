@@ -2,7 +2,7 @@ package ch.swisssmp.city.ceremony.founding.phases;
 
 import java.util.List;
 
-import ch.swisssmp.ceremonies.ISacrificeListener;
+import ch.swisssmp.ceremonies.ITributeListener;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import org.bukkit.Bukkit;
@@ -16,7 +16,7 @@ import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.utils.SwissSMPler;
 
-public class PledgeAllegiancePhase extends Phase implements ISacrificeListener {
+public class PledgeAllegiancePhase extends Phase implements ITributeListener {
 	
 	private final CityFoundingCeremony ceremony;
 	
@@ -92,7 +92,7 @@ public class PledgeAllegiancePhase extends Phase implements ISacrificeListener {
 	}
 
 	@Override
-	public void sacrifice(ItemStack itemStack, Player player) {
+	public void payTribute(ItemStack itemStack, Player player) {
 		if(itemStack.getType()!=Material.BONE){
 			return;
 		}

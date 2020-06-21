@@ -12,9 +12,6 @@ permissions:
   citysystem.join:
     description: Erlaubt dir, einer Stadt als Bürger beizutreten
     default: op
-  citysystem.spectate:
-    description: Erlaubt dir, Zeremonien als Zuschauer bezuwohnen
-    default: true
   citysystem.admin:
     description: Erlaubt Verwaltung des Plugins
     default: op
@@ -36,8 +33,3 @@ commands:
     description: Erstellt einen Siegelring
     usage: "Verwendung: /<command> ring [Stadt] (Besitzer) [Typ]"
     permission: citysystem.admin
-  zuschauen:
-    description: Teleportiert dich als Zuschauer zur zuletzt gestarteten Zeremonie
-    usage: "Verwendung: /<command>"
-    permission: citysystem.spectate
-    aliases: [spectate]

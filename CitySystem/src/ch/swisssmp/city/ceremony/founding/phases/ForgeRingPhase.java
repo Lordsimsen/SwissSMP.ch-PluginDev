@@ -1,6 +1,6 @@
 package ch.swisssmp.city.ceremony.founding.phases;
 
-import ch.swisssmp.ceremonies.ISacrificeListener;
+import ch.swisssmp.ceremonies.ITributeListener;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.ceremonies.effects.CircleBurstEffect;
 import ch.swisssmp.ceremonies.effects.FireBurstEffect;
@@ -18,7 +18,7 @@ import ch.swisssmp.city.ItemManager;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.city.ceremony.founding.FoundingCeremonyCircleEffect.RingEffectType;
 
-public class ForgeRingPhase extends Phase implements ISacrificeListener {
+public class ForgeRingPhase extends Phase implements ITributeListener {
 	
 	private final Material[] baseMaterials = new Material[]{
 		Material.IRON_BLOCK,
@@ -99,7 +99,7 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 	}
 
 	@Override
-	public void sacrifice(ItemStack itemStack, Player player) {
+	public void payTribute(ItemStack itemStack, Player player) {
 		int previousAmount = submittedBaseCount + submittedCoreCount;
 		if(baseStack!=null && baseStack.isSimilar(itemStack) && !baseMaterialsProvided()){
 			baseStack.setAmount(baseStack.getAmount()+itemStack.getAmount());

@@ -3,7 +3,7 @@ package ch.swisssmp.city.ceremony.founding.phases;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.swisssmp.ceremonies.ISacrificeListener;
+import ch.swisssmp.ceremonies.ITributeListener;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import ch.swisssmp.ceremonies.effects.LightParticles;
@@ -23,7 +23,7 @@ import ch.swisssmp.city.ceremony.founding.RingPresentation;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.Targetable;
 
-public class BaptisePhase extends Phase implements ISacrificeListener {
+public class BaptisePhase extends Phase implements ITributeListener {
 	
 	private final CityFoundingCeremony ceremony;
 	private BukkitTask reminderTask;
@@ -71,7 +71,7 @@ public class BaptisePhase extends Phase implements ISacrificeListener {
 	}
 
 	@Override
-	public void sacrifice(ItemStack itemStack, Player player) {
+	public void payTribute(ItemStack itemStack, Player player) {
 		if(!ceremony.isParticipant(player)) return;
 		if(itemStack.getType()!=Material.NAME_TAG) return;
 		ItemMeta itemMeta = itemStack.getItemMeta();

@@ -13,8 +13,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -75,9 +73,7 @@ public abstract class Ceremony implements Listener, Runnable {
 			this.current.finish();
 		}
 		for(Spectator spectator : this.spectators.values()){
-			Bukkit.getScheduler().runTaskLater(plugin, ()->{
-				spectator.leave();
-			}, 1L);
+			Bukkit.getScheduler().runTaskLater(plugin, spectator::leave, 1L);
 		}
 	}
 	
@@ -109,29 +105,24 @@ public abstract class Ceremony implements Listener, Runnable {
 			return;
 		}
 		Item item = event.getItemDrop();
-		item.setMetadata("ceremony_owner", new FixedMetadataValue(plugin,player.getUniqueId()));
+		TributeItem.setOwner(item.getItemStack(), player.getUniqueId());
 	}
 
 	@EventHandler
 	public void onItemDestroy(EntityDamageEvent event){
 		if(event.getEntityType()!=EntityType.DROPPED_ITEM) return;
 		Item item = (Item) event.getEntity();
-		if(!item.hasMetadata("ceremony_owner")) return;
-		MetadataValue value = item.getMetadata("ceremony_owner").stream()
-				.filter(data->data.getOwningPlugin()==plugin)
-				.findFirst()
-				.orElse(null);
-		if(value==null) return;
+		UUID ownerUid = TributeItem.getOwner(item.getItemStack()).orElse(null);
+		if(ownerUid==null) return;
 		ItemStack itemStack = item.getItemStack();
-		item.removeMetadata("ceremony_owner", plugin);
 		item.remove();
-		Player player = Bukkit.getPlayer((UUID) value.value());
-		if(player==null || !(current instanceof ISacrificeListener)) return;
-		((ISacrificeListener) current).sacrifice(itemStack, player);
+		Player player = Bukkit.getPlayer(ownerUid);
+		if(player==null || !(current instanceof ITributeListener)) return;
+		((ITributeListener) current).payTribute(itemStack, player);
 	}
 	
 	public void addSpectator(Player player){
-		if(spectators.containsKey(player.getUniqueId()) || !player.hasPermission("citysystem.spectate") || this.isParticipant(player)) return;
+		if(spectators.containsKey(player.getUniqueId()) || !player.hasPermission("ceremony.spectate") || this.isParticipant(player)) return;
 		Spectator spectator = new Spectator(plugin, this, player);
 		spectators.put(player.getUniqueId(), spectator);
 		spectator.initialize();
