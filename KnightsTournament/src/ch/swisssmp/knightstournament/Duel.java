@@ -305,7 +305,14 @@ public class Duel extends BukkitRunnable implements Listener {
 
 		Player loserPlayer = loser.getPlayer();
 		if(loserPlayer!=null && loserPlayer.getVehicle()!=null){
-			loserPlayer.getVehicle().removePassenger(loserPlayer);
+			LoanerData loaner = LoanerData.load(loserPlayer).orElse(null);
+			if(loaner!=null){
+				loaner.apply(loserPlayer);
+				loaner.delete();
+			}
+			else{
+				loserPlayer.getVehicle().removePassenger(loserPlayer);
+			}
 		}
 
 		Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.plugin, () -> finish(winner, loser), delay);
