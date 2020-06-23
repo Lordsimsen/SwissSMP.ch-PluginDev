@@ -25,6 +25,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -139,6 +141,39 @@ public class GamePhaseListener implements Listener {
             mainHand.setAmount(mainHand.getAmount()-1);
             gamePhase.displayScore();
             break;
+        }
+    }
+
+    @EventHandler
+    private void onCoalCheatingDetected(InventoryOpenEvent event){
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
+        Player player = (Player) event.getPlayer();
+        if(!participants.contains(player)) return;
+        Inventory inventory = event.getInventory();
+        if(!(inventory instanceof FurnaceInventory)) return;
+        for(ItemStack item : inventory.getContents()){
+            if(item == null || item.getType() == Material.AIR) continue;
+            if(ItemUtil.getBoolean(item, "zvieriGameItem")) continue;
+            inventory.remove(item);
+            player.getWorld().dropItem(player.getLocation(), item);
+            player.playSound(player.getLocation().add(0,2,0), "aoe.taunt.2", SoundCategory.VOICE, 2, 1);
+        }
+    }
+
+    @EventHandler
+    private void onCoalCheatingAttempt(InventoryClickEvent event){
+        Inventory inventory = event.getClickedInventory();
+        if(!(inventory instanceof FurnaceInventory)) return;
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
+        Player player = (Player) event.getView().getPlayer();
+        if(!participants.contains(player)) return;
+
+        ItemStack cursor = event.getCursor();
+        if(!ItemUtil.getBoolean(cursor, "zvieriGameItem")) {
+            player.playSound(player.getLocation().add(0,2,0), "aoe.taunt.2", SoundCategory.VOICE, 2, 1);
+            event.setCancelled(true);
         }
     }
 

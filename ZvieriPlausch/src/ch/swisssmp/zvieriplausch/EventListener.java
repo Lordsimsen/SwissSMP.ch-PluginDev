@@ -60,6 +60,7 @@ public class EventListener implements Listener{
 			return;
 		}
 		event.getItem().remove();
+		event.setCancelled(true);
 	}
 
 	/*
