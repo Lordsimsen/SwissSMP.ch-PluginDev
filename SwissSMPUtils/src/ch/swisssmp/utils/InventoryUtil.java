@@ -33,6 +33,29 @@ public class InventoryUtil {
 		if(itemStack==null) return;
 		Bukkit.getScheduler().runTaskLater(SwissSMPUtils.plugin, () -> inventory.setItem(slot, itemStack), 1L);
 	}
+
+	/**
+	 * Searches the inventory for an ItemStack that is similar to the given ItemStack. Note that this does not check the
+	 * stack size. For more information, see ItemStack::isSimilar(ItemStack) which is used for this search.
+	 */
+	public static boolean containsSimilar(Inventory inventory, ItemStack itemStack){
+		return firstSimilar(inventory, itemStack)>=0;
+	}
+
+	/**
+	 * Searches the inventory for the first slot that contains an ItemStack similar to the given ItemStack. Note that
+	 * this does not check the stack size. For more information, see ItemStack::isSimilar(ItemStack) which is used for
+	 * this search.
+	 * Returns -1 if not found.
+	 */
+	public static int firstSimilar(Inventory inventory, ItemStack itemStack){
+		for(int i = 0; i < inventory.getSize(); i++){
+			ItemStack slot = inventory.getItem(i);
+			if(slot!=null && slot.isSimilar(itemStack)) return i;
+		}
+
+		return -1;
+	}
 	
 	public static JsonObject serialize(Inventory inventory) {
 		JsonObject result = new JsonObject();
