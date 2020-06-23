@@ -46,6 +46,12 @@ public class LoanerEquipment {
         horse.getInventory().setSaddle(new ItemStack(Material.SADDLE));
         horse.getPersistentDataContainer().set(getLoanerHorseKey(), PersistentDataType.SHORT, (short) 1);
         horse.addPassenger(player);
+        // check that the horse is wearing a saddle a bit later because the inventory packet sometimes doesn't reach
+        // the client when there is a bit of lag
+        Bukkit.getScheduler().runTaskLater(KnightsTournamentPlugin.getInstance(), ()->{
+            if(!horse.isValid() || horse.getInventory().getSaddle()!=null) return;
+            horse.getInventory().setSaddle(new ItemStack(Material.SADDLE));
+        }, 20L);
 
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_HORSE_ARMOR, SoundCategory.NEUTRAL, 0.2f, 1);
         this.horse = horse;

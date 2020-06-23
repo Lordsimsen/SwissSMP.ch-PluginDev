@@ -30,6 +30,12 @@ public class LoanerData {
     }
 
     public void apply(Player player){
+
+        LanceChargerData.load(player).ifPresent((chargeData)->{
+            chargeData.apply(player);
+            chargeData.delete();
+        });
+
         PlayerInventory inventory = player.getInventory();
         inventory.clear();
         for(Map.Entry<Integer,ItemStack> entry : items.entrySet()){

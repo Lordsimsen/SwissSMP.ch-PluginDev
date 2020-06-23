@@ -9,7 +9,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
@@ -32,8 +31,6 @@ public class LanceCharge implements Runnable{
     private final static HashMap<UUID,LanceCharge> charges = new HashMap<UUID, LanceCharge>();
     private final Player player;
     private final ItemStack lance;
-    private ItemStack replaced;
-    private int replacedSlot;
     private final EquipmentSlot hand;
     private final List<Vector> trackedPositions = new ArrayList<Vector>();
 
@@ -61,10 +58,10 @@ public class LanceCharge implements Runnable{
         applySpeedBuff = player.getVehicle() instanceof AbstractHorse;
 
         PlayerInventory inventory = player.getInventory();
-        replacedSlot = getReplacementSlot();
-        replaced = inventory.getItem(replacedSlot);
+        int replacedSlot = getReplacementSlot();
+        ItemStack replaced = inventory.getItem(replacedSlot);
 
-        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("FAKE_ARROW_SHIELD");
+        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(TournamentLance.PLACEHOLDER_ITEM);
         inventory.setItem(replacedSlot, itemBuilder.build());
 
         LanceChargerData.of(player, replacedSlot, replaced).save();
@@ -72,12 +69,6 @@ public class LanceCharge implements Runnable{
 
     private int getReplacementSlot(){
         return player.getInventory().getItemInOffHand().equals(lance) ? player.getInventory().getHeldItemSlot() : 40;
-        /*
-        for(int i = 9; i < inventory.getSize(); i++){
-            if(inventory.getItem(i)==null) return i;
-        }
-        return -1;
-         */
     }
 
     private void setSpeedEffect(int level){
@@ -242,9 +233,6 @@ public class LanceCharge implements Runnable{
                             );
         }
         player.setWalkSpeed(walkSpeed);
-        if(replacedSlot>=0){
-            player.getInventory().setItem(replacedSlot, replaced);
-        }
         LanceChargerData.load(player).ifPresent(LanceChargerData::delete);
     }
 

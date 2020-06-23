@@ -1,10 +1,14 @@
 package ch.swisssmp.knightstournament;
 
+import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.utils.InventoryUtil;
+import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.io.File;
 import java.util.Optional;
@@ -24,7 +28,9 @@ public class LanceChargerData {
     }
 
     public void apply(Player player){
-        if(slot>=0) player.getInventory().setItem(slot, replaced);
+        if(slot<0) return;
+        PlayerInventory inventory = player.getInventory();
+        inventory.setItem(slot, replaced);
     }
 
     public boolean save(){

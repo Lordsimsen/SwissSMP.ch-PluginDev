@@ -20,6 +20,7 @@ public class TournamentLance {
 	protected static final String dataProperty = "TournamentLance";
 	protected static final String primaryColorProperty = "PrimaryColor";
 	protected static final String secondaryColorProperty = "SecondaryColor";
+	protected static final String PLACEHOLDER_ITEM = "FAKE_ARROW_SHIELD";
 
 	public static boolean isLance(ItemStack itemStack){
 		if(itemStack==null) return false;
