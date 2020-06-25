@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.ListTag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -20,8 +22,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import ch.swisssmp.utils.EnchantmentData;
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
-import ch.swisssmp.utils.nbt.NBTTagList;
 
 public class CustomItemBuilder {
 	//itemStack
@@ -312,45 +312,45 @@ public class CustomItemBuilder {
 		}
 		return itemMeta;
 	}
-	private NBTTagCompound buildNBTAttributeBase(String name){
-		NBTTagCompound base = new NBTTagCompound();
-		base.setString("AttributeName", name);
-		base.setString("Name", name);
-		base.setInt("UUIDLeast", 894654);
-		base.setInt("UUIDMost", 2872);
-		base.setString("Slot", this.slot);
+	private CompoundTag buildNBTAttributeBase(String name){
+		CompoundTag base = new CompoundTag();
+		base.putString("AttributeName", name);
+		base.putString("Name", name);
+		base.putInt("UUIDLeast", 894654);
+		base.putInt("UUIDMost", 2872);
+		base.putString("Slot", this.slot);
 		return base;
 	}
-	private NBTTagList buildAttributeModifiers(){
-		NBTTagList modifiers = new NBTTagList();
+	private ListTag<?> buildAttributeModifiers(){
+		ListTag<CompoundTag> modifiers = new ListTag<>(CompoundTag.class);
 		if(this.attackDamage>=0){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.attackDamage");
-			tag.setDouble("Amount", this.attackDamage);
+			CompoundTag tag = buildNBTAttributeBase("generic.attackDamage");
+			tag.putDouble("Amount", this.attackDamage);
 			modifiers.add(tag);
 		}
 		if(this.attackSpeed>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.attackSpeed");
-			tag.setDouble("Amount", this.attackSpeed);
+			CompoundTag tag = buildNBTAttributeBase("generic.attackSpeed");
+			tag.putDouble("Amount", this.attackSpeed);
 			modifiers.add(tag);
 		}
 		if(this.maxHealth>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.maxHealth");
-			tag.setDouble("Amount", this.maxHealth);
+			CompoundTag tag = buildNBTAttributeBase("generic.maxHealth");
+			tag.putDouble("Amount", this.maxHealth);
 			modifiers.add(tag);
 		}
 		if(this.armor>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.armor");
-			tag.setDouble("Amount", this.armor);
+			CompoundTag tag = buildNBTAttributeBase("generic.armor");
+			tag.putDouble("Amount", this.armor);
 			modifiers.add(tag);
 		}
 		if(this.movementSpeed>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.movementSpeed");
-			tag.setDouble("Amount", this.movementSpeed);
+			CompoundTag tag = buildNBTAttributeBase("generic.movementSpeed");
+			tag.putDouble("Amount", this.movementSpeed);
 			modifiers.add(tag);
 		}
 		if(this.luck>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.luck");
-			tag.setDouble("Amount", this.luck);
+			CompoundTag tag = buildNBTAttributeBase("generic.luck");
+			tag.putDouble("Amount", this.luck);
 			modifiers.add(tag);
 		}
 		return modifiers;
@@ -376,42 +376,42 @@ public class CustomItemBuilder {
 	public CustomItemBuilder update(ItemStack itemStack){
 		if(this.material!=null) itemStack.setType(material);
 		if(useNMS){
-			NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
-			if(nbtTag==null) nbtTag = new NBTTagCompound();
+			CompoundTag nbtTag = ItemUtil.getData(itemStack);
+			if(nbtTag==null) nbtTag = new CompoundTag();
 			
 			if(!this.customEnum.isEmpty()){
-				nbtTag.setString("customEnum", this.customEnum);
+				nbtTag.putString("customEnum", this.customEnum);
 			}
 			
 			if(this.maxCustomDurability>0){
-				nbtTag.setInt("maxCustomDurability", this.maxCustomDurability);
-				if(!nbtTag.hasKey("customDurability")){
-					nbtTag.setInt("customDurability", this.customDurability);
+				nbtTag.putInt("maxCustomDurability", this.maxCustomDurability);
+				if(!nbtTag.containsKey("customDurability")){
+					nbtTag.putInt("customDurability", this.customDurability);
 				}
 				else if(nbtTag.getInt("customDurability")>this.maxCustomDurability){
-					nbtTag.setInt("customDurability", this.maxCustomDurability);
+					nbtTag.putInt("customDurability", this.maxCustomDurability);
 				}
 			}
 			
 			if(this.customPotionColor>0){
-				nbtTag.setInt("CustomPotionColor", this.customPotionColor);
+				nbtTag.putInt("CustomPotionColor", this.customPotionColor);
 			}
 			
 			if(this.colorMap>0){
-				nbtTag.setInt("ColorMap", this.colorMap);
+				nbtTag.putInt("ColorMap", this.colorMap);
 			}
 			
 			if(this.expirationDate>0){
-				nbtTag.setLong("expirationDate", this.expirationDate);
+				nbtTag.putLong("expirationDate", this.expirationDate);
 			}
 			
 			if(this.maxStackSize>0){
-				nbtTag.setInt("maxStackSize", this.maxStackSize);
+				nbtTag.putInt("maxStackSize", this.maxStackSize);
 			}
 			
-			NBTTagList attributeModifiers = this.buildAttributeModifiers();
-			if(!attributeModifiers.isEmpty()){
-				nbtTag.set("AttributeModifiers", attributeModifiers);
+			ListTag<?> attributeModifiers = this.buildAttributeModifiers();
+			if(attributeModifiers.size()>0){
+				nbtTag.put("AttributeModifiers", attributeModifiers);
 			}
 			
 			ItemUtil.setData(itemStack, nbtTag);

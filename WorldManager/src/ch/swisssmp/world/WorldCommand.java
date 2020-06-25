@@ -1,15 +1,13 @@
 package ch.swisssmp.world;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -18,8 +16,9 @@ import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.world.border.WorldBorder;
 import ch.swisssmp.world.border.WorldBorderManager;
 import ch.swisssmp.world.transfer.WorldTransferManager;
+import org.bukkit.util.StringUtil;
 
-public class WorldCommand implements CommandExecutor {
+public class WorldCommand implements TabExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -59,6 +58,7 @@ public class WorldCommand implements CommandExecutor {
 			if(WorldManager.loadWorld(args[1])==null){
 				sender.sendMessage("[WorldManager] Konnte Welt "+args[1]+" nicht laden.");
 			};
+			sender.sendMessage(WorldManager.getPrefix()+ChatColor.GREEN+" Welt "+args[1]+" geladen!");
 			return true;
 		}
 		case "unload":{
@@ -150,4 +150,31 @@ public class WorldCommand implements CommandExecutor {
 		}
 	}
 
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		if(args.length<=1){
+			List<String> subcommands = Arrays.asList("reload", "create", "load", "unload", "name", "goto", "upload", "download", "delete", "trim");
+			String current = args.length>0 ? args[0] : "";
+			return StringUtil.copyPartialMatches(current, subcommands, new ArrayList<>());
+		}
+		switch(args[0]){
+			case "name":
+				if(args.length>2) return Collections.emptyList();
+			case "unload":
+			case "goto":
+			case "delete":
+			case "trim":
+				List<String> worldNames = Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+				String current = args.length>1 ? args[1] : "";
+				return StringUtil.copyPartialMatches(current, worldNames, new ArrayList<>());
+			case "reload":
+			case "create":
+			case "download":
+			case "upload":
+			case "load":
+			default:
+				return Collections.emptyList();
+		}
+	}
 }

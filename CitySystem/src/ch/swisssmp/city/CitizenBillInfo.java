@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.PlayerInfo;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
 
 public class CitizenBillInfo {
 	
@@ -30,20 +30,20 @@ public class CitizenBillInfo {
 	
 	public void apply(ItemStack itemStack){
 		if(itemStack==null) return;
-		NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
-		if(nbtTag==null) nbtTag = new NBTTagCompound();
-		nbtTag.setString("city_tool", "citizen_bill");
-		if(city!=null && !invalid) nbtTag.setInt("city_id", city.getId());
-		else if(nbtTag.hasKey("city_id")) nbtTag.remove("city_id");
+		CompoundTag nbtTag = ItemUtil.getData(itemStack);
+		if(nbtTag==null) nbtTag = new CompoundTag();
+		nbtTag.putString("city_tool", "citizen_bill");
+		if(city!=null && !invalid) nbtTag.putInt("city_id", city.getId());
+		else if(nbtTag.containsKey("city_id")) nbtTag.remove("city_id");
 		if(citizen!=null && parentInfo!=null){
-			nbtTag.setString("citizen", citizen.getUniqueId().toString());
-			nbtTag.setString("citizen_name", citizen.getName());
-			nbtTag.setString("citizen_parent", parentInfo.getUniqueId().toString());
-			nbtTag.setString("citizen_parent_name", parentInfo.getName());
-			nbtTag.setBoolean("signed_by_citizen", signedByCitizen);
-			nbtTag.setBoolean("signed_by_parent", signedByParent);
+			nbtTag.putString("citizen", citizen.getUniqueId().toString());
+			nbtTag.putString("citizen_name", citizen.getName());
+			nbtTag.putString("citizen_parent", parentInfo.getUniqueId().toString());
+			nbtTag.putString("citizen_parent_name", parentInfo.getName());
+			nbtTag.putBoolean("signed_by_citizen", signedByCitizen);
+			nbtTag.putBoolean("signed_by_parent", signedByParent);
 		}
-		if(role!=null) nbtTag.setString("citizen_role", role);
+		if(role!=null) nbtTag.putString("citizen_role", role);
 		ItemUtil.setData(itemStack, nbtTag);
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		if(itemMeta!=null){
@@ -134,7 +134,7 @@ public class CitizenBillInfo {
 	
 	public static CitizenBillInfo get(ItemStack bill){
 		if(bill==null) return null;
-		NBTTagCompound nbtTag = ItemUtil.getData(bill);
+		CompoundTag nbtTag = ItemUtil.getData(bill);
 		if(nbtTag==null) return null;
 		String city_tool = nbtTag.getString("city_tool");
 		if(city_tool==null || !city_tool.equals("citizen_bill")) return null;
@@ -142,12 +142,12 @@ public class CitizenBillInfo {
 		City city = City.get(city_id);
 		if(city==null) return null;
 		CitizenBillInfo result = new CitizenBillInfo(city);
-		if(nbtTag.hasKey("citizen") && nbtTag.hasKey("citizen_name")){
+		if(nbtTag.containsKey("citizen") && nbtTag.containsKey("citizen_name")){
 			UUID citizen_uuid = UUID.fromString(nbtTag.getString("citizen"));
 			String citizen_name = nbtTag.getString("citizen_name");
 			result.setCitizen(new PlayerInfo(citizen_uuid, citizen_name, citizen_name));
 		}
-		if(nbtTag.hasKey("citizen_parent") && nbtTag.hasKey("citizen_parent_name")){
+		if(nbtTag.containsKey("citizen_parent") && nbtTag.containsKey("citizen_parent_name")){
 			UUID parent_uuid = UUID.fromString(nbtTag.getString("citizen_parent"));
 			String parent_name = nbtTag.getString("citizen_parent_name");
 			result.setParent(new PlayerInfo(parent_uuid, parent_name, parent_name));
@@ -158,7 +158,7 @@ public class CitizenBillInfo {
 		if(nbtTag.getBoolean("signed_by_citizen")){
 			result.setSignedByCitizen();
 		}
-		if(nbtTag.hasKey("citizen_role")){
+		if(nbtTag.containsKey("citizen_role")){
 			result.setCitizenRole(nbtTag.getString("citizen_role"));
 		}
 		return result;

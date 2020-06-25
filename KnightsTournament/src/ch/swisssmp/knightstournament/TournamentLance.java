@@ -3,7 +3,7 @@ package ch.swisssmp.knightstournament;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -24,8 +24,8 @@ public class TournamentLance {
 
 	public static boolean isLance(ItemStack itemStack){
 		if(itemStack==null) return false;
-		NBTTagCompound nbt = ItemUtil.getData(itemStack);
-		return nbt!=null && nbt.hasKey(dataProperty);
+		CompoundTag nbt = ItemUtil.getData(itemStack);
+		return nbt!=null && nbt.containsKey(dataProperty);
 	}
 
 	protected static void registerCraftingRecipe(){
@@ -66,7 +66,7 @@ public class TournamentLance {
 			if(customEnum==null || !customEnum.equalsIgnoreCase("TOURNAMENT_LANCE")) continue;
 			CustomItemBuilder customItemBuilder = CustomItems.getCustomItemBuilder(TournamentLance.bareCustomEnum);
 			customItemBuilder.update(itemStack);
-			NBTTagCompound nbt = ItemUtil.getData(itemStack);
+			CompoundTag nbt = ItemUtil.getData(itemStack);
 			nbt.remove("AttributeModifiers");
 			nbt.remove("HideFlags");
 			ItemUtil.setData(itemStack, nbt);

@@ -8,6 +8,7 @@ import java.util.Optional;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -36,13 +37,6 @@ import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
-import ch.swisssmp.webcore.DataSource;
-import ch.swisssmp.webcore.HTTPRequest;
-import ch.swisssmp.webcore.RequestMethod;
-import org.bukkit.persistence.PersistentDataType;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class EventListener implements Listener {
@@ -78,16 +72,17 @@ public class EventListener implements Listener {
         LanceColor main = colors.get(0);
         LanceColor secondary = colors.get(1);
         ItemStack result = lance.clone();
-        NBTTagCompound nbt = ItemUtil.getData(result);
-        NBTTagCompound lanceNbt = nbt.getCompound(TournamentLance.dataProperty);
+        CompoundTag nbt = ItemUtil.getData(result);
+        CompoundTag lanceNbt = nbt!=null ? nbt.getCompoundTag(TournamentLance.dataProperty) : null;
+        if(lanceNbt==null) return;
         final String lanceColorNone = LanceColor.NONE.toString();
-        if (lanceNbt.hasKey(primaryColorKey) && !lanceNbt.getString(primaryColorKey).equalsIgnoreCase(lanceColorNone))
+        if (lanceNbt.containsKey(primaryColorKey) && !lanceNbt.getString(primaryColorKey).equalsIgnoreCase(lanceColorNone))
             return;
-        if (lanceNbt.hasKey(secondaryColorKey) && !lanceNbt.getString(secondaryColorKey).equalsIgnoreCase(lanceColorNone))
+        if (lanceNbt.containsKey(secondaryColorKey) && !lanceNbt.getString(secondaryColorKey).equalsIgnoreCase(lanceColorNone))
             return;
-        lanceNbt.setString(primaryColorKey, main.toString());
-        lanceNbt.setString(secondaryColorKey, secondary.toString());
-        nbt.set(TournamentLance.dataProperty, lanceNbt);
+        lanceNbt.putString(primaryColorKey, main.toString());
+        lanceNbt.putString(secondaryColorKey, secondary.toString());
+        nbt.put(TournamentLance.dataProperty, lanceNbt);
         ItemUtil.setData(result, nbt);
         String customEnum = (main + "_" + secondary + "_" + TournamentLance.customBaseEnum).toUpperCase();
         CustomItems.setCustomEnum(result, customEnum);
@@ -140,8 +135,8 @@ public class EventListener implements Listener {
         }
 
         // check what dyes are needed
-        NBTTagCompound nbt = ItemUtil.getData(result);
-        NBTTagCompound lanceNbt = nbt.getCompound(TournamentLance.dataProperty);
+        CompoundTag nbt = ItemUtil.getData(result);
+        CompoundTag lanceNbt = nbt.getCompoundTag(TournamentLance.dataProperty); // no need for null check, data is validated further up
         LanceColor primary = LanceColor.of(lanceNbt.getString(TournamentLance.primaryColorProperty));
         LanceColor secondary = LanceColor.of(lanceNbt.getString(TournamentLance.secondaryColorProperty));
 
@@ -352,12 +347,12 @@ public class EventListener implements Listener {
 
         final String primaryColorKey = TournamentLance.primaryColorProperty;
         final String secondaryColorKey = TournamentLance.secondaryColorProperty;
-        NBTTagCompound nbt = ItemUtil.getData(itemStack);
-        NBTTagCompound lanceNbt = nbt.getCompound(TournamentLance.dataProperty);
+        CompoundTag nbt = ItemUtil.getData(itemStack);
+        CompoundTag lanceNbt = nbt.getCompoundTag(TournamentLance.dataProperty);
         final String lanceColorNone = LanceColor.NONE.toString();
-        if (!lanceNbt.hasKey(primaryColorKey) || lanceNbt.getString(primaryColorKey).equalsIgnoreCase(lanceColorNone))
+        if (!lanceNbt.containsKey(primaryColorKey) || lanceNbt.getString(primaryColorKey).equalsIgnoreCase(lanceColorNone))
             return;
-        if (!lanceNbt.hasKey(secondaryColorKey) || lanceNbt.getString(secondaryColorKey).equalsIgnoreCase(lanceColorNone))
+        if (!lanceNbt.containsKey(secondaryColorKey) || lanceNbt.getString(secondaryColorKey).equalsIgnoreCase(lanceColorNone))
             return;
 
         int cauldronLevel = cauldron.getLevel() - (event.getPlayer().getGameMode() != GameMode.CREATIVE ? 1 : 0);
@@ -368,9 +363,9 @@ public class EventListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        lanceNbt.setString(primaryColorKey, lanceColorNone);
-        lanceNbt.setString(secondaryColorKey, lanceColorNone);
-        nbt.set(TournamentLance.dataProperty, lanceNbt);
+        lanceNbt.putString(primaryColorKey, lanceColorNone);
+        lanceNbt.putString(secondaryColorKey, lanceColorNone);
+        nbt.put(TournamentLance.dataProperty, lanceNbt);
         ItemUtil.setData(itemStack, nbt);
         String customEnum = (TournamentLance.bareCustomEnum).toUpperCase();
         CustomItems.setCustomEnum(itemStack, customEnum);
@@ -532,12 +527,12 @@ public class EventListener implements Listener {
         LanceColor secondary = LanceColor.of(lanceSection.getString("secondary_color"));
 
         event.getCustomItemBuilder().addComponent((ItemStack itemStack) -> {
-            NBTTagCompound nbt = ItemUtil.getData(itemStack);
-            if (nbt == null) nbt = new NBTTagCompound();
-            NBTTagCompound lanceNBT = new NBTTagCompound();
-            lanceNBT.setString(TournamentLance.primaryColorProperty, primary != null ? primary.toString() : null);
-            lanceNBT.setString(TournamentLance.secondaryColorProperty, secondary != null ? secondary.toString() : null);
-            nbt.set(TournamentLance.dataProperty, lanceNBT);
+            CompoundTag nbt = ItemUtil.getData(itemStack);
+            if (nbt == null) nbt = new CompoundTag();
+            CompoundTag lanceNBT = new CompoundTag();
+            lanceNBT.putString(TournamentLance.primaryColorProperty, primary != null ? primary.toString() : null);
+            lanceNBT.putString(TournamentLance.secondaryColorProperty, secondary != null ? secondary.toString() : null);
+            nbt.put(TournamentLance.dataProperty, lanceNBT);
             ItemUtil.setData(itemStack, nbt);
         });
     }

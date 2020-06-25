@@ -1,6 +1,7 @@
 package ch.swisssmp.camerastudio;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.Bukkit;
@@ -8,13 +9,15 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.util.StringUtil;
 
-public class CamCommand implements CommandExecutor {
+public class CamCommand implements TabExecutor {
 
 	public static HashMap<UUID, List<Location>> points = new HashMap<UUID, List<Location>>();
 	final static int previewTime = CameraStudioPlugin.getInstance().getConfig().getInt("preview-time");
@@ -520,5 +523,78 @@ public class CamCommand implements CommandExecutor {
 		}
 
 		return CameraPath.get(itemStack);
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		if(args.length<=1){
+			List<String> subcommands = Arrays.asList("reload", "paths", "sequences", "create", "point", "points", "clear", "goto", "stop", "sequence", "start", "load", "save");
+			String current = args.length>0 ? args[0] : "";
+			return StringUtil.copyPartialMatches(current, subcommands, new ArrayList<>());
+		}
+		switch(args[0]){
+			case "point":{
+				if(args.length<=2){
+					if(!(sender instanceof Player)) return Collections.emptyList();
+					UUID playerUid = ((Player) sender).getUniqueId();
+					int points = CamCommand.points.getOrDefault(playerUid, Collections.emptyList()).size();
+					List<String> options = getPointSuggestions(points+1);
+							String current = args.length>1 ? args[1] : "";
+					return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+				}
+				return Collections.emptyList();
+			}
+			case "goto":{
+				if(args.length<=2){
+					if(!(sender instanceof Player)) return Collections.emptyList();
+					UUID playerUid = ((Player) sender).getUniqueId();
+					int points = CamCommand.points.getOrDefault(playerUid, Collections.emptyList()).size();
+					List<String> options = getPointSuggestions(points);
+					String current = args.length>1 ? args[1] : "";
+					return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+				}
+				return Collections.emptyList();
+			}
+			case "create":{
+				if(args.length<=2){
+					List<String> options = Arrays.asList("path", "sequence");
+					String current = args.length>1 ? args[1] : "";
+					return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+				}
+				return Collections.emptyList();
+			}
+			case "sequence":{
+				if(args.length<=2){
+					if(!(sender instanceof Player)) return Collections.emptyList();
+					Player player = (Player) sender;
+					List<String> options = CameraStudioWorld.get(player.getWorld()).getAllPathSequences().stream().map(s->s.getUniqueId().toString()).collect(Collectors.toList());
+					String current = args.length>1 ? args[1] : "";
+					return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+				}
+				List<String> options = Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
+				String current = args[2];
+				return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+			}
+			case "reload":
+			case "paths":
+			case "sequences":
+			case "points":
+			case "load":
+			case "save":
+			case "start":
+			case "stop":
+			case "clear":
+			default:
+				return Collections.emptyList();
+		}
+	}
+
+	private List<String> getPointSuggestions(int count){
+		List<String> options = new ArrayList<>(count);
+		for(int i = 0; i < count; i++){
+			options.set(i, String.valueOf(i));
+		}
+
+		return options;
 	}
 }

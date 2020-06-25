@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -12,7 +13,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.BlockVector;
 
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
 
 public class StockLedgerInfo {
 	
@@ -29,14 +29,14 @@ public class StockLedgerInfo {
 	}
 	
 	public void apply(ItemStack itemStack){
-		NBTTagCompound data = ItemUtil.getData(itemStack);
+		CompoundTag data = ItemUtil.getData(itemStack);
 		boolean isComplete = warehouse_id!=null && master!=null && master.getChests().size()>0;
-		if(data==null) data = new NBTTagCompound();
+		if(data==null) data = new CompoundTag();
 		if(!isComplete){
 			data.remove("warehouse_id");
 		}
 		else{
-			data.setString("warehouse_id", warehouse_id.toString());
+			data.putString("warehouse_id", warehouse_id.toString());
 		}
 		ItemUtil.setData(itemStack, data);
 		ItemMeta itemMeta = itemStack.getItemMeta();
@@ -76,10 +76,10 @@ public class StockLedgerInfo {
 	
 	public static StockLedgerInfo get(ItemStack itemStack){
 		if(itemStack==null || itemStack.getType()!=Material.DIAMOND_SWORD) return null;
-		NBTTagCompound data = ItemUtil.getData(itemStack);
-		if(data==null || !data.hasKey("customEnum") || !data.getString("customEnum").toLowerCase().equals("stock_ledger")) return null;
+		CompoundTag data = ItemUtil.getData(itemStack);
+		if(data==null || !data.containsKey("customEnum") || !data.getString("customEnum").toLowerCase().equals("stock_ledger")) return null;
 		StockLedgerInfo result = new StockLedgerInfo();
-		if(data.hasKey("warehouse_id")){
+		if(data.containsKey("warehouse_id")){
 			UUID warehouse_id = UUID.fromString(data.getString("warehouse_id"));
 			result.warehouse_id = warehouse_id;
 			Master master = Master.get(warehouse_id);

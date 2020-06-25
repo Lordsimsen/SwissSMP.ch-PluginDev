@@ -1,13 +1,20 @@
 package ch.swisssmp.customitems;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.bukkit.command.TabExecutor;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.Inventory;
@@ -17,13 +24,14 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import net.minecraft.server.v1_15_R1.NBTBase;
-import net.minecraft.server.v1_15_R1.NBTTagByteArray;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import net.minecraft.server.v1_15_R1.NBTTagIntArray;
-import net.minecraft.server.v1_15_R1.NBTTagList;
+import net.minecraft.server.v1_16_R1.NBTBase;
+import net.minecraft.server.v1_16_R1.NBTTagByteArray;
+import net.minecraft.server.v1_16_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R1.NBTTagIntArray;
+import net.minecraft.server.v1_16_R1.NBTTagList;
+import org.bukkit.util.StringUtil;
 
-public class PlayerCommand implements CommandExecutor {
+public class PlayerCommand implements TabExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -75,7 +83,7 @@ public class PlayerCommand implements CommandExecutor {
 				name = itemStack.getType().name();
 			}
 			sender.sendMessage("[CustomItems] Analysiere "+name);
-			net.minecraft.server.v1_15_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
+			net.minecraft.server.v1_16_R1.ItemStack craftItemStack = CraftItemStack.asNMSCopy(itemStack);
 			if(craftItemStack.hasTag()){
 				NBTTagCompound nbtTags = craftItemStack.getTag();
 				this.displayNBTTagCompound(nbtTags, player, 0);
@@ -154,6 +162,32 @@ public class PlayerCommand implements CommandExecutor {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		if(args.length<=1){
+			List<String> options = Arrays.asList("reload", "summon", "inspect", "recipes", "uploaddata", "view");
+			String current = args.length>0 ? args[0] : "";
+			return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+		}
+		switch(args[0]){
+			case "summon":{
+				List<String> options = Stream.concat(
+						CustomItemTemplates.getCustomEnums().stream(),
+						CustomMaterialTemplates.getCustomEnums().stream()
+				).distinct().map(String::toLowerCase).collect(Collectors.toList());
+				String current = args.length>1 ? args[1] : "";
+				return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+			}
+			case "reload":
+			case "inspect":
+			case "recipes":
+			case "uploaddata":
+			case "view":
+			default:
+				return Collections.emptyList();
+		}
 	}
 	
 	private void displayNBTTag(String label, NBTBase tag, Player player, int depth){

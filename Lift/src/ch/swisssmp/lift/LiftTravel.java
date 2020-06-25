@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import ch.swisssmp.lift.effect.LiftTravelEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -46,10 +47,11 @@ public class LiftTravel implements Runnable, Listener {
 	private double direction;
 	private long duration;
 	private Vector speed;
+	private LiftTravelEffect effect;
 	
 	private BukkitTask task;
 	
-	private List<Entity> entities = new ArrayList<Entity>();
+	private final List<Entity> entities = new ArrayList<Entity>();
 	private HashMap<Block,BlockData> originalData;
 	
 	private LiftTravel(LiftFloor from, LiftFloor to){
@@ -63,11 +65,13 @@ public class LiftTravel implements Runnable, Listener {
 	
 	private void initialize(){
 		height = Math.abs(fromY - toY);
-		long timeInSeconds = Math.max(1, Math.round(height / lift.getSpeed()));
+		LiftType type = lift.getType();
+		long timeInSeconds = Math.max(1, Math.round(height / type.getSpeed()));
 		t = 0;
 		direction = fromY <= toY ? 1 : -1;
 		duration = timeInSeconds*20;
-		speed = new Vector(0, lift.getSpeed() * direction / 20, 0);
+		speed = new Vector(0, type.getSpeed() * direction / 20, 0);
+		effect = type.getTravelEffect();
 		originalData = this.clearShaft(this.lift);
 		task = Bukkit.getScheduler().runTaskTimer(LiftPlugin.getInstance(), this, 0, 1);
 		Bukkit.getPluginManager().registerEvents(this, LiftPlugin.getInstance());
@@ -91,6 +95,7 @@ public class LiftTravel implements Runnable, Listener {
 			Vector velocity = new Vector(0,speed.getY()+delta/20,0);
 			entity.setVelocity(velocity);
 			entity.setFallDistance(0);
+			if(effect!=null) effect.play(entity,velocity, t);
 		}
 		if(t>=duration){
 			complete();

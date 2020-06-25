@@ -4,6 +4,7 @@
     <root id="archive" name="SwissSMPUtils.jar">
       <element id="module-output" name="SwissSMPUtils" />
       <element id="file-copy" path="$PROJECT_DIR$/SwissSMPUtils/plugin.yml" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/_Libraries/NBT.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -15,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
 
 public class SaddleInfo {
 
@@ -38,12 +38,12 @@ public class SaddleInfo {
 		}
 		itemMeta.setLore(description);
 		itemStack.setItemMeta(itemMeta);
-		NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
-		if(nbtTag==null) nbtTag = new NBTTagCompound();
-		nbtTag.setBoolean("private_saddle", true);
+		CompoundTag nbtTag = ItemUtil.getData(itemStack);
+		if(nbtTag==null) nbtTag = new CompoundTag();
+		nbtTag.putBoolean("private_saddle", true);
 		if(owner!=null){
-			nbtTag.setString("player_uuid", owner.toString());
-			nbtTag.setString("player_name", owner_name);
+			nbtTag.putString("player_uuid", owner.toString());
+			nbtTag.putString("player_name", owner_name);
 		}
 		ItemUtil.setData(itemStack, nbtTag);
 	}
@@ -85,10 +85,10 @@ public class SaddleInfo {
 		if(itemStack.getType() != Material.SADDLE){
 			return null;
 		}
-		NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
-		if(nbtTag==null || !nbtTag.hasKey("private_saddle")) return null;
-		UUID owner = nbtTag.hasKey("player_uuid") ? UUID.fromString(nbtTag.getString("player_uuid")) : null;
-		String owner_name = nbtTag.hasKey("player_name") ? nbtTag.getString("player_name") : null;
+		CompoundTag nbtTag = ItemUtil.getData(itemStack);
+		if(nbtTag==null || !nbtTag.containsKey("private_saddle")) return null;
+		UUID owner = nbtTag.containsKey("player_uuid") ? UUID.fromString(nbtTag.getString("player_uuid")) : null;
+		String owner_name = nbtTag.containsKey("player_name") ? nbtTag.getString("player_name") : null;
 		return new SaddleInfo(owner, owner_name);
 	}
 }

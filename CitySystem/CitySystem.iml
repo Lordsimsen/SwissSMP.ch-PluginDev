@@ -24,5 +24,6 @@
     <orderEntry type="module" module-name="NPCs" />
     <orderEntry type="module" module-name="ResourcepackManager" />
     <orderEntry type="module" module-name="Ceremonies" />
+    <orderEntry type="library" name="NBT" level="project" />
   </component>
 </module>

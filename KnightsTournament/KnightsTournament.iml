@@ -27,5 +27,6 @@
     <orderEntry type="library" name="ProtocolLib" level="project" />
     <orderEntry type="module" module-name="WGRegionEvents" />
     <orderEntry type="library" name="WorldGuard" level="project" />
+    <orderEntry type="library" name="NBT" level="project" />
   </component>
 </module>

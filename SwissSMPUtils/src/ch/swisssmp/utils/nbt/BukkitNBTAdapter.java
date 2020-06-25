@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class BukkitNBTAdapter {
     protected static CompoundTag adapt(NBTTagCompound nms) {
+        if(nms==null) return null;
         CompoundTag result = new CompoundTag();
         for (String key : nms.getKeys()) {
             Tag<?> value = fromNMS(nms.get(key));

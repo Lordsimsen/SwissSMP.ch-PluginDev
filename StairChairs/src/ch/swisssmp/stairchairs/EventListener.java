@@ -75,7 +75,7 @@ public class EventListener implements Listener {
 			debug("Out of range");
 			return;
 		}
-		location.add(0, -1.15, 0);
+		location.add(0, 0.30, 0);
 		BlockData data = block.getBlockData();
 		if(data instanceof Stairs){
 			Stairs stairs = (Stairs) data;
@@ -147,12 +147,14 @@ public class EventListener implements Listener {
 		StairChairs.locationMap.put(player, player.getLocation().clone());
 		final Location chairLocation = location.clone();
 		final Location soundLocation = location.clone().add(0, 1, 0);
-		ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(chairLocation, EntityType.ARMOR_STAND);
-		armorStand.setInvulnerable(true);
-		armorStand.setVisible(false);
-		armorStand.setGravity(false);
-		armorStand.setCustomName("§cStairChair");
-		armorStand.setCustomNameVisible(false);
+		ArmorStand armorStand = location.getWorld().spawn(chairLocation, ArmorStand.class, (spawned)->{
+			spawned.setInvulnerable(true);
+			spawned.setVisible(false);
+			spawned.setGravity(false);
+			spawned.setCustomName("§cStairChair");
+			spawned.setCustomNameVisible(false);
+			spawned.setMarker(true);
+		});
 		armorStand.addPassenger(player);
 		soundLocation.getWorld().playSound(soundLocation, isWood(block) ? Sound.BLOCK_WOOD_STEP : Sound.BLOCK_STONE_STEP, SoundCategory.BLOCKS, 1, 2f);
 		StairChairs.playerMap.put(block, player);

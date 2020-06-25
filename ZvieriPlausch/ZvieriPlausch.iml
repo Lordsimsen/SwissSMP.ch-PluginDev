@@ -30,5 +30,6 @@
     <orderEntry type="module" module-name="CustomRecipeAPI" />
     <orderEntry type="module" module-name="CustomPaintings" />
     <orderEntry type="module" module-name="RawTextBuilderAPI" />
+    <orderEntry type="library" name="NBT" level="project" />
   </component>
 </module>

@@ -8,15 +8,15 @@ import org.bukkit.block.Sign;
 
 public class GroundFloor extends LiftFloor {
 
-	private final double speed;
+	private final LiftType type;
 	
 	public GroundFloor(int floorIndex, List<Block> blocks, Block floorSign, Block button, Block nameSign) {
 		super(floorIndex, blocks, floorSign, button, nameSign);
-		speed = MaterialUtil.getLiftSpeed(blocks.get(0).getType());
+		type = LiftType.of(blocks.get(0).getType()).orElse(null);
 	}
 	
-	public double getSpeed(){
-		return speed;
+	public LiftType getType(){
+		return type;
 	}
 
 	public static GroundFloor get(Block block){
@@ -39,7 +39,7 @@ public class GroundFloor extends LiftFloor {
 			try{
 				floorIndex = Integer.parseInt(sign.getLine(2));
 			}
-			catch(Exception e){ }
+			catch(Exception ignored){ }
 		}
 		
 		return new GroundFloor(floorIndex, floor, floorSign, button, nameSign);

@@ -2,21 +2,12 @@ package ch.swisssmp.knightstournament;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
-import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.JsonUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataType;
-
-import java.util.*;
 
 public class LoanerEquipment {
 

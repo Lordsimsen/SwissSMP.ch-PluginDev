@@ -45,6 +45,9 @@ public class WorldTransferManager {
 		File packedWorldDirectory = new File(packedDirectory,"World/"+worldName);
 		File worldDirectory = new File(Bukkit.getWorldContainer(),overrideWorldName);
 		FileUtil.copyDirectory(packedWorldDirectory, worldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
+		if(!overrideWorldName.equals(worldName)){
+			WorldDataPatcher.changeLevelName(worldDirectory, overrideWorldName);
+		}
 		try{
 			Bukkit.getPluginManager().callEvent(new WorldUnpackEvent(overrideWorldName,packedDirectory,false));
 		}
@@ -65,10 +68,11 @@ public class WorldTransferManager {
 	 * @param packedDirectory - The Directory to pack into
 	 */
 	protected static void packWorld(String worldName, String overrideWorldName, File packedDirectory){
-		File worldDirectory = new File(Bukkit.getWorldContainer(),overrideWorldName);
-		File packedWorldDirectory = new File(packedDirectory,"World/"+worldName);
+		File worldDirectory = new File(Bukkit.getWorldContainer(),worldName);
+		File packedWorldDirectory = new File(packedDirectory,"World/"+overrideWorldName);
 		packedWorldDirectory.mkdirs();
 		FileUtil.copyDirectory(worldDirectory, packedWorldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
+		WorldDataPatcher.changeLevelName(packedWorldDirectory, overrideWorldName);
 		Bukkit.getPluginManager().callEvent(new WorldPackEvent(worldName,packedDirectory,true));
 	}
 	
