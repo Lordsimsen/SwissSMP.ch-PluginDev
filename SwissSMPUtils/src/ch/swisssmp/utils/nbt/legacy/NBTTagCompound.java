@@ -1,23 +1,28 @@
-package ch.swisssmp.utils.nbt;
+package ch.swisssmp.utils.nbt.legacy;
 
 import ch.swisssmp.utils.Position;
 
+import java.util.Set;
+
+@Deprecated
 public class NBTTagCompound extends NBTBase {
 	
-	private final net.minecraft.server.v1_15_R1.NBTTagCompound nbtTag;
+	private final net.minecraft.server.v1_16_R1.NBTTagCompound nbtTag;
 	
 	public NBTTagCompound(){
-		this.nbtTag = new net.minecraft.server.v1_15_R1.NBTTagCompound();
+		this.nbtTag = new net.minecraft.server.v1_16_R1.NBTTagCompound();
 	}
 	
-	public NBTTagCompound(net.minecraft.server.v1_15_R1.NBTTagCompound nbtTag){
+	public NBTTagCompound(net.minecraft.server.v1_16_R1.NBTTagCompound nbtTag){
 		this.nbtTag = nbtTag;
 	}
 	
-	public net.minecraft.server.v1_15_R1.NBTTagCompound asNMS(){
+	public net.minecraft.server.v1_16_R1.NBTTagCompound asNMS(){
 		return nbtTag;
 	}
-	
+
+	public Set<String> getKeys(){return nbtTag.getKeys();}
+
 	public boolean hasKey(String key){
 		return nbtTag.hasKey(key);
 	}

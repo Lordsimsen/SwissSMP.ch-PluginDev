@@ -1,15 +1,16 @@
-package ch.swisssmp.utils.nbt;
+package ch.swisssmp.utils.nbt.legacy;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class NBTTagList extends NBTBase {
 	
-	net.minecraft.server.v1_15_R1.NBTTagList value;
+	net.minecraft.server.v1_16_R1.NBTTagList value;
 	
 	public NBTTagList() {
-		this.value = new net.minecraft.server.v1_15_R1.NBTTagList();
+		this.value = new net.minecraft.server.v1_16_R1.NBTTagList();
 	}
 	
 	public boolean add(NBTBase element) {
@@ -28,11 +29,11 @@ public class NBTTagList extends NBTBase {
 		return value.addAll(index, collection.stream().map(e->e.asNMS()).collect(Collectors.toList()));
 	}
 	
-	protected NBTTagList(net.minecraft.server.v1_15_R1.NBTTagList value){
+	protected NBTTagList(net.minecraft.server.v1_16_R1.NBTTagList value){
 		this.value = value;
 	}
 
-	protected net.minecraft.server.v1_15_R1.NBTTagList asNMS() {
+	protected net.minecraft.server.v1_16_R1.NBTTagList asNMS() {
 		return value;
 	}
 
