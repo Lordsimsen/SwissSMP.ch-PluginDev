@@ -52,9 +52,6 @@ public class ApplyToWorldEditSelectionSlot extends ButtonSlot {
 
     @Override
     protected CustomItemBuilder createSlotBase() {
-        CustomItemBuilder itemBuilder = new CustomItemBuilder();
-        itemBuilder.setMaterial(Material.FEATHER);
-        itemBuilder.setAmount(1);
-        return itemBuilder;
+        return new CustomItemBuilder(Material.WOODEN_AXE);
     }
 }
