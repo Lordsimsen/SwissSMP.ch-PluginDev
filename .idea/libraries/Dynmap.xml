@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="Dynmap">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/_Libraries/Dynmap-3.0-beta-10-spigot.jar!/" />
+      <root url="jar://$PROJECT_DIR$/_Libraries/Dynmap-3.0.1-spigot.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
