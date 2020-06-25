@@ -1,6 +1,6 @@
-package ch.swisssmp.city.ceremony.stadtaufstieg;
+package ch.swisssmp.city.ceremony.promotion;
 
-public class CityRankCeremonyMusic {
+public class CityPromotionCeremonyMusic {
 
     public final static String drums = "founding_ceremony_drums";
     public final static String shaker = "founding_ceremony_shaker";

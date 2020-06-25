@@ -1,8 +1,8 @@
 main: ch.swisssmp.city.CitySystemPlugin
-version: 1.6
+version: 1.7
 api-version: 1.13
 name: CitySystem
-author: detig_iii
+authors: [detig_iii,WhiteGuggi]
 description: Erlaubt Spielern ingame Verwaltung ihrer Städte
 depend: [SwissSMPUtils,WebCore,CustomItems,CustomEditorAPI,NPCs,Ceremonies]
 permissions:

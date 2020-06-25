@@ -16,7 +16,7 @@ import org.bukkit.scheduler.BukkitTask;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
-import ch.swisssmp.city.ceremony.founding.FoundingCeremonyCircleEffect.RingEffectType;
+import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect.RingEffectType;
 
 public class ForgeRingPhase extends Phase implements ITributeListener {
 	
