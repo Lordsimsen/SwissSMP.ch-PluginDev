@@ -1,5 +1,5 @@
 main: ch.swisssmp.random.RandomItemAPI
-version: 1.3
+version: 2
 api-version: 1.13
 name: RandomItemAPI
 author: detig_iii
