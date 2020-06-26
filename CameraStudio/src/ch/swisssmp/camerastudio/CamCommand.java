@@ -533,6 +533,8 @@ public class CamCommand implements TabExecutor {
 			return StringUtil.copyPartialMatches(current, subcommands, new ArrayList<>());
 		}
 		switch(args[0]){
+			case "p":
+			case "punkt":
 			case "point":{
 				if(args.length<=2){
 					if(!(sender instanceof Player)) return Collections.emptyList();
@@ -544,6 +546,9 @@ public class CamCommand implements TabExecutor {
 				}
 				return Collections.emptyList();
 			}
+			case "entferne":
+			case "r":
+			case "remove":
 			case "goto":{
 				if(args.length<=2){
 					if(!(sender instanceof Player)) return Collections.emptyList();
@@ -555,6 +560,7 @@ public class CamCommand implements TabExecutor {
 				}
 				return Collections.emptyList();
 			}
+			case "erstelle":
 			case "create":{
 				if(args.length<=2){
 					List<String> options = Arrays.asList("path", "sequence");
@@ -576,14 +582,19 @@ public class CamCommand implements TabExecutor {
 				return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
 			}
 			case "reload":
+			case "pfade":
 			case "paths":
 			case "sequences":
+			case "punkte":
 			case "points":
 			case "load":
+			case "lade":
 			case "save":
+			case "speichere":
 			case "start":
 			case "stop":
 			case "clear":
+			case "reset":
 			default:
 				return Collections.emptyList();
 		}
@@ -592,7 +603,7 @@ public class CamCommand implements TabExecutor {
 	private List<String> getPointSuggestions(int count){
 		List<String> options = new ArrayList<>(count);
 		for(int i = 0; i < count; i++){
-			options.set(i, String.valueOf(i));
+			options.add(String.valueOf(i));
 		}
 
 		return options;
