@@ -4,6 +4,7 @@ import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.SelectSlot;
 import ch.swisssmp.netherportals.CoordinateOperation;
+import ch.swisssmp.netherportals.PortalLinkCache;
 import ch.swisssmp.netherportals.WorldConfiguration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -34,6 +35,7 @@ public class OperationSlot extends SelectSlot {
     protected void onValueChanged(int value) {
         configuration.setOperation(value==0 ? CoordinateOperation.MULTIPLY : CoordinateOperation.DIVIDE);
         configuration.save();
+        PortalLinkCache.invalidate(configuration.getBukkitWorld());
     }
 
     @Override

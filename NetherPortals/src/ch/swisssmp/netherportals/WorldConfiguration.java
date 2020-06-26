@@ -94,12 +94,12 @@ public class WorldConfiguration {
         Location remappedLocation = new Location(toWorld, x, y, z, from.getYaw(), from.getPitch());
 
         boolean toWorldIsNether = toWorld.getEnvironment()== World.Environment.NETHER;
-        remappedLocation = NetherPortalAgent.getTargetLocation(remappedLocation, toWorldIsNether ? 64 : 128, 16, new BlockVector(4,4,3), new BlockVector(4,4,1), allowPortalCreation);
-        remappedLocation.setYaw(from.getYaw());
-        remappedLocation.setPitch(from.getPitch());
+        Location targetLocation = NetherPortalAgent.getTargetLocation(remappedLocation, toWorldIsNether ? 64 : 128, 16, new BlockVector(4,4,3), new BlockVector(4,4,1), allowPortalCreation);
+        targetLocation.setYaw(from.getYaw());
+        targetLocation.setPitch(from.getPitch());
 
-        PortalLinkCache.create(from, remappedLocation, 60*20); // 60s * 20tps
-        return remappedLocation;
+        PortalLinkCache.create(from, targetLocation, 60*20); // 60s * 20tps
+        return targetLocation;
     }
 
     private void load(JsonObject json){

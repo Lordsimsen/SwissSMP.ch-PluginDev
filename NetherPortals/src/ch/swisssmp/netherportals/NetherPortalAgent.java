@@ -21,9 +21,15 @@ import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Random;
 
 public class NetherPortalAgent {
-	
-	private static Random random = new Random();
-	
+
+	private static final Random random = new Random();
+	private static final boolean DEBUG = false;
+
+	private static void print(String text){
+		if(!DEBUG) return;
+		Bukkit.getLogger().info(NetherPortalsPlugin.getPrefix()+" "+text);
+	}
+
 	public static Location getTargetLocation(Location location, int portalSearchRadius, int spaceSearchRadius, BlockVector firstSpaceSearch, BlockVector secondSpaceSearch, boolean allowCreation) {
 		World world = location.getWorld();
 		int maxHeight = Math.min(world.getMaxHeight(), world.getEnvironment()!=Environment.NETHER ? Integer.MAX_VALUE : 128);
@@ -31,7 +37,7 @@ public class NetherPortalAgent {
 		Location portalSearchMax = new Location(world, location.getX() + portalSearchRadius, maxHeight-1, location.getZ() + portalSearchRadius);
 		Block closestPortalBlock = getClosestPortalBlock(location, portalSearchMin, portalSearchMax);
 		if(closestPortalBlock!=null) {
-			// Bukkit.getLogger().info("[NetherPortalFixer] Portal gefunden");
+			print("Portal gefunden");
 			return closestPortalBlock.getLocation();
 		}
 
@@ -39,24 +45,24 @@ public class NetherPortalAgent {
 		Location spaceSearchMax = new Location(world, location.getX() + spaceSearchRadius, maxHeight-1, location.getZ() + spaceSearchRadius);
 		AbstractMap.SimpleEntry<Block,BlockFace> emptySpaceBlock = getEmptySpaceBlock(location, spaceSearchMin, spaceSearchMax, firstSpaceSearch, secondSpaceSearch);
 		if(emptySpaceBlock!=null) {
-			// Bukkit.getLogger().info("[NetherPortalFixer] Freie Fläche gefunden");
+			print("Freie Fläche gefunden");
 			if(allowCreation) {
-				// Bukkit.getLogger().info("[NetherPortalFixer] Generiere Portal");
+				print("[NetherPortalFixer] Generiere Portal");
 				createPortal(emptySpaceBlock.getKey(), emptySpaceBlock.getValue());
 			}
 			else {
 
-				// Bukkit.getLogger().info("[NetherPortalFixer] Teleportiere ohne Portal");
+				print("Teleportiere ohne Portal");
 			}
 			return emptySpaceBlock.getKey().getLocation();
 		}
 
 		if(!allowCreation) {
-			// Bukkit.getLogger().info("[NetherPortalFixer] Suche freie Fläche");
+			print("Suche freie Fläche");
 			return getFreeSpace(location.getBlock()).getLocation();
 		}
 
-		// Bukkit.getLogger().info("[NetherPortalFixer] Erzwinge Portal");
+		print("Erzwinge Portal");
 		AbstractMap.SimpleEntry<Block,BlockFace> forcedSpaceBlock = getForcedSpaceBlock(location, spaceSearchMin, spaceSearchMax);
 		createPortal(forcedSpaceBlock.getKey(), forcedSpaceBlock.getValue());
 		return forcedSpaceBlock.getKey().getLocation();

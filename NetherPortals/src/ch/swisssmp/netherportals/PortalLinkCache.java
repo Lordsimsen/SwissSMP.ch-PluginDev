@@ -2,6 +2,7 @@ package ch.swisssmp.netherportals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -10,7 +11,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class PortalLinkCache {
 	
-	private static List<PortalLinkCache> cache = new ArrayList<PortalLinkCache>();
+	private static final List<PortalLinkCache> cache = new ArrayList<PortalLinkCache>();
 	
 	private final Location a;
 	private final Location b;
@@ -28,9 +29,6 @@ public class PortalLinkCache {
 			Location result;
 			if(link.a.getWorld()==world && link.a.distanceSquared(location)<9) {
 				result = link.b;
-			}
-			else if(link.b.getWorld()==world && link.b.distanceSquared(location)<9) {
-				result = link.a;
 			}
 			else {
 				continue;
@@ -53,6 +51,10 @@ public class PortalLinkCache {
 		link.task = Bukkit.getScheduler().runTaskLater(NetherPortalsPlugin.getInstance(), ()->{
 			cache.remove(link);
 		}, 60*20); // 60s * 20tps
+	}
+
+	public static void invalidate(World world){
+		cache.removeAll(cache.stream().filter(c->c.a.getWorld()==world).collect(Collectors.toList()));
 	}
 	
 	protected static void clear() {

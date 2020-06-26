@@ -3,6 +3,7 @@ package ch.swisssmp.netherportals.configuration.slots;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ValueRangeSlot;
+import ch.swisssmp.netherportals.PortalLinkCache;
 import ch.swisssmp.netherportals.WorldConfiguration;
 import ch.swisssmp.utils.Mathf;
 import org.bukkit.ChatColor;
@@ -50,6 +51,7 @@ public class TargetCoordinateFactorSlot extends ValueRangeSlot {
         int factor = Mathf.roundToInt(value);
         configuration.setTargetCoordinateFactor(factor);
         configuration.save();
+        PortalLinkCache.invalidate(configuration.getBukkitWorld());
         this.setItem(this.createSlot());
     }
 

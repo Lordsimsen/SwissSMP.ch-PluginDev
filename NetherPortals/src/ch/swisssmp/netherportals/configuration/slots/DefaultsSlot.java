@@ -3,6 +3,7 @@ package ch.swisssmp.netherportals.configuration.slots;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ButtonSlot;
+import ch.swisssmp.netherportals.PortalLinkCache;
 import ch.swisssmp.netherportals.WorldConfiguration;
 import ch.swisssmp.netherportals.configuration.NetherPortalConfigurationView;
 import org.bukkit.ChatColor;
@@ -25,6 +26,7 @@ public class DefaultsSlot extends ButtonSlot {
     protected void triggerOnClick(ClickType clickType) {
         configuration.applyDefaults();
         configuration.save();
+        PortalLinkCache.invalidate(configuration.getBukkitWorld());
         this.getView().closeLater(()->NetherPortalConfigurationView.open(getView().getPlayer(), configuration));
     }
 

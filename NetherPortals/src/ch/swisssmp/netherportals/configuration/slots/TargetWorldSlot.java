@@ -3,6 +3,7 @@ package ch.swisssmp.netherportals.configuration.slots;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ValueSlot;
+import ch.swisssmp.netherportals.PortalLinkCache;
 import ch.swisssmp.netherportals.WorldConfiguration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -30,6 +31,7 @@ public class TargetWorldSlot extends ValueSlot {
         String displayName = (itemStack!=null && itemStack.hasItemMeta() ? itemStack.getItemMeta().getDisplayName() : null);
         configuration.setTargetWorld(displayName);
         configuration.save();
+        PortalLinkCache.invalidate(configuration.getBukkitWorld());
         return true;
     }
 
