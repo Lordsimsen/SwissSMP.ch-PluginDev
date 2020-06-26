@@ -5,6 +5,7 @@ import ch.swisssmp.ceremonies.Ceremony;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.city.City;
 import ch.swisssmp.city.CitySystemPlugin;
+import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect;
 import ch.swisssmp.city.ceremony.promotion.phases.*;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPler;
@@ -19,7 +20,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.BlockVector;
 
 import java.util.*;
 
@@ -42,10 +42,13 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     private final int goldTribute = 2;
     private final int diamondTribute = 1;
 
+    private CityCeremonyCircleEffect ringEffect;
+
     private List<Player> participants = new ArrayList<Player>();
 
     private BukkitTask timeoutTask;
     private BukkitTask musicTask;
+    private BukkitTask ringEffectTask;
 
     private PromotionPhase phase = null;
 
@@ -90,6 +93,18 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     public List<Player> getPlayers(){
         return participants;
+    }
+
+    public CityCeremonyCircleEffect getRingEffect(){
+        return ringEffect;
+    }
+
+    public void setRingEffect(CityCeremonyCircleEffect ringEffect){
+        this.ringEffect = ringEffect;
+    }
+
+    public void setRingEffectTask(BukkitTask task){
+        this.ringEffectTask = task;
     }
 
     public void addParticipant(Player player){
@@ -174,11 +189,12 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     protected void finish(){
         super.finish();
         if(timeoutTask != null) timeoutTask.cancel();
-        HandlerList.unregisterAll(this);
         for(Player player : this.participants){
             ceremoniesParticipants.remove(player);
         }
+        if(ringEffectTask != null) ringEffectTask.cancel();
         stopMusic();
+        HandlerList.unregisterAll(this);
         ceremonies.remove(this);
     }
 

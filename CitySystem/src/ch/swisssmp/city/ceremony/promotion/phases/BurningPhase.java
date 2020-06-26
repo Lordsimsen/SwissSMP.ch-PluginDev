@@ -3,6 +3,7 @@ package ch.swisssmp.city.ceremony.promotion.phases;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import ch.swisssmp.city.CitySystemPlugin;
+import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremonyMusic;
 import ch.swisssmp.utils.SwissSMPler;
@@ -38,10 +39,18 @@ public class BurningPhase extends Phase implements Listener {
 //            ceremony.cancel();
             cancel();
         }
-
         super.begin();
 
         fireIgnited = false;
+
+        ceremony.setRingEffect(new CityCeremonyCircleEffect(chest.getLocation().add(0.5,0.5,0.5)));
+        ceremony.getRingEffect().setRadius(5);
+        ceremony.getRingEffect().setRingEffectType(CityCeremonyCircleEffect.RingEffectType.WhirlingBlade);
+        for(int i = 0; i < 10; i++){
+            
+        }
+        ceremony.setRingEffectTask(Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), ceremony.getRingEffect(), 0, 1));
+
         Location location = chest.getLocation().add(ceremony.random.nextInt(2), 0, ceremony.random.nextInt(2));
         chest.getWorld().strikeLightning(new Location(chest.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location), location.getZ()));
         ignitionReminder = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), () ->{

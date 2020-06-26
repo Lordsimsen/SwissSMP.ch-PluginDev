@@ -59,7 +59,7 @@ public class ClimaxPhase extends Phase {
 
     @Override
     public void run() {
-        if(!isEmpty(tribute) && itemPops > maxItemPops){
+        if(!isEmpty(tribute)){
             int i = random.nextInt(tribute.length);
             Item droppedItem = chest.getWorld().dropItemNaturally(chest.getLocation().add(0,0.5,0), new ItemStack(tribute[i].getType()));
             openChest(chest.getLocation());
@@ -95,7 +95,7 @@ public class ClimaxPhase extends Phase {
             Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), droppedItem::remove, 60L);
 
             tribute[i].setAmount(tribute[i].getAmount() - 1);
-            itemPops++;
+//            itemPops++;
 
             if(randomDouble < 0.5){
                 Color color;
@@ -118,8 +118,8 @@ public class ClimaxPhase extends Phase {
                 playFireBurst(chest.getLocation(), color);
                 chest.getWorld().playSound(chest.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1, 1);
             }
-        } else if(!awaitingCompletion){
-            completeLater(100L);
+        } else {
+            this.setCompleted();
         }
     }
 
