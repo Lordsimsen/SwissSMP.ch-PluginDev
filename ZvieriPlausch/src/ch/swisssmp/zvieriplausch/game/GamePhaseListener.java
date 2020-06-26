@@ -161,21 +161,21 @@ public class GamePhaseListener implements Listener {
         }
     }
 
-    @EventHandler
-    private void onCoalCheatingAttempt(InventoryClickEvent event){
-        Inventory inventory = event.getClickedInventory();
-        if(!(inventory instanceof FurnaceInventory)) return;
-        if(arena == null) return;
-        if(arena.getGame() == null) return;
-        Player player = (Player) event.getView().getPlayer();
-        if(!participants.contains(player)) return;
-
-        ItemStack cursor = event.getCursor();
-        if(!ItemUtil.getBoolean(cursor, "zvieriGameItem")) {
-            player.playSound(player.getLocation().add(0,2,0), "aoe.taunt.2", SoundCategory.VOICE, 2, 1);
-            event.setCancelled(true);
-        }
-    }
+//    @EventHandler
+//    private void onCoalCheatingAttempt(InventoryClickEvent event){
+//        Inventory inventory = event.getClickedInventory();
+//        if(!(inventory instanceof FurnaceInventory)) return;
+//        if(arena == null) return;
+//        if(arena.getGame() == null) return;
+//        Player player = (Player) event.getView().getPlayer();
+//        if(!participants.contains(player)) return;
+//
+//        ItemStack cursor = event.getCursor();
+//        if(!ItemUtil.getBoolean(cursor, "zvieriGameItem")) {
+//            player.playSound(player.getLocation().add(0,2,0), "aoe.taunt.2", SoundCategory.VOICE, 2, 1);
+//            event.setCancelled(true);
+//        }
+//    }
 
     @EventHandler
     private void onItemPlace(BlockPlaceEvent event){

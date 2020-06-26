@@ -37,7 +37,7 @@ public class PresentRingPhase extends Phase {
 	@Override
 	public void begin(){
 		super.begin();
-		this.createCity();
+//		this.createCity();
 		String title = "Gratulation!";
 		String subtitle = ChatColor.YELLOW+"Du hast die Stadt "+ChatColor.LIGHT_PURPLE+ceremony.getCityName()+ChatColor.YELLOW+" gegründet.";
 		this.announceTitleLong(title, subtitle);
@@ -104,7 +104,7 @@ public class PresentRingPhase extends Phase {
 	@Override
 	public void run() {
 		time++;
-		if(time>=60 && cityFounded){
+		if(time>=60){ // && cityFounded){
 			setCompleted();
 		}
 	}

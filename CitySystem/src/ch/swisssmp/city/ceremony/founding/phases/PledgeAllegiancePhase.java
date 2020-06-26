@@ -33,15 +33,16 @@ public class PledgeAllegiancePhase extends Phase implements ITributeListener {
 	public void begin(){
 		super.begin();
 		this.updateNearbyPlayers();
-		if(this.nearbyPlayers.size()==0){
-			this.ceremony.cancel();
-			return;
-		}
+//		if(this.nearbyPlayers.size()==0){
+//			this.ceremony.cancel();
+//			return;
+//		}
 		this.broadcastTitle("", "Schwöre deine Treue!");
 		this.reminderTask = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), ()->{
 			this.updateNearbyPlayers();
 			if(this.nearbyPlayers.size()==0){
-				if(ceremony.getPlayers().size()<2) ceremony.cancel();
+//				if(ceremony.getPlayers().size()<2) ceremony.cancel();
+				if(ceremony.getPlayers().size()<1) ceremony.cancel();
 				else setCompleted();
 				return;
 			}
@@ -49,7 +50,8 @@ public class PledgeAllegiancePhase extends Phase implements ITributeListener {
 			ceremony.broadcastActionBar("Warte auf Mitgründer.");
 			}, 0, 100);
 		this.autoContinueTask = Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()->{
-			if(ceremony.getPlayers().size()<2){
+//			if(ceremony.getPlayers().size()<2){
+			if(ceremony.getPlayers().size()<1){
 				ceremony.cancel();
 				return;
 			}

@@ -1,4 +1,4 @@
-package ch.swisssmp.city.ceremony.founding;
+package ch.swisssmp.city.ceremony.effects;
 
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -9,7 +9,7 @@ import org.bukkit.util.Vector;
 
 import ch.swisssmp.utils.Mathf;
 
-public class FoundingCeremonyCircleEffect implements Runnable {
+public class CityCeremonyCircleEffect implements Runnable {
 
 	private final int ringCount = 10;
 	private final float ringStep = (2 * (float) Math.PI) / ringCount;
@@ -32,7 +32,7 @@ public class FoundingCeremonyCircleEffect implements Runnable {
 			Color.fromRGB(255,200,20)
 	};
 	
-	protected FoundingCeremonyCircleEffect(Location center){
+	public CityCeremonyCircleEffect(Location center){
 		this.world = center.getWorld();
 		this.ringCenter = center.toVector();
 	}

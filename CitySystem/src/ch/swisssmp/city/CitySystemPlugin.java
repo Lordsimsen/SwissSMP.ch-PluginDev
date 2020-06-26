@@ -1,6 +1,7 @@
 package ch.swisssmp.city;
 
 import ch.swisssmp.ceremonies.SpectateCommand;
+import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginDescriptionFile;
