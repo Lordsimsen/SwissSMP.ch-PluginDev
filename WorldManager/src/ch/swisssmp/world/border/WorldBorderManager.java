@@ -2,6 +2,7 @@ package ch.swisssmp.world.border;
 
 import java.util.HashMap;
 
+import ch.swisssmp.world.WorldManagerPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -35,7 +36,7 @@ public class WorldBorderManager {
 	
 	public static void startBorderChecker(){
 		WorldBorderChecker worldBorder = new WorldBorderChecker();
-		worldBorder.runTaskTimer(WorldManager.getInstance(), 0, 100L);
+		worldBorder.runTaskTimer(WorldManagerPlugin.getInstance(), 0, 100L);
 	}
 	
 	private static void applyWorldBorder(World world, WorldBorder worldBorder){

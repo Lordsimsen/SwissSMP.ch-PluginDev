@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ch.swisssmp.world.WorldManagerPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -56,7 +57,7 @@ public class WorldTransferManager {
 			return;
 		}
 		Bukkit.getLogger().info("[WorldManager] Unpacking of World "+worldName+" finished.");
-		Bukkit.getScheduler().runTaskLater(WorldManager.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(WorldManagerPlugin.getInstance(), ()->{
 			FileUtil.deleteRecursive(packedDirectory);
 		}, 5L);
 	}
@@ -131,6 +132,6 @@ public class WorldTransferManager {
 	}
 	
 	static File getTempFolder(){
-		return new File(WorldManager.getInstance().getDataFolder(), "temp");
+		return new File(WorldManagerPlugin.getInstance().getDataFolder(), "temp");
 	}
 }

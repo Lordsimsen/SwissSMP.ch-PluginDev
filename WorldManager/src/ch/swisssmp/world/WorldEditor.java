@@ -68,7 +68,7 @@ public class WorldEditor implements Listener{
 	
 	/**
 	 * Adds an Event Listener
-	 * @param runnable - The Runnable to execute when this WorldEditor closes and generates a World
+	 * @param listener - The Runnable to execute when this WorldEditor closes and generates a World
 	 */
 	public void onWorldGenerate(WorldEventListener listener){
 		this.onWorldGenerate.add(listener);
@@ -118,7 +118,7 @@ public class WorldEditor implements Listener{
 	}
 	
 	private void closeNextTick(){
-		Bukkit.getScheduler().runTaskLater(WorldManager.plugin, new Runnable(){public void run(){
+		Bukkit.getScheduler().runTaskLater(WorldManagerPlugin.getInstance(), new Runnable(){public void run(){
 			if(view!=null) view.close();
 			}}, 1L);
 	}
@@ -266,7 +266,7 @@ public class WorldEditor implements Listener{
 	
 	public static WorldEditor open(String worldName, Player player){
 		WorldEditor result = new WorldEditor(worldName, player);
-		Bukkit.getPluginManager().registerEvents(result, WorldManager.plugin);
+		Bukkit.getPluginManager().registerEvents(result, WorldManagerPlugin.getInstance());
 		result.view = player.openInventory(result.inventory);
 		return result;
 	}

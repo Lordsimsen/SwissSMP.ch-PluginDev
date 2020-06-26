@@ -19,7 +19,7 @@ public class WorldLoader {
 
     private static void print(String message) {
         if (!DEBUG) return;
-        Bukkit.getLogger().info(WorldManager.getPrefix() + " " + message);
+        Bukkit.getLogger().info(WorldManagerPlugin.getPrefix() + " " + message);
     }
 
     protected static World load(String worldName, ConfigurationSection dataSection) {

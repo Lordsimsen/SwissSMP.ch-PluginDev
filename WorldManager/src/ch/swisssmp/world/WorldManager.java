@@ -23,54 +23,19 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.world.border.WorldBorderCommand;
 import ch.swisssmp.world.border.WorldBorderManager;
 
-public class WorldManager extends JavaPlugin{
-	protected static Logger logger;
-	protected static PluginDescriptionFile pdfFile;
-	protected static WorldManager plugin;
-	private WorldBorderPluginHandler worldBorderPluginHandler;
-	
-	private Collection<WorldData> worldsData = new ArrayList<WorldData>();
-	
-	@Override
-	public void onEnable() {
-		plugin = this;
-		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		
-		Bukkit.getPluginCommand("world").setExecutor(new WorldCommand());
-		Bukkit.getPluginCommand("worlds").setExecutor(new WorldsCommand());
-		Bukkit.getPluginCommand("worldborder").setExecutor(new WorldBorderCommand());
-		
-		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
-		if(Bukkit.getPluginManager().getPlugin("WorldGuard")!=null) Bukkit.getPluginManager().registerEvents(new WorldGuardPluginHandler(), this);
+public class WorldManager {
+
+	private static WorldBorderPluginHandler worldBorderPluginHandler;
+	private static final Collection<WorldData> worldsData = new ArrayList<WorldData>();
+
+	protected static void initialize(){
 		if(Bukkit.getPluginManager().getPlugin("WorldBorder")!=null) worldBorderPluginHandler = WorldBorderPluginHandler.create();
-		
-		WorldManager.loadWorlds();
-		WorldBorderManager.startBorderChecker();
-		
-		if(Bukkit.getPluginManager().getPlugin("ResourcepackManager")!=null){
-			Bukkit.getPluginManager().registerEvents(new ResourcepackListener(), this);
-		}
-		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}
 
-	@Override
-	public void onDisable() {
-		Bukkit.getScheduler().cancelTasks(this);
-		HandlerList.unregisterAll(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
-	}
-	
 	public static boolean trim(Player player, World world, ch.swisssmp.world.border.WorldBorder borderData, List<String> params) {
-		if(plugin.worldBorderPluginHandler==null) return false;
-		plugin.worldBorderPluginHandler.trim(player, world, borderData, params);
+		if(worldBorderPluginHandler==null) return false;
+		worldBorderPluginHandler.trim(player, world, borderData, params);
 		return true;
-	}
-	
-	public static String getPrefix() {
-		return ChatColor.RESET+"["+ChatColor.GRAY+plugin.getName()+ChatColor.RESET+"]";
 	}
 	
 	protected static void loadWorlds(){
@@ -119,7 +84,7 @@ public class WorldManager extends JavaPlugin{
 	public static boolean unloadWorld(String worldName){
 		Bukkit.getLogger().info("[WorldManager] Deaktiviere Welt "+worldName);
 		if(Bukkit.unloadWorld(worldName, false)){
-			DataSource.getResponse(plugin, "unload.php", new String[]{
+			DataSource.getResponse(WorldManagerPlugin.getInstance(), "unload.php", new String[]{
 					"world="+URLEncoder.encode(worldName)
 			});
 			return true;
@@ -128,7 +93,7 @@ public class WorldManager extends JavaPlugin{
 	}
 	
 	protected static YamlConfiguration getWorldSettings(String worldName){
-		for(WorldData data : plugin.worldsData){
+		for(WorldData data : worldsData){
 			if(!data.getWorld().getName().equals(worldName)) continue;
 			return data.getSettings();
 		}
@@ -142,7 +107,7 @@ public class WorldManager extends JavaPlugin{
 	protected static WorldData loadWorldSettings(World world){
 		WorldData worldData = new WorldData(world);
 		worldData.loadSettings();
-		plugin.worldsData.add(worldData);
+		worldsData.add(worldData);
 		File settingsFile = WorldManager.getSettingsFile(world.getName());
 		if(!settingsFile.exists()) worldData.saveSettings();
 		return worldData;
@@ -150,11 +115,11 @@ public class WorldManager extends JavaPlugin{
 	
 	protected static void unloadWorldSettings(World world){
 		WorldData worldData = WorldManager.getWorldData(world);
-		plugin.worldsData.remove(worldData);
+		worldsData.remove(worldData);
 	}
 	
 	protected static WorldData getWorldData(World world){
-		for(WorldData data : plugin.worldsData){
+		for(WorldData data : worldsData){
 			if(data.getWorld()==world) return data;
 		}
 		return WorldManager.loadWorldSettings(world);
@@ -183,7 +148,7 @@ public class WorldManager extends JavaPlugin{
 				return;
 			}
 			Bukkit.getLogger().info("[WorldManager] Welt "+worldName+" deaktiviert.");
-			Bukkit.getScheduler().runTaskLater(WorldManager.plugin, ()->{
+			Bukkit.getScheduler().runTaskLater(WorldManagerPlugin.getInstance(), ()->{
 				WorldManager.deleteWorld(worldName);
 			}, 100L);
 			return;
@@ -195,7 +160,7 @@ public class WorldManager extends JavaPlugin{
 		if(worldDirectory.exists()){
 			Bukkit.getLogger().info("[WorldManager] Ordner "+worldDirectory.getPath()+" konnte nicht vollständig gelöscht werden.");
 			Bukkit.getLogger().info("[WorldManager] Löschung der Welt "+worldName+" wird im nächsten Tick fortgesetzt.");
-			Bukkit.getScheduler().runTaskLater(WorldManager.plugin, ()->{
+			Bukkit.getScheduler().runTaskLater(WorldManagerPlugin.getInstance(), ()->{
 				WorldManager.deleteWorld(worldName);
 			}, 1l);
 			return;
@@ -217,9 +182,5 @@ public class WorldManager extends JavaPlugin{
 	
 	protected static File getSettingsFile(String worldName){
 		return new File(Bukkit.getWorldContainer(), worldName+"/settings.yml");
-	}
-	
-	public static WorldManager getInstance(){
-		return plugin;
 	}
 }

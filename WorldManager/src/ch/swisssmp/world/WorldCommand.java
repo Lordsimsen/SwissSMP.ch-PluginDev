@@ -56,9 +56,10 @@ public class WorldCommand implements TabExecutor {
 		case "load":{
 			if(args.length<2) return false;
 			if(WorldManager.loadWorld(args[1])==null){
-				sender.sendMessage("[WorldManager] Konnte Welt "+args[1]+" nicht laden.");
+				sender.sendMessage(WorldManagerPlugin.getPrefix()+ChatColor.RED+" Konnte Welt "+args[1]+" nicht laden.");
+				return true;
 			};
-			sender.sendMessage(WorldManager.getPrefix()+ChatColor.GREEN+" Welt "+args[1]+" geladen!");
+			sender.sendMessage(WorldManagerPlugin.getPrefix()+ChatColor.GREEN+" Welt "+args[1]+" geladen!");
 			return true;
 		}
 		case "unload":{
@@ -120,7 +121,7 @@ public class WorldCommand implements TabExecutor {
 		}
 		case "trim":{
 			if(args.length<2) return false;
-			String prefix = WorldManager.getPrefix();
+			String prefix = WorldManagerPlugin.getPrefix();
 			if(!(sender instanceof Player)) {
 				sender.sendMessage(prefix+ChatColor.RED+" Kann nur ingame verwendet werden.");
 				return true;

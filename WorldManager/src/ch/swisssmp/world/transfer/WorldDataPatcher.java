@@ -1,7 +1,7 @@
 package ch.swisssmp.world.transfer;
 
 import ch.swisssmp.utils.nbt.NBTUtil;
-import ch.swisssmp.world.WorldManager;
+import ch.swisssmp.world.WorldManagerPlugin;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.Tag;
@@ -14,12 +14,12 @@ public class WorldDataPatcher {
         File levelFile = new File(worldDirectory, "level.dat");
         NamedTag namedTag = NBTUtil.parse(levelFile);
         if(namedTag==null){
-            Bukkit.getLogger().warning(WorldManager.getPrefix()+" Konnte den LevelName im level.dat unter "+worldDirectory+" nicht anpassen, da die Daten nicht gelesen werden konnten!");
+            Bukkit.getLogger().warning(WorldManagerPlugin.getPrefix()+" Konnte den LevelName im level.dat unter "+worldDirectory+" nicht anpassen, da die Daten nicht gelesen werden konnten!");
             return;
         }
         Tag<?> nbt = namedTag.getTag();
         if(!(nbt instanceof CompoundTag)){
-            Bukkit.getLogger().warning(WorldManager.getPrefix()+" Konnte den LevelName im level.dat unter "+worldDirectory+" nicht anpassen, da die Daten ein unerwartes Format haben!");
+            Bukkit.getLogger().warning(WorldManagerPlugin.getPrefix()+" Konnte den LevelName im level.dat unter "+worldDirectory+" nicht anpassen, da die Daten ein unerwartes Format haben!");
             return;
         }
         CompoundTag dataCompound = (CompoundTag) nbt;
@@ -27,7 +27,7 @@ public class WorldDataPatcher {
             dataCompound.getCompoundTag("Data").putString("LevelName", newName);
         }
         catch(Exception e){
-            Bukkit.getLogger().warning(WorldManager.getPrefix()+" Konnte den LevelName im level.dat unter "+worldDirectory+" nicht anpassen, da die Daten ein unerwartes Format haben!");
+            Bukkit.getLogger().warning(WorldManagerPlugin.getPrefix()+" Konnte den LevelName im level.dat unter "+worldDirectory+" nicht anpassen, da die Daten ein unerwartes Format haben!");
             e.printStackTrace();
             return;
         }
