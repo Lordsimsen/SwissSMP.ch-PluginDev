@@ -18,6 +18,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Spigot" level="project" />
     <orderEntry type="module" module-name="SwissSMPUtils" />
-    <orderEntry type="module" module-name="WebCore" />
+    <orderEntry type="module" module-name="CustomEditorAPI" />
+    <orderEntry type="module" module-name="CustomItems" />
+    <orderEntry type="module" module-name="WorldManager" />
   </component>
 </module>

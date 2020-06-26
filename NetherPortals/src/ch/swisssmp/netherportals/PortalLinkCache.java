@@ -1,4 +1,4 @@
-package ch.swisssmp.vanillaportals;
+package ch.swisssmp.netherportals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,7 @@ public class PortalLinkCache {
 	
 	protected static void scheduleCleanup(PortalLinkCache link) {
 		if(link.task!=null) link.task.cancel();
-		link.task = Bukkit.getScheduler().runTaskLater(NetherPortalFixer.getInstance(), ()->{
+		link.task = Bukkit.getScheduler().runTaskLater(NetherPortalsPlugin.getInstance(), ()->{
 			cache.remove(link);
 		}, 60*20); // 60s * 20tps
 	}

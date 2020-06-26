@@ -1,4 +1,4 @@
-package ch.swisssmp.vanillaportals;
+package ch.swisssmp.netherportals;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class NetherPortalAgent {
 		Location spaceSearchMax = new Location(world, location.getX() + spaceSearchRadius, maxHeight-1, location.getZ() + spaceSearchRadius);
 		AbstractMap.SimpleEntry<Block,BlockFace> emptySpaceBlock = getEmptySpaceBlock(location, spaceSearchMin, spaceSearchMax, firstSpaceSearch, secondSpaceSearch);
 		if(emptySpaceBlock!=null) {
-			Bukkit.getLogger().info("[NetherPortalFixer] Freie Fläche gefunden");
+			// Bukkit.getLogger().info("[NetherPortalFixer] Freie Fläche gefunden");
 			if(allowCreation) {
 				// Bukkit.getLogger().info("[NetherPortalFixer] Generiere Portal");
 				createPortal(emptySpaceBlock.getKey(), emptySpaceBlock.getValue());
