@@ -100,38 +100,6 @@ public final class SwissSMPler {
     public World getWorld(){
     	return player.getWorld();
     }
-    
-    public void setAfk(boolean afk){
-		if(SwissSMPler.afk_tasks.containsKey(player.getUniqueId())){
-			if(afk) return;
-			else {
-				SwissSMPler.afk_tasks.get(player.getUniqueId()).cancel();
-				SwissSMPler.afk_tasks.remove(player.getUniqueId());
-				SwissSMPler.last_vectors.remove(this.getUniqueId());
-				SwissSMPUtils.broadcastMessage(this.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+" ist wieder da.");
-			}
-		}
-		else{
-			if(afk){
-				if(!this.hasPermission("smp.afk.auto")) return;
-				BukkitTask task = Bukkit.getScheduler().runTaskLater(SwissSMPUtils.plugin, new Runnable(){
-
-					@Override
-					public void run() {
-						if(!hasPermission("smp.afk.kick")) return;
-						player.kickPlayer("Du wurdest gekickt, weil du l�nger als 15 Minuten abwesend warst.");
-						SwissSMPler.afk_tasks.remove(player.getUniqueId());
-					}
-					
-				}, 15*60*20L);
-				SwissSMPler.afk_tasks.put(player.getUniqueId(), task);
-				SwissSMPUtils.broadcastMessage(this.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+" ist nun abwesend.");
-			}
-			else{
-				SwissSMPler.last_vectors.remove(this.getUniqueId());
-			}
-		}
-    }
 
     public void sendRawMessage(String rawMessage){
         if(!player.isOnline())return;
@@ -154,6 +122,6 @@ public final class SwissSMPler {
     
     public void sendTitle(String title, String subtitle) {
     	if(!player.isOnline()) return;
-        player.sendTitle(title, subtitle, 1, 3, 1);
+        player.sendTitle(title, subtitle, 10, 70, 20);
     }
 }
