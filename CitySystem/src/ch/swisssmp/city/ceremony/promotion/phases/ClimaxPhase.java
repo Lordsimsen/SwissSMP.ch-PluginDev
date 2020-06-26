@@ -6,13 +6,13 @@ import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremonyMusic;
 import ch.swisssmp.utils.Random;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.Blocks;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockAction;
+import net.minecraft.server.v1_16_R1.BlockPosition;
+import net.minecraft.server.v1_16_R1.Blocks;
+import net.minecraft.server.v1_16_R1.PacketPlayOutBlockAction;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -61,6 +61,7 @@ public class ClimaxPhase extends Phase {
     public void run() {
         if(!isEmpty(tribute)){
             int i = random.nextInt(tribute.length);
+            if(tribute[i] == null || tribute[i].getType() == Material.AIR) return;
             Item droppedItem = chest.getWorld().dropItemNaturally(chest.getLocation().add(0,0.5,0), new ItemStack(tribute[i].getType()));
             openChest(chest.getLocation());
 
@@ -156,13 +157,13 @@ public class ClimaxPhase extends Phase {
 
     private void playFireBurst(Location location, Color color){
         Location effectLocation = location.add(0,0.5,0);
-        FireBurstEffect.play(CitySystemPlugin.getInstance(), effectLocation.getBlock(), 5, Color.fromRGB(255, 150, 0), color);
+        FireBurstEffect.play(CitySystemPlugin.getInstance(), effectLocation.getBlock(), 5, Color.OLIVE, color);
         chest.getWorld().playSound(effectLocation, Sound.ITEM_FIRECHARGE_USE, 1, 1);
     }
 
     private void spawnExplosions(Location location){
         BukkitTask explosions = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), () ->{
-            Location loc = location.add(random.nextDouble(), random.nextDouble(), random.nextDouble());
+            Location loc = location.add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5);
             loc.getWorld().strikeLightning(loc);
             loc.getWorld().createExplosion(loc, 1, false);
         }, 0L, 4L);
