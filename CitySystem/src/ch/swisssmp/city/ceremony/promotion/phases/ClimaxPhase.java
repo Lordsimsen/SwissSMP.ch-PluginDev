@@ -21,8 +21,6 @@ import org.bukkit.util.Vector;
 
 public class ClimaxPhase extends Phase {
 
-    private static final int maxItemPops = 30;
-
     private final CityPromotionCeremony ceremony;
     private final Block chest;
     private final Random random;
@@ -31,7 +29,7 @@ public class ClimaxPhase extends Phase {
 
     private ItemStack[] tribute;
     private boolean awaitingCompletion;
-    private int itemPops;
+    private long time;
 
     public ClimaxPhase(CityPromotionCeremony ceremony){
         this.ceremony = ceremony;
@@ -43,8 +41,9 @@ public class ClimaxPhase extends Phase {
     public void begin(){
         super.begin();
         tribute = ((Chest) chest.getState()).getBlockInventory().getContents();
-        itemPops = 0;
+        time = 0;
         startMusic();
+        openChest(chest.getLocation());
     }
 
     private void startMusic(){
@@ -59,11 +58,13 @@ public class ClimaxPhase extends Phase {
 
     @Override
     public void run() {
+        time++;
         if(!isEmpty(tribute)){
             int i = random.nextInt(tribute.length);
-            if(tribute[i] == null || tribute[i].getType() == Material.AIR) return;
+            while(tribute[i] == null || tribute[i].getType() == Material.AIR){
+                i = random.nextInt(tribute.length);
+            }
             Item droppedItem = chest.getWorld().dropItemNaturally(chest.getLocation().add(0,0.5,0), new ItemStack(tribute[i].getType()));
-            openChest(chest.getLocation());
 
             droppedItem.setPickupDelay(Integer.MAX_VALUE);
             droppedItem.setGravity(false);
@@ -99,25 +100,33 @@ public class ClimaxPhase extends Phase {
 //            itemPops++;
 
             if(randomDouble < 0.5){
-                Color color;
+                Color primaryColor;
+                Color secondaryColor;
                 int randomInt = random.nextInt(3);
                 switch(randomInt){
                     case 0: {
-                        color = Color.fromRGB(192, 192, 192);
+                        primaryColor = Color.fromRGB(192, 192, 192);
+                        secondaryColor = Color.fromRGB(255,215,0);
                         break;
                     }
                     case 1: {
-                        color = Color.fromRGB(255, 215, 0);
+                        primaryColor = Color.fromRGB(255, 215, 0);
+                        secondaryColor = Color.fromRGB(192, 192, 192);
                         break;
                     }
                     case 2: {
-                        color = Color.fromRGB(185, 242, 255);
+                        primaryColor = Color.fromRGB(185, 242, 255);
+                        secondaryColor = Color.fromRGB(255, 215, 0);
                         break;
                     }
-                    default: color = Color.fromRGB(255,115,0);
+                    default: {
+                        primaryColor = Color.fromRGB(255,115,0);
+                        secondaryColor = Color.fromRGB(255, 10, 10);
+                    }
                 }
-                playFireBurst(chest.getLocation(), color);
-                chest.getWorld().playSound(chest.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1, 1);
+                if(time % 5 == 0) {
+                    playFireBurst(chest.getLocation(), primaryColor, secondaryColor);
+                }
             }
         } else {
             this.setCompleted();
@@ -128,12 +137,8 @@ public class ClimaxPhase extends Phase {
     public void finish(){
         super.finish();
         spawnExplosions(chest.getLocation());
+        chest.setType(Material.AIR);
         if(musicTask != null || !musicTask.isCancelled()) musicTask.cancel();
-    }
-
-    public void completeLater(long l){
-        awaitingCompletion = true;
-        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), this::setCompleted, l);
     }
 
     private boolean isEmpty(ItemStack[] content){
@@ -155,18 +160,20 @@ public class ClimaxPhase extends Phase {
         }
     }
 
-    private void playFireBurst(Location location, Color color){
+    private void playFireBurst(Location location, Color primaryColor, Color secondaryColor){
         Location effectLocation = location.add(0,0.5,0);
-        FireBurstEffect.play(CitySystemPlugin.getInstance(), effectLocation.getBlock(), 5, Color.OLIVE, color);
-        chest.getWorld().playSound(effectLocation, Sound.ITEM_FIRECHARGE_USE, 1, 1);
+        FireBurstEffect.play(CitySystemPlugin.getInstance(), effectLocation.getBlock(), 5, primaryColor, secondaryColor);
     }
 
     private void spawnExplosions(Location location){
         BukkitTask explosions = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), () ->{
-            Location loc = location.add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5);
+            double x = random.nextDouble();
+            double y = random.nextDouble();
+            double z = random.nextDouble();
+            Location loc = location.add(x - 0.5, y - 0.5, z - 0.5);
             loc.getWorld().strikeLightning(loc);
             loc.getWorld().createExplosion(loc, 1, false);
-        }, 0L, 4L);
-        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), explosions::cancel, 21L);
+        }, 5L, 5L);
+        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), explosions::cancel, 26L);
     }
 }

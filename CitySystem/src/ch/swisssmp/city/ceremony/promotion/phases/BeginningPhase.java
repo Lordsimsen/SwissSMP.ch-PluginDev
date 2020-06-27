@@ -38,7 +38,7 @@ public class BeginningPhase extends Phase {
         startShaker();
         Player initiator = ceremony.getInitiator();
         initiator.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + "Versammle deine Bürger um den Altar! Die Zeremonie beginnt in einer Stunde!");
-        broadcastTitle("", ChatColor.LIGHT_PURPLE + "Die Zeremonie beginnt in einer Stunde!");
+        broadcastTitle("", ChatColor.LIGHT_PURPLE + "Die Zeremonie beginnt in einer Minecraft-Stunde!");
         for(Player player : Bukkit.getWorlds().get(0).getPlayers()){
             if(Ceremonies.isParticipantAnywhere(player)) continue;
             if(chest.getWorld()!=player.getWorld() || chest.getLocation().distanceSquared(player.getLocation())<10000) continue;

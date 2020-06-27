@@ -15,6 +15,8 @@ public class UtilityCommandsPlugin extends JavaPlugin{
 		pdfFile = getDescription();
 
 		Bukkit.getPluginManager().registerEvents(new TeleportListener(), this);
+		Bukkit.getPluginManager().registerEvents(new InventorySeeListener(), this);
+		Bukkit.getPluginManager().registerEvents(new VanishListener(), this);
 
 		this.getCommand("help").setExecutor(new HelpCommand());
 		this.getCommand("seen").setExecutor(new SeenCommand());
@@ -27,12 +29,17 @@ public class UtilityCommandsPlugin extends JavaPlugin{
 		this.getCommand("rename").setExecutor(new RenameCommand());
 		this.getCommand("stall").setExecutor(new StallCommand());
 		this.getCommand("heal").setExecutor(new HealCommand());
-
 		this.getCommand("clear").setExecutor(new ClearCommand());
-
 		this.getCommand("gamemode").setExecutor(new GamemodeCommand());
 		this.getCommand("home").setExecutor(new HomeCommand());
 		this.getCommand("back").setExecutor(new BackCommand());
+		this.getCommand("god").setExecutor(new GodCommand());
+		this.getCommand("fly").setExecutor(new FlyCommand());
+		this.getCommand("flyspeed").setExecutor(new FlySpeedCommand());
+		this.getCommand("inventorysee").setExecutor(new InventorySeeCommand());
+		this.getCommand("top").setExecutor(new TopCommand());
+		this.getCommand("enderchest").setExecutor(new EnderchestCommand());
+		this.getCommand("vanish").setExecutor(new VanishCommand());
 
 		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}

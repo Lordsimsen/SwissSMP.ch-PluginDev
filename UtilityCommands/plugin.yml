@@ -47,6 +47,24 @@ permissions:
   smp.commands.back:
     description: Erlaubt Verwendung des Befehls /back
     default: op
+  smp.commands.god:
+    description: Erlaubt Verwendung des Befehls /god
+    default: op
+  smp.commands.fly:
+    description: Erlaubt Verwendung des Befehls /fly
+    default: op
+  smp.commands.inventorysee:
+    description: Erlaubt Verwendung des Befehls /inventorysee
+    default: op
+  smp.commands.top:
+    description: Erlaubt Verwendung des Befehls /top
+    default: op
+  smp.commands.enderchest:
+    description: Erlaubt Verwendung des Befehls /enderchest
+    default: op
+  smp.commands.vanish:
+    description: Erlaubt Verwendung des Befehls /vanish
+    default: op
 commands:
   help:
     description: Zeigt die Hilfe an
@@ -84,7 +102,7 @@ commands:
     usage: /choose [ID der Anfrage] [Auswahl]
   gravity:
     description: Stellt Schwerkraft um
-    usage: /gravity (Spieler)
+    usage: /gravity [Spieler]
     permission: smp.commands.gravity
   stall:
     description: Crasht den Server (ja wirklich)
@@ -110,8 +128,43 @@ commands:
     permission: smp.commands.home
   home set:
     description: Erlaubt Setzen des persönlichen Respawnpunktes
-    permission: smp.command.home
+    permission: smp.commands.home
   back:
     description: Erlaubt an Ort vor letzter Teleportation zurückzukehren
     usage: /back
-    permission: smp.command.back
+    permission: smp.commands.back
+  god:
+    description: Stellt die Unverwundbarkeit um.
+    usage: /god [Spieler]
+    permission: smp.commands.god
+  fly:
+    description: Stellt Flugmodus um.
+    usage: /fly [Spieler]
+    permission: smp.commands.fly
+  flyspeed:
+    description: Legt Fluggeschwindigkeit fest.
+    usage: /flyspeed (geschwindigkeit)
+    permission: smp.commands.fly
+  flyspeed default:
+    description: Setzt Fluggeschwindigkeit auf default Wert
+    usage: /flyspeed default
+    permission: smp.commands.fly
+  inventorysee:
+    description: Lässt einen Blick in ein fremdes Inventar zu.
+    usage: /inventorysee (Spieler)
+    permission: smp.commands.inventorysee
+    aliases: [invsee]
+  top:
+    description: Teleportiert einen Spieler auf den höchsten Block an seiner Position.
+    usage: /top [Spieler]
+    permission: smp.commands.top
+  enderchest:
+    description: Lässt einen Blick in eigene/fremde Enderkiste zu.
+    usage: /enderchest [Spieler]
+    permission: smp.commands.enderchest
+    aliases: [ec]
+  vanish:
+    description: Schaltet Sichtbarkeit eines Spielers für andere Spieler um.
+    usage: /vanish
+    permission: smp.commands.vanish
+    aliases: [v]

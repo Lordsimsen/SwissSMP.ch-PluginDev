@@ -46,24 +46,24 @@ public class BurningPhase extends Phase implements Listener {
         ceremony.setRingEffect(new CityCeremonyCircleEffect(chest.getLocation().add(0.5,0.5,0.5)));
         ceremony.getRingEffect().setRadius(5);
         ceremony.getRingEffect().setRingEffectType(CityCeremonyCircleEffect.RingEffectType.WhirlingBlade);
-        for(int i = 1; i <= 10; i++){
-            if(i % 5 == 0) {
-                ceremony.getRingEffect().setColor(i, Color.fromRGB(185, 242, 255));
+        for(int i = 0; i < 5; i++){
+            if((i+1) % 5 == 0) {
+                ceremony.getRingEffect().setColor(i, Color.fromRGB(55, 242, 255));
                 continue;
             }
-            if(i % 2 == 0) {
+            if((i+1) % 2 == 0) {
                 ceremony.getRingEffect().setColor(i, Color.fromRGB(255, 215, 0));
                 continue;
             }
-            if(i % 2 == 1) {
-                ceremony.getRingEffect().setColor(i, Color.fromRGB(192, 192, 192));
+            if((i+1) % 2 == 1) {
+                ceremony.getRingEffect().setColor(i, Color.fromRGB(210, 219, 210));
                 continue;
             }
         }
         ceremony.setRingEffectTask(Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), ceremony.getRingEffect(), 0, 1));
 
         Location location = chest.getLocation().add(ceremony.random.nextInt(2), 0, ceremony.random.nextInt(2));
-        chest.getWorld().strikeLightning(new Location(chest.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location), location.getZ()));
+        chest.getWorld().strikeLightning(new Location(chest.getWorld(), location.getX(), location.add(0,1,0).getY(), location.getZ()));
         ignitionReminder = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), () ->{
             broadcastTitleParticipants("", ChatColor.GOLD + "Entzündet das Feuer!");
         }, 0, 200);
@@ -101,7 +101,6 @@ public class BurningPhase extends Phase implements Listener {
         Location effectLocation = hayPileCorner.add(x,-y,z);
         FireBurstEffect.play(CitySystemPlugin.getInstance(), effectLocation.getBlock()
                 , 5, Color.fromRGB(255, 150, 0), Color.fromRGB(255, 100, 0));
-        chest.getWorld().playSound(effectLocation, Sound.ITEM_FIRECHARGE_USE, 1, 1);
     }
 
     @Override

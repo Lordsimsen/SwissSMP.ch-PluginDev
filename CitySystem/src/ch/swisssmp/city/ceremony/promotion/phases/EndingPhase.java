@@ -1,6 +1,7 @@
 package ch.swisssmp.city.ceremony.promotion.phases;
 
 import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -26,10 +27,12 @@ public class EndingPhase extends Phase {
     public void begin(){
         super.begin();
         this.updateCity();
-        String title = "Gratulation!";
-        String subtitle = "" + ChatColor.LIGHT_PURPLE + ceremony.getCityName() + ChatColor.YELLOW + " ist nun eine " + ChatColor.LIGHT_PURPLE + " (Stufe)";
-        this.announceTitleLong(title, subtitle);
-
+        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () ->{
+            String title = "Gratulation!";
+            String subtitle = "" + ChatColor.LIGHT_PURPLE + ceremony.getCityName() + ChatColor.YELLOW + " ist nun eine " + ChatColor.LIGHT_PURPLE + " (Stufe)";
+            this.announceTitleLong(title, subtitle);
+            this.broadcastMessage(subtitle);
+        }, 20L);
         playMusicFinale();
     }
 
@@ -37,6 +40,10 @@ public class EndingPhase extends Phase {
         for(Player player : ceremony.getPlayers()){
             player.sendTitle(title, subtitle, 10, 120, 30);
         }
+    }
+
+    private void broadcastMessage(String message){
+        Bukkit.getServer().broadcastMessage(CitySystemPlugin.getPrefix() + " " + message);
     }
 
     @Override
