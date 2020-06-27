@@ -1,8 +1,8 @@
-main: ch.swisssmp.utils.UtilityCommands
-version: 1.4
+main: ch.swisssmp.utils.UtilityCommandsPlugin
+version: 5
 api-version: 1.13
 name: UtilityCommands
-author: detig_iii
+authors: [detig_iii,WhiteGuggi]
 description: Steuert allgemeine Befehle
 permissions:
   smp.commands.help:
@@ -20,9 +20,6 @@ permissions:
   smp.commands.hauptstadt:
     description: Erlaubt die Verwendung von /hauptstadt
     default: op
-  smp.commands.list:
-    description: Erlaubt Verwendung des Befehls /list
-    default: true
   smp.commands.more:
     description: Erlaubt Verwendung des Befehls /more
     default: op
@@ -34,6 +31,21 @@ permissions:
     default: op
   smp.commands.stall:
     description: Erlaubt Verwendung des Befehls /stall
+    default: op
+  smp.commands.heal:
+    description: Erlaubt Verwendung des Befehls /heal
+    default: op
+  smp.commands.clear:
+    description: Erlaubt Verwendung der Befehle /clear, /clearinv, /clearinventory
+    default: op
+  smp.commands.gamemode:
+    description: Erlaubt Verwendung des Befehls /gm
+    default: op
+  smp.commands.home:
+    description: Erlaubt Verwendung der Befehle /home und /home set
+    default: op
+  smp.commands.back:
+    description: Erlaubt Verwendung des Befehls /back
     default: op
 commands:
   help:
@@ -67,13 +79,39 @@ commands:
   rename:
     description: Gib dem Item in deiner Hand einen neuen Namen
     usage: /rename [name]
-    permission: smp.commands.rename
   choose:
     description: Entscheide bei einer Anfrage
     usage: /choose [ID der Anfrage] [Auswahl]
   gravity:
     description: Stellt Schwerkraft um
     usage: /gravity (Spieler)
+    permission: smp.commands.gravity
   stall:
     description: Crasht den Server (ja wirklich)
     usage: /stall
+    permission: smp.commands.stall
+  heal:
+    description: Heilt den angegebenen Spieler oder den CommandSender
+    usage: /heal [Spieler]
+    permission: smp.commands.heal
+  clear:
+    description: Entfernt alle Inhalte aus dem Inventar.
+    usage: /clear [Spieler]
+    permission: smp.commands.clear
+    aliases: [clearinv,clearinventory]
+  gamemode:
+    description: Erlaubt gewohntes Wechseln des Gamemode
+    usage: /gm [gamemode]
+    permission: smp.commands.gamemode
+    aliases: [gm]
+  home:
+    description: Erlaubt Teleport zu persönlichem Respawnpunkt
+    usage: /home
+    permission: smp.commands.home
+  home set:
+    description: Erlaubt Setzen des persönlichen Respawnpunktes
+    permission: smp.command.home
+  back:
+    description: Erlaubt an Ort vor letzter Teleportation zurückzukehren
+    usage: /back
+    permission: smp.command.back
