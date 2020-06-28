@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/AddonAbnahme/AddonAbnahme.iml" filepath="$PROJECT_DIR$/AddonAbnahme/AddonAbnahme.iml" />
       <module fileurl="file://$PROJECT_DIR$/AdvancementLoader/AdvancementLoader.iml" filepath="$PROJECT_DIR$/AdvancementLoader/AdvancementLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/AdventureDungeons/AdventureDungeons.iml" filepath="$PROJECT_DIR$/AdventureDungeons/AdventureDungeons.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AfkKicker/AfkKicker.iml" filepath="$PROJECT_DIR$/AfkKicker/AfkKicker.iml" />
       <module fileurl="file://$PROJECT_DIR$/AgeOfEmpiresTaunts/AgeOfEmpiresTaunts.iml" filepath="$PROJECT_DIR$/AgeOfEmpiresTaunts/AgeOfEmpiresTaunts.iml" />
       <module fileurl="file://$PROJECT_DIR$/Algorithms/Algorithms.iml" filepath="$PROJECT_DIR$/Algorithms/Algorithms.iml" />
       <module fileurl="file://$PROJECT_DIR$/AntiGuestExtension/AntiGuestExtension.iml" filepath="$PROJECT_DIR$/AntiGuestExtension/AntiGuestExtension.iml" />
@@ -105,7 +106,6 @@
       <module fileurl="file://$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" filepath="$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" />
       <module fileurl="file://$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" filepath="$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" />
       <module fileurl="file://$PROJECT_DIR$/Warehouses/Warehouses.iml" filepath="$PROJECT_DIR$/Warehouses/Warehouses.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Warps/Warps.iml" filepath="$PROJECT_DIR$/Warps/Warps.iml" />
       <module fileurl="file://$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" filepath="$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" filepath="$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" filepath="$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" />
