@@ -72,6 +72,7 @@ public class EventListener implements Listener {
 	private void onTributeAnnounce(PlayerInteractEvent event){
 		if(event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 		Player player = event.getPlayer();
+		if(!player.isOp()) return; //Todo remove when done
 		SigilRingInfo info = SigilRingInfo.get(event.getItem());
 //        if(info == null) return;
 //        if(!info.getOwner().getUniqueId().equals(player.getUniqueId())) {

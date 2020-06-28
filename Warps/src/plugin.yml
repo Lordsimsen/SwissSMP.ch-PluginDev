@@ -1,0 +1,8 @@
+main: ch.swisssmp.warps.WarpsPlugin
+version: 1
+api-version: 1.13
+name: Warps
+author: WhiteGuggi
+description: Erlaubt erstellen und nutzen von Warppunkten
+permissions:
+commands:
