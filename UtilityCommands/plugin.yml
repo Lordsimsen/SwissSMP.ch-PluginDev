@@ -69,6 +69,9 @@ permissions:
   smp.commands.broadcast:
     description: Erlaubt Verwendung des Befehls /broadcast
     default: op
+  smp.commands.hat:
+    description: Erlaubt Verwendung des Befehls /hat
+    default: op
 commands:
   help:
     description: Zeigt die Hilfe an
@@ -176,3 +179,7 @@ commands:
     description: Sendet eine Nachricht an alle Spieler
     usage: /broadcast <Nachricht>
     permission: smp.commands.broadcast
+  hat:
+    description: Erlaubt tragen eines Blockes als Helm
+    usage: /hat
+    permission: smp.commands.hat

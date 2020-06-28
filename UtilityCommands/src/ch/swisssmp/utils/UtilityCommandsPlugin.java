@@ -41,6 +41,7 @@ public class UtilityCommandsPlugin extends JavaPlugin{
 		this.getCommand("enderchest").setExecutor(new EnderchestCommand());
 		this.getCommand("vanish").setExecutor(new VanishCommand());
 		this.getCommand("broadcast").setExecutor(new BroadcastCommand());
+		this.getCommand("hat").setExecutor(new HatCommand());
 
 		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
 	}

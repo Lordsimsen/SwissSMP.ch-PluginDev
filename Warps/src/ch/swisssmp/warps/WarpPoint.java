@@ -24,4 +24,5 @@ public class WarpPoint {
     public static WarpPoint setWarp(String name, Location location){
         return new WarpPoint(name, location);
     }
+
 }
