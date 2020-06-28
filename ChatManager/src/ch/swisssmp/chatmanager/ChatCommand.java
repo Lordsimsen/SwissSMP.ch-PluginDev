@@ -14,7 +14,7 @@ import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import net.md_5.bungee.api.ChatColor;
 
-public class PlayerChat implements CommandExecutor {
+public class ChatCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -36,15 +36,9 @@ public class PlayerChat implements CommandExecutor {
 			for(Player onlinePlayer : Bukkit.getOnlinePlayers()){
 				onlinePlayer.sendMessage(message);
 			}
-			String player_uuid = name;
 			String world = "web";
 			args[0] = "";
-			DataSource.getResponse(ChatManager.getInstance(), "chat.php", new String[]{
-				"player_uuid="+player_uuid,
-				"name="+name,
-				"world="+world,
-				"message="+URLEncoder.encode(rawMessage)
-			});
+			ChatManager.log(null, name, world, rawMessage);
 		}
 		else{
 			message = String.join(" ", messageParts);
