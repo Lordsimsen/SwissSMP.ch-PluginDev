@@ -36,6 +36,8 @@ public class MaterialUtil {
             case JUNGLE_WALL_SIGN:
             case OAK_WALL_SIGN:
             case SPRUCE_WALL_SIGN:
+            case WARPED_WALL_SIGN:
+            case CRIMSON_WALL_SIGN:
                 return true;
             default:
                 return false;
@@ -51,6 +53,9 @@ public class MaterialUtil {
             case OAK_BUTTON:
             case SPRUCE_BUTTON:
             case STONE_BUTTON:
+            case CRIMSON_BUTTON:
+            case POLISHED_BLACKSTONE_BUTTON:
+            case WARPED_BUTTON:
                 return true;
             default:
                 return false;
@@ -99,6 +104,8 @@ public class MaterialUtil {
             case JUNGLE_TRAPDOOR:
             case OAK_TRAPDOOR:
             case SPRUCE_TRAPDOOR:
+            case CRIMSON_TRAPDOOR:
+            case WARPED_TRAPDOOR:
                 return true;
             default:
                 return false;
