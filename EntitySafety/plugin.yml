@@ -1,5 +1,5 @@
 main: ch.swisssmp.entitysafety.EntitySafetyPlugin
-version: 1.0
+version: 2
 api-version: 1.13
 name: EntitySafety
 author: detig_iii

@@ -2,6 +2,9 @@ package ch.swisssmp.ageofempires;
 
 import java.util.Optional;
 
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
+import ch.swisssmp.text.RawText;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.SoundCategory;
@@ -13,11 +16,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.util.Vector;
 
 import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
-import ch.swisssmp.text.RawTextObject;
-import ch.swisssmp.text.properties.ColorProperty;
-import ch.swisssmp.text.properties.ColorProperty.Color;
-import ch.swisssmp.text.properties.ExtraProperty;
-import ch.swisssmp.text.properties.HoverEventProperty;
 
 public class EventListener implements Listener {
 	
@@ -37,18 +35,23 @@ public class EventListener implements Listener {
 		String soundId = taunt.getAudio();
 
 		event.setCancelled(true);
-		RawTextObject message = new RawTextObject("["+event.getPlayer().getDisplayName()+ChatColor.RESET+"] ");
-		RawTextObject tooltippedPart = new RawTextObject(taunt.getKey());
-		RawTextObject tooltipMessage = new RawTextObject(taunt.getDisplay(), new ColorProperty(Color.YELLOW));
-		tooltippedPart.add(new HoverEventProperty(tooltipMessage));
-		message.add(new ExtraProperty(tooltippedPart));
+		RawBase message = new RawText(
+				new RawText("["),
+				new RawText(event.getPlayer().getDisplayName())
+					.hoverEvent(HoverEvent.showEntity(event.getPlayer())),
+				new RawText("] "),
+				new RawText(taunt.getKey()).hoverEvent(HoverEvent.showText(
+						new RawText(taunt.getDisplay())
+							.color(ChatColor.YELLOW)
+				))
+		);
 		
 		for(Player player : Bukkit.getOnlinePlayers()) {
 			TauntSetting setting = PlayerSettings.get(player);
 			if(setting==TauntSetting.ALLOW) {
 				player.playSound(player.getEyeLocation().add(new Vector(0,2,0)), soundId, SoundCategory.VOICE, 2f, 1);
 			}
-			player.spigot().sendMessage(message.toSpigot());
+			player.spigot().sendMessage(message.spigot());
 		}
 	}
 }
