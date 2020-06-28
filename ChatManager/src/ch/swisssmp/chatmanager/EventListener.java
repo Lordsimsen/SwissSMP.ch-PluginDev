@@ -3,6 +3,7 @@ package ch.swisssmp.chatmanager;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,8 +34,13 @@ public class EventListener implements Listener {
         ChatManager.log(playerUid, name, world, message);
     }
 
-    @EventHandler(ignoreCancelled=true,priority= EventPriority.LOWEST)
+    @EventHandler
     private void onChat(AsyncPlayerChatEvent event){
+        event.setFormat(ChatColor.RESET+"[%1$s"+ChatColor.RESET+"] %2$s");
+    }
+
+    @EventHandler(ignoreCancelled=true,priority= EventPriority.MONITOR)
+    private void logChat(AsyncPlayerChatEvent event){
         UUID playerUid = event.getPlayer().getUniqueId();
         String name = event.getPlayer().getName();
         String world = event.getPlayer().getWorld().getName();
@@ -48,17 +54,7 @@ public class EventListener implements Listener {
         String[] alertCommands = new String[]{
                 "/msg ",
                 "/w ",
-                "/t ",
-                "/pm ",
-                "/emsg ",
-                "/epm ",
                 "/tell ",
-                "/etell ",
-                "/whisper ",
-                "/ewhisper ",
-                "/m ",
-                "/r ",
-                "/a "
         };
         boolean isAlertCommand = false;
         for(String s : alertCommands){
