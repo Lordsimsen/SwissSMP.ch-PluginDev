@@ -80,6 +80,7 @@ public class AfkKicker {
         tracker.setAfk(afk);
         tracker.setWarned(false);
         if(afk){
+            tracker.setTimeout(Math.max(idleTimeout, tracker.getTimeout()));
             tracker.setAfkLocation(player.getLocation());
             announceAfk(player);
         }

@@ -25,6 +25,10 @@ public class PlayerTracker {
         return timeout;
     }
 
+    public void setTimeout(long timeout){
+        this.timeout = timeout;
+    }
+
     public boolean isAfk(){
         return afk;
     }

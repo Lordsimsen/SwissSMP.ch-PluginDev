@@ -22,3 +22,4 @@ commands:
   afk:
     description: Schaltet den AFK-Status um
     usage: "/<command>"
+    permission: afk.command
