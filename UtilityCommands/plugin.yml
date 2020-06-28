@@ -4,6 +4,7 @@ api-version: 1.13
 name: UtilityCommands
 authors: [detig_iii,WhiteGuggi]
 description: Steuert allgemeine Befehle
+depend: [SwissSMPUtils,WebCore,RawTextBuilderAPI]
 permissions:
   smp.commands.help:
     description: Erlaubt Verwendung des Befehls /help
@@ -64,6 +65,9 @@ permissions:
     default: op
   smp.commands.vanish:
     description: Erlaubt Verwendung des Befehls /vanish
+    default: op
+  smp.commands.broadcast:
+    description: Erlaubt Verwendung des Befehls /broadcast
     default: op
 commands:
   help:
@@ -168,3 +172,7 @@ commands:
     usage: /vanish
     permission: smp.commands.vanish
     aliases: [v]
+  broadcast:
+    description: Sendet eine Nachricht an alle Spieler
+    usage: /broadcast <Nachricht>
+    permission: smp.commands.broadcast
