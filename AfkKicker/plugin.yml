@@ -1,0 +1,24 @@
+main: ch.swisssmp.afkcontrol.AfkKickerPlugin
+version: 1
+api-version: 1.13
+name: AfkKicker
+author: detig_iii
+depend: [SwissSMPUtils]
+description: Kickt Spieler, wenn diese zu lange untätig sind
+permissions:
+  afk.command:
+    description: Erlaubt Verwendung des /afk Befehls
+    default: op
+  afk.auto.excempt:
+    description: Verhindert, dass ein Spieler afk wird
+    default: op
+  afk.kick.observe:
+    description: Zeigt, wenn ein Spieler wegen Inaktivität gekickt wird
+    default: op
+  afk.kick.excempt:
+    description: Verhindert, dass ein Spieler gekickt wird
+    default: op
+commands:
+  afk:
+    description: Schaltet den AFK-Status um
+    usage: "/<command>"
