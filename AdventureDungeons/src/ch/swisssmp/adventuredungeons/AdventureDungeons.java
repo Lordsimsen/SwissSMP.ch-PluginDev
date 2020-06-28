@@ -7,44 +7,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class AdventureDungeons extends JavaPlugin{
-	private static Logger logger;
-	private static PluginDescriptionFile pdfFile;
-	private static AdventureDungeons plugin;
-	
-	@Override
-	public void onEnable() {
-		plugin = this;
-		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		
-		PlayerCommand playerCommand = new PlayerCommand();
-		this.getCommand("join").setExecutor(playerCommand);
-		this.getCommand("leave").setExecutor(playerCommand);
-		this.getCommand("refuse").setExecutor(playerCommand);
-		this.getCommand("invite").setExecutor(playerCommand);
-		this.getCommand("ready").setExecutor(playerCommand);
-		DungeonCommand dungeonCommand = new DungeonCommand();
-		this.getCommand("dungeon").setExecutor(dungeonCommand);
-		this.getCommand("dungeons").setExecutor(dungeonCommand);
-		
-		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
-		
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
-	}
+public class AdventureDungeons {
 
-	@Override
-	public void onDisable() {
-		for(DungeonInstance dungeonInstance : DungeonInstance.getAll()){
-			dungeonInstance.delete(false);
-		}
-		HandlerList.unregisterAll(this);
-		Bukkit.getScheduler().cancelTasks(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
-	}
-
-    public static AdventureDungeons getInstance(){
-    	return plugin;
-    }
 }

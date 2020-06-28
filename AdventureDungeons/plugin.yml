@@ -1,4 +1,4 @@
-main: ch.swisssmp.adventuredungeons.AdventureDungeons
+main: ch.swisssmp.adventuredungeons.AdventureDungeonsPlugin
 version: 4.2
 api-version: 1.13
 name: AdventureDungeons
