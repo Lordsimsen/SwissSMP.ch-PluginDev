@@ -106,6 +106,7 @@
       <module fileurl="file://$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" filepath="$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" />
       <module fileurl="file://$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" filepath="$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" />
       <module fileurl="file://$PROJECT_DIR$/Warehouses/Warehouses.iml" filepath="$PROJECT_DIR$/Warehouses/Warehouses.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Warps/Warps.iml" filepath="$PROJECT_DIR$/Warps/Warps.iml" />
       <module fileurl="file://$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" filepath="$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" filepath="$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" filepath="$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" />

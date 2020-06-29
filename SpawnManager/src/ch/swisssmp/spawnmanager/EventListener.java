@@ -103,6 +103,7 @@ public class EventListener implements Listener {
 		Block block = event.getClickedBlock();
 		if(!(block.getBlockData() instanceof Bed)) return;
 		World world = block.getWorld();
+		if(world.getEnvironment() != World.Environment.NORMAL) return;
 		long time = world.getTime();
 		boolean isDay = time < 12541 && !world.hasStorm();
 		Location previousBed = event.getPlayer().getBedSpawnLocation();

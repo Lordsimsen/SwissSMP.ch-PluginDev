@@ -35,6 +35,9 @@ public class BackCommand implements CommandExecutor {
         }
         Player player = (Player) sender;
         Location location = getBackLocation(player);
+        if(location == null){
+            player.sendMessage(ChatColor.RED + "Es gibt keinen Punkt an den du zurückkehren könntest.");
+        }
         World world = location.getWorld();
         if(world != null) {
             player.teleport(location);
