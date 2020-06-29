@@ -25,6 +25,8 @@ public class HealCommand implements CommandExecutor {
             return true;
         }
         player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        player.setFoodLevel(20);
+        player.setSaturation(20f);
         return true;
     }
 }

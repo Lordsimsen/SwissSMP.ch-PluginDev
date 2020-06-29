@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.UtilityCommandsPlugin
-version: 5
+version: 6
 api-version: 1.13
 name: UtilityCommands
 authors: [detig_iii,WhiteGuggi]
