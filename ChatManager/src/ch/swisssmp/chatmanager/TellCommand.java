@@ -1,5 +1,8 @@
 package ch.swisssmp.chatmanager;
 
+import ch.swisssmp.text.ClickEvent;
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
 import ch.swisssmp.text.RawText;
 import ch.swisssmp.utils.TargetSelector;
 import org.bukkit.Bukkit;
@@ -27,6 +30,13 @@ public class TellCommand implements TabExecutor {
                 : sender instanceof Entity && ((Entity) sender).getCustomName()!=null
                     ? ((Entity) sender).getCustomName()
                     : sender.getName();
+        RawText senderText = new RawText(senderName);
+        RawBase meText = new RawText("ich").color(ChatColor.GRAY);
+        if(sender instanceof Player){
+            Player senderPlayer = (Player) sender;
+            senderText.hoverEvent(HoverEvent.showText(getNameHoverText(new RawText(senderPlayer.getDisplayName()))))
+                  .clickEvent(ClickEvent.suggestCommand("/tell "+senderPlayer.getName()+" "));
+        }
         String worldName = (sender instanceof Entity)
                 ? ((Entity) sender).getWorld().getName()
                 : sender instanceof BlockCommandSender
@@ -42,7 +52,7 @@ public class TellCommand implements TabExecutor {
 
             Collection<Player> targets = TargetSelector.queryPlayers(sender, target);
             for(Player recipient : targets){
-                RawText formattedMessage = getFormattedMessage(senderName, ChatColor.GRAY+"ich", message);
+                RawText formattedMessage = getFormattedMessage(senderText, meText, message);
                 recipient.spigot().sendMessage(formattedMessage.spigot());
                 ChatManager.log(senderUid, senderName, recipient.getName(), worldName, message);
                 if(senderUid==null) continue;
@@ -58,8 +68,12 @@ public class TellCommand implements TabExecutor {
             return true;
         }
 
-        RawText recipientMessage = getFormattedMessage(senderName, ChatColor.GRAY+"ich", message);
-        RawText senderMessage = getFormattedMessage(ChatColor.GRAY+"ich", recipient.getDisplayName(), message);
+        RawBase recipientText = new RawText(recipient.getDisplayName())
+                .hoverEvent(HoverEvent.showText(getNameHoverText(new RawText(recipient.getDisplayName()))))
+                .clickEvent(ClickEvent.suggestCommand("/tell "+recipient.getName()+" "));
+
+        RawText recipientMessage = getFormattedMessage(senderText, meText, message);
+        RawText senderMessage = getFormattedMessage(meText, recipientText, message);
         sender.spigot().sendMessage(senderMessage.spigot());
         recipient.spigot().sendMessage(recipientMessage.spigot());
         ChatManager.log(senderUid, senderName, recipient.getName(), worldName, message);
@@ -80,13 +94,21 @@ public class TellCommand implements TabExecutor {
         return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
     }
 
-    public static RawText getFormattedMessage(String sender, String recipient, String message){
+    public static RawText getFormattedMessage(RawBase sender, RawBase recipient, String message){
         return new RawText(
                 new RawText("[").color(ChatColor.DARK_GRAY),
-                new RawText(sender),
+                sender,
                 new RawText(" >> ").color(ChatColor.DARK_GRAY),
-                new RawText(recipient),
+                recipient,
                 new RawText("] ").color(ChatColor.DARK_GRAY),
                 new RawText(message).color(ChatColor.GOLD));
+    }
+
+    private static RawText getNameHoverText(RawBase name){
+        return new RawText(
+                new RawText("Klicke, um\n").color(ChatColor.GRAY),
+                name,
+                new RawText("\nzu schreiben").color(ChatColor.GRAY)
+        );
     }
 }
