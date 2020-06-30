@@ -1,5 +1,5 @@
 main: ch.swisssmp.world.WorldManagerPlugin
-version: 5
+version: 7
 api-version: 1.13
 name: WorldManager
 author: detig_iii

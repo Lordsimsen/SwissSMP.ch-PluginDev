@@ -93,9 +93,25 @@ public class WorldLoader {
         result.environment(Environment.valueOf(dataSection.getString("environment")));
         result.generateStructures(dataSection.getBoolean("generate_structures"));
         result.seed(dataSection.getLong("seed"));
-        WorldType worldType = WorldType.valueOf(dataSection.getString("world_type"));
+        WorldType worldType = getWorldType(dataSection.getString("world_type"));
         result.type(worldType);
         return result;
+    }
+
+    private static WorldType getWorldType(String s){
+        if(s==null) return WorldType.NORMAL;
+        try{
+            return WorldType.valueOf(s);
+        }
+        catch(Exception ignored){
+            switch(s.toUpperCase()){
+                case "BUFFET": return WorldType.FLAT;
+                case "LARGE_BIOMES": return WorldType.LARGE_BIOMES;
+                case "AMPLIFIED": return WorldType.AMPLIFIED;
+                case "NORMAL":
+                default: return WorldType.NORMAL;
+            }
+        }
     }
 
     /**

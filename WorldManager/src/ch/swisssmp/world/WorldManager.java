@@ -49,6 +49,7 @@ public class WorldManager {
 				WorldManager.loadWorld(file.getName());
 			}
 			catch(Exception e){
+				e.printStackTrace();
 				//Skip this World Directory (there is no settings.yml inside to tell WorldManager how to load the World)
 			}
 		}
@@ -59,14 +60,14 @@ public class WorldManager {
 	 * @param worldName - The name of the World
 	 * @return <code>World</code> if successfully loaded;
 	 *         <code>null</code> otherwise
-	 * @throws NullPointerException If settings.yml within World Directory is missing
 	 */
-	public static World loadWorld(String worldName) throws NullPointerException{
+	public static World loadWorld(String worldName){
 		Bukkit.getLogger().info("[WorldManager] Lade Welt "+worldName);
 		//Load World Settings
 		YamlConfiguration yamlConfiguration = WorldManager.getWorldSettings(worldName);
 		if(yamlConfiguration==null || !yamlConfiguration.contains("world")){
-			throw new NullPointerException("[WorldManager] Kann Welt "+worldName+" nicht laden, fehlende oder ungültige Konfigurationsdatei settings.yml im Welt-Ordner.");
+			Bukkit.getLogger().warning("[WorldManager] Kann Welt "+worldName+" nicht laden, fehlende oder ungültige Konfigurationsdatei settings.yml im Welt-Ordner.");
+			return null;
 		}
 		if(yamlConfiguration.contains("load") && !yamlConfiguration.getBoolean("load")){
 			Bukkit.unloadWorld(worldName, true);
@@ -83,7 +84,11 @@ public class WorldManager {
 	 */
 	public static boolean unloadWorld(String worldName){
 		Bukkit.getLogger().info("[WorldManager] Deaktiviere Welt "+worldName);
-		if(Bukkit.unloadWorld(worldName, false)){
+		World world = Bukkit.getWorld(worldName);
+		if(world==null) return true;
+		if(Bukkit.unloadWorld(world, false)){
+			File sessionLockFile = new File(world.getWorldFolder(), "session.lock");
+			if(sessionLockFile.exists()) sessionLockFile.delete();
 			DataSource.getResponse(WorldManagerPlugin.getInstance(), "unload.php", new String[]{
 					"world="+URLEncoder.encode(worldName)
 			});
