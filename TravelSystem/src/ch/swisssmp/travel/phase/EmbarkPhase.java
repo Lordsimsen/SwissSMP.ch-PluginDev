@@ -57,7 +57,12 @@ public class EmbarkPhase extends Phase {
 		String localWorldName = this.getJourney().getTravelWorldInstanceName();
 		observer = WorldTransferManager.downloadWorld(Bukkit.getConsoleSender(), travelWorldName, localWorldName);
 		observer.addOnFinishListener(()->{
-			this.world = WorldManager.loadWorld(localWorldName);
+			World world = WorldManager.loadWorld(localWorldName);
+			if(world==null){
+				this.setCancelled();
+				return;
+			}
+			this.world = world;
 			NPCs.unpack(world);
 			this.getJourney().setWorldInstance(world);
 			if(world==null){
@@ -77,12 +82,6 @@ public class EmbarkPhase extends Phase {
 				setCompleted();
 			}, 2l);
 		});
-	}
-
-	@Override
-	public void finish() {
-
-		
 	}
 
 	@Override

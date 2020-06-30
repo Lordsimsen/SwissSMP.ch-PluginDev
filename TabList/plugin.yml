@@ -1,5 +1,5 @@
-main: ch.swisssmp.tablist.TabList
-version: 1.4
+main: ch.swisssmp.tablist.TabListPlugin
+version: 3
 api-version: 1.13
 name: TabList
 author: detig_iii

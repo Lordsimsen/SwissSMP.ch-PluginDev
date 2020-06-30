@@ -60,7 +60,7 @@ public class BlockUtil {
 		while(remaining>0){
 			remaining--;
 			if(MaterialUtil.isIntermediateFloor(current.getType())) return current;
-			if(MaterialUtil.getLiftSpeed(current.getType())>0) return current;
+			if(MaterialUtil.isGroundFloor(current.getType())) return current;
 			if(!MaterialUtil.isAllowedInShaft(current.getType())){
 				Debug.Log("Invalid block found in shaft");
 				return null;
@@ -85,7 +85,7 @@ public class BlockUtil {
 		int remaining = 256;
 		while(remaining>0){
 			remaining--;
-			if(MaterialUtil.getLiftSpeed(current.getType())>0) return current;
+			if(MaterialUtil.isGroundFloor(current.getType())) return current;
 			if(!MaterialUtil.isAllowedInShaft(current.getType())){
 				Debug.Log("Invalid block found in shaft: "+current.getType());
 				return null;

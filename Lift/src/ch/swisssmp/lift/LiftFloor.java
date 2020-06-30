@@ -2,8 +2,10 @@ package ch.swisssmp.lift;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 
 public abstract class LiftFloor {
@@ -90,15 +92,19 @@ public abstract class LiftFloor {
 	}
 	
 	public void updateFloorSign(){
-		if(!(this.floorSign.getState() instanceof Sign)) return;
+		BlockState floorSignState = floorSign.getState();
+		if(!(floorSignState instanceof Sign)){
+			return;
+		}
 		LiftFloor targetFloor = instance.getFloor(this.targetFloor);
 		
-		Sign sign = (Sign) this.floorSign.getState();
+		Sign sign = (Sign) floorSignState;
+		sign.setEditable(true);
 		sign.setLine(0, getName());
 		sign.setLine(1, "--*--");
 		sign.setLine(2, "Ziel:" + makeNumberInvisible(this.targetFloor)+" ");
 		sign.setLine(3, targetFloor.getName());
-		sign.update();
+		sign.update(false,false);
 	}
 	
 	public void setTargetFloor(int targetFloor){

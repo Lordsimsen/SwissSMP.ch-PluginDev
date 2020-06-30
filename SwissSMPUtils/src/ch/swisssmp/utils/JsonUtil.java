@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -142,12 +143,15 @@ public class JsonUtil {
     }
 
     public static void set(String key, Block block, JsonObject json){
-        JsonObject locationData = new JsonObject();
-        locationData.addProperty("x", block.getX());
-        locationData.addProperty("y", block.getY());
-        locationData.addProperty("z", block.getZ());
+        json.add(key, toJsonObject(block));
+    }
 
-        json.add(key, locationData);
+    public static JsonObject toJsonObject(Block b){
+        JsonObject json = new JsonObject();
+        json.addProperty("x", b.getX());
+        json.addProperty("y", b.getY());
+        json.addProperty("z", b.getZ());
+        return json;
     }
 
     public static Location getLocation(World world, JsonObject json){
@@ -172,14 +176,17 @@ public class JsonUtil {
     }
 
     public static void set(String key, Location location, JsonObject json){
-        JsonObject locationData = new JsonObject();
-        locationData.addProperty("x", location.getX());
-        locationData.addProperty("y", location.getY());
-        locationData.addProperty("z", location.getZ());
-        locationData.addProperty("pitch", location.getPitch());
-        locationData.addProperty("yaw", location.getYaw());
+        json.add(key, toJsonObject(location));
+    }
 
-        json.add(key, locationData);
+    public static JsonObject toJsonObject(Location l){
+        JsonObject json = new JsonObject();
+        json.addProperty("x", l.getX());
+        json.addProperty("y", l.getY());
+        json.addProperty("z", l.getZ());
+        json.addProperty("yaw", l.getYaw());
+        json.addProperty("pitch", l.getPitch());
+        return json;
     }
 
     public static Position getPosition(JsonObject json){
@@ -204,14 +211,17 @@ public class JsonUtil {
     }
 
     public static void set(String key, Position position, JsonObject json){
-        JsonObject positionData = new JsonObject();
-        positionData.addProperty("x", position.getX());
-        positionData.addProperty("y", position.getY());
-        positionData.addProperty("z", position.getZ());
-        positionData.addProperty("pitch", position.getPitch());
-        positionData.addProperty("yaw", position.getYaw());
+        json.add(key, toJsonObject(position));
+    }
 
-        json.add(key, positionData);
+    public static JsonObject toJsonObject(Position p){
+        JsonObject json = new JsonObject();
+        json.addProperty("x", p.getX());
+        json.addProperty("y", p.getY());
+        json.addProperty("z", p.getZ());
+        json.addProperty("yaw", p.getYaw());
+        json.addProperty("pitch", p.getPitch());
+        return json;
     }
 
     public static Vector getVector(JsonObject json){
@@ -231,11 +241,43 @@ public class JsonUtil {
     }
 
     public static void set(String key, Vector vector, JsonObject json){
-        JsonObject positionData = new JsonObject();
-        positionData.addProperty("x", vector.getX());
-        positionData.addProperty("y", vector.getY());
-        positionData.addProperty("z", vector.getZ());
-        json.add(key, positionData);
+        json.add(key, toJsonObject(vector));
+    }
+
+    public static JsonObject toJsonObject(Vector v){
+        JsonObject json = new JsonObject();
+        json.addProperty("x", v.getX());
+        json.addProperty("y", v.getY());
+        json.addProperty("z", v.getZ());
+        return json;
+    }
+
+    public static BlockVector getBlockVector(JsonObject json){
+        if(json==null || !json.isJsonObject()) return null;
+        int x = getInt("x", json);
+        int y = getInt("y", json);
+        int z = getInt("z", json);
+
+        return new BlockVector(x, y, z);
+    }
+
+    public static BlockVector getBlockVector(String key, JsonObject json){
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        if(element==null || !element.isJsonObject()) return null;
+        JsonObject locationData = element.getAsJsonObject();
+        return getBlockVector(locationData);
+    }
+
+    public static void set(String key, BlockVector vector, JsonObject json){
+        json.add(key, toJsonObject(vector));
+    }
+
+    public static JsonObject toJsonObject(BlockVector v){
+        JsonObject json = new JsonObject();
+        json.addProperty("x", v.getBlockX());
+        json.addProperty("y", v.getBlockY());
+        json.addProperty("z", v.getBlockZ());
+        return json;
     }
 
     public static ItemStack getItemStack(String key, JsonObject json){

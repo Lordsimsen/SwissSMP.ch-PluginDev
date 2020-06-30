@@ -69,7 +69,7 @@ public class LevelSelectionView implements Listener {
         if (itemStack == null || itemStack.getType() == Material.AIR) return;
         if(!this.arena.isGamePreparing()) {
             Level level = new Level(event.getSlot() + 1);
-            if(!arena.canPlayLevel(level, player)) { // && !player.hasPermission("zvierigame.admin")
+            if(!arena.canPlayLevel(level, player) && !player.hasPermission("zvierigame.admin")) {
                 SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Du hast dieses Level noch nicht freigeschaltet!");
                 return;
             }

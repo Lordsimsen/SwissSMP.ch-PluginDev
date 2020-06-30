@@ -1,112 +1,28 @@
 main: ch.swisssmp.zones.ZonesPlugin
-version: 1.3
+version: 1.1
 api-version: 1.13
 name: Zones
-depend: [WorldGuard,NPCs,CustomItems,CustomEditorAPI,WorldManager]
+description: Ermöglicht Verwaltung von Zonen aufgrund von WorldGuard-Regionen
+depend: [WorldEdit,WorldGuard,CustomEditorAPI,ResourcepackManager,SwissSMPUtils,CustomItems,WorldManager]
 permissions:
   zones.admin:
-    description: Erlaubt die Administration des Plugins
+    description: Erlaubt Verwaltung des Plugins
     default: op
-    children:
-      zones.drawingboard.*: true
-      zones.genericzone.*: true
-      zones.projectzone.*: true
-      zones.anticreeperzone.*: true
-      zones.antihostilezone.*: true
-      zones.inversionzone.*: true
-      
-  zones.genericzone.*:
-    description: Erlaubt vollständige Verwendung von generischen Zonenplänen
-    default: op
-    children:
-      zones.genericzone.use: true
-  zones.genericzone.use:
-    description: Erlaubt Verwendung von generischen Zonenplänen
-    default: op
-    
-  zones.drawingboard.*:
-    description: Erlaubt vollständige Verwendung von Zeichenbrettern
-    default: op
-    children:
-      zones.drawingboard.craft: true
-      zones.drawingboard.use: true
-  zones.drawingboard.craft:
-    description: Erlaubt Crafting von Zeichenbrettern
-    default: op
-  zones.drawingboard.use:
-    description: Erlaubt Verwendung von Zeichenbrettern
-    default: op
-    
-  zones.projectzone.*:
-    description: Erlaubt vollständige Verwendung von Projekt-Zonenplänen
-    default: op
-    children:
-      zones.projectzone.craft: true
-      zones.projectzone.use: true
-  zones.projectzone.craft:
-    description: Erlaubt Crafting von Projekt-Zonenplänen
-    default: op
-  zones.projectzone.use:
-    description: Erlaubt Verwendung von Projekt-Zonenplänen
-    default: op
-    
-  zones.anticreeperzone.*:
-    description: Erlaubt vollständige Verwendung von Anticreeper-Zonenplänen
-    default: op
-    children:
-      zones.anticreeperzone.craft: true
-      zones.anticreeperzone.use: true
-  zones.anticreeperzone.craft:
-    description: Erlaubt Crafting von Anticreeper-Zonenplänen
-    default: op
-  zones.anticreeperzone.use:
-    description: Erlaubt Verwendung von Anticreeper-Zonenplänen
-    default: op
-    
-  zones.antihostilezone.*:
-    description: Erlaubt vollständige Verwendung von Antihostile-Zonenplänen
-    default: op
-    children:
-      zones.antihostilezone.craft: true
-      zones.antihostilezone.use: true
-  zones.antihostilezone.craft:
-    description: Erlaubt Crafting von Antihostile-Zonenplänen
-    default: op
-  zones.antihostilezone.use:
-    description: Erlaubt Verwendung von Antihostile-Zonenplänen
-    default: op
-    
-  zones.inversionzone.*:
-    description: Erlaubt vollständige Verwendung von Umkehr-Zonenplänen
-    default: op
-    children:
-      zones.inversionzone.craft: true
-      zones.inversionzone.use: true
-  zones.inversionzone.craft:
-    description: Erlaubt Crafting von Umkehr-Zonenplänen
-    default: op
-  zones.inversionzone.use:
-    description: Erlaubt Verwendung von Umkehr-Zonenplänen
-    default: op
-    
 commands:
-  zoneedit:
-    description: Hauptbefehl zur Administration von Zonen
-    usage: "/<command> <subcommand> [Argumente]"
+  zones:
+    description: Zeigt alle Zonen in der aktuellen Welt
+    usage: "/<command>"
     permission: zones.admin
-  zoneedit item:
-    description: Generiert einen Zonenplan für die angegebene Zone
-    usage: "/<command> <subcommand> [Region-ID]"
-    permission: zones.admin
-  zoneedit start:
-    description: Startet den Editor für eine Zone
-    usage: "/<command> <subcommand> [Region-ID] (Typ=CUBOID)"
-    permission: zones.admin
-  zoneedit end:
-    description: Beendet den Editor und speichert die Änderungen
+  zone:
+    description: Basisbefehl zur Verwaltung von Zonen
     usage: "/<command> <subcommand>"
     permission: zones.admin
-  zoneedit cancel:
-    description: Bricht den Editor ab
-    usage: "/<command> <subcommand>"
+    aliases: [z]
+  zone create:
+    description: Erstellt eine Zone in der aktuellen Welt
+    usage: "/<command> create [Typ] [Name]"
+    permission: zones.admin
+  zone import:
+    description: Importiert eine WorldGuard-Region als Zone in der aktuellen Welt
+    usage: "/<command> import [Id] [Name]"
     permission: zones.admin

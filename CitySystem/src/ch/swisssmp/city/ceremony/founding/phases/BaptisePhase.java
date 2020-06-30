@@ -3,6 +3,10 @@ package ch.swisssmp.city.ceremony.founding.phases;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.swisssmp.ceremonies.ITributeListener;
+import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.ceremonies.effects.FireBurstEffect;
+import ch.swisssmp.ceremonies.effects.LightParticles;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -14,16 +18,12 @@ import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
-import ch.swisssmp.city.ceremony.ISacrificeListener;
-import ch.swisssmp.city.ceremony.Phase;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
-import ch.swisssmp.city.ceremony.founding.FireBurstEffect;
-import ch.swisssmp.city.ceremony.founding.LightParticles;
 import ch.swisssmp.city.ceremony.founding.RingPresentation;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.Targetable;
 
-public class BaptisePhase extends Phase implements ISacrificeListener {
+public class BaptisePhase extends Phase implements ITributeListener {
 	
 	private final CityFoundingCeremony ceremony;
 	private BukkitTask reminderTask;
@@ -65,13 +65,13 @@ public class BaptisePhase extends Phase implements ISacrificeListener {
 		Color colorB = ItemManager.getMaterialColor(ceremony.getCoreMaterial());
 		Random random = new Random();
 		for(RingPresentation p : ringDisplays){
-			LightParticles.spawn(p.getLocation(), new Targetable(p.getPlayer()), 0, random.nextDouble()>0.3 ? colorA : colorB);
+			LightParticles.spawn(CitySystemPlugin.getInstance(), p.getLocation(), new Targetable(p.getPlayer()), 0, random.nextDouble()>0.3 ? colorA : colorB);
 			p.finish();
 		}
 	}
 
 	@Override
-	public void sacrifice(ItemStack itemStack, Player player) {
+	public void payTribute(ItemStack itemStack, Player player) {
 		if(!ceremony.isParticipant(player)) return;
 		if(itemStack.getType()!=Material.NAME_TAG) return;
 		ItemMeta itemMeta = itemStack.getItemMeta();
@@ -79,7 +79,7 @@ public class BaptisePhase extends Phase implements ISacrificeListener {
 		String name = itemMeta.getDisplayName();
 		if(name.length()<2) return;
 		ceremony.setCityName(itemMeta.getDisplayName());
-		FireBurstEffect.play(ceremony.getFire(), 8, Color.fromRGB(255, 200, 20),Color.fromRGB(255,150,20));
+		FireBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), 8, Color.fromRGB(255, 200, 20),Color.fromRGB(255,150,20));
 		this.setCompleted();
 	}
 }

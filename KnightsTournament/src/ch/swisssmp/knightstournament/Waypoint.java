@@ -2,6 +2,7 @@ package ch.swisssmp.knightstournament;
 
 import java.util.Random;
 
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +14,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
 
 public class Waypoint extends BukkitRunnable{
 	private final World world;
@@ -48,8 +48,8 @@ public class Waypoint extends BukkitRunnable{
 		else{
 			ItemStack mainHand = this.player.getInventory().getItemInMainHand();
 			ItemStack offHand = this.player.getInventory().getItemInOffHand();
-			NBTTagCompound nbt = (mainHand!=null) ? ItemUtil.getData(mainHand) : null;
-			if(nbt==null || (!nbt.hasKey(TournamentLance.dataProperty))){
+			CompoundTag nbt = (mainHand!=null) ? ItemUtil.getData(mainHand) : null;
+			if(nbt==null || (!nbt.containsKey(TournamentLance.dataProperty))){
 				swissSMPler.sendActionBar("§bTurnierlanze§r ausrüsten");
 				return;
 			}

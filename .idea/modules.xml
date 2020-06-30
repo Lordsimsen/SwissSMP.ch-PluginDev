@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/AddonAbnahme/AddonAbnahme.iml" filepath="$PROJECT_DIR$/AddonAbnahme/AddonAbnahme.iml" />
       <module fileurl="file://$PROJECT_DIR$/AdvancementLoader/AdvancementLoader.iml" filepath="$PROJECT_DIR$/AdvancementLoader/AdvancementLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/AdventureDungeons/AdventureDungeons.iml" filepath="$PROJECT_DIR$/AdventureDungeons/AdventureDungeons.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AfkKicker/AfkKicker.iml" filepath="$PROJECT_DIR$/AfkKicker/AfkKicker.iml" />
       <module fileurl="file://$PROJECT_DIR$/AgeOfEmpiresTaunts/AgeOfEmpiresTaunts.iml" filepath="$PROJECT_DIR$/AgeOfEmpiresTaunts/AgeOfEmpiresTaunts.iml" />
       <module fileurl="file://$PROJECT_DIR$/Algorithms/Algorithms.iml" filepath="$PROJECT_DIR$/Algorithms/Algorithms.iml" />
       <module fileurl="file://$PROJECT_DIR$/AntiGuestExtension/AntiGuestExtension.iml" filepath="$PROJECT_DIR$/AntiGuestExtension/AntiGuestExtension.iml" />
@@ -14,6 +15,7 @@
       <module fileurl="file://$PROJECT_DIR$/BigDoors/BigDoors.iml" filepath="$PROJECT_DIR$/BigDoors/BigDoors.iml" />
       <module fileurl="file://$PROJECT_DIR$/BookAuthor/BookAuthor.iml" filepath="$PROJECT_DIR$/BookAuthor/BookAuthor.iml" />
       <module fileurl="file://$PROJECT_DIR$/CameraStudio/CameraStudio.iml" filepath="$PROJECT_DIR$/CameraStudio/CameraStudio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Ceremonies/Ceremonies.iml" filepath="$PROJECT_DIR$/Ceremonies/Ceremonies.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChatLogger/ChatLogger.iml" filepath="$PROJECT_DIR$/ChatLogger/ChatLogger.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChatManager/ChatManager.iml" filepath="$PROJECT_DIR$/ChatManager/ChatManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChunkUpdater/ChunkUpdater.iml" filepath="$PROJECT_DIR$/ChunkUpdater/ChunkUpdater.iml" />
@@ -67,7 +69,7 @@
       <module fileurl="file://$PROJECT_DIR$/ModTools/ModTools.iml" filepath="$PROJECT_DIR$/ModTools/ModTools.iml" />
       <module fileurl="file://$PROJECT_DIR$/Monuments/Monuments.iml" filepath="$PROJECT_DIR$/Monuments/Monuments.iml" />
       <module fileurl="file://$PROJECT_DIR$/NPCs/NPCs.iml" filepath="$PROJECT_DIR$/NPCs/NPCs.iml" />
-      <module fileurl="file://$PROJECT_DIR$/NetherPortalFixer/NetherPortalFixer.iml" filepath="$PROJECT_DIR$/NetherPortalFixer/NetherPortalFixer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NetherPortals/NetherPortals.iml" filepath="$PROJECT_DIR$/NetherPortals/NetherPortals.iml" />
       <module fileurl="file://$PROJECT_DIR$/NightSkipper/NightSkipper.iml" filepath="$PROJECT_DIR$/NightSkipper/NightSkipper.iml" />
       <module fileurl="file://$PROJECT_DIR$/Observatorium/Observatorium.iml" filepath="$PROJECT_DIR$/Observatorium/Observatorium.iml" />
       <module fileurl="file://$PROJECT_DIR$/ParticleSystemsAPI/ParticleSystemsAPI.iml" filepath="$PROJECT_DIR$/ParticleSystemsAPI/ParticleSystemsAPI.iml" />
@@ -104,6 +106,7 @@
       <module fileurl="file://$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" filepath="$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" />
       <module fileurl="file://$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" filepath="$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" />
       <module fileurl="file://$PROJECT_DIR$/Warehouses/Warehouses.iml" filepath="$PROJECT_DIR$/Warehouses/Warehouses.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Warps/Warps.iml" filepath="$PROJECT_DIR$/Warps/Warps.iml" />
       <module fileurl="file://$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" filepath="$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" filepath="$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" filepath="$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" />

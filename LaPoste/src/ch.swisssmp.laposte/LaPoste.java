@@ -33,8 +33,15 @@ public class LaPoste {
                 return;
             }
             SwissSMPler.get(sender).sendActionBar(ChatColor.GREEN + "Sendung aufgegeben!");
-            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "laposte " + sender.getName() + " " + recipient.getName());
+
+            sendReceivedMessageDelayed(sender, recipient, 100L);
         });
+    }
+
+    private static void sendReceivedMessageDelayed(Player sender, OfflinePlayer recipient, long delay){
+        Bukkit.getScheduler().runTaskLater(LaPostePlugin.getInstance(), ()->{
+            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "laposte " + sender.getName() + " " + recipient.getName());
+        },delay);
     }
 
     public static void receive(UUID recipient, Location location){

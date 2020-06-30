@@ -2,6 +2,8 @@ package ch.swisssmp.zvieriplausch;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.custompaintings.CustomPainting;
+import ch.swisssmp.custompaintings.CustomPaintings;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.ItemUtil;
@@ -9,6 +11,7 @@ import ch.swisssmp.utils.Position;
 import ch.swisssmp.zvieriplausch.game.Counter;
 import ch.swisssmp.zvieriplausch.game.GamePhase;
 import ch.swisssmp.zvieriplausch.game.Level;
+import ch.swisssmp.zvieriplausch.game.RecipeDisplay;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -38,9 +41,11 @@ public class ZvieriArena {
 	private Position queue;
 	private Counter[] counters;
 	private Block storage;
-	private Block lectern;
+	private Block highscoresLectern;
+	private Block recipesLectern;
 	private Block jukebox;
 	private String arenaRegion;
+	private RecipeDisplay display;
 
 	private PlayerDataContainer playerDataContainer;
 
@@ -69,7 +74,8 @@ public class ZvieriArena {
 		if(dataSection.getKeys(false).contains("queue")) this.queue = dataSection.getPosition("queue");
 		if(dataSection.getKeys(false).contains("entry")) this.entry = dataSection.getPosition("entry");
 		if(dataSection.getKeys(false).contains("storageChest")) this.storage = world.getBlockAt(dataSection.getPosition("storageChest").getLocation(this.world));
-		if(dataSection.getKeys(false).contains("lectern")) this.lectern = world.getBlockAt(dataSection.getPosition("lectern").getLocation(this.world));
+		if(dataSection.getKeys(false).contains("highscores_lectern")) this.highscoresLectern = world.getBlockAt(dataSection.getPosition("highscores_lectern").getLocation(this.world));
+		if(dataSection.getKeys(false).contains("recipes_lectern")) this.recipesLectern = world.getBlockAt(dataSection.getPosition("recipes_lectern").getLocation(this.world));
 		if(dataSection.getKeys(false).contains("jukebox")) this.jukebox = world.getBlockAt(dataSection.getPosition("jukebox").getLocation(this.world));
 
 		int i = 1;
@@ -127,10 +133,18 @@ public class ZvieriArena {
 		return currentCounters;
 	}
 
-	public Lectern getLectern(){
-		if(lectern == null) return null;
-		if(lectern.getState() instanceof Lectern) {
-			return (Lectern) lectern.getState();
+	public Lectern getHighscoresLectern(){
+		if(highscoresLectern == null) return null;
+		if(highscoresLectern.getState() instanceof Lectern) {
+			return (Lectern) highscoresLectern.getState();
+		}
+		return null;
+	}
+
+	public Lectern getRecipesLectern(){
+		if(recipesLectern == null) return null;
+		if(recipesLectern.getState() instanceof Lectern){
+			return (Lectern) recipesLectern.getState();
 		}
 		return null;
 	}
@@ -147,6 +161,10 @@ public class ZvieriArena {
 			return (Jukebox) jukebox.getState();
 		}
 		return null;
+	}
+
+	public RecipeDisplay getRecipeDisplay(){
+		return display;
 	}
 
 	public PlayerDataContainer getPlayerDataContainer(){
@@ -198,7 +216,7 @@ public class ZvieriArena {
 		return this.arenaRegion;
 	}
 
-	public void getHighscoreBook(ItemStack book){
+	public void getHighscoreBook(ItemStack book, UUID playerId){
 		if(book.getType() != Material.WRITTEN_BOOK) return;
 		BookMeta bookMeta = (BookMeta) book.getItemMeta();
 		bookMeta.setTitle("Highscores " + this.name);
@@ -208,7 +226,8 @@ public class ZvieriArena {
 		for(int i = 1; i <= 5; i++){
 			pages.add("Level " + i + ": " + ChatColor.GOLD + playerDataContainer.getHighscoreScore(i) + ChatColor.RESET +
 					"\n" + "\n" + "Spieler: " + "\n" + ChatColor.DARK_PURPLE + String.join(", "
-					, playerDataContainer.getHighscorePlayers(i)));
+					, playerDataContainer.getHighscorePlayers(i)) + ChatColor.RESET + "\n" + "\n" + "Persönlicher Highscore: "
+					+ ChatColor.GRAY + playerDataContainer.getPersonalHighscore(playerId, i));
 		}
 		bookMeta.setPages(pages);
 		book.setItemMeta(bookMeta);
@@ -290,8 +309,13 @@ public class ZvieriArena {
 		ZvieriArenen.save(world);
 	}
 
-	public void setLectern(Block lectern){
-		this.lectern = lectern;
+	public void setHighscoresLectern(Block lectern){
+		this.highscoresLectern = lectern;
+		ZvieriArenen.save(world);
+	}
+
+	public void setRecipesLectern(Block lectern){
+		this.recipesLectern = lectern;
 		ZvieriArenen.save(world);
 	}
 
@@ -366,20 +390,30 @@ public class ZvieriArena {
 		}
 	}
 
-	public boolean updateHighscore(int level, int score, List<Player> participants){
-		if(score > playerDataContainer.getHighscoreScore(level)) {
-			playerDataContainer.updateHighscore(level, score, participants);
+	public void updatePlayerData(Level level, int score, List<Player> participants){
+		for(Player player : participants){
+			playerDataContainer.updatePersonalHighscore(level.getLevelNumber(), score, player.getUniqueId());
+		}
+		int threshhold = level.getThreshhold();
+		if(score >= threshhold){
+			List<String> playerIds = new ArrayList<>();
+			for(Player player : participants){
+				playerIds.add(player.getUniqueId().toString());
+			}
+			playerDataContainer.updateLevelUnlocks(level.getLevelNumber(), playerIds);
+		}
+		if(score > playerDataContainer.getHighscoreScore(level.getLevelNumber())) {
+			playerDataContainer.updateHighscore(level.getLevelNumber(), score, participants);
+		}
+		playerDataContainer.save();
+	}
+
+	public boolean isHighscore(int level, int score){
+		int highscore = playerDataContainer.getHighscoreScore(level);
+		if(score > highscore) {
 			return true;
 		}
 		return false;
-	}
-
-	public void updateLevelUnlock(List<Player> players, Level level){
-		List<String> playerIds = new ArrayList<>();
-		for(Player player : players){
-			playerIds.add(player.getUniqueId().toString());
-		}
-		playerDataContainer.updateLevelUnlocks(level.getLevelNumber(), playerIds);
 	}
 
 	public boolean canPlayLevel(Level level, Player player){
@@ -414,8 +448,11 @@ public class ZvieriArena {
 		if(this.storage != null){
 			savePosition(dataSection, "storageChest", new Position(this.storage.getLocation()));
 		}
-		if(this.lectern != null){
-			savePosition(dataSection, "lectern", new Position(this.lectern.getLocation()));
+		if(this.highscoresLectern != null){
+			savePosition(dataSection, "highscores_lectern", new Position(this.highscoresLectern.getLocation()));
+		}
+		if(this.recipesLectern != null){
+			savePosition(dataSection, "recipes_lectern", new Position(this.recipesLectern.getLocation()));
 		}
 		if(this.jukebox != null){
 			savePosition(dataSection, "jukebox", new Position(this.jukebox.getLocation()));
@@ -430,7 +467,10 @@ public class ZvieriArena {
 	}
 	
 	public static ZvieriArena load(World world, ConfigurationSection dataSection) {
-		return new ZvieriArena(world, dataSection);
+		ZvieriArena arena = new ZvieriArena(world, dataSection);
+		CustomPainting painting = getPainting(arena);
+		arena.display = new RecipeDisplay(arena, painting);
+		return arena;
 	}
 
 	public void prepareGame(Level level){
@@ -455,10 +495,12 @@ public class ZvieriArena {
 					this.counters == null ||
 					this.storage == null ||
 					this.jukebox == null ||
+					this.recipesLectern == null ||
 					this.arenaRegion == null);
 	}
 	
 	public void remove() {
+		display.remove();
 		ZvieriArenen.remove(arena_id);
 		ZvieriArenen.save(world);
 	}
@@ -479,8 +521,14 @@ public class ZvieriArena {
 		}
 		UUID newArenaId = UUID.randomUUID();
 		ZvieriArena result = ZvieriArena.create(world, newArenaId, name);
+		CustomPainting painting = getPainting(result);
+		result.display = new RecipeDisplay(result, painting);
 		ZvieriArenen.save(world);
 		return result;
+	}
+
+	private static CustomPainting getPainting(ZvieriArena arena){
+		return CustomPainting.get(arena.getId().toString()).orElse(CustomPaintings.create(arena.getId().toString(), arena.getName(), 3, 2));
 	}
 	
 	public static ZvieriArena create(World world, UUID arena_id, String name) {

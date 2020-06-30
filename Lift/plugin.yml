@@ -1,5 +1,5 @@
 main: ch.swisssmp.lift.LiftPlugin
-version: 1.4
+version: 3
 api-version: 1.13
 name: Lift
 author: detig_iii

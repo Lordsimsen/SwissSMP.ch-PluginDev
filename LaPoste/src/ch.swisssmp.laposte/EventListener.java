@@ -65,6 +65,7 @@ public class EventListener implements Listener {
     @EventHandler
     private void createCustomItemBuilder(CreateCustomItemBuilderEvent event){
         String customEnum = (String) event.getConfigurationSection().get("custom_enum");
+        if(customEnum == null) return;
         if(!customEnum.equals("LA_POSTE_PACKAGE") && !customEnum.equals("LA_POSTE_LETTER")) return;
         CustomItemBuilderModifier component = new CustomItemBuilderModifier() {
             @Override
@@ -209,8 +210,14 @@ public class EventListener implements Listener {
                 LaPoste.receive(player.getUniqueId(), player.getLocation());
                 return;
             } else{
-                SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Dieser Briefkasten gehört " + ChatColor.AQUA + owner.getName());
-                return;
+                if(owner != null) {
+                    SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Dieser Briefkasten gehört " + ChatColor.AQUA + owner.getName());
+                    return;
+                } else{
+                    OfflinePlayer offlineOwner = Bukkit.getOfflinePlayer(ownerId);
+                    SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Dieser Briefkasten gehört " + ChatColor.AQUA + offlineOwner.getName());
+                    return;
+                }
             }
         }
         ItemStack delivery = event.getItem();

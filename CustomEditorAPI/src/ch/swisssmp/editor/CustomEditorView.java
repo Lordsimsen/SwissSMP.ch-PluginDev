@@ -168,11 +168,16 @@ public abstract class CustomEditorView implements Listener {
 			this.inventory.setItem(slot,itemStack);
 		}, 1L);
 	}
-	
+
 	public void closeLater(){
+		closeLater(null);
+	}
+
+	public void closeLater(Runnable callback){
 		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
 			if(this.view==null) return;
 			this.view.close();
+			if(callback!=null) callback.run();
 		}, 1L);
 	}
 }

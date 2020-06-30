@@ -1,57 +1,47 @@
 package ch.swisssmp.zones.editor.slots;
 
-import java.util.List;
-
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemStack;
-
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ButtonSlot;
+import ch.swisssmp.zones.Zone;
 import ch.swisssmp.zones.editor.ZoneEditor;
-import ch.swisssmp.zones.zoneinfos.ZoneInfo;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.event.inventory.ClickType;
+
+import java.util.List;
 
 public class LaunchZoneEditorSlot extends ButtonSlot {
 
-	private final ZoneInfo zoneInfo;
-	private final ItemStack itemStack;
-	
-	public LaunchZoneEditorSlot(CustomEditorView view, int slot, ItemStack itemStack, ZoneInfo zoneInfo) {
-		super(view, slot);
-		this.zoneInfo = zoneInfo;
-		this.itemStack = itemStack;
-	}
+    private final Zone zone;
 
-	@Override
-	protected void triggerOnClick(ClickType arg0) {
-		ZoneEditor.start((Player) this.getView().getPlayer(), itemStack, zoneInfo);
-		this.getView().closeLater();
-		System.out.println("Launch Editor!");
-	}
+    public LaunchZoneEditorSlot(CustomEditorView view, int slot, Zone zone) {
+        super(view, slot);
+        this.zone = zone;
+    }
 
-	@Override
-	protected CustomItemBuilder createSlotBase() {
-		CustomItemBuilder result = new CustomItemBuilder();
-		result.setMaterial(Material.FEATHER);
-		return result;
-	}
+    @Override
+    protected void triggerOnClick(ClickType clickType) {
+        getView().closeLater(()-> ZoneEditor.start(getView().getPlayer(), zone));
+    }
 
-	@Override
-	public String getName() {
-		return isComplete() ? ChatColor.AQUA+"Zone bearbeiten" : ChatColor.YELLOW+"Zone auswählen";
-	}
+    @Override
+    protected boolean isComplete() {
+        return zone.isSetupComplete();
+    }
 
-	@Override
-	protected List<String> getNormalDescription() {
-		return null;
-	}
+    @Override
+    public String getName() {
+        return ChatColor.AQUA+"Auswahl-Modus starten";
+    }
 
-	@Override
-	protected boolean isComplete() {
-		return zoneInfo!=null;
-	}
+    @Override
+    protected List<String> getNormalDescription() {
+        return null;
+    }
 
+    @Override
+    protected CustomItemBuilder createSlotBase() {
+        return new CustomItemBuilder(Material.WRITTEN_BOOK);
+    }
 }

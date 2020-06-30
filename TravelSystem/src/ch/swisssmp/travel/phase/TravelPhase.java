@@ -60,6 +60,7 @@ public class TravelPhase extends Phase {
 
 	@Override
 	public void finish() {
+		super.finish();
 		for(Player player : this.getJourney().getPlayers()){
 			player.setGameMode(GameMode.SURVIVAL);
 		}

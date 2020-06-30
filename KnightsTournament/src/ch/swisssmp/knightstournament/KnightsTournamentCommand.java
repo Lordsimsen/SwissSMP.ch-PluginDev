@@ -53,7 +53,7 @@ public class KnightsTournamentCommand implements CommandExecutor {
 				sender.sendMessage(KnightsTournamentPlugin.prefix+" Du leitest momentan kein Turnier.");
 				return true;
 			}
-			tournament.finish();
+			tournament.cancel();
 			return true;
 		}
 		default:

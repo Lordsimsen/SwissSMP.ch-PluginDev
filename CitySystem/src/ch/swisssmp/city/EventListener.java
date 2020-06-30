@@ -3,23 +3,29 @@ package ch.swisssmp.city;
 import java.util.List;
 import java.util.UUID;
 
+import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
+import ch.swisssmp.city.ceremony.promotion.HayPile;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -31,9 +37,11 @@ import ch.swisssmp.utils.PlayerInfo;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.HTTPRequest;
+import org.bukkit.scheduler.BukkitTask;
 
 public class EventListener implements Listener {
 	private static Material INITIATOR_MATERIAL = Material.BLAZE_POWDER;
+	private static boolean ceremonyAnnounced = false;
 	
 	@EventHandler
 	private void onResourcepackUpdate(PlayerResourcePackUpdateEvent event){
@@ -59,6 +67,68 @@ public class EventListener implements Listener {
 			player.stopSound("founding_ceremony_drums", SoundCategory.RECORDS);
 		}, 20);
 	}
+
+	@EventHandler
+	private void onTributeAnnounce(PlayerInteractEvent event){
+		if(event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+		Player player = event.getPlayer();
+		if(!player.isOp()) return; //Todo remove when done
+		SigilRingInfo info = SigilRingInfo.get(event.getItem());
+//        if(info == null) return;
+//        if(!info.getOwner().getUniqueId().equals(player.getUniqueId())) {
+//            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Du musst deinen eigenen Siegelring benutzen");
+//            return;
+//        }
+//        if(!info.getCitizenRrank().equals(CitizenRank.MAYOR)) {
+//            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Nur der Bürgermeister kann eine Zeremonie initieren!");
+//            return;
+//        }
+		Block block = event.getClickedBlock();
+		if(!(block.getState() instanceof org.bukkit.block.Chest)) {
+			return;
+		}
+		if(!HayPile.checkSize(block, CityPromotionCeremony.baseMaterial, 10)) {
+			Bukkit.getLogger().info("HayPile not accepted");
+			return; //Todo add actual size
+		}
+		Inventory inventory = ((Chest) block.getState()).getBlockInventory();
+		int ironBlocks = 0;
+		int goldBlocks = 0;
+		int diamondBlocks = 0;
+		for(ItemStack item : inventory.getContents()){
+			if(item == null || item.getType() == Material.AIR) continue;
+			switch(item.getType()){
+				case IRON_BLOCK: ironBlocks += item.getAmount(); break;
+				case GOLD_BLOCK: goldBlocks += item.getAmount(); break;
+				case DIAMOND_BLOCK: diamondBlocks += item.getAmount(); break;
+				default: continue;
+			}
+		}
+		if(!(ironBlocks >= 3 && goldBlocks >= 2 && diamondBlocks >= 1)) { //Todo read required tribute from city info?
+			SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Du wagst es mit ungenügenden Opfergaben zu versuchen?");
+			player.getWorld().strikeLightningEffect(player.getLocation());
+			return;
+		}
+		long time = player.getWorld().getTime();
+		if(time > 12000){
+			SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Heute kannst du keine Zeremonie mehr starten.");
+			return;
+		}
+		if(!ceremonyAnnounced) {
+			SwissSMPler.get(player).sendActionBar(ChatColor.GREEN + "Versammle deine Bürger vor Sonnenuntergang am Festplatz!");
+			SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + "Die Zeremonie beginnt bei Sonnenuntergang!");
+			//Todo add some boolean or a reference to the task below in order to prevent multiple tasking
+
+			Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () -> {
+				CityPromotionCeremony ceremony = CityPromotionCeremony.start(block, player, null); //todo replace null with info.getCity()
+				Bukkit.getPluginManager().registerEvents(ceremony, CitySystemPlugin.getInstance());
+			}, (100)); //(12000-time)
+		} else{
+			SwissSMPler.get(player).sendActionBar(ChatColor.GREEN + "Die Zeremonie beginnt bei Sonnenuntergang!");
+		}
+		event.setCancelled(true); //Todo to be replaced with Actual placement (107)
+	}
+
 	
 	@EventHandler
 	private void onItemDrop(PlayerDropItemEvent event){

@@ -10,6 +10,10 @@ import java.util.UUID;
 
 import ch.swisssmp.custompaintings.CustomPainting;
 import ch.swisssmp.custompaintings.CustomPaintings;
+import ch.swisssmp.text.ClickEvent;
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
+import ch.swisssmp.text.RawText;
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -25,11 +29,6 @@ import ch.swisssmp.city.CitizenInfo;
 import ch.swisssmp.city.City;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.livemap_render_api.LivemapView;
-import ch.swisssmp.text.RawTextObject;
-import ch.swisssmp.text.properties.ClickEventProperty;
-import ch.swisssmp.text.properties.ColorProperty;
-import ch.swisssmp.text.properties.ColorProperty.Color;
-import ch.swisssmp.text.properties.HoverEventProperty;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -147,17 +146,18 @@ public class CityMapDisplay {
 		ArrayList<BaseComponent> currentPage = new ArrayList<BaseComponent>();
 		List<BaseComponent[]> pages = new ArrayList<BaseComponent[]>();
 		
-		RawTextObject title = new RawTextObject(
-				"Städte von\n"+
-				ChatColor.BOLD+ChatColor.UNDERLINE+WorldManager.getDisplayName(Bukkit.getWorlds().get(0))+ChatColor.RESET+"\n"+
-				ChatColor.RESET+"\n");
-		currentPage.add(title.toSpigot());
-		
-		RawTextObject helpText = new RawTextObject(
+		RawBase title = new RawText("Städte von\n")
+			.extra(
+					new RawText(WorldManager.getDisplayName(Bukkit.getWorlds().get(0))).bold(true).underlined(true),
+					new RawText("\n\n")
+			);
+		currentPage.add(title.spigot());
+
+		RawBase helpText = new RawText(
 				""+ChatColor.ITALIC+ChatColor.GRAY+"Wähle eine Stadt aus,"+ChatColor.RESET+"\n"+
 				ChatColor.ITALIC+ChatColor.GRAY+"um sie zu betrachten."+ChatColor.RESET+"\n"+
 				ChatColor.RESET+"\n");
-		currentPage.add(helpText.toSpigot());
+		currentPage.add(helpText.spigot());
 		
 		int remainingLines = 7;
 		int maxLinesPerPage = 14;
@@ -169,14 +169,16 @@ public class CityMapDisplay {
 				cityNameString = cityNameString.substring(0,17)+"..";
 			}
 			if(this.currentCityId==city.getId()) cityNameString = ChatColor.DARK_RED+"> "+cityNameString+" <";
-			RawTextObject cityEntry = new RawTextObject(cityNameString+"\n");
-			cityEntry.add(new ColorProperty(Color.BLACK));
-			cityEntry.add(new HoverEventProperty(new RawTextObject(
-					ChatColor.AQUA+city.getName()+ChatColor.RESET+"\n"+
-					ChatColor.GRAY+citizens.size()+" Bürger\n"+
-					ChatColor.GRAY+"Bürgermeister:\n"+ChatColor.RESET+(mayor.isPresent()?mayor.get().getDisplayName():"unbekannt")+ChatColor.RESET+"\n")));
-			cityEntry.add(new ClickEventProperty(ClickEventProperty.Action.RUN_COMMAND, "/citymapdisplay show "+this.uid+" "+city.getId()));
-			currentPage.add(cityEntry.toSpigot());
+			RawBase cityEntry = new RawText(cityNameString+"\n")
+					.color(ChatColor.BLACK)
+					.hoverEvent(HoverEvent.showText(
+						new RawText(city.getName()+"\n").color(ChatColor.AQUA),
+						new RawText(citizens.size()+" Bürger\n").color(ChatColor.GRAY),
+						new RawText("Bürgermeister:\n"),
+						new RawText(mayor.isPresent() ? mayor.get().getDisplayName() : "unbekannt").color(ChatColor.GRAY)
+					))
+					.clickEvent(ClickEvent.runCommand("/citymapdisplay show "+this.uid+" "+city.getId()));
+			currentPage.add(cityEntry.spigot());
 			
 			remainingLines--;
 			if(remainingLines<=0) {
@@ -184,7 +186,7 @@ public class CityMapDisplay {
 				currentPage.toArray(currentPageArray);
 				pages.add(currentPageArray);
 				currentPage.clear();
-				currentPage.add(helpText.toSpigot());
+				currentPage.add(helpText.spigot());
 				remainingLines = maxLinesPerPage-3;
 			}
 		}

@@ -13,7 +13,7 @@ public class PlayerRenameItemEvent extends PlayerEvent implements Cancellable{
     private String newName;
     private boolean cancelled = false;
     
-    protected PlayerRenameItemEvent(Player player, ItemStack itemStack, String newName){
+    public PlayerRenameItemEvent(Player player, ItemStack itemStack, String newName){
     	super(player);
     	this.itemStack = itemStack;
     	this.newName = newName;

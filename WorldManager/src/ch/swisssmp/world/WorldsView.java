@@ -94,7 +94,7 @@ public class WorldsView implements Listener{
 	
 	protected static WorldsView open(Player player){
 		WorldsView result = new WorldsView(player);
-		Bukkit.getPluginManager().registerEvents(result, WorldManager.plugin);
+		Bukkit.getPluginManager().registerEvents(result, WorldManagerPlugin.getInstance());
 		result.view = player.openInventory(result.inventory);
 		return result;
 	}

@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="AfkKicker:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="AfkKicker.jar">
+      <element id="module-output" name="AfkKicker" />
+      <element id="file-copy" path="$PROJECT_DIR$/AfkKicker/plugin.yml" />
+    </root>
+  </artifact>
+</component>

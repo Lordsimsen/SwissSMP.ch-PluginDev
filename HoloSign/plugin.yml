@@ -1,17 +1,23 @@
 main: ch.swisssmp.holosign.HoloSign
-version: 1.2
+version: 2
 api-version: 1.13
 name: HoloSign
 author: detig_iii
-description: Place floating text into the world
+description: Ermöglicht schwebende Texte
 permissions: 
   holosign.admin:
     default: op
-    description: Allows you to use the plugin
+    description: Erlaubt Verwendung des Plugins
 commands:
   sign:
-    usage: |
-      /sign create [color] [text]
-      /sign delete [contains text] (range=5) 
-    description: Place a HoloSign
+    usage: "/<command> <subcommand> <Argumente>"
+    description: Basisbefehl
+    permission: holosign.admin
+  sign create:
+    usage: "/<command> <subcommand> <Farbe> <Text>"
+    description: Platziert einen schwebenden Text
+    permission: holosign.admin
+  sign remove:
+    usage: "/<command> <subcommand> <Distanz> <Text>"
+    description: Entfernt schwebende Texte
     permission: holosign.admin

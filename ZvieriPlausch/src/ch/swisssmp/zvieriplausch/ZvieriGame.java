@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
@@ -122,6 +123,7 @@ public class ZvieriGame implements Runnable{
     }
 
     private void start(){
+        arena.getRecipeDisplay().setLevel(level);
         this.currentPhase = new PreparationPhase(this, PREPARATION_TIME);
         task = Bukkit.getScheduler().runTaskTimer(ZvieriGamePlugin.getInstance(), this, 0, 1);
     }
@@ -192,16 +194,13 @@ public class ZvieriGame implements Runnable{
     because they will be obtained during crafting dishes, but can't easily be tagged (I think).
      */
     public static void cleanseInventory(PlayerInventory inventory){
-        for(int i = 0; i < inventory.getContents().length; i++){
-            ItemStack item = inventory.getContents()[i];
+        for(int i = 0; i < inventory.getSize(); i++){
+            ItemStack item = inventory.getItem(i);
             if(item == null || item.getType() == Material.AIR) continue;
-            if(ItemUtil.getBoolean(item, "zvieriGameItem") || item.getType() == Material.BUCKET || item.getType() == Material.GLASS_BOTTLE){
-                inventory.remove(item);
+            if(ItemUtil.getBoolean(item, "zvieriGameItem")){
+                inventory.clear(i);
             }
         }
-        ItemStack helmet = inventory.getHelmet();
-        if(helmet == null || helmet.getType() == Material.AIR) return;
-        if(ItemUtil.getBoolean(helmet, "zvieriGameItem")) inventory.setHelmet(new ItemStack(Material.AIR));
     }
 
     private void complete(){

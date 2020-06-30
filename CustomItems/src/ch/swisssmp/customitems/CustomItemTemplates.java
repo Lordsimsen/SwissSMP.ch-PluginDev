@@ -1,5 +1,6 @@
 package ch.swisssmp.customitems;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -25,5 +26,9 @@ public class CustomItemTemplates {
 			if(itemTemplate.getCustomEnum()==null || itemTemplate.getCustomEnum().isEmpty()) continue;
 			templates.put(itemTemplate.getCustomEnum().toLowerCase(), itemTemplate);
 		}
+	}
+
+	protected static Collection<String> getCustomEnums(){
+		return templates.keySet();
 	}
 }

@@ -6,9 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 
 public class PlayerDataContainer {
 
@@ -22,31 +21,41 @@ public class PlayerDataContainer {
     private List<List<String>> unlockedPlayers;
     private List<List<String>> highscorePlayers;
     private int[] highscoreScores;
+    private HashMap<UUID,int[]> personalHighscores;
 
     private PlayerDataContainer(ZvieriArena arena){
         this.arena = arena;
 
-        dataFile = new File(arena.getWorld().getWorldFolder(), "plugindata/ZvieriGame/arenen.yml");
-        if(dataFile == null) {
-            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Konnte Spielerdaten nicht laden (dataFile null)");
-            return;
+        File pluginDirectory = new File(arena.getWorld().getWorldFolder(), "plugindata/ZvieriGame");
+        dataFile = new File(pluginDirectory, "playerData.yml");
+
+        if(!pluginDirectory.exists()) {
+            pluginDirectory.mkdirs();
+        }
+        if(!dataFile.exists()){
+            try {
+                dataFile.createNewFile();
+            } catch (IOException e){
+                Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " " + e.getMessage());
+                e.printStackTrace();
+            }
         }
         yamlConfiguration = YamlConfiguration.loadConfiguration(dataFile);
-        if(yamlConfiguration == null) {
-            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Konnte Spielerdaten nicht laden (yaml null)");
-            return;
-        }
+        if(yamlConfiguration == null) yamlConfiguration = new YamlConfiguration();
+
         arenaSection = getArenaSection();
         if(arenaSection == null) {
-            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Konnte Spielerdaten nicht laden (arenaSection null)");
+            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Konnte Spielerdaten nicht laden.");
             return;
         }
         unlockedPlayers = new ArrayList<>();
         highscorePlayers = new ArrayList<>();
         highscoreScores = new int[LEVELS];
+        personalHighscores = new HashMap<>();
         readUnlockedPlayers();
         readHighscorePlayers();
         readHighscoreScores();
+        readPersonalHighscores();
     }
 
     public static PlayerDataContainer initialize(ZvieriArena arena){
@@ -71,24 +80,30 @@ public class PlayerDataContainer {
 
     public int getHighscoreScore(int level){
         try {
-            return highscoreScores[level - 1];
+            int highscore = highscoreScores[level - 1];
+            return highscore;
         } catch (IndexOutOfBoundsException e){
+            return 0;
+        }
+    }
+
+    public int getPersonalHighscore(UUID playerId, int level){
+        try{
+            int[] scores = personalHighscores.get(playerId);
+            return scores[level - 1];
+        } catch (Exception e){
             return 0;
         }
     }
 
     private ConfigurationSection getArenaSection(){
         ConfigurationSection arenaSection;
-        if (yamlConfiguration.contains("arenen")) {
-            ConfigurationSection arenenSection = yamlConfiguration.getConfigurationSection("arenen");
-            for (String key : arenenSection.getKeys(false)) {
-                arenaSection = arenenSection.getConfigurationSection(key);
-                if (UUID.fromString(arenaSection.getString("id")).equals(arena.getId())) {
-                    return arenaSection;
-                }
+        if (!yamlConfiguration.getKeys(false).contains(arena.getId().toString())) {
+            arenaSection = yamlConfiguration.createSection(arena.getId().toString());
+        } else{
+            arenaSection = yamlConfiguration.getConfigurationSection(arena.getId().toString());
             }
-        }
-        return null;
+        return arenaSection;
     }
 
     private void readUnlockedPlayers(){
@@ -98,7 +113,6 @@ public class PlayerDataContainer {
             if (unlockedLevelsSection.getStringList("level_" + (i+1)) == null){
                 List<String> puffer = new ArrayList<>();
                 puffer.add("");
-//                unlockedPlayers.add(new ArrayList<>(LEVELS));
                 unlockedPlayers.add(puffer);
                 continue;
             }
@@ -131,6 +145,28 @@ public class PlayerDataContainer {
         }
     }
 
+    private void readPersonalHighscores(){
+        ConfigurationSection personalHighscoresSection;
+        try {
+            personalHighscoresSection = arenaSection.getConfigurationSection("highscores").getConfigurationSection("personalHighscores");
+        } catch (NullPointerException e){
+            return;
+        }
+        if(personalHighscoresSection == null) return;
+        for(String key : personalHighscoresSection.getKeys(false)){
+            ConfigurationSection playerSection = personalHighscoresSection.getConfigurationSection(key);
+            int[] scores = new int[LEVELS];
+            for(int i = 1; i <= LEVELS; i++){
+                try {
+                    scores[i - 1] = playerSection.getInt("level_" + i);
+                } catch (NullPointerException e){
+                    continue;
+                }
+            }
+            personalHighscores.put(UUID.fromString(key), scores);
+        }
+    }
+
     public void updateLevelUnlocks(int level, List<String> playerIds){
         try {
             for (String id : playerIds) {
@@ -139,7 +175,6 @@ public class PlayerDataContainer {
         } catch (IndexOutOfBoundsException e){
             unlockedPlayers.add(playerIds);
         }
-        save();
     }
 
     public void updateHighscore(int level, int score, List<Player> participants) {
@@ -156,10 +191,28 @@ public class PlayerDataContainer {
             highscorePlayers.add(participantsStrings);
         }
         highscoreScores[level-1] = score;
+    }
+
+    public void updatePersonalHighscore(int level, int score, UUID playerId){
+        int[] highscores;
+        if(!personalHighscores.containsKey(playerId)){
+            highscores = new int[LEVELS];
+            highscores[level - 1] = score;
+            personalHighscores.put(playerId, highscores);
+            return;
+        }
+        highscores = personalHighscores.get(playerId);
+        if(score > highscores[level - 1]) highscores[level - 1] = score;
+    }
+
+    public void resetHighscores(){
+        for(int i = 0; i < highscoreScores.length; i++){
+            highscoreScores[i] = 0;
+        }
         save();
     }
 
-    private void save(){
+    protected void save(){
         ConfigurationSection unlockedLevelsSection = arenaSection.getConfigurationSection("unlockedLevels");
         if(unlockedLevelsSection == null){
             unlockedLevelsSection = arenaSection.createSection("unlockedLevels");
@@ -182,6 +235,20 @@ public class PlayerDataContainer {
                 levelSection.set("players", highscorePlayers.get(i));
             } catch (IndexOutOfBoundsException e){
                 continue;
+            }
+        }
+        ConfigurationSection personalHighscoresSection = highscoreSection.getConfigurationSection("personalHighscores");
+        if(personalHighscoresSection == null) {
+            personalHighscoresSection = highscoreSection.createSection("personalHighscores");
+        }
+        for(UUID key : personalHighscores.keySet()){
+//                ConfigurationSection playerSection;
+//                playerSection = personalHighscoresSection.getConfigurationSection(key.toString());
+//                if(playerSection == null)
+            ConfigurationSection playerSection = personalHighscoresSection.createSection(key.toString());
+            int[] scores = personalHighscores.get(key);
+            for(int i = 0; i < scores.length; i++){
+                playerSection.set("level_" + (i + 1), scores[i]);
             }
         }
         yamlConfiguration.save(dataFile);

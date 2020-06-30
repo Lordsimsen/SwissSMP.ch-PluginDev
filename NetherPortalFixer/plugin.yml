@@ -1,7 +1,0 @@
-main: ch.swisssmp.vanillaportals.NetherPortalFixer
-version: 2.2
-api-version: 1.13
-name: NetherPortalFixer
-author: detig_iii
-description: Stellt bei Reisen in den Nether die Rückreise zum Eingangsportal sicher und verhindert Generierung von Netherportalen beim Verlassen des Nethers
-depend: [WorldManager]

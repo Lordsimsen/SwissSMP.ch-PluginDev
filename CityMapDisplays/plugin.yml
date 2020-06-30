@@ -1,5 +1,5 @@
 main: ch.swisssmp.citymapdisplays.CityMapDisplaysPlugin
-version: 2.2
+version: 3
 api-version: 1.13
 name: CityMapDisplays
 author: detig_iii

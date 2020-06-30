@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ch.swisssmp.ceremonies.Ceremony;
+import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -20,12 +23,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
-import ch.swisssmp.city.ceremony.Ceremony;
-import ch.swisssmp.city.ceremony.Phase;
 import ch.swisssmp.city.ceremony.founding.phases.BaptisePhase;
 import ch.swisssmp.city.ceremony.founding.phases.BeginPhase;
 import ch.swisssmp.city.ceremony.founding.phases.ForgeRingPhase;
@@ -50,7 +52,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	private Material ringCoreMaterial;
 	private String cityName;
 	
-	private FoundingCeremonyCircleEffect ringEffect;
+	private CityCeremonyCircleEffect ringEffect;
 	private BukkitTask ringEffectTask;
 	private BukkitTask musicTask;
 	
@@ -59,6 +61,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	private Location spectatorLocation;
 	
 	private CityFoundingCeremony(Block fire, Player initiator){
+		super(CitySystemPlugin.getInstance());
 		this.fire = fire;
 		this.initiator = initiator;
 		participants.add(initiator);
@@ -118,7 +121,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 		}, 0, length);
 	}
 	
-	public FoundingCeremonyCircleEffect getRingEffect(){
+	public CityCeremonyCircleEffect getRingEffect(){
 		return ringEffect;
 	}
 	
@@ -160,15 +163,18 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	@Override
 	protected Phase getNextPhase() {
 		if(phase==null){
+			Bukkit.getLogger().info("Begin now");
 			phase = FoundingCeremonyPhase.Begin;
 			return new BeginPhase(this);
 		}
 		switch(phase){
 		case Begin:{
+			Bukkit.getLogger().info("Pledge allegiance now");
 			phase = FoundingCeremonyPhase.PledgeAllegiance;
 			return new PledgeAllegiancePhase(this);
 		}
 		case PledgeAllegiance:{
+			Bukkit.getLogger().info("Forge thy ring now");
 			phase = FoundingCeremonyPhase.ForgeRing;
 			return new ForgeRingPhase(this);
 		}
@@ -189,11 +195,11 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	}
 	
 	@Override
-	public void begin(){
-		super.begin();
+	public void begin(JavaPlugin plugin){
+		super.begin(CitySystemPlugin.getInstance());
 		this.updateSpectatorLocation();
 		Location center = fire.getLocation().clone().add(0.5, 0.5, 0.5);
-		ringEffect = new FoundingCeremonyCircleEffect(center);
+		ringEffect = new CityCeremonyCircleEffect(center);
 		ringEffectTask = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), ringEffect, 0, 1);
 		timeoutTask = Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()->{
 			this.cancel();
@@ -292,9 +298,16 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	}
 	
 	public static CityFoundingCeremony start(Block fire, Player initiator){
-		if(ceremoniesParticipants.contains(initiator) || !initiator.hasPermission("citysystem.found")) return null;
+		if(ceremoniesParticipants.contains(initiator)) { // || !initiator.hasPermission("citysystem.found")) return null;
+			Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Already participating somewhere");
+			return null;
+		}
 		List<Player> nearbyPlayers = getNearbyPlayers(fire.getLocation());
-		if(nearbyPlayers.size()<2) return null;
+//		if(nearbyPlayers.size()<2) return null;
+		if(nearbyPlayers.size()<1) {
+			Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not enough players to start ceremony");
+			return null;
+		}
 		for(CityFoundingCeremony nearby : ceremonies){
 			if(nearby.getFire().getLocation().distanceSquared(fire.getLocation())<10000){
 				SwissSMPler.get(initiator).sendActionBar(ChatColor.RED+"Es findet bereits eine Gründung in der Nähe statt.");
@@ -305,7 +318,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 		CityFoundingCeremony result = new CityFoundingCeremony(fire, initiator);
 		ceremonies.add(result);
 		Bukkit.getPluginManager().registerEvents(result, CitySystemPlugin.getInstance());
-		result.begin();
+		result.begin(CitySystemPlugin.getInstance());
 		return result;
 	}
 	

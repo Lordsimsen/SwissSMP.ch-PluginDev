@@ -15,9 +15,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
@@ -27,6 +25,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -145,6 +145,39 @@ public class GamePhaseListener implements Listener {
     }
 
     @EventHandler
+    private void onCoalCheatingDetected(InventoryOpenEvent event){
+        if(arena == null) return;
+        if(arena.getGame() == null) return;
+        Player player = (Player) event.getPlayer();
+        if(!participants.contains(player)) return;
+        Inventory inventory = event.getInventory();
+        if(!(inventory instanceof FurnaceInventory)) return;
+        for(ItemStack item : inventory.getContents()){
+            if(item == null || item.getType() == Material.AIR) continue;
+            if(ItemUtil.getBoolean(item, "zvieriGameItem")) continue;
+            inventory.remove(item);
+            player.getWorld().dropItem(player.getLocation(), item);
+            player.playSound(player.getLocation().add(0,2,0), "aoe.taunt.2", SoundCategory.VOICE, 2, 1);
+        }
+    }
+
+//    @EventHandler
+//    private void onCoalCheatingAttempt(InventoryClickEvent event){
+//        Inventory inventory = event.getClickedInventory();
+//        if(!(inventory instanceof FurnaceInventory)) return;
+//        if(arena == null) return;
+//        if(arena.getGame() == null) return;
+//        Player player = (Player) event.getView().getPlayer();
+//        if(!participants.contains(player)) return;
+//
+//        ItemStack cursor = event.getCursor();
+//        if(!ItemUtil.getBoolean(cursor, "zvieriGameItem")) {
+//            player.playSound(player.getLocation().add(0,2,0), "aoe.taunt.2", SoundCategory.VOICE, 2, 1);
+//            event.setCancelled(true);
+//        }
+//    }
+
+    @EventHandler
     private void onItemPlace(BlockPlaceEvent event){
         if(arena == null) return;
         if(arena.getGame() == null) return;
@@ -158,8 +191,9 @@ public class GamePhaseListener implements Listener {
         ZvieriArena arena = ZvieriArena.get(event.getRegion().getId());
         if(arena == null) return;
         if(arena.getGame() == null) return;
+        GameMode gameMode = event.getPlayer().getGameMode();
+        if(gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
         SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.RED + "Du kannst während einem laufenden Spiel nicht in die Lokalität!");
-        event.setCancelled(true);
         event.getPlayer().teleport(arena.getEntry().getLocation(arena.getWorld()));
     }
 
@@ -167,6 +201,8 @@ public class GamePhaseListener implements Listener {
     private void onArenaInfiltrated(RegionEnteredEvent event){
         if(!event.getRegion().getId().equals(arena.getArenaRegion())) return;
         Player player = event.getPlayer();
+        GameMode gameMode = player.getGameMode();
+        if(gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
         if(!participants.contains(player)) player.teleport(arena.getEntry().getLocation(arena.getWorld()));
     }
 

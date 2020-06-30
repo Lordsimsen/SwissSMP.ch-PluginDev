@@ -1,141 +1,32 @@
 package ch.swisssmp.chatmanager;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
+import org.bukkit.event.Listener;
 
-public class ChatManager extends JavaPlugin implements Listener{
-	private static ChatManager plugin;
-	private static Server server;
-	private static PluginDescriptionFile pdfFile;
-	
-	//private String[] keywords = new String[0];
-	
-	@Override
-	public void onEnable() {
-		plugin = this;
-		pdfFile = getDescription();
-		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
-		
-		server = getServer();
-		
-		server.getPluginManager().registerEvents(this, this);
-		this.getCommand("chat").setExecutor(new PlayerChat());
+import java.util.UUID;
+
+public class ChatManager implements Listener{
+
+	public static HTTPRequest log(UUID sender, String senderName, String worldName, String message){
+		return log(sender, senderName, null, worldName, message);
 	}
-    
-	@Override
-	public void onDisable() {
-		PluginDescriptionFile pdfFile = getDescription();
-		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
-	}
-	
-	@EventHandler(ignoreCancelled=true)
-	private void onPlayerJoin(PlayerJoinEvent event){
-		String player_uuid = event.getPlayer().getUniqueId().toString();
-		String name = event.getPlayer().getName();
-		String world = event.getPlayer().getWorld().getName();
-		String message = "joined";
-		DataSource.getResponse(plugin, "chat.php", new String[]{
-			"player_uuid="+URLEncoder.encode(player_uuid),
-			"name="+URLEncoder.encode(name),
-			"world="+URLEncoder.encode(world),
-			"message="+URLEncoder.encode(message)
+
+	public static HTTPRequest log(UUID sender, String senderName, String recipientName, String worldName, String message){
+		return DataSource.getResponse(ChatManagerPlugin.getInstance(), "chat.php", new String[]{
+				"player_uuid="+ URLEncoder.encode(sender!=null ? sender.toString() : senderName),
+				"name="+URLEncoder.encode(senderName),
+				"world="+(worldName!=null ? URLEncoder.encode(worldName) : ""),
+				"message="+URLEncoder.encode(message),
+				"recipient="+(recipientName!=null ? URLEncoder.encode(recipientName) : "")
 		});
 	}
-	
-	@EventHandler(ignoreCancelled=true)
-	private void onPlayerQuit(PlayerQuitEvent event){
-		String player_uuid = event.getPlayer().getUniqueId().toString();
-		String name = event.getPlayer().getName();
-		String world = event.getPlayer().getWorld().getName();
-		String message = "quit";
-		DataSource.getResponse(plugin, "chat.php", new String[]{
-			"player_uuid="+URLEncoder.encode(player_uuid),
-			"name="+URLEncoder.encode(name),
-			"world="+URLEncoder.encode(world),
-			"message="+URLEncoder.encode(message)
-		});
-	}
-	
-	@EventHandler(ignoreCancelled=true,priority=EventPriority.LOWEST)
-	private void onChat(AsyncPlayerChatEvent event){
-		String player_uuid = event.getPlayer().getUniqueId().toString();
-		String name = event.getPlayer().getName();
-		String world = event.getPlayer().getWorld().getName();
-		String message = event.getMessage();
-		DataSource.getResponse(plugin, "chat.php", new String[]{
-			"player_uuid="+URLEncoder.encode(player_uuid),
-			"name="+URLEncoder.encode(name),
-			"world="+URLEncoder.encode(world),
-			"message="+URLEncoder.encode(message)
-		});
-	}
-	
-	@EventHandler(ignoreCancelled=true)
-	private void onPlayerCommand(PlayerCommandPreprocessEvent event){
-		String message = event.getMessage();
-		String[] alertCommands = new String[]{
-			"/msg ",
-			"/w ",
-			"/t ",
-			"/pm ",
-			"/emsg ",
-			"/epm ",
-			"/tell ",
-			"/etell ",
-			"/whisper ",
-			"/ewhisper ",
-			"/m ",
-			"/r ",
-			"/a "
-		};
-		boolean isAlertCommand = false;
-		for(String s : alertCommands){
-			if(message.toLowerCase().contains(s)){
-				isAlertCommand = true;
-				break;
-			}
-		}
-		if(isAlertCommand){
-			String recipient = message.split(" ")[1];
-			Player player = Bukkit.getPlayer(recipient);
-			if(player==null) return;
-			if(player.hasPermission("chatnotifier.personalalert") || event.getPlayer().hasPermission("chatnotifier.personalalert")){
-				String player_uuid = event.getPlayer().getUniqueId().toString();
-				String name = event.getPlayer().getName();
-				String world = event.getPlayer().getWorld().getName();
-				message = extractMessage(message);
-				DataSource.getResponse(plugin, "chat.php", new String[]{
-					"player_uuid="+URLEncoder.encode(player_uuid),
-					"name="+URLEncoder.encode(name),
-					"world="+URLEncoder.encode(world),
-					"message="+URLEncoder.encode(message),
-					"recipient="+URLEncoder.encode(player.getName())
-				});
-			}
-		}
-	}
-	
-	private String extractMessage(String command){
+
+	public static String extractMessage(String command){
 	    String[] messageParts = command.split(" ");
 	    int offset = messageParts[0].length()+messageParts[1].length()+1;
 	    if(command.length()<=offset) return "";
 	    return command.substring(offset);
-	}
-	
-	public static ChatManager getInstance(){
-		return plugin;
 	}
 }

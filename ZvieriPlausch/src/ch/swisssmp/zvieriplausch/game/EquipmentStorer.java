@@ -3,10 +3,10 @@ package ch.swisssmp.zvieriplausch.game;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -65,8 +65,8 @@ public class EquipmentStorer {
     }
 
     private static HashMap<Integer, ItemStack> unpackItems(ItemStack itemStack){
-        NBTTagCompound nbt = ItemUtil.getData(itemStack);
-        String seralizedJson = nbt.hasKey(EQUIPMENT_STORER_KEY) ? nbt.getString(EQUIPMENT_STORER_KEY) : null;
+        CompoundTag nbt = ItemUtil.getData(itemStack);
+        String seralizedJson = nbt.containsKey(EQUIPMENT_STORER_KEY) ? nbt.getString(EQUIPMENT_STORER_KEY) : null;
         if(seralizedJson == null) return null;
         JsonObject json = JsonUtil.parse(seralizedJson);
         if(json == null || !json.has("items") || !json.get("items").isJsonArray()){

@@ -1,9 +1,10 @@
-main: ch.swisssmp.utils.UtilityCommands
-version: 1.3
+main: ch.swisssmp.utils.UtilityCommandsPlugin
+version: 6
 api-version: 1.13
 name: UtilityCommands
-author: detig_iii
+authors: [detig_iii,WhiteGuggi]
 description: Steuert allgemeine Befehle
+depend: [SwissSMPUtils,WebCore,RawTextBuilderAPI]
 permissions:
   smp.commands.help:
     description: Erlaubt Verwendung des Befehls /help
@@ -20,9 +21,6 @@ permissions:
   smp.commands.hauptstadt:
     description: Erlaubt die Verwendung von /hauptstadt
     default: op
-  smp.commands.list:
-    description: Erlaubt Verwendung des Befehls /list
-    default: true
   smp.commands.more:
     description: Erlaubt Verwendung des Befehls /more
     default: op
@@ -31,6 +29,54 @@ permissions:
     default: op
   smp.commands.gravity:
     description: Erlaubt Verwendung des Befehls /gravity
+    default: op
+  smp.commands.stall:
+    description: Erlaubt Verwendung des Befehls /stall
+    default: op
+  smp.commands.heal:
+    description: Erlaubt Verwendung des Befehls /heal
+    default: op
+  smp.commands.clear:
+    description: Erlaubt Verwendung der Befehle /clear, /clearinv, /clearinventory
+    default: op
+  smp.commands.gamemode:
+    description: Erlaubt Verwendung des Befehls /gm
+    default: op
+  smp.commands.home:
+    description: Erlaubt Verwendung der Befehle /home und /home set
+    default: op
+  smp.commands.back:
+    description: Erlaubt Verwendung des Befehls /back
+    default: op
+  smp.commands.god:
+    description: Erlaubt Verwendung des Befehls /god
+    default: op
+  smp.commands.fly:
+    description: Erlaubt Verwendung des Befehls /fly
+    default: op
+  smp.commands.inventorysee:
+    description: Erlaubt Verwendung des Befehls /inventorysee
+    default: op
+  smp.commands.top:
+    description: Erlaubt Verwendung des Befehls /top
+    default: op
+  smp.commands.enderchest:
+    description: Erlaubt Verwendung des Befehls /enderchest
+    default: op
+  smp.commands.vanish:
+    description: Erlaubt Verwendung des Befehls /vanish
+    default: op
+  smp.commands.broadcast:
+    description: Erlaubt Verwendung des Befehls /broadcast
+    default: op
+  smp.commands.hat:
+    description: Erlaubt Verwendung des Befehls /hat
+    default: op
+  smp.commands.playertime:
+    description: Erlaubt Verwendung des Befehls /playertime
+    default: op
+  smp.commands.playerweather:
+    description: Erlaubt Verwendung des Befehls /playerweather
     default: op
 commands:
   help:
@@ -64,10 +110,92 @@ commands:
   rename:
     description: Gib dem Item in deiner Hand einen neuen Namen
     usage: /rename [name]
-    permission: smp.commands.rename
   choose:
     description: Entscheide bei einer Anfrage
     usage: /choose [ID der Anfrage] [Auswahl]
   gravity:
     description: Stellt Schwerkraft um
-    usage: /gravity (Spieler)
+    usage: /gravity [Spieler]
+    permission: smp.commands.gravity
+  stall:
+    description: Crasht den Server (ja wirklich)
+    usage: /stall
+    permission: smp.commands.stall
+  heal:
+    description: Heilt den angegebenen Spieler oder den CommandSender
+    usage: /heal [Spieler]
+    permission: smp.commands.heal
+  clear:
+    description: Entfernt alle Inhalte aus dem Inventar.
+    usage: /clear [Spieler]
+    permission: smp.commands.clear
+    aliases: [clearinv,clearinventory]
+  gamemode:
+    description: Erlaubt gewohntes Wechseln des Gamemode
+    usage: /gm [gamemode]
+    permission: smp.commands.gamemode
+    aliases: [gm]
+  home:
+    description: Erlaubt Teleport zu persönlichem Respawnpunkt
+    usage: /home
+    permission: smp.commands.home
+  home set:
+    description: Erlaubt Setzen des persönlichen Respawnpunktes
+    permission: smp.commands.home
+  back:
+    description: Erlaubt an Ort vor letzter Teleportation zurückzukehren
+    usage: /back
+    permission: smp.commands.back
+  god:
+    description: Stellt die Unverwundbarkeit um.
+    usage: /god [Spieler]
+    permission: smp.commands.god
+  fly:
+    description: Stellt Flugmodus um.
+    usage: /fly [Spieler]
+    permission: smp.commands.fly
+  flyspeed:
+    description: Legt Fluggeschwindigkeit fest.
+    usage: /flyspeed (geschwindigkeit)
+    permission: smp.commands.fly
+  flyspeed default:
+    description: Setzt Fluggeschwindigkeit auf default Wert
+    usage: /flyspeed default
+    permission: smp.commands.fly
+  inventorysee:
+    description: Lässt einen Blick in ein fremdes Inventar zu.
+    usage: /inventorysee (Spieler)
+    permission: smp.commands.inventorysee
+    aliases: [invsee]
+  top:
+    description: Teleportiert einen Spieler auf den höchsten Block an seiner Position.
+    usage: /top [Spieler]
+    permission: smp.commands.top
+  enderchest:
+    description: Lässt einen Blick in eigene/fremde Enderkiste zu.
+    usage: /enderchest [Spieler]
+    permission: smp.commands.enderchest
+    aliases: [ec]
+  vanish:
+    description: Schaltet Sichtbarkeit eines Spielers für andere Spieler um.
+    usage: /vanish
+    permission: smp.commands.vanish
+    aliases: [v]
+  broadcast:
+    description: Sendet eine Nachricht an alle Spieler
+    usage: /broadcast <Nachricht>
+    permission: smp.commands.broadcast
+  hat:
+    description: Erlaubt tragen eines Blockes als Helm
+    usage: /hat
+    permission: smp.commands.hat
+  playertime:
+    description: Erlaubt setzen einer asynchronen Zeit für den Client.
+    usage: /playertime (set|reset|pause|resume) [time]
+    permission: smp.commands.playertime
+    aliases: [ptime]
+  playerweather:
+    description: Erlaubt setzen eines asynchronen Wettereffektes für den Client.
+    usage: /playerweather (set|reset) (clear|rain)
+    permission: smp.commands.playerweather
+    aliases: [pweather]

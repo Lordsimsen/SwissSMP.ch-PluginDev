@@ -23,5 +23,6 @@
     <orderEntry type="module" module-name="CustomItems" />
     <orderEntry type="module" module-name="CustomEditorAPI" />
     <orderEntry type="module" module-name="ResourcepackManager" />
+    <orderEntry type="library" name="NBT" level="project" />
   </component>
 </module>

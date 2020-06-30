@@ -1,0 +1,16 @@
+main: ch.swisssmp.netherportals.NetherPortalsPlugin
+version: 3
+api-version: 1.13
+name: NetherPortals
+author: detig_iii
+description: Überschreibt vanilla Nether Portale mit multiworldfähigen, konfigurierbaren Portalen
+depend: [WorldManager,CustomEditorAPI,CustomItems,SwissSMPUtils]
+permissions:
+  netherportals.admin:
+    description: Erlaubt Verwaltung des Plugins
+    default: op
+commands:
+  netherportals:
+    description: Basisbefehl, öffnet die Einstellungen für die aktuelle Welt
+    usage: "/<command>"
+    permission: netherportals.admin

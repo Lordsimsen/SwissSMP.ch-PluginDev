@@ -1,5 +1,5 @@
-main: ch.swisssmp.world.WorldManager
-version: 3.1
+main: ch.swisssmp.world.WorldManagerPlugin
+version: 7
 api-version: 1.13
 name: WorldManager
 author: detig_iii
@@ -17,7 +17,7 @@ commands:
     permission: worldmanager.admin
   world:
     description: Verwaltet das Plugin
-    usage: "/<command> <subcommand> [Argumente]"
+    usage: "/<command> <subcommand> <Argumente>"
     permission: worldmanager.admin
   world reload:
     description: Lädt und deaktiviert Welten
@@ -25,40 +25,40 @@ commands:
     permission: worldmanager.admin
   world create:
     description: Öffnet den Editor zum erstellen einer neuen Welt
-    usage: "Verwendung: /<command> <subcommand> [Welt] (Seed=Zufall)"
+    usage: "Verwendung: /<command> <subcommand> <Welt> [<Seed=Zufall>]"
     permission: worldmanager.admin
   world name:
     description: Setzt den Anzeigename einer Welt
-    usage: "Verwendung: /<command> <subcommand> [Welt] [Anzeige-Name]"
+    usage: "Verwendung: /<command> <subcommand> <Welt> [<Anzeige-Name>]"
     permission: worldmanager.admin
   world goto:
     description: Teleportiert dich in eine Welt
-    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    usage: "Verwendung: /<command> <subcommand> <Welt>"
     permission: worldmanager.admin
   world load:
     description: Lädt eine Welt
-    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    usage: "Verwendung: /<command> <subcommand> <Welt>"
     permission: worldmanager.admin
   world unload:
     description: Deaktiviert eine Welt (ohne zu speichern!)
-    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    usage: "Verwendung: /<command> <subcommand> <Welt>"
     permission: worldmanager.admin
   world upload:
     description: Lädt eine Welt auf den Austauschserver hoch
-    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    usage: "Verwendung: /<command> <subcommand> <Welt>"
     permission: worldmanager.admin
   world download:
     description: Lädt eine Welt vom Austauschserver herunter
-    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    usage: "Verwendung: /<command> <subcommand> <Welt>"
     permission: worldmanager.admin
   world delete:
     description: Löscht eine Welt von diesem Server
-    usage: "Verwendung: /<command> <subcommand> [Welt]"
+    usage: "Verwendung: /<command> <subcommand> <Welt>"
     permission: worldmanager.admin
   world trim:
     description: Löscht alle Chunks ausserhalb des Weltrands
     usage:
-      - "Verwendung: /<command> <subcommand> [Welt] (Frequenz) (Rand)"
+      - "Verwendung: /<command> <subcommand> <Welt> [<Frequenz>] [<Rand>]"
       - "Argumente: "
       - "Frequenz: Chunks pro Sekunde, Standard 5000"
       - "Rand: Anzahl extra Blöcke über den Weltrand hinaus, Standard 208"
@@ -66,11 +66,11 @@ commands:
     
   worldborder:
     description: Hauptbefehl um den Weltrand einzustellen
-    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    usage: "Verwendung: /<command> <subcommand> [<Argumente>]"
     permission: worldmanager.admin
   worldborder set:
     description: Setzt den Radius
-    usage: "Verwendung: /<command> <subcommand> [Distanz]"
+    usage: "Verwendung: /<command> <subcommand> <Distanz>"
     permission: worldmanager.admin
   worldborder get:
     description: Zeigt Informationen zum Weltrand an
@@ -82,11 +82,11 @@ commands:
     permission: worldmanager.admin
   worldborder wrap:
     description: Stellt ein ob die Welt rund ist
-    usage: "Verwendung: /<command> <subcommand> [true|false]"
+    usage: "Verwendung: /<command> <subcommand> <true|false>"
     permission: worldmanager.admin
   worldborder margin:
     description: Stellt die Warnzone ein
-    usage: "Verwendung: /<command> <subcommand> [Distanz]"
+    usage: "Verwendung: /<command> <subcommand> <Distanz>"
     permission: worldmanager.admin
   worldborder clear:
     description: Entfernt den Weltrand

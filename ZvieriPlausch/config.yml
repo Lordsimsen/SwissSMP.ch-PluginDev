@@ -2,28 +2,28 @@ levels:
   level_1:
     name: 'Apprentis'
     unlocked: true
-    threshhold: 200
+    threshhold: 250
     duration: 300
     firstclient: 10
-    baseinterval: 20
+    baseinterval: 13
   level_2:
     name: 'Commis de cuisine'
     unlocked: false
-    threshhold: 300
+    threshhold: 350
     duration: 360
     firstclient: 10
-    baseinterval: 20
+    baseinterval: 12
   level_3:
     name: 'Chef de partie'
     unlocked: false
-    threshhold: 450
+    threshhold: 4500
     duration: 420
     firstclient: 10
-    baseinterval: 15
+    baseinterval: 13
   level_4:
     name: 'Sous Chef'
     unlocked: false
-    threshhold: 500
+    threshhold: 800
     duration: 480
     firstclient: 5
     baseinterval: 15
@@ -92,7 +92,7 @@ dishes:
     name: 'Veggies Delight'
     price: 12
     recipe:
-      - '1x Seegras'
+      - '1x Seetang'
       - '1x Weizen'
       - '1x Karotte'
       - 'von links nach rechts/oben nach unten'
