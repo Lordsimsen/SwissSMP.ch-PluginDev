@@ -1,10 +1,5 @@
 package ch.swisssmp.deathmessages;
 
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.DataSource;
-import ch.swisssmp.webcore.HTTPRequest;
-import ch.swisssmp.webcore.RequestMethod;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -19,64 +14,56 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.projectiles.ProjectileSource;
 
-import java.util.ArrayList;
-
 public class EventListener implements Listener {
     @EventHandler
-    private void onPlayerDeath(PlayerDeathEvent event){
+    private void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        ArrayList<String> arguments = new ArrayList<String>();
-        arguments.add("player="+ URLEncoder.encode(player.getDisplayName()));
-        if(player.getKiller()!=null){
-            arguments.add("killer="+URLEncoder.encode(player.getKiller().getDisplayName()));
+        String deathMessage = event.getDeathMessage();
+        String entity = null;
+        String cause = null;
+        String block = null;
+        String killer = null;
+
+        if (player.getKiller() != null) {
+            killer = player.getKiller().getDisplayName();
         }
-        arguments.add("message="+URLEncoder.encode(event.getDeathMessage()));
-        arguments.add("world="+URLEncoder.encode(player.getWorld().getName()));
         EntityDamageEvent lastDamage = player.getLastDamageCause();
-        if(lastDamage!=null){
-            arguments.add("cause="+lastDamage.getCause());
-            if(lastDamage instanceof EntityDamageByEntityEvent){
+        if (lastDamage != null) {
+            cause = lastDamage.getCause().toString();
+            if (lastDamage instanceof EntityDamageByEntityEvent) {
                 EntityDamageByEntityEvent damageByEntity = (EntityDamageByEntityEvent) lastDamage;
-                Entity entity = damageByEntity.getDamager();
-                if(entity!=null){
-                    if(entity instanceof Projectile){
-                        Projectile projectile = (Projectile) entity;
-                        arguments.add("arguments[projectile]="+projectile.getShooter());
+                Entity e = damageByEntity.getDamager();
+                if (e != null) {
+                    if (e instanceof Projectile) {
+                        Projectile projectile = (Projectile) e;
                         ProjectileSource projectileSource = projectile.getShooter();
-                        if(projectileSource instanceof Entity){
-                            Entity shooter = (Entity)projectileSource;
-                            arguments.add("arguments[entity]="+(shooter.getType()));
-                            if(shooter.getCustomName()!=null) arguments.add("killer="+URLEncoder.encode(shooter.getCustomName()));
-                        }
-                        else if(projectileSource instanceof BlockProjectileSource){
+                        if (projectileSource instanceof Entity) {
+                            Entity shooter = (Entity) projectileSource;
+                            entity = shooter.getType().toString();
+                            if (shooter.getCustomName() != null)
+                                killer = shooter.getCustomName();
+                        } else if (projectileSource instanceof BlockProjectileSource) {
                             BlockProjectileSource blockSource = (BlockProjectileSource) projectileSource;
-                            arguments.add("arguments[block]="+blockSource.getBlock().getType());
+                            block = blockSource.getBlock().getType().toString();
                         }
 
-                    }
-                    else{
-                        if(entity instanceof Zombie && ((Zombie)entity).isBaby()){
-                            arguments.add("arguments[entity]=BABY_"+entity.getType());
+                    } else {
+                        if (e instanceof Zombie && ((Zombie) e).isBaby()) {
+                            entity = "BABY_" + e.getType();
+                        } else {
+                            entity = e.getType().toString();
                         }
-                        else{
-                            arguments.add("arguments[entity]="+entity.getType());
-                        }
-                        if(entity.getCustomName()!=null) arguments.add("killer="+URLEncoder.encode(entity.getCustomName()));
+                        if (e.getCustomName() != null)
+                            killer = e.getCustomName();
                     }
                 }
-            }
-            else if(lastDamage instanceof EntityDamageByBlockEvent){
+            } else if (lastDamage instanceof EntityDamageByBlockEvent) {
                 EntityDamageByBlockEvent damageByBlock = (EntityDamageByBlockEvent) lastDamage;
-                Block block = damageByBlock.getDamager();
-                if(block!=null)
-                    arguments.add("arguments[block]="+block.getType());
+                Block b = damageByBlock.getDamager();
+                if (b != null)
+                    block = b.getType().toString();
             }
         }
-        HTTPRequest request = DataSource.getResponse(DeathMessagesPlugin.getInstance(), "death.php", arguments.toArray(new String[arguments.size()]), RequestMethod.POST_SYNC);
-        YamlConfiguration yamlConfiguration = request.getYamlResponse();
-        if(yamlConfiguration==null) return;
-        if(yamlConfiguration.contains("message")){
-            event.setDeathMessage(yamlConfiguration.getString("message"));
-        }
+        event.setDeathMessage(DeathMessages.GetCustomDeathMessage(player, deathMessage, cause, entity, block, killer));
     }
 }

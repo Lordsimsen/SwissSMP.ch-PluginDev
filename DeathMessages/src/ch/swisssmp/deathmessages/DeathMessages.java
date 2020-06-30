@@ -7,6 +7,7 @@ import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class DeathMessages {
@@ -40,7 +40,7 @@ public class DeathMessages {
         });
     }
 
-    public String GetCustomDeathMessage(Player player, String oldMessage, String entity, String block, String killer) {
+    public static String GetCustomDeathMessage(Player player, String oldMessage, String cause, String entity, String block, String killer) {
         Optional<VanillaDeathMessage> vanillaDeathMessageOpt = vanillaDethMessages.stream()
                 .filter(msg -> oldMessage.contains(msg.signature))
                 .filter(msg -> oldMessage.contains(using) == msg.message.contains(using))
@@ -52,13 +52,15 @@ public class DeathMessages {
         VanillaDeathMessage vanillaDeathMessage = vanillaDeathMessageOpt.get();
 
         Random r = new Random();
+        Bukkit.getLogger().info(player.getDisplayName() + "_" + oldMessage + "_" + entity + "_" + block + "_" + killer);
         List<CustomDeathMessage> matchingCustomDeathMessages = customDeathMessages.stream()
                 .filter(msg -> msg.vanillaId == vanillaDeathMessage.id)
-                .filter(msg -> msg.entity.equals(entity))
-                .filter(msg -> msg.block.equals(block))
+                .filter(msg -> msg.cause == null || (msg.cause == null && cause == null) || (msg.cause != null && msg.cause.equals(cause)))
+                .filter(msg -> (msg.entity == null && entity == null) || (msg.entity != null && msg.entity.equals(entity)))
+                .filter(msg -> (msg.block == null && block == null) || (msg.block != null && msg.block.equals(block)))
                 .collect(Collectors.toList());
         CustomDeathMessage randomMessage = matchingCustomDeathMessages.get(r.nextInt(matchingCustomDeathMessages.size() - 1));
-
+        Bukkit.getLogger().info(vanillaDeathMessage.mask); // ["{Player}","{Mob}"]
         JsonObject mask = JsonUtil.parse(vanillaDeathMessage.mask);
         JsonArray maskJsonArray = mask.getAsJsonArray();
         String vanillaMessage = vanillaDeathMessage.message;
@@ -73,21 +75,20 @@ public class DeathMessages {
         String oldCopy = new StringBuffer(oldMessage).toString();
         String[] splitVanillaMessage = vanillaMessage.split(";");
 
-        for(String splitVanillaMessagePart : splitVanillaMessage){
-            oldCopy = oldCopy.replace(splitVanillaMessagePart,"\n");
+        for (String splitVanillaMessagePart : splitVanillaMessage) {
+            oldCopy = oldCopy.replace(splitVanillaMessagePart, "\n");
         }
         String[] splitOldMessage = oldCopy.split("\n");
-        for(String maskElement : masks){
-            String asdf = new String();
-            if("{Player}".equals(maskElement))
-                asdf = player.getDisplayName();
-            else if (("{Mob}".equals(maskElement) || "{Killer}".equals(maskElement)) && !killer.isEmpty()){
-                asdf = killer;
+        for (String maskElement : masks) {
+            String maskInsert = new String();
+            if ("{Player}".equals(maskElement)) {
+                maskInsert = player.getDisplayName();
+            } else if (("{Mob}".equals(maskElement) || "{Killer}".equals(maskElement)) && !killer.isEmpty()) {
+                maskInsert = killer;
+            } else {
+                maskInsert = splitOldMessage[masks.indexOf(maskElement)];
             }
-            else{
-                asdf = splitOldMessage[masks.indexOf(maskElement)];
-            }
-            customMessage = customMessage.replace(maskElement, asdf);
+            customMessage = customMessage.replace(maskElement, maskInsert);
         }
         return customMessage;
     }
@@ -100,17 +101,23 @@ public class DeathMessages {
         }
 
         vanillaDethMessages.clear();
+        int vanillaCounter = 0;
         for (JsonElement rawVanillaDeathMessage : rawVanillaDeathMessages) {
             if (rawVanillaDeathMessage.isJsonObject()) {
                 vanillaDethMessages.add(loadVanillaDeathMessage(rawVanillaDeathMessage.getAsJsonObject()));
+                vanillaCounter++;
             }
         }
         customDeathMessages.clear();
+        int customCounter = 0;
         for (JsonElement rawCustomDeathMessage : rawCustomDeathMessages) {
             if (rawCustomDeathMessage.isJsonObject()) {
                 customDeathMessages.add(loadCustomDeathMessage(rawCustomDeathMessage.getAsJsonObject()));
+                customCounter++;
             }
         }
+        Bukkit.getLogger().info("Anzahl vanilla Todesnachrichten geladen: " + vanillaCounter);
+        Bukkit.getLogger().info("Anzahl custom Todesnachrichten geladen: " + customCounter);
     }
 
     private static VanillaDeathMessage loadVanillaDeathMessage(JsonObject rawVanillaDeathMessage) {
