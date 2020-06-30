@@ -2,35 +2,41 @@ package ch.swisssmp.warps;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class WarpsPlugin extends JavaPlugin {
 
-    private static PluginDescriptionFile pdfFile;
     private static WarpsPlugin plugin;
 
     @Override
     public void onEnable(){
         plugin = this;
-        pdfFile = getDescription();
 
-        WarpPoints.loadWarps();
+        for(World world : Bukkit.getWorlds()) {
+            WarpPoints.loadWarps(world);
+        }
 
-        plugin.getCommand("warp").setExecutor(new WarpCommand());
+        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 
-        Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+        Bukkit.getPluginCommand("warp").setExecutor(new WarpCommand());
+        Bukkit.getPluginCommand("warps").setExecutor(new WarpsCommand());
+        Bukkit.getPluginCommand("setwarp").setExecutor(new SetWarpCommand());
+        Bukkit.getPluginCommand("removewarp").setExecutor(new RemoveWarpCommand());
+
+        Bukkit.getLogger().info(getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
     }
 
     @Override
     public void onDisable(){
+        WarpPoints.unloadWarps();
         HandlerList.unregisterAll(this);
         Bukkit.getScheduler().cancelTasks(this);
-        Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+        Bukkit.getLogger().info(getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
     }
 
-    public JavaPlugin getInstance(){
+    public static JavaPlugin getInstance(){
         return plugin;
     }
 

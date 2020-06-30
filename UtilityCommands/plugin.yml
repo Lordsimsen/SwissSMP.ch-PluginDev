@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.UtilityCommandsPlugin
-version: 5
+version: 6
 api-version: 1.13
 name: UtilityCommands
 authors: [detig_iii,WhiteGuggi]
@@ -68,6 +68,15 @@ permissions:
     default: op
   smp.commands.broadcast:
     description: Erlaubt Verwendung des Befehls /broadcast
+    default: op
+  smp.commands.hat:
+    description: Erlaubt Verwendung des Befehls /hat
+    default: op
+  smp.commands.playertime:
+    description: Erlaubt Verwendung des Befehls /playertime
+    default: op
+  smp.commands.playerweather:
+    description: Erlaubt Verwendung des Befehls /playerweather
     default: op
 commands:
   help:
@@ -176,3 +185,17 @@ commands:
     description: Sendet eine Nachricht an alle Spieler
     usage: /broadcast <Nachricht>
     permission: smp.commands.broadcast
+  hat:
+    description: Erlaubt tragen eines Blockes als Helm
+    usage: /hat
+    permission: smp.commands.hat
+  playertime:
+    description: Erlaubt setzen einer asynchronen Zeit für den Client.
+    usage: /playertime (set|reset|pause|resume) [time]
+    permission: smp.commands.playertime
+    aliases: [ptime]
+  playerweather:
+    description: Erlaubt setzen eines asynchronen Wettereffektes für den Client.
+    usage: /playerweather (set|reset) (clear|rain)
+    permission: smp.commands.playerweather
+    aliases: [pweather]

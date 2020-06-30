@@ -1,6 +1,8 @@
 package ch.swisssmp.utils;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -32,7 +34,18 @@ public class BackCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
-        player.teleport(getBackLocation(player));
-        return true;
+        Location location = getBackLocation(player);
+        if(location == null){
+            player.sendMessage(ChatColor.RED + "Es gibt keinen Punkt an den du zurückkehren könntest.");
+        }
+        World world = location.getWorld();
+        if(world != null) {
+            player.teleport(location);
+            return true;
+        } else{
+            player.sendMessage(ChatColor.RED + "Welt existiert nicht mehr..");
+            backLocations.remove(player.getUniqueId());
+            return true;
+        }
     }
 }
