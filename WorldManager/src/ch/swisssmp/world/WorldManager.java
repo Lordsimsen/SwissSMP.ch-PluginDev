@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -147,31 +148,32 @@ public class WorldManager {
 	public static void deleteWorld(String worldName){
 		World loaded = Bukkit.getWorld(worldName);
 		if(loaded!=null){
-			
-			if(!Bukkit.unloadWorld(loaded, true)){
+			loaded.setAutoSave(false);
+			loaded.setKeepSpawnInMemory(false);
+			for(Chunk chunk : loaded.getLoadedChunks()){
+				chunk.unload(false);
+			}
+			if(!Bukkit.unloadWorld(loaded, false)){
 				Bukkit.getLogger().info("[WorldManager] Konnte Welt "+worldName+" nicht deaktivieren und löschen.");
 				return;
 			}
 			Bukkit.getLogger().info("[WorldManager] Welt "+worldName+" deaktiviert.");
 			Bukkit.getScheduler().runTaskLater(WorldManagerPlugin.getInstance(), ()->{
 				WorldManager.deleteWorld(worldName);
-			}, 100L);
+			}, 1L);
 			return;
 		}
-		File worldDirectory = new File(Bukkit.getWorldContainer(),worldName);
-		FileUtil.deleteRecursive(worldDirectory);
-		Bukkit.getLogger().info("[WorldManager] Lösche Ordner "+worldDirectory.getPath());
-		//continue deleting files until this stuff is gone
-		if(worldDirectory.exists()){
-			Bukkit.getLogger().info("[WorldManager] Ordner "+worldDirectory.getPath()+" konnte nicht vollständig gelöscht werden.");
-			Bukkit.getLogger().info("[WorldManager] Löschung der Welt "+worldName+" wird im nächsten Tick fortgesetzt.");
-			Bukkit.getScheduler().runTaskLater(WorldManagerPlugin.getInstance(), ()->{
-				WorldManager.deleteWorld(worldName);
-			}, 1l);
-			return;
-		}
-		Bukkit.getPluginManager().callEvent(new WorldDeleteEvent(worldName));
-		Bukkit.getLogger().info("[WorldManager] Welt "+worldName+" gelöscht.");
+		Bukkit.getScheduler().runTaskAsynchronously(WorldManagerPlugin.getInstance(), ()->{
+			File worldDirectory = new File(Bukkit.getWorldContainer(),worldName);
+			FileUtil.deleteRecursive(worldDirectory);
+			Bukkit.getLogger().info("[WorldManager] Lösche Ordner "+worldDirectory.getPath());
+			//continue deleting files until this stuff is gone
+			if(worldDirectory.exists()){
+				Bukkit.getLogger().warning("[WorldManager] Ordner "+worldDirectory.getPath()+" konnte nicht vollständig gelöscht werden.");
+			}
+			Bukkit.getPluginManager().callEvent(new WorldDeleteEvent(worldName));
+			Bukkit.getLogger().info("[WorldManager] Welt "+worldName+" gelöscht.");
+		});
 	}
 	
 	public static String getDisplayName(World world){

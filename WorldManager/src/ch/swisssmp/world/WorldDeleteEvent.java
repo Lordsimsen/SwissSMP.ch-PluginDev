@@ -4,7 +4,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Event when a zipped World Folder is unpacked
+ * Event when a World is deleted from disk
  * @author detig_iii
  *
  */
@@ -14,6 +14,7 @@ public class WorldDeleteEvent extends Event{
 	private final String worldName;
 	
     protected WorldDeleteEvent(String worldName) {
+		super(true);
 		this.worldName = worldName;
 	}
     

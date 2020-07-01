@@ -21,6 +21,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.travel.phase.ArrivePhase;
@@ -123,6 +125,20 @@ public class Journey implements Runnable, Listener {
 	private void onPlayerDeath(PlayerRespawnEvent event){
 		if(!this.players.contains(event.getPlayer())) return;
 		this.currentPhase.onPlayerRespawn(event);
+	}
+
+	@EventHandler
+	private void onWorldInit(WorldInitEvent event){
+		if(!event.getWorld().getName().equals(travelWorldInstanceName)) return;
+		event.getWorld().setKeepSpawnInMemory(false);
+		event.getWorld().setAutoSave(false);
+	}
+
+	@EventHandler
+	private void onWorldSave(WorldSaveEvent event){
+		if(!event.getWorld().getName().equals(travelWorldInstanceName)) return;
+		event.getWorld().setKeepSpawnInMemory(false);
+		event.getWorld().setAutoSave(false);
 	}
 	
 	/*
