@@ -31,4 +31,4 @@ commands:
     description: Sendet einem Spieler eine persönliche Nachricht
     usage: "/<command> <Empfänger> <Nachricht>"
     permission: chat.tell
-    aliases: [msg,w]
+    aliases: [msg,w,m]

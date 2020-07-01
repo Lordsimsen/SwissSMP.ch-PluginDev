@@ -17,9 +17,10 @@ public class PlayerTimeCommand implements CommandExecutor {
         Player player = (Player) sender;
         switch(args[0]){
             case "set":{
-                long time = Long.parseLong(args[1]);
+                long inputTime = Long.parseLong(args[1]);
+                long time = inputTime - player.getWorld().getTime();
                 player.setPlayerTime(time, true);
-                player.sendMessage(ChatColor.AQUA + "Persönliche Zeit auf " + ChatColor.DARK_AQUA + time + ChatColor.AQUA + " gesetzt.");
+                player.sendMessage(ChatColor.AQUA + "Persönliche Zeit auf " + ChatColor.DARK_AQUA + inputTime + ChatColor.AQUA + " Ticks gesetzt.");
                 return true;
             }
             case "reset":{
@@ -30,7 +31,7 @@ public class PlayerTimeCommand implements CommandExecutor {
             case "pause":{
                 long playerTime = player.getPlayerTime();
                 player.setPlayerTime(playerTime, false);
-                player.sendMessage(ChatColor.AQUA + "Persönliche Zeit fixiert auf " + ChatColor.DARK_AQUA + playerTime);
+                player.sendMessage(ChatColor.AQUA + "Persönliche Zeit fixiert.");
                 return true;
             }
             case "resume":{

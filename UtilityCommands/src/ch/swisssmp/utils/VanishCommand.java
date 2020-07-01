@@ -13,6 +13,8 @@ import java.util.UUID;
 
 public class VanishCommand implements CommandExecutor {
 
+    public final static String vanishPrefix = ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "Vanish" + ChatColor.DARK_AQUA + "]";
+
     private static HashSet<UUID> vanishedPlayers = new HashSet<>();
 
     protected static HashSet<UUID> getVanishedPlayers(){
@@ -34,25 +36,26 @@ public class VanishCommand implements CommandExecutor {
             for(Player player : Bukkit.getServer().getOnlinePlayers()){
                 if(player == vanisher) continue;
                 if(player.hasPermission("smp.commands.vanish")) {
-                    player.sendMessage(ChatColor.AQUA + vanisher.getName() + ChatColor.DARK_AQUA + " ist wieder sichtbar. Poof!");
+                    player.sendMessage(vanishPrefix + " " + ChatColor.AQUA + vanisher.getName()
+                            + ChatColor.DARK_AQUA + " ist wieder sichtbar. Poof!");
                     continue;
                 }
                 player.showPlayer(UtilityCommandsPlugin.getInstance(), vanisher);
             }
-            vanishedPlayers.remove(vanisher);
-            vanisher.sendMessage(ChatColor.DARK_AQUA + "Du bist wieder sichtbar. Poof!");
+            vanishedPlayers.remove(vanisher.getUniqueId());
+            vanisher.sendMessage(vanishPrefix + " " + ChatColor.DARK_AQUA + "Du bist wieder sichtbar. Poof!");
             vanisher.playSound(vanisher.getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1, 1);
         } else{
             for(Player player : Bukkit.getServer().getOnlinePlayers()){
                 if(player == vanisher) continue;
                 if(player.hasPermission("smp.commands.vanish")) {
-                    player.sendMessage(ChatColor.AQUA + vanisher.getName() + ChatColor.DARK_AQUA + " ist nun unsichtbar. Poof!");
+                    player.sendMessage(vanishPrefix + " " + ChatColor.AQUA + vanisher.getName() + ChatColor.DARK_AQUA + " ist nun unsichtbar. Poof!");
                     continue;
                 }
                 player.hidePlayer(UtilityCommandsPlugin.getInstance(), vanisher);
             }
             vanishedPlayers.add(vanisher.getUniqueId());
-            vanisher.sendMessage(ChatColor.DARK_AQUA + "Du bist verschwunden. Poof!");
+            vanisher.sendMessage(vanishPrefix + ChatColor.DARK_AQUA + "Du bist verschwunden. Poof!");
             vanisher.playSound(vanisher.getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1, 1);
         }
         return true;
