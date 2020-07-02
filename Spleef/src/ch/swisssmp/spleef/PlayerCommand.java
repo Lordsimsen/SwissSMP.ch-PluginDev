@@ -5,6 +5,7 @@
  */
 package ch.swisssmp.spleef;
 
+import ch.swisssmp.schematics.SchematicUtil;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,6 +13,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.webcore.DataSource;
+
+import java.io.File;
 
 /**
  *
@@ -87,13 +90,18 @@ public class PlayerCommand implements CommandExecutor{
             		return true;
             	}
             	int arena_id = Integer.parseInt(args[1]);
-            	String schematicName = "arena_" + arena_id;
             	Arena arena = Arena.get(arena_id);
             	if(arena==null){
             		sender.sendMessage("[Spleef] Arena "+args[1]+" nicht gefunden.");
             		return true;
             	}
-            	Location saveLocation = SchematicUtil.save(player, schematicName);
+
+            	File file = arena.getSchematicFile();
+            	if(file==null){
+					sender.sendMessage("[Spleef] Schematic-Position nicht gefunden.");
+					return true;
+				}
+            	Location saveLocation = SchematicUtil.save(player, file);
             	DataSource.getResponse(Spleef.getInstance(), "schematic_location.php", new String[]{
             			"world="+saveLocation.getWorld().getName(),
             			"x="+saveLocation.getX(),
