@@ -1,0 +1,7 @@
+main: ch.swisssmp.schematics.SchematicsPlugin
+version: 1
+api-version: 1.13
+name: Schematics
+author: detig_iii
+depend: [WorldEdit]
+description: Schnittstelle für Schematics

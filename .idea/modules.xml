@@ -86,6 +86,7 @@
       <module fileurl="file://$PROJECT_DIR$/RegionEffects/RegionEffects.iml" filepath="$PROJECT_DIR$/RegionEffects/RegionEffects.iml" />
       <module fileurl="file://$PROJECT_DIR$/RemoteEventListener/RemoteEventListener.iml" filepath="$PROJECT_DIR$/RemoteEventListener/RemoteEventListener.iml" />
       <module fileurl="file://$PROJECT_DIR$/ResourcepackManager/ResourcepackManager.iml" filepath="$PROJECT_DIR$/ResourcepackManager/ResourcepackManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Schematics/Schematics.iml" filepath="$PROJECT_DIR$/Schematics/Schematics.iml" />
       <module fileurl="file://$PROJECT_DIR$/ServerManagerDONTUSE/ServerManager.iml" filepath="$PROJECT_DIR$/ServerManagerDONTUSE/ServerManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" filepath="$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" />
       <module fileurl="file://$PROJECT_DIR$/SewersFishing/SewersFishing.iml" filepath="$PROJECT_DIR$/SewersFishing/SewersFishing.iml" />
@@ -96,6 +97,7 @@
       <module fileurl="file://$PROJECT_DIR$/Spleef/Spleef.iml" filepath="$PROJECT_DIR$/Spleef/Spleef.iml" />
       <module fileurl="file://$PROJECT_DIR$/StairChairs/StairChairs.iml" filepath="$PROJECT_DIR$/StairChairs/StairChairs.iml" />
       <module fileurl="file://$PROJECT_DIR$/Stalker/Stalker.iml" filepath="$PROJECT_DIR$/Stalker/Stalker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/StateMachines/StateMachines.iml" filepath="$PROJECT_DIR$/StateMachines/StateMachines.iml" />
       <module fileurl="file://$PROJECT_DIR$/Streets/Streets.iml" filepath="$PROJECT_DIR$/Streets/Streets.iml" />
       <module fileurl="file://$PROJECT_DIR$/SwissSMPUtils/SwissSMPUtils.iml" filepath="$PROJECT_DIR$/SwissSMPUtils/SwissSMPUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/TabList/TabList.iml" filepath="$PROJECT_DIR$/TabList/TabList.iml" />
@@ -106,7 +108,6 @@
       <module fileurl="file://$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" filepath="$PROJECT_DIR$/UtilityCommands/UtilityCommands.iml" />
       <module fileurl="file://$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" filepath="$PROJECT_DIR$/WGRegionEvents/WGRegionEvents.iml" />
       <module fileurl="file://$PROJECT_DIR$/Warehouses/Warehouses.iml" filepath="$PROJECT_DIR$/Warehouses/Warehouses.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Warps/Warps.iml" filepath="$PROJECT_DIR$/Warps/Warps.iml" />
       <module fileurl="file://$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" filepath="$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" filepath="$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" filepath="$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" />
