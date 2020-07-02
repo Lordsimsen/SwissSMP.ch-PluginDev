@@ -1,5 +1,5 @@
 main: ch.swisssmp.antiguest.AntiGuestExtension
-version: 1.3
+version: 2
 api-version: 1.13
 name: AntiGuestExtension
 author: detig_iii
