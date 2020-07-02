@@ -19,5 +19,8 @@
     <orderEntry type="library" name="Spigot" level="project" />
     <orderEntry type="library" name="WorldGuard" level="project" />
     <orderEntry type="library" name="WorldEdit" level="project" />
+    <orderEntry type="module" module-name="CitySystem" />
+    <orderEntry type="module" module-name="WebCore" />
+    <orderEntry type="module" module-name="SwissSMPUtils" />
   </component>
 </module>
