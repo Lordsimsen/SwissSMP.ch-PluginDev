@@ -22,7 +22,7 @@ public class City {
 	private final String techtree_id;
 	
 	private String name;
-	private CityRankInfo cityRankInfo;
+	private CityLevelInfo cityLevelInfo;
 	private String ringType;
 	private UUID mayor;
 	private List<CitizenInfo> citizens = new ArrayList<CitizenInfo>();
@@ -73,8 +73,8 @@ public class City {
 		return name;
 	}
 
-	public CityRankInfo getCityRankInfo(){
-		return cityRankInfo;
+	public CityLevelInfo getCityLevelInfo(){
+		return cityLevelInfo;
 	}
 	
 	public String getRingType(){
