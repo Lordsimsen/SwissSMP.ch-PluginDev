@@ -325,18 +325,18 @@ public class Arena {
 	
 	public void loadTransformations(){
 		this.transformationAreas.clear();
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
-				"world="+URLEncoder.encode(this.world.getName())
-		});
-		if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;
-		ConfigurationSection transformationsSection = yamlConfiguration.getConfigurationSection("transformations");
-		ConfigurationSection transformationSection;
-		TransformationArea transformationArea;
-		for(String key : transformationsSection.getKeys(false)){
-			transformationSection = transformationsSection.getConfigurationSection(key);
-			transformationArea = new TransformationArea(this.world, transformationSection);
-			transformationAreas.put(transformationArea.getTransformationEnum(), transformationArea);
-		}
+//		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
+//				"world="+URLEncoder.encode(this.world.getName())
+//		});
+//		if(yamlConfiguration==null || !yamlConfiguration.contains("transformations")) return;
+//		ConfigurationSection transformationsSection = yamlConfiguration.getConfigurationSection("transformations");
+//		ConfigurationSection transformationSection;
+//		TransformationArea transformationArea;
+//		for(String key : transformationsSection.getKeys(false)){
+//			transformationSection = transformationsSection.getConfigurationSection(key);
+//			transformationArea = new TransformationArea(this.world, transformationSection);
+//			transformationAreas.put(transformationArea.getTransformationEnum(), transformationArea);
+//		}
 	}
 	
 	public TransformationArea getTransformation(String transformation_enum){
@@ -350,20 +350,20 @@ public class Arena {
 	protected static void loadArenas(){
 		arenas.clear();
 		worldMap.clear();
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("towercontrol/get_arenas.php");
-		if(yamlConfiguration==null || !yamlConfiguration.contains("arenas")){
-			Bukkit.getLogger().info("[TowerControl] Konnte Arenen nicht laden.");
-			return;
-		}
-		ConfigurationSection arenasSection = yamlConfiguration.getConfigurationSection("arenas");
-		ConfigurationSection arenaSection;
-		Arena arena;
-		for(String key : arenasSection.getKeys(false)){
-			arenaSection = arenasSection.getConfigurationSection(key);
-			arena = new Arena(arenaSection);
-			arenas.put(arena.arena_id, arena);
-			worldMap.put(arena.world.getName(), arena);
-		}
+//		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("towercontrol/get_arenas.php");
+//		if(yamlConfiguration==null || !yamlConfiguration.contains("arenas")){
+//			Bukkit.getLogger().info("[TowerControl] Konnte Arenen nicht laden.");
+//			return;
+//		}
+//		ConfigurationSection arenasSection = yamlConfiguration.getConfigurationSection("arenas");
+//		ConfigurationSection arenaSection;
+//		Arena arena;
+//		for(String key : arenasSection.getKeys(false)){
+//			arenaSection = arenasSection.getConfigurationSection(key);
+//			arena = new Arena(arenaSection);
+//			arenas.put(arena.arena_id, arena);
+//			worldMap.put(arena.world.getName(), arena);
+//		}
 	}
 	
 	protected static Arena get(int arena_id){

@@ -97,28 +97,28 @@ public class TransformationCommand implements CommandExecutor{
 	    			location = player.getLocation();
 	    		}
 	    		
-    			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/editor.php", new String[]{
-	    			"transformation="+transformationArea.getTransformationId(),
-	    			"schematic="+schematicName,
-	    			"action="+action,
-	    			"world="+URLEncoder.encode(location.getWorld().getName()),
-	    			"x="+(int)Math.floor(location.getX()),
-	    			"y="+(int)Math.floor(location.getY()),
-	    			"z="+(int)Math.floor(location.getZ()),
-	    		});
-	    		
-	    		boolean success = (yamlConfiguration!=null && yamlConfiguration.contains("success"));
-				
-    			String actionLabel = "registriert. Einstellungen im Web-Tool vornehmen und danach '/transformation aktualisieren' verwenden";
-    			if(args[0].equals("unregister")){
-    				actionLabel = "gelöscht. '/transformation aktualisieren' verwenden, damit die Änderungen sofort angewendet werden";
-    			}
-	    		if(success){
-	    			player.sendMessage("[TowerControl]"+ChatColor.GREEN+" Transformation "+actionLabel+".");
-	    		}
-	    		else{
-	    			player.sendMessage("[TowerControl]"+ChatColor.RED+" Fehler beim bearbeiten der Transformation.");
-	    		}
+//    			YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/editor.php", new String[]{
+//	    			"transformation="+transformationArea.getTransformationId(),
+//	    			"schematic="+schematicName,
+//	    			"action="+action,
+//	    			"world="+URLEncoder.encode(location.getWorld().getName()),
+//	    			"x="+(int)Math.floor(location.getX()),
+//	    			"y="+(int)Math.floor(location.getY()),
+//	    			"z="+(int)Math.floor(location.getZ()),
+//	    		});
+//
+//	    		boolean success = (yamlConfiguration!=null && yamlConfiguration.contains("success"));
+//
+//    			String actionLabel = "registriert. Einstellungen im Web-Tool vornehmen und danach '/transformation aktualisieren' verwenden";
+//    			if(args[0].equals("unregister")){
+//    				actionLabel = "gelöscht. '/transformation aktualisieren' verwenden, damit die Änderungen sofort angewendet werden";
+//    			}
+//	    		if(success){
+//	    			player.sendMessage("[TowerControl]"+ChatColor.GREEN+" Transformation "+actionLabel+".");
+//	    		}
+//	    		else{
+//	    			player.sendMessage("[TowerControl]"+ChatColor.RED+" Fehler beim bearbeiten der Transformation.");
+//	    		}
 	    		break;
 	    	}
 	    	case "setze":

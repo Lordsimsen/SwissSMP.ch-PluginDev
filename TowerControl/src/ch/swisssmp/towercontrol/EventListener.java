@@ -100,36 +100,36 @@ public class EventListener implements Listener{
 			action = action.substring(2);
 			Block block = event.getClickedBlock();
 			Location loc = event.getPlayer().getLocation();
-			YamlConfiguration yamlConfiguration;
-			yamlConfiguration = DataSource.getYamlResponse("towercontrol/editor.php", new String[]{
-				"arena="+arena.getArenaId(),
-				"block_x="+block.getX(),
-				"block_y="+block.getY(),
-				"block_z="+block.getZ(),
-				"x="+loc.getX(),
-				"y="+loc.getY(),
-				"z="+loc.getZ(),
-				"yaw="+loc.getYaw(),
-				"pitch="+loc.getPitch(),
-				"action="+URLEncoder.encode(action.toLowerCase().replace(' ', '_'))
-			});
-			if(yamlConfiguration==null){
-				return;
-			}
-			if(yamlConfiguration.contains("message")){
-				event.getPlayer().sendMessage(yamlConfiguration.getString("message"));
-			}
-			if(yamlConfiguration.contains("actionbar")){
-				SwissSMPler.get(event.getPlayer()).sendActionBar(yamlConfiguration.getString("actionbar"));
-			}
-			if(yamlConfiguration.contains("signals")){
-				ConfigurationSection signalsSection = yamlConfiguration.getConfigurationSection("signals");
-				Location location;
-				for(String key : signalsSection.getKeys(false)){
-					location = signalsSection.getLocation(key,block.getWorld());
-					block.getWorld().spawnParticle(Particle.NOTE, location, 1);
-				}
-			}
+//			YamlConfiguration yamlConfiguration;
+//			yamlConfiguration = DataSource.getYamlResponse("towercontrol/editor.php", new String[]{
+//				"arena="+arena.getArenaId(),
+//				"block_x="+block.getX(),
+//				"block_y="+block.getY(),
+//				"block_z="+block.getZ(),
+//				"x="+loc.getX(),
+//				"y="+loc.getY(),
+//				"z="+loc.getZ(),
+//				"yaw="+loc.getYaw(),
+//				"pitch="+loc.getPitch(),
+//				"action="+URLEncoder.encode(action.toLowerCase().replace(' ', '_'))
+//			});
+//			if(yamlConfiguration==null){
+//				return;
+//			}
+//			if(yamlConfiguration.contains("message")){
+//				event.getPlayer().sendMessage(yamlConfiguration.getString("message"));
+//			}
+//			if(yamlConfiguration.contains("actionbar")){
+//				SwissSMPler.get(event.getPlayer()).sendActionBar(yamlConfiguration.getString("actionbar"));
+//			}
+//			if(yamlConfiguration.contains("signals")){
+//				ConfigurationSection signalsSection = yamlConfiguration.getConfigurationSection("signals");
+//				Location location;
+//				for(String key : signalsSection.getKeys(false)){
+//					location = signalsSection.getLocation(key,block.getWorld());
+//					block.getWorld().spawnParticle(Particle.NOTE, location, 1);
+//				}
+//			}
 		}
 	}
 	@EventHandler
