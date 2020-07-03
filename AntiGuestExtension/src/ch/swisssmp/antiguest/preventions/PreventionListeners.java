@@ -20,7 +20,7 @@ public class PreventionListeners {
 			new Anvil(),
 			new Barrel(),
 			new Beacon(),
-			new BeeHive(),
+			new Beehive(),
 			new BeeNest(),
 			new BlastFurnace(),
 			new Campfire(),
