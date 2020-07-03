@@ -1,16 +1,17 @@
 package ch.swisssmp.antiguest.preventions.blocks;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 public class Jukebox extends BlockInteractPrevention {
 
 	@Override
-	protected Material GetType() {
-		return Material.JUKEBOX;
+	protected boolean isMatch(Block block) {
+		return block.getState() instanceof org.bukkit.block.Jukebox;
 	}
 
 	@Override
-	protected String GetSubPermission() {
+	protected String getSubPermission() {
 		return "jukebox";
 	}
 }

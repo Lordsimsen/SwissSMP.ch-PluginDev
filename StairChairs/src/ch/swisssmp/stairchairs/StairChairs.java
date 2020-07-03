@@ -1,39 +1,49 @@
 package ch.swisssmp.stairchairs;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
 
-public class StairChairs extends JavaPlugin{
-	protected static PluginDescriptionFile pdfFile;
-	protected static File dataFolder;
-	protected static StairChairs plugin;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-	protected static HashMap<Player,Location> locationMap = new HashMap<Player,Location>();
-	protected static HashMap<Block,Player> playerMap = new HashMap<Block,Player>();
-	protected static HashMap<Entity,Block> entityMap = new HashMap<Entity,Block>();
-	
-	@Override
-	public void onEnable() {
-		plugin = this;
-		pdfFile = getDescription();
-		
-		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
-		
-		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+public class StairChairs{
+
+	private static final boolean DebugOutput = false;
+
+	public static Optional<ChairInstance> sit(Player player, Block block){
+		if(BlockChecker.isObstructed(block.getRelative(BlockFace.UP))) {
+			debug("Obstructed");
+			return Optional.empty();
+		}
+		if(!BlockChecker.isChair(block)) {
+			debug("Not a chair");
+			return Optional.empty();
+		}
+		if(ChairInstances.getInstance(block).isPresent()) {
+			debug("Occupied");
+			return Optional.empty();
+		}
+		if(player.getLocation().distanceSquared(block.getLocation().add(0.5, 0, 0.5))>1.75){
+			StairChairs.debug("Out of range");
+			return Optional.empty();
+		}
+		Location sittingLocation = ChairScanner.getSittingLocation(block).orElse(null);
+		if(sittingLocation==null) return Optional.empty();
+		return Optional.of(ChairInstance.create(player, block, sittingLocation, player.getLocation()));
 	}
-	
+
+	protected static void unload(){
+		for(ChairInstance instance : new ArrayList<>(ChairInstances.getAll())){
+			instance.unsit();
+		}
+	}
+
 	protected static void removeUnusedArmorStands(List<Entity> entities){
 		List<ArmorStand> toRemove = new ArrayList<ArmorStand>();
 		ArmorStand armorStand;
@@ -58,16 +68,7 @@ public class StairChairs extends JavaPlugin{
 		}
 	}
 
-	@Override
-	public void onDisable() {
-		for(Entity entity : entityMap.keySet().toArray(new Entity[entityMap.size()])){
-			entity.eject();
-			entity.remove();
-		}
-		playerMap.clear();
-		entityMap.clear();
-		HandlerList.unregisterAll(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+	protected static void debug(String s) {
+		if(DebugOutput) Bukkit.getLogger().info(StairChairsPlugin.getPrefix()+" "+s);
 	}
 }

@@ -3,7 +3,6 @@ package ch.swisssmp.event.quarantine;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ch.swisssmp.event.quarantine.commands.QuarantineArenaCommand;
@@ -12,15 +11,11 @@ import ch.swisssmp.event.quarantine.commands.QuarantineCommand;
 
 public class QuarantineEventPlugin extends JavaPlugin {
 
-	private static PluginDescriptionFile pdfFile;
 	private static QuarantineEventPlugin plugin;
-	
-	protected static boolean debug = false;
 	
 	@Override
 	public void onEnable() {
 		plugin = this;
-		pdfFile = getDescription();
 		
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 		
@@ -32,16 +27,15 @@ public class QuarantineEventPlugin extends JavaPlugin {
 			ArenaContainers.load(world);
 		}
 		
-		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 
 	@Override
 	public void onDisable() {
-		HandlerList.unregisterAll(this);
 		ArenaContainers.clear();
+		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
 	}
 	
 	public static QuarantineEventPlugin getInstance(){

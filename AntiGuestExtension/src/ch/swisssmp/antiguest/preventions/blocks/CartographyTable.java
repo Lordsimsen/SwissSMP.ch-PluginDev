@@ -1,16 +1,17 @@
 package ch.swisssmp.antiguest.preventions.blocks;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 public class CartographyTable extends BlockInteractPrevention {
 
 	@Override
-	protected Material GetType() {
-		return Material.CARTOGRAPHY_TABLE;
+	protected boolean isMatch(Block block) {
+		return block.getType()==Material.CARTOGRAPHY_TABLE;
 	}
 
 	@Override
-	protected String GetSubPermission() {
+	protected String getSubPermission() {
 		return "cartography_table";
 	}
 }

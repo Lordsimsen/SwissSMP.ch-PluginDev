@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class EventListener implements Listener{
 	@EventHandler
 	private void onPlayerJoin(PlayerJoinEvent event){
-		Bukkit.getScheduler().runTaskLater(LoginRewards.plugin, ()->{
+		Bukkit.getScheduler().runTaskLater(LoginRewardsPlugin.getInstance(), ()->{
 			LoginRewards.trigger(event.getPlayer());
 		}, 100L);
 	}

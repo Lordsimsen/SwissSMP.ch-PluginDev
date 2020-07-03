@@ -8,6 +8,7 @@ package ch.swisssmp.utils;
 import java.util.HashMap;
 import java.util.UUID;
 
+import com.google.gson.JsonParser;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -104,9 +105,11 @@ public final class SwissSMPler {
     public void sendRawMessage(String rawMessage){
         if(!player.isOnline())return;
         try {
-            player.sendRawMessage(rawMessage);
+            JsonParser parser = new JsonParser();
+            parser.parse(rawMessage);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw "+player.getName()+" "+rawMessage);
         } catch (Exception e) {
-            e.printStackTrace();
+            Bukkit.getLogger().warning("Tried to send invalid raw message:\n"+rawMessage);
         }
     }
 

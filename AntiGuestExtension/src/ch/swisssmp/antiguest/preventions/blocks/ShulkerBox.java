@@ -1,16 +1,17 @@
 package ch.swisssmp.antiguest.preventions.blocks;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 public class ShulkerBox extends BlockInteractPrevention {
 
 	@Override
-	protected Material GetType() {
-		return Material.SHULKER_BOX;
+	protected boolean isMatch(Block block) {
+		return block.getState() instanceof org.bukkit.block.ShulkerBox;
 	}
 
 	@Override
-	protected String GetSubPermission() {
+	protected String getSubPermission() {
 		return "shulker_box";
 	}
 }

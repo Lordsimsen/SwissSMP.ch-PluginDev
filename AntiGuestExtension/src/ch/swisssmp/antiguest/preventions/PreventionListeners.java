@@ -21,7 +21,6 @@ public class PreventionListeners {
 			new Barrel(),
 			new Beacon(),
 			new Beehive(),
-			new BeeNest(),
 			new BlastFurnace(),
 			new Campfire(),
 			new CartographyTable(),
@@ -36,15 +35,16 @@ public class PreventionListeners {
 			new FletchingTable(),
 			new Furnace(),
 			new Grindstone(),
+			new Hopper(),
 			new Jukebox(),
 			new Loom(),
 			new NoteBlock(),
 			new Repeater(),
+			new RespawnAnchor(),
 			new ShulkerBox(),
 			new SmithingTable(),
 			new Smoker(),
-			new StoneCutter(),
-			new TrappedChest()
+			new StoneCutter()
 		}), plugin);
 		Bukkit.getPluginManager().registerEvents(new EntityInteractPreventionListener(new EntityInteractPrevention[]{
 				new Horse(),
