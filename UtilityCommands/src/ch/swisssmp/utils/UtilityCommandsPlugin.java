@@ -18,6 +18,9 @@ public class UtilityCommandsPlugin extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents(new InventorySeeListener(), this);
 		Bukkit.getPluginManager().registerEvents(new VanishListener(), this);
 
+		TeleportCommands tpCommands = new TeleportCommands();
+		this.getCommand("tp").setExecutor(tpCommands);
+		this.getCommand("tphere").setExecutor(tpCommands);
 		this.getCommand("help").setExecutor(new HelpCommand());
 		this.getCommand("seen").setExecutor(new SeenCommand());
 		this.getCommand("list").setExecutor(new ListCommand());

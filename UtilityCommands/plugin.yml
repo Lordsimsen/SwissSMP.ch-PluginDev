@@ -1,5 +1,5 @@
 main: ch.swisssmp.utils.UtilityCommandsPlugin
-version: 8
+version: 9
 api-version: 1.13
 name: UtilityCommands
 authors: [detig_iii,WhiteGuggi]
@@ -77,6 +77,18 @@ permissions:
     default: op
   smp.commands.playerweather:
     description: Erlaubt Verwendung des Befehls /playerweather
+    default: op
+  smp.commands.teleport:
+    description: Erlaubt Verwendung des Befehls /tp und /tphere
+    default: op
+    children:
+      smp.commands.teleport.self: true
+      smp.commands.teleport.others: true
+  smp.commands.teleport.self:
+    description: Erlaubt Verwendung des Befehls /tp
+    default: op
+  smp.commands.teleport.others:
+    description: Erlaubt andere Spieler zu teleportieren mit Befehl /tp und /tphere
     default: op
 commands:
   help:
@@ -199,3 +211,11 @@ commands:
     usage: /playerweather (set|reset) (clear|rain)
     permission: smp.commands.playerweather
     aliases: [pweather]
+  tp:
+    description: Erlaubt teleportieren von sich selbst hin zu anderen Spielern.
+    usage: /tp (player) [player]
+    permission: smp.commands.teleport.self
+  tphere:
+    description: Erlaubt Teleportieren von anderen Spielern.
+    usage: /tp (voyager) (destinationPlayer)
+    permission: smp.commands.teleport.others
