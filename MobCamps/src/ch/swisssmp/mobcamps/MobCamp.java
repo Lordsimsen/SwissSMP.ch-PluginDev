@@ -35,8 +35,6 @@ import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 
-import javax.annotation.Nullable;
-
 public class MobCamp {
 	private static HashMap<Integer,MobCamp> camps = new HashMap<Integer,MobCamp>();
 	
@@ -317,7 +315,6 @@ public class MobCamp {
 		});
 	}
 
-	@Nullable
 	public static MobCamp get(Entity entity){
 		if(entity==null) return null;
 		if(entity.isInsideVehicle()) return MobCamp.get(entity.getVehicle());
@@ -327,13 +324,11 @@ public class MobCamp {
 		return MobCamp.get(camp_id);
 	}
 
-	@Nullable
 	public static MobCamp get(int camp_id){
 		if(camps.containsKey(camp_id)) return camps.get(camp_id);
 		return null;
 	}
 
-	@Nullable
 	public static MobCamp get(String name){
 		for(MobCamp camp : camps.values()){
 			if(camp.name.toLowerCase().equals(name.toLowerCase())) return camp;
@@ -345,7 +340,6 @@ public class MobCamp {
 		MobCamp.load(name, true, callback);
 	}
 
-	@Nullable
 	public static MobCamp get(ItemStack tokenStack){
 		return MobCamp.get(ItemUtil.getInt(tokenStack, "mob_camp"));
 	}

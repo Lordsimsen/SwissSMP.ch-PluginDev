@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 
 import ch.swisssmp.webcore.HTTPRequest;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sun.istack.internal.NotNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -145,18 +144,18 @@ public class CraftBank extends JavaPlugin implements Listener{
 		Integer depositAmount = Math.max(0, Math.min(Integer.parseInt(lines[2]), ExperienceManager.getExperience(player)));
 		transfer(player, depositAmount);
 	}
-	private void withdraw(@NotNull SwissSMPler player, @NotNull String[] lines){
+	private void withdraw(SwissSMPler player, String[] lines){
 		Integer widthdrawAmount = Math.max(0, Integer.parseInt(lines[2]));
 		transfer(player, -widthdrawAmount);
 	}
-	private void transfer(@NotNull SwissSMPler player, int transfer){
+	private void transfer(SwissSMPler player, int transfer){
 		getUserAccount(player, transfer, (userAccount)->{
 			if(userAccount==null) return;
 			transfer(player, userAccount, transfer);
 		});
 	}
 
-	private void transfer(@NotNull SwissSMPler player, @NotNull YamlConfiguration userAccount, int transfer){
+	private void transfer(SwissSMPler player, YamlConfiguration userAccount, int transfer){
 		ConfigurationSection accountSection = userAccount.getConfigurationSection("account");
 		if(accountSection==null){
 			player.sendActionBar(ChatColor.RED+"Zugriff momentan nicht möglich.");
