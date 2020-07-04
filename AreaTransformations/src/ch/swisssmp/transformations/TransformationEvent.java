@@ -8,33 +8,16 @@ import org.bukkit.event.HandlerList;
 
 public abstract class TransformationEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private final TransformationArea area;
-    private final AreaState newState;
-    private final World world;
-    private final Player player;
+
+    private final AreaTransformation area;
     private boolean cancelled = false;
     
-    TransformationEvent(TransformationArea area, AreaState newState, World world, Player player){
+    TransformationEvent(AreaTransformation area){
     	this.area = area;
-    	this.newState = newState;
-    	this.world = world;
-    	this.player = player;
     }
     
-    public TransformationArea getArea(){
+    public AreaTransformation getArea(){
     	return this.area;
-    }
-    
-    public AreaState getNewState(){
-    	return this.newState;
-    }
-    
-    public World getWorld(){
-    	return this.world;
-    }
-    
-    public Player getPlayer(){
-    	return this.player;
     }
     
 	@Override

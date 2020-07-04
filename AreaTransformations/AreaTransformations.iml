@@ -21,5 +21,7 @@
     <orderEntry type="module" module-name="WebCore" />
     <orderEntry type="library" name="WorldEdit" level="project" />
     <orderEntry type="library" name="WorldGuard" level="project" />
+    <orderEntry type="module" module-name="WorldManager" />
+    <orderEntry type="module" module-name="Schematics" />
   </component>
 </module>

@@ -1,7 +1,11 @@
 package ch.swisssmp.transformations;
 
 import java.io.File;
-import java.util.UUID;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.Bukkit;
@@ -9,26 +13,28 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
+import org.bukkit.util.StringUtil;
 
-public class PlayerCommand implements CommandExecutor{
+public class TransformationCommand implements TabExecutor {
 	@Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
     	if(args==null || args.length==0){
     		return false;
     	}
+    	/*
     	switch(args[0]){
 	    	case "reload":
 				try {
-					for(TransformationWorld transformationWorld : TransformationWorld.getWorlds()){
-						transformationWorld.loadTransformations();
+					for(TransformationContainer transformationContainer : TransformationContainer.getWorlds()){
+						transformationContainer.loadTransformations();
 					}
 		    		sender.sendMessage("[AreaTransformations] Transformations-Konfiguration neu geladen.");
 				} catch (Exception e) {
@@ -38,9 +44,9 @@ public class PlayerCommand implements CommandExecutor{
 				break;
 	    	case "list":{
 	    		int count = 0;
-				for(TransformationWorld transformationWorld : TransformationWorld.getWorlds()){
-		    		for(TransformationArea area : transformationWorld.getTransformations()){
-		    			for(AreaState schematic : area.getSchematics()){
+				for(TransformationContainer transformationContainer : TransformationContainer.getWorlds()){
+		    		for(AreaTransformation area : transformationContainer.getTransformations()){
+		    			for(TransformationState schematic : area.getSchematics()){
 		    				count++;
 		    				sender.sendMessage("("+area.getWorld().getName()+") ["+area.getTransformationEnum()+"] "+area.getName()+": "+schematic.getSchematicName());
 		    			}
@@ -133,39 +139,39 @@ public class PlayerCommand implements CommandExecutor{
 	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Welt "+args[0]+" nicht gefunden.");
 	    			return true;
 	    		}
-	    		TransformationWorld transformationWorld = TransformationWorld.get(world);
+	    		TransformationContainer transformationContainer = TransformationContainer.get(world);
 	    		String schematicName = args[3];
-	    		TransformationArea area;
+	    		AreaTransformation area;
 	    		if(StringUtils.isNumeric(args[2])){
 		    		int transformation_id = Integer.parseInt(args[2]);
-		    		area = transformationWorld.getTransformation(transformation_id);
+		    		area = transformationContainer.getTransformation(transformation_id);
 	    		}
 	    		else{
-	    			area = transformationWorld.getTransformation(args[2]);
+	    			area = transformationContainer.getTransformation(args[2]);
 	    		}
 	    		if(area==null){
 	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformationsgruppe nicht gefunden.");
 	    			break;
 	    		}
-	    		AreaState areaState = area.getSchematic(schematicName);
-	    		if(areaState==null){
+	    		TransformationState transformationState = area.getState(schematicName);
+	    		if(transformationState ==null){
 	    			sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" Transformation nicht gefunden.");
 	    			break;
 	    		}
 	    		if(player==null){
-	    			if(areaState.trigger()){
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+areaState.getSchematicName()+" ausgelöst.");
+	    			if(transformationState.trigger()){
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+ transformationState.getSchematicName()+" ausgelöst.");
 	    			}
 	    			else{
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+areaState.getSchematicName()+" konnte nicht ausgelöst werden.");
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+ transformationState.getSchematicName()+" konnte nicht ausgelöst werden.");
 	    			}
 	    		}
 	    		else{
-	    			if(areaState.trigger(player)){
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+areaState.getSchematicName()+" ausgelöst.");
+	    			if(transformationState.trigger(player)){
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.GREEN+" "+ transformationState.getSchematicName()+" ausgelöst.");
 	    			}
 		    		else{
-	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+areaState.getSchematicName()+" konnte nicht ausgelöst werden.");
+	    				sender.sendMessage("[AreaTransformations]"+ChatColor.RED+" "+ transformationState.getSchematicName()+" konnte nicht ausgelöst werden.");
 		    		}
 	    		}
 	    		break;
@@ -181,7 +187,38 @@ public class PlayerCommand implements CommandExecutor{
 	    	}
 	    	default:
 	    		return false;
-		}
+		}*/
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		if(args.length==0){
+			List<String> options = Arrays.asList("create", "trigger");
+			String current = args.length>0 ? args[0] : "";
+			return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
+		}
+
+		if(args.length<=2){
+			String current = args.length>1 ? args[1] : "";
+			Pattern pattern = Pattern.compile("^.*/.*$");
+			Matcher matcher = pattern.matcher(current);
+			if(matcher.matches()){
+
+			}
+			else{
+				List<String> options = Bukkit.getWorlds().stream().map(w->w.getName()+"/").collect(Collectors.toList());
+				World defaultWorld = sender instanceof Player ? ((Player)sender).getWorld() : null;
+				if(defaultWorld!=null){
+					TransformationContainer container = TransformationContainer.get(defaultWorld);
+					options.addAll(container.getTransformations().stream().map(t->t.getUniqueId().toString()).collect(Collectors.toList()));
+				}
+			}
+		}
+
+		//if(args.length<=3)
+		//Stream<AreaTransformation> transformations = Arrays.stream(container.getTransformations());
+		//List<String> options = .map(t->t.)
+		return null;
 	}
 }
