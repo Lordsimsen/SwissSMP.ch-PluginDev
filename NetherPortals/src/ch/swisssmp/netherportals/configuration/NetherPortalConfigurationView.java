@@ -30,6 +30,7 @@ public class NetherPortalConfigurationView extends CustomEditorView {
         result.add(new TargetCoordinateFactorSlot(this, 1, configuration));
         result.add(new OperationSlot(this, 2, configuration));
         result.add(new PortalCreationSlot(this, 3, configuration));
+        result.add(new TeleportWithoutPortalSlot(this, 4, configuration));
         result.add(new DefaultsSlot(this, 6, configuration));
         result.add(new TrySlot(this, 7, configuration));
         result.add(new EnabledSlot(this, 8, configuration));

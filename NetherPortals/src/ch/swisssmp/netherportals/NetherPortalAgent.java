@@ -1,9 +1,6 @@
 package ch.swisssmp.netherportals;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.bukkit.Axis;
 import org.bukkit.Bukkit;
@@ -30,7 +27,7 @@ public class NetherPortalAgent {
 		Bukkit.getLogger().info(NetherPortalsPlugin.getPrefix()+" "+text);
 	}
 
-	public static Location getTargetLocation(Location location, int portalSearchRadius, int spaceSearchRadius, BlockVector firstSpaceSearch, BlockVector secondSpaceSearch, boolean allowCreation) {
+	public static Optional<Location> createTargetLocation(Location location, int portalSearchRadius, int spaceSearchRadius, BlockVector firstSpaceSearch, BlockVector secondSpaceSearch, boolean allowCreation, boolean allowTeleportWithoutPortal) {
 		World world = location.getWorld();
 		int maxHeight = Math.min(world.getMaxHeight(), world.getEnvironment()!=Environment.NETHER ? Integer.MAX_VALUE : 128);
 		Location portalSearchMin = new Location(world, location.getX() - portalSearchRadius, 0, location.getZ() - portalSearchRadius);
@@ -38,7 +35,7 @@ public class NetherPortalAgent {
 		Block closestPortalBlock = getClosestPortalBlock(location, portalSearchMin, portalSearchMax);
 		if(closestPortalBlock!=null) {
 			print("Portal gefunden");
-			return closestPortalBlock.getLocation();
+			return Optional.of(closestPortalBlock.getLocation());
 		}
 
 		Location spaceSearchMin = new Location(world, location.getX() - spaceSearchRadius, 0, location.getZ() - spaceSearchRadius);
@@ -47,25 +44,26 @@ public class NetherPortalAgent {
 		if(emptySpaceBlock!=null) {
 			print("Freie Fläche gefunden");
 			if(allowCreation) {
-				print("[NetherPortalFixer] Generiere Portal");
+				print("Generiere Portal");
 				createPortal(emptySpaceBlock.getKey(), emptySpaceBlock.getValue());
 			}
-			else {
-
-				print("Teleportiere ohne Portal");
+			else if(!allowTeleportWithoutPortal){
+				print("Teleportation ohne Portal nicht erlaubt");
+				return Optional.empty();
 			}
-			return emptySpaceBlock.getKey().getLocation();
+			print("Teleportiere ohne Portal");
+			return Optional.of(emptySpaceBlock.getKey().getLocation());
 		}
 
 		if(!allowCreation) {
 			print("Suche freie Fläche");
-			return getFreeSpace(location.getBlock()).getLocation();
+			return Optional.of(getFreeSpace(location.getBlock()).getLocation());
 		}
 
 		print("Erzwinge Portal");
 		AbstractMap.SimpleEntry<Block,BlockFace> forcedSpaceBlock = getForcedSpaceBlock(location, spaceSearchMin, spaceSearchMax);
 		createPortal(forcedSpaceBlock.getKey(), forcedSpaceBlock.getValue());
-		return forcedSpaceBlock.getKey().getLocation();
+		return Optional.of(forcedSpaceBlock.getKey().getLocation());
 	}
 	
 	/**

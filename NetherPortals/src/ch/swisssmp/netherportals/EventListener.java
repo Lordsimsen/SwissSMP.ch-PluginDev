@@ -33,7 +33,7 @@ public class EventListener implements Listener {
 			print("Setup incomplete");
 			return;
 		}
-		Location remapped = configuration.createToLocation(event.getFrom());
+		Location remapped = configuration.createToLocation(event.getFrom()).orElse(null);
 		if(remapped==null){
 			print("Remapped location is null");
 			return;
@@ -42,8 +42,19 @@ public class EventListener implements Listener {
 		event.setCanCreatePortal(false);
 		event.setSearchRadius(8);
 		event.setCreationRadius(0);
+
 		print("Remapped location: "+remapped.getX()+","+remapped.getY()+","+remapped.getZ()+" ("+remapped.getWorld().getName()+")");
-		// Bukkit.getScheduler().runTaskLater(NetherPortalsPlugin.getInstance(), ()->Bukkit.getLogger().info(event.isCancelled() ? "PortalTravel was cancelled" : "PortalTravel was not cancelled"), 1L);
+
+		if(!configuration.getAllowTeleportWithoutPortal() || configuration.getAllowPortalCreation()){
+			return;
+		}
+		Bukkit.getScheduler().runTaskLater(NetherPortalsPlugin.getInstance(), ()->{
+			if(event.isCancelled() || event.getCanCreatePortal() || event.getPlayer().getWorld()==remapped.getWorld()){
+				print("PlayerPortalEvent was cancelled");
+				return;
+			}
+			event.getPlayer().teleport(remapped, PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
+		}, 1L);
 	}
 
 	@EventHandler
@@ -54,10 +65,21 @@ public class EventListener implements Listener {
 			return;
 		}
 		if(!configuration.isSetupComplete()) return;
-		Location remapped = configuration.createToLocation(event.getFrom());
+		Location remapped = configuration.createToLocation(event.getFrom()).orElse(null);
 		if(remapped==null) return;
 		event.setTo(remapped);
 		event.setSearchRadius(1);
+
+		if(!configuration.getAllowTeleportWithoutPortal() || configuration.getAllowPortalCreation()){
+			return;
+		}
+		Bukkit.getScheduler().runTaskLater(NetherPortalsPlugin.getInstance(), ()->{
+			if(event.isCancelled() || event.getEntity().getWorld()==remapped.getWorld()){
+				print("EntityPortalEvent was cancelled");
+				return;
+			}
+			event.getEntity().teleport(remapped, PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
+		}, 1L);
 	}
 
 	@EventHandler

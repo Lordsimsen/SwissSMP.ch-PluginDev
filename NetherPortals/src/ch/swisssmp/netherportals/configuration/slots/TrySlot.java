@@ -39,11 +39,12 @@ public class TrySlot extends ButtonSlot {
             SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Einstellungen unvollständig.");
             return;
         }
-        Location location = configuration.createToLocation(player.getLocation()).add(0.5,0.1,0.5);
-        if(location==null){
-            SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Einstellungen ungültig.");
+        Location testLocation = configuration.createToLocation(player.getLocation()).orElse(null);
+        if(testLocation==null){
+            SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Konnte keinen Zielpunkt finden.");
             return;
         }
+        Location location = testLocation.add(0.5,0.1,0.5);
 
         Block targetBlock = location.getBlock();
         BlockData data = targetBlock.getBlockData();

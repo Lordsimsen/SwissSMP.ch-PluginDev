@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.util.BlockVector;
 
 import java.io.File;
+import java.util.Optional;
 
 public class WorldConfiguration {
 
@@ -18,6 +19,7 @@ public class WorldConfiguration {
     private int targetCoordinateFactor;
     private CoordinateOperation operation;
     private boolean allowPortalCreation = true;
+    private boolean allowTeleportWithoutPortal = true;
     private boolean enabled = true;
 
     private WorldConfiguration(World world){
@@ -60,6 +62,14 @@ public class WorldConfiguration {
         allowPortalCreation = allow;
     }
 
+    public boolean getAllowTeleportWithoutPortal(){
+        return allowTeleportWithoutPortal;
+    }
+
+    public void setAllowTeleportWithoutPortal(boolean allow){
+        allowTeleportWithoutPortal = allow;
+    }
+
     public boolean isEnabled(){
         return enabled;
     }
@@ -76,16 +86,16 @@ public class WorldConfiguration {
         // add code if needed
     }
 
-    public Location createToLocation(Location from){
+    public Optional<Location> createToLocation(Location from){
         World toWorld = Bukkit.getWorld(targetWorld);
         if(toWorld==null){
-            return null;
+            return Optional.empty();
         }
 
         Location cached = PortalLinkCache.getCached(from);
         if(cached!=null) {
             // Bukkit.getLogger().info("[NetherPortalFixer] Zwischengespeicherten Link gefunden: "+cached.getWorld().getName()+", "+cached.getX()+", "+cached.getY()+", "+cached.getZ());
-            return cached;
+            return Optional.of(cached);
         }
 
         double x = operation.apply(from.getX(), targetCoordinateFactor);
@@ -94,12 +104,20 @@ public class WorldConfiguration {
         Location remappedLocation = new Location(toWorld, x, y, z, from.getYaw(), from.getPitch());
 
         boolean toWorldIsNether = toWorld.getEnvironment()== World.Environment.NETHER;
-        Location targetLocation = NetherPortalAgent.getTargetLocation(remappedLocation, toWorldIsNether ? 64 : 128, 16, new BlockVector(4,4,3), new BlockVector(4,4,1), allowPortalCreation);
+        Location targetLocation = NetherPortalAgent.createTargetLocation(
+                remappedLocation,
+                toWorldIsNether ? 64 : 128, 16,
+                new BlockVector(4,4,3),
+                new BlockVector(4,4,1),
+                allowPortalCreation,
+                allowTeleportWithoutPortal)
+                .orElse(null);
+        if(targetLocation==null) return Optional.empty();
         targetLocation.setYaw(from.getYaw());
         targetLocation.setPitch(from.getPitch());
 
         PortalLinkCache.create(from, targetLocation, 60*20); // 60s * 20tps
-        return targetLocation;
+        return Optional.of(targetLocation);
     }
 
     private void load(JsonObject json){
@@ -107,6 +125,7 @@ public class WorldConfiguration {
         this.targetCoordinateFactor = json.has("factor") ? JsonUtil.getInt("factor", json) : 1;
         this.operation = json.has("operation") ? CoordinateOperation.parse(JsonUtil.getString("operation", json)) : CoordinateOperation.MULTIPLY;
         this.allowPortalCreation = !json.has("portal_creation") || JsonUtil.getBool("portal_creation", json);
+        this.allowTeleportWithoutPortal = json.has("teleport_without_portal") && JsonUtil.getBool("teleport_without_portal", json);
         this.enabled = !json.has("enabled") || JsonUtil.getBool("enabled", json);
     }
 
@@ -116,6 +135,7 @@ public class WorldConfiguration {
         if(targetCoordinateFactor>0) JsonUtil.set("factor", targetCoordinateFactor, json);
         if(operation!=null) JsonUtil.set("operation", operation.toString(), json);
         JsonUtil.set("portal_creation", allowPortalCreation, json);
+        JsonUtil.set("teleport_without_portal", allowTeleportWithoutPortal, json);
         JsonUtil.set("enabled", enabled, json);
         File file = getFile(world);
         JsonUtil.save(file, json);
@@ -123,6 +143,7 @@ public class WorldConfiguration {
 
     public void applyDefaults(){
         this.allowPortalCreation = true;
+        this.allowTeleportWithoutPortal = false;
         this.enabled = true;
         switch(world.getEnvironment()){
             case NORMAL:{
