@@ -2,6 +2,7 @@ package ch.swisssmp.utils;
 
 import java.util.UUID;
 
+import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -46,12 +47,20 @@ public class PlayerInfo {
 	public static PlayerInfo get(Player player){
 		return new PlayerInfo(player.getUniqueId(),player.getName(),player.getDisplayName());
 	}
-	
+
 	public static PlayerInfo get(ConfigurationSection dataSection){
 		UUID player_uuid = UUID.fromString(dataSection.getString("player_uuid"));
 		String name = dataSection.getString("name");
 		String display_name = dataSection.getString("display_name");
 		String gender = dataSection.contains("gender") ? dataSection.getString("gender") : "";
+		return new PlayerInfo(player_uuid, name, display_name, gender);
+	}
+	
+	public static PlayerInfo get(JsonObject json){
+		UUID player_uuid = JsonUtil.getUUID("player_uuid", json);
+		String name = JsonUtil.getString("name", json);
+		String display_name = JsonUtil.getString("display_name", json);
+		String gender = JsonUtil.getString("gender", json);
 		return new PlayerInfo(player_uuid, name, display_name, gender);
 	}
 }
