@@ -11,9 +11,9 @@ public interface TransformationFilter {
 		boolean result = true;
 		if(dataSection.contains("transformation_id")){
 			if(EventListenerMaster.getInst().debugOn()){
-				Bukkit.getLogger().info("[RemoteEventListener] Vergleiche "+dataSection.getInt("transformation_id")+" mit "+event.getArea().getTransformationId());
+				Bukkit.getLogger().info("[RemoteEventListener] Vergleiche "+dataSection.getInt("transformation_id")+" mit "+event.getArea().getUniqueId());
 			}
-			result &= dataSection.getInt("transformation_id")==event.getArea().getTransformationId();
+			result &= dataSection.getInt("transformation_id")==event.getArea().getUniqueId();
 		}
 		if(dataSection.contains("schematic_name")){
 			if(EventListenerMaster.getInst().debugOn()){
