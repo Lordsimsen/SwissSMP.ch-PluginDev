@@ -61,12 +61,11 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     private CityPromotionCeremony(Block Chest, Player initiator, City city){
         super(CitySystemPlugin.getInstance());
         this.city = city;
-//        this.cityName = city.getName();
-        this.cityName = "Guggi-no-kuni";
+        cityName = city.getName();
         this.chest = Chest;
         this.initiator = initiator;
         participants.add(initiator);
-        requiredHay = 9; //Todo
+        requiredHay = 9; //Todo via CityLevelInfo
         requiredPlayers = 1; //Todo
 
 //        switch(city.getRank()){ //Todo
