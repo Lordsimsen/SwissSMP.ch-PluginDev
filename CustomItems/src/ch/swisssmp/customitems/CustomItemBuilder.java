@@ -1,10 +1,7 @@
 package ch.swisssmp.customitems;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
@@ -81,9 +78,15 @@ public class CustomItemBuilder {
 		this.material = material;
 		return this;
 	}
+	public Material getMaterial(){
+		return material;
+	}
 	public CustomItemBuilder setAmount(int amount){
 		this.amount = amount;
 		return this;
+	}
+	public int getAmount(){
+		return amount;
 	}
 	public CustomItemBuilder setDurability(short durability){
 		this.durability = durability;
@@ -95,14 +98,23 @@ public class CustomItemBuilder {
 		}
 		return this;
 	}
+	public short getDurability(){
+		return durability;
+	}
 	public CustomItemBuilder setMaxCustomDurability(int maxCustomDurability){
 		this.useNMS = true;
 		this.maxCustomDurability = maxCustomDurability;
 		return this;
 	}
+	public int getMaxCustomDurability(){
+		return maxCustomDurability;
+	}
 	public CustomItemBuilder setCustomDurability(int customDurability){
 		this.customDurability = customDurability;
 		return this;
+	}
+	public int getCustomDurability(){
+		return customDurability;
 	}
 	public CustomItemBuilder setCustomModelId(int customModelId) {
 		this.customModelId = customModelId;
@@ -118,6 +130,9 @@ public class CustomItemBuilder {
 		this.useCustomModelDataProperty = use;
 		return this;
 	}
+	public boolean getUseCustomModelDataProperty(){
+		return useCustomModelDataProperty;
+	}
 	public CustomItemBuilder addEnchantments(List<EnchantmentData> enchantments){
 		this.enchantments.addAll(enchantments);
 		return this;
@@ -130,6 +145,9 @@ public class CustomItemBuilder {
 		enchantments.add(new EnchantmentData(enchantment, level, ignoreLevelRestriction));
 		return this;
 	}
+	public Collection<EnchantmentData> getEnchantments(){
+		return enchantments;
+	}
 	public CustomItemBuilder addItemFlags(List<ItemFlag> itemFlags){
 		itemFlags.addAll(itemFlags);
 		return this;
@@ -140,38 +158,62 @@ public class CustomItemBuilder {
 		}
 		return this;
 	}
+	public Collection<ItemFlag> getItemFlags(){
+		return itemFlags;
+	}
 	public CustomItemBuilder setDisplayName(String displayName){
 		this.displayName = displayName;
 		return this;
+	}
+	public String getDisplayName(){
+		return displayName;
 	}
 	public CustomItemBuilder setLocalizedName(String localizedName){
 		this.localizedName = localizedName;
 		return this;
 	}
+	public String getLocalizedName(){
+		return localizedName;
+	}
 	public CustomItemBuilder setLore(List<String> lore){
 		this.lore = lore;
 		return this;
+	}
+	public List<String> getLore(){
+		return lore;
 	}
 	public CustomItemBuilder setUnbreakable(boolean unbreakable){
 		this.unbreakable = unbreakable;
 		return this;
 	}
+	public boolean getUnbreakable(){
+		return unbreakable;
+	}
 	public CustomItemBuilder setSkullOwner(UUID owner){
 		this.skullOwner = owner;
 		return this;
+	}
+	public UUID getSkullOwner(){
+		return skullOwner;
 	}
 	public CustomItemBuilder addComponent(CustomItemBuilderModifier component) {
 		this.components.add(component);
 		return this;
 	}
+	public Collection<CustomItemBuilderModifier> getModifiers(){
+		return components;
+	}
 	/**
 	 * Setzt wann der ItemStack aus Inventaren entfernt werden soll
 	 * @param expirationDate - Timestamp in Sekunden
 	 */
-	public CustomItemBuilder setExpirationDate(int expirationDate){
+	public CustomItemBuilder setExpirationDate(long expirationDate){
 		this.expirationDate = expirationDate;
 		this.useNMS = useNMS || expirationDate>0;
 		return this;
+	}
+	public long getExpirationDate(){
+		return expirationDate;
 	}
 	
 	public CustomItemBuilder setCustomEnum(String customEnum){
@@ -204,52 +246,74 @@ public class CustomItemBuilder {
 		return this;
 	}
 
+	public String getCustomEnum(){
+		return customEnum;
+	}
+
 	public CustomItemBuilder setAttackDamage(double attackDamage){
 		this.useNMS = true;
 		this.attackDamage = attackDamage;
 		return this;
+	}
+	public double getAttackDamage(){
+		return attackDamage;
 	}
 	public CustomItemBuilder setAttackSpeed(double attackSpeed){
 		this.useNMS = true;
 		this.attackSpeed = attackSpeed;
 		return this;
 	}
+	public double getAttackSpeed(){
+		return attackSpeed;
+	}
 	public CustomItemBuilder setMaxHealth(double maxHealth){
 		this.useNMS = true;
 		this.maxHealth = maxHealth;
 		return this;
+	}
+	public double getMaxHealth(){
+		return maxHealth;
 	}
 	public CustomItemBuilder setArmor(double armor){
 		this.useNMS = true;
 		this.armor = armor;
 		return this;
 	}
+	public double getArmor(){
+		return armor;
+	}
 	public CustomItemBuilder setMovementSpeed(double movementSpeed){
 		this.useNMS = true;
 		this.movementSpeed = movementSpeed;
 		return this;
+	}
+	public double getMovementSpeed(){
+		return movementSpeed;
 	}
 	public CustomItemBuilder setLuck(double luck){
 		this.useNMS = true;
 		this.luck = luck;
 		return this;
 	}
+	public double getLuck(){
+		return luck;
+	}
 	public CustomItemBuilder setCustomPotionColor(int customPotionColor){
 		this.useNMS = true;
 		this.customPotionColor = customPotionColor;
 		return this;
 	}
+	public int getCustomPotionColor(){
+		return customPotionColor;
+	}
 	public CustomItemBuilder setMaxStackSize(int maxStackSize){
 		this.maxStackSize = maxStackSize;
 		return this;
 	}
-	/**
-	 * To check validity
-	 * @return
-	 */
-	public Material getMaterial(){
-		return this.material;
+	public int getMaxStackSize(){
+		return maxStackSize;
 	}
+
 	private ItemMeta buildItemMeta(ItemStack itemStack){
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		if(itemMeta instanceof EnchantmentStorageMeta){

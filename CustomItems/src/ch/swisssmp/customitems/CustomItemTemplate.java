@@ -1,16 +1,18 @@
 package ch.swisssmp.customitems;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 
 public class CustomItemTemplate implements IBuilderTemplate {
 	
 	private final String customEnum;
 	
-	private ConfigurationSection templateData;
+	private JsonObject templateData;
 	
-	protected CustomItemTemplate(ConfigurationSection dataSection){
-		this.customEnum = dataSection.getString("custom_enum");
-		this.templateData = dataSection;
+	protected CustomItemTemplate(JsonObject json){
+		this.customEnum = JsonUtil.getString("custom_enum", json);
+		this.templateData = json;
 	}
 	
 	public String getCustomEnum(){
@@ -22,7 +24,7 @@ public class CustomItemTemplate implements IBuilderTemplate {
 	}
 
 	@Override
-	public ConfigurationSection getData() {
+	public JsonObject getData() {
 		return templateData;
 	}
 }

@@ -1,5 +1,7 @@
 package ch.swisssmp.customitems;
 
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 import org.bukkit.Material;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -12,15 +14,15 @@ public class CustomMaterialTemplate implements IBuilderTemplate {
 	private final int customModelId;
 	private final boolean useCustomModelDataProperty;
 	
-	private ConfigurationSection templateData;
+	private final JsonObject templateData;
 	
-	protected CustomMaterialTemplate(ConfigurationSection dataSection){
-		this.customEnum = dataSection.getString("custom_enum");
-		this.material = dataSection.getMaterial("material");
-		this.durability = (short) dataSection.getInt("durability");
-		this.customModelId = dataSection.getInt("custom_model_id");
-		this.useCustomModelDataProperty = dataSection.getBoolean("use_custom_model_data_property", false);
-		this.templateData = dataSection;
+	protected CustomMaterialTemplate(JsonObject json){
+		this.customEnum = JsonUtil.getString("custom_enum", json);
+		this.material = JsonUtil.getMaterial("material", json);
+		this.durability = JsonUtil.getShort("durability", json);
+		this.customModelId = JsonUtil.getInt("custom_model_id", json);
+		this.useCustomModelDataProperty = JsonUtil.getBool("use_custom_model_data_property", json);
+		this.templateData = json;
 	}
 	
 	public String getCustomEnum(){
@@ -48,7 +50,7 @@ public class CustomMaterialTemplate implements IBuilderTemplate {
 	}
 
 	@Override
-	public ConfigurationSection getData() {
+	public JsonObject getData() {
 		return templateData;
 	}
 }
