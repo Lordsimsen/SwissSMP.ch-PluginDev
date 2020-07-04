@@ -3,6 +3,7 @@ package ch.swisssmp.addonabnahme;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.swisssmp.utils.*;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,11 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
-import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.utils.SwissSMPUtils;
-import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
@@ -38,15 +34,15 @@ public class AddonManager {
 				String.join("&", itemStrings)
 		});
 		request.onFinish(()->{
-			YamlConfiguration yamlConfiguration = request.getYamlResponse();
-			if(yamlConfiguration==null || !yamlConfiguration.contains("result")){
+			JsonObject json = request.getJsonResponse();
+			if(json==null || !json.has("result")){
 				for(ItemStack itemStack : items){
 					player.getWorld().dropItem(player.getEyeLocation(), itemStack);
 				}
 				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Das Addon konnte nicht aktiviert werden.");
 				return;
 			}
-			String result = yamlConfiguration.getString("result");
+			String result = JsonUtil.getString("result", json);
 			if(result.equals("success")){
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
 				AddonInstanceGuides.updateAll();

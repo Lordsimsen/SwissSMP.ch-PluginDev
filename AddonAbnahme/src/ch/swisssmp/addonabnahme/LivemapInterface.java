@@ -25,7 +25,7 @@ public class LivemapInterface {
 	static void link(){
 		linkActive = false;
 		Plugin livemapAPI = Bukkit.getPluginManager().getPlugin("LivemapMarkerAPI");
-		if(livemapAPI==null || !(livemapAPI instanceof LivemapMarkerAPI)) return;
+		if(!(livemapAPI instanceof LivemapMarkerAPI)) return;
 		linkActive = true;
 	}
 }

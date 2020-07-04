@@ -40,7 +40,7 @@ public class RemoveGuideSlot extends ButtonSlot {
 		this.getView().closeLater();
 		AddonInstanceGuide.remove(npc, instance);
 
-		SwissSMPler.get((Player) this.getView().getPlayer()).sendActionBar(ChatColor.RED+"Addon Guide entfernt");
+		SwissSMPler.get(this.getView().getPlayer()).sendActionBar(ChatColor.RED+"Addon Guide entfernt");
 	}
 
 	@Override

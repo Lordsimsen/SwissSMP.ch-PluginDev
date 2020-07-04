@@ -3,18 +3,23 @@ package ch.swisssmp.addonabnahme;
 import java.util.HashMap;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class Techtree {
 
 	private final String techtree_id;
 	private final HashMap<String,AddonInfo> addons = new HashMap<String,AddonInfo>();
 	
-	protected Techtree(ConfigurationSection dataSection){
-		this.techtree_id = dataSection.getString("techtree_id");
-		ConfigurationSection addonsSection = dataSection.getConfigurationSection("addons");
+	protected Techtree(JsonObject json){
+		this.techtree_id = JsonUtil.getString("techtree_id", json);
+		JsonArray addonsSection = json.has("addons") ? json.getAsJsonArray("addons") : null;
 		if(addonsSection!=null){
-			for(String key : addonsSection.getKeys(false)){
-				ConfigurationSection addonSection = addonsSection.getConfigurationSection(key);
+			for(JsonElement element : addonsSection){
+				if(!element.isJsonObject()) continue;
+				JsonObject addonSection = element.getAsJsonObject();
 				AddonInfo addonInfo = new AddonInfo(addonSection);
 				addons.put(addonInfo.getAddonId(), addonInfo);
 			}

@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 
 public class AddonInfo {
 	
@@ -13,14 +15,14 @@ public class AddonInfo {
 	private final HashSet<String> synonyms = new HashSet<String>();
 	private final int cityLevel;
 	
-	protected AddonInfo(ConfigurationSection dataSection){
-		this.addon_id = dataSection.getString("addon_id");
-		this.name = dataSection.getString("name");
-		this.livemapIconUrl = dataSection.getString("icon");
-		if(dataSection.contains("synonyms")){
-			this.synonyms.addAll(dataSection.getStringList("synonyms"));
+	protected AddonInfo(JsonObject json){
+		this.addon_id = JsonUtil.getString("addon_id", json);
+		this.name = JsonUtil.getString("name", json);
+		this.livemapIconUrl = JsonUtil.getString("icon", json);
+		if(json.has("synonyms")){
+			this.synonyms.addAll(JsonUtil.getStringList("synonyms", json));
 		}
-		this.cityLevel = dataSection.getInt("level");
+		this.cityLevel = JsonUtil.getInt("level", json);
 	}
 	
 	public String getAddonId(){
