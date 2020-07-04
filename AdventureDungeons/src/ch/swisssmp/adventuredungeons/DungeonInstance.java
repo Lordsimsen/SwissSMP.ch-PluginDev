@@ -18,10 +18,9 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import ch.swisssmp.adventuredungeons.event.DungeonEndEvent;
 import ch.swisssmp.adventuredungeons.event.DungeonStartEvent;
 import ch.swisssmp.adventuredungeons.event.listener.EventListenerMaster;
-import ch.swisssmp.transformations.AreaState;
-import ch.swisssmp.transformations.TransformationArea;
-import ch.swisssmp.transformations.TransformationWorld;
-import ch.swisssmp.utils.WorldUtil;
+import ch.swisssmp.transformations.TransformationState;
+import ch.swisssmp.transformations.AreaTransformation;
+import ch.swisssmp.transformations.TransformationContainer;
 
 public class DungeonInstance{
 	private static HashMap<Integer,DungeonInstance> instances = new HashMap<Integer,DungeonInstance>();
@@ -35,7 +34,7 @@ public class DungeonInstance{
 	private final EventListenerMaster eventListener;
 	private final PlayerManager playerManager;
 	private boolean running = false;
-	private final TransformationWorld transformationworld;
+	private final TransformationContainer transformationworld;
 	
 	private String background_music;
 	private long music_loop_time;
@@ -49,8 +48,8 @@ public class DungeonInstance{
 		this.difficulty = difficulty;
 		this.eventListener = new EventListenerMaster(this);
 		this.playerManager = new PlayerManager(this);
-		this.transformationworld = TransformationWorld.get(world);
-		this.transformationworld.loadTransformations("dungeon_template_"+this.dungeon_id);
+		this.transformationworld = TransformationContainer.get(world);
+		//this.transformationworld.loadTransformations("dungeon_template_"+this.dungeon_id);
 		
 		try{
 			if(Bukkit.getPluginManager().getPlugin("DungeonGenerator")!=null){
@@ -76,11 +75,12 @@ public class DungeonInstance{
 		Dungeon dungeon = Dungeon.get(this);
 		if(dungeon==null) return;
 		if(dungeon.getLobbyTrigger()>0){
-			TransformationArea transformation = transformationworld.getTransformation(dungeon.getLobbyTrigger());
+			/*
+			AreaTransformation transformation = transformationworld.getTransformation(dungeon.getLobbyTrigger());
 			if(transformation!=null){
-				AreaState areaState = transformation.getSchematic("Offen");
-				if(areaState!=null) areaState.trigger();
-			}
+				TransformationState transformationState = transformation.getSchematic("Offen");
+				if(transformationState !=null) transformationState.trigger();
+			}*/
 		}
 		Bukkit.getPluginManager().callEvent(new DungeonStartEvent(this));
 		this.playerManager.sendTitle(ChatColor.GREEN+"START!", dungeon.getName());

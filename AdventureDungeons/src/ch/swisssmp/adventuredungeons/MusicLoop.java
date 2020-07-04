@@ -54,7 +54,7 @@ public class MusicLoop implements Runnable{
 			previous.cancel();
 		}
 		MusicLoop result = new MusicLoop(player, music_id);
-		result.task = Bukkit.getScheduler().runTaskTimer(AdventureDungeons.getInstance(), result, 0, looptime);
+		result.task = Bukkit.getScheduler().runTaskTimer(AdventureDungeonsPlugin.getInstance(), result, 0, looptime);
 		musicLoops.put(player.getUniqueId(), result);
 		return result;
 	}

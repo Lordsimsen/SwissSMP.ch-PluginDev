@@ -1,5 +1,6 @@
 package ch.swisssmp.adventuredungeons.event.listener;
 
+import ch.swisssmp.adventuredungeons.AdventureDungeonsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -29,11 +30,7 @@ public class EventListenerPlayer extends EventListenerBasic{
 		Player player = event.getPlayer();
 		if(player.getGameMode()!=GameMode.ADVENTURE) return;
 		if(!this.getInstance().getPlayerManager().getPlayers().contains(player.getUniqueId().toString())) return;
-		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
-			public void run(){
-				MusicLoop.update(player);
-			}
-		}, 60L);
+		Bukkit.getScheduler().runTaskLater(AdventureDungeonsPlugin.getInstance(), () -> MusicLoop.update(player), 60L);
 	}
 	@EventHandler
 	private void onPlayerDeath(PlayerDeathEvent event){

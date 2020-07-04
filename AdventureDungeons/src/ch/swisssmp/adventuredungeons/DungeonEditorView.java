@@ -200,7 +200,7 @@ public class DungeonEditorView extends InventoryView implements Listener{
 			return null;
 		}
 		DungeonEditorView result = new DungeonEditorView(dungeon, player);
-		Bukkit.getPluginManager().registerEvents(result, AdventureDungeons.getInstance());
+		Bukkit.getPluginManager().registerEvents(result, AdventureDungeonsPlugin.getInstance());
 		player.openInventory(result);
 		return result;
 	}

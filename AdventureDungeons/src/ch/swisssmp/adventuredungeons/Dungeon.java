@@ -206,7 +206,7 @@ public class Dungeon{
 		}
 		//save the world one last time before unloading
 		world.save();
-		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
+		Bukkit.getScheduler().runTaskLater(AdventureDungeonsPlugin.getInstance(), new Runnable(){
 			public void run(){
 				WorldTransferObserver transferObserver = WorldTransferManager.uploadWorld(sender, template_name);
 				transferObserver.addOnFinishListener(new Runnable(){
@@ -220,7 +220,7 @@ public class Dungeon{
 	}
 	
 	protected void saveSettings(){
-		DataSource.getResponse(AdventureDungeons.getInstance(), "save_dungeon_settings.php", new String[]{
+		DataSource.getResponse(AdventureDungeonsPlugin.getInstance(), "save_dungeon_settings.php", new String[]{
 			"id="+dungeon_id,
 			"name="+URLEncoder.encode(this.name),
 			this.lobby_join.getURLString("lobby_join"),
@@ -365,7 +365,7 @@ public class Dungeon{
 	}
 	
 	private static void load(String[] args, Consumer<Dungeon> callback){
-		HTTPRequest request = DataSource.getResponse(AdventureDungeons.getInstance(), "get_dungeon.php", args);
+		HTTPRequest request = DataSource.getResponse(AdventureDungeonsPlugin.getInstance(), "get_dungeon.php", args);
 		request.onFinish(()->{
 			YamlConfiguration yamlConfiguration = request.getYamlResponse();
 			if(yamlConfiguration==null || !yamlConfiguration.contains("dungeon")){

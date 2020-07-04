@@ -34,7 +34,7 @@ public class CountdownTask implements Runnable{
 	
 	public static CountdownTask runCountdown(DungeonInstance dungeonInstance){
 		CountdownTask countdownTask = new CountdownTask(dungeonInstance);
-		countdownTask.task = Bukkit.getScheduler().runTaskTimer(AdventureDungeons.getInstance(), countdownTask, 0, 20);
+		countdownTask.task = Bukkit.getScheduler().runTaskTimer(AdventureDungeonsPlugin.getInstance(), countdownTask, 0, 20);
 		return countdownTask;
 	}
 }

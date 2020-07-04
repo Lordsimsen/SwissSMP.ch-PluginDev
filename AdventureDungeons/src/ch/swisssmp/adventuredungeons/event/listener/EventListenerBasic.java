@@ -1,5 +1,6 @@
 package ch.swisssmp.adventuredungeons.event.listener;
 
+import ch.swisssmp.adventuredungeons.AdventureDungeonsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
@@ -11,7 +12,7 @@ public abstract class EventListenerBasic implements Listener {
 	private final EventListenerMaster master;
 	public EventListenerBasic(EventListenerMaster master){
 		this.master = master;
-		Bukkit.getPluginManager().registerEvents(this, AdventureDungeons.getInstance());
+		Bukkit.getPluginManager().registerEvents(this, AdventureDungeonsPlugin.getInstance());
 	}
 	protected DungeonInstance getInstance(){
 		return this.master.getInstance();

@@ -92,7 +92,7 @@ public class PlayerManager {
 				}
 			}
 			else{
-				Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
+				Bukkit.getScheduler().runTaskLater(AdventureDungeonsPlugin.getInstance(), new Runnable(){
 					public void run(){
 						instance.delete(true);
 					}
