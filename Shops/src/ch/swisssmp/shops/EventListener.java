@@ -180,7 +180,8 @@ public class EventListener implements Listener{
 		int displayBalance = Math.min(64, balance);
 		Bukkit.getScheduler().runTaskLater(ShopsPlugin.plugin, new Runnable(){
 			public void run(){
-				ItemStack eventPoints = currencyInfo.getItem(displayBalance);
+				ItemStack eventPoints = itemStack.clone();
+				eventPoints.setAmount(displayBalance);
 				inventory.setItem(0, eventPoints);
 			}
 		}, 1L);
