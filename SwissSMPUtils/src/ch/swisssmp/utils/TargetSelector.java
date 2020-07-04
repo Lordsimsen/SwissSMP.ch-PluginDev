@@ -20,6 +20,9 @@ public class TargetSelector {
     private static final Random random = new Random();
 
     public static Collection<Entity> query(CommandSender sender, String selector) {
+        if (!selector.startsWith("@")) {
+            return Collections.singletonList(Bukkit.getPlayer(selector));
+        }
         // this pattern checks what target selector
         return query(sender, selector, Bukkit.getWorlds().stream().flatMap(w -> w.getEntities().stream()).collect(Collectors.toSet()));
     }

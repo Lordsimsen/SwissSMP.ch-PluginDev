@@ -88,7 +88,7 @@ public class EventListener implements Listener {
 			return;
 		}
 		if(!HayPile.checkSize(block, CityPromotionCeremony.baseMaterial, 10)) {
-			Bukkit.getLogger().info("HayPile not accepted");
+//			Bukkit.getLogger().info("HayPile not accepted");
 			return; //Todo add actual size
 		}
 		Inventory inventory = ((Chest) block.getState()).getBlockInventory();

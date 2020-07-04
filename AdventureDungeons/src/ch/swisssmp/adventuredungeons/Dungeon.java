@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.world.transfer.WorldTransferManager;
-import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,7 +15,6 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -328,8 +326,7 @@ public class Dungeon{
 		Dungeon.load(dungeon_id, callback);
 	}
 
-	@Nullable
-	public static Dungeon get(@NotNull String identifier){
+	public static Dungeon get(String identifier){
 		return dungeons.values()
 				.stream()
 				.filter(d->d.getName().toLowerCase().contains(identifier.toLowerCase()))

@@ -18,7 +18,6 @@ public class HayPile {
         int radius = Mathf.ceilToInt(Math.sqrt(Math.sqrt(size)) * 2.5);
         BoundingBox box = BoundingBox.of(onTop.getRelative(BlockFace.DOWN, Mathf.floorToInt(radius/2f)).getLocation().add(0.5,0.5,0.5), radius, radius, radius);
 
-        Bukkit.getLogger().info("Radius: " + radius);
         HashSet<BlockVector> found = new HashSet<>();
         Stack<Block> queue = new Stack<>();
         BlockFace[] directions = new BlockFace[]{BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
@@ -32,12 +31,10 @@ public class HayPile {
             for(BlockFace face : directions){
                 Block relative = current.getRelative(face);
                 if(relative.getType() != material) {
-                    Bukkit.getLogger().info("Relative type: " + relative.getType());
                     continue;
                 }
                 BlockVector relativeVector = toVector(relative);
                 if(!box.contains(relativeVector) || found.contains(relativeVector)) {
-                    Bukkit.getLogger().info("Alrdy found or outside of bbox: " + relative.getX() + ", " + relative.getY() + ", " + relative.getZ());
                     continue;
                 }
                 found.add(relativeVector);
@@ -45,7 +42,6 @@ public class HayPile {
             }
             i++;
         }
-        Bukkit.getLogger().info("Found size: " + found.size());
         return found.size() >= size;
     }
 

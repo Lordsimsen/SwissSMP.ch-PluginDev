@@ -163,15 +163,15 @@ public class ConsoleCommand implements CommandExecutor{
 					sender.sendMessage("[TowerControl] Inventar ausgerüstet.");
 					return true;
 				}
-				else{
-					YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("towercontrol/set_items.php", new String[]{
-							"arena="+arena.getArenaId(),
-							String.join("&",inventoryStrings)
-					});
-					if(yamlConfiguration==null || !yamlConfiguration.contains("message")) return true;
-					sender.sendMessage(yamlConfiguration.getString("message"));
-					return true;
-				}
+//				else{
+//					YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("towercontrol/set_items.php", new String[]{
+//							"arena="+arena.getArenaId(),
+//							String.join("&",inventoryStrings)
+//					});
+//					if(yamlConfiguration==null || !yamlConfiguration.contains("message")) return true;
+//					sender.sendMessage(yamlConfiguration.getString("message"));
+//					return true;
+//				}
 			}
 			default:
 				break;

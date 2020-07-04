@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import ch.swisssmp.webcore.HTTPRequest;
-import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,8 +26,6 @@ import ch.swisssmp.utils.SwissSMPUtils;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
-
-import javax.annotation.Nullable;
 
 public class LootTable {
 	private static HashMap<String,LootTable> loadedTables = new HashMap<String,LootTable>();
@@ -243,8 +240,7 @@ public class LootTable {
 		}
 	}
 
-	@Nullable
-	public static LootTable get(@NotNull String name){
+	public static LootTable get(String name){
 		if(loadedTables.containsKey(name.toLowerCase())){
 			return loadedTables.get(name.toLowerCase());
 		}
@@ -274,7 +270,6 @@ public class LootTable {
 		});
 	}
 
-	@Nullable
 	public static LootTable get(int id){
 		Optional<LootTable> result = loadedTables.values().stream().filter(t->t.loot_table_id==id).findAny();
 		return result.orElse(null);
@@ -301,7 +296,6 @@ public class LootTable {
 		});
 	}
 
-	@Nullable
 	public static LootTable get(ItemStack tokenStack){
 		return get(ItemUtil.getInt(tokenStack, "loot_table"));
 	}

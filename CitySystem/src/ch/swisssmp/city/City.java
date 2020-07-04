@@ -18,20 +18,21 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
 public class City {
-	private final int city_id;
-	private final String techtree_id;
+	private final int cityId;
+	private final String techtreeId;
 	
 	private String name;
-	private CityLevelInfo cityLevelInfo;
+	private String levelId;
 	private String ringType;
 	private UUID mayor;
 	private List<CitizenInfo> citizens = new ArrayList<CitizenInfo>();
 	private HashSet<UUID> founders = new HashSet<UUID>();
 	
 	public City(ConfigurationSection dataSection){
-		this.city_id = dataSection.getInt("id");
-		this.techtree_id = dataSection.getString("techtree_id");
+		this.cityId = dataSection.getInt("id");
+		this.techtreeId = dataSection.getString("techtree_id");
 		this.name = dataSection.getString("name");
+		this.levelId = dataSection.getString("level_id");
 		this.ringType = dataSection.getString("ring_type");
 		try{
 			this.mayor = UUID.fromString(dataSection.getString("mayor"));
@@ -62,20 +63,18 @@ public class City {
 	}
 	
 	public int getId(){
-		return city_id;
+		return cityId;
 	}
 	
 	public String getTechtreeId(){
-		return techtree_id;
+		return techtreeId;
 	}
 	
 	public String getName(){
 		return name;
 	}
 
-	public CityLevelInfo getCityLevelInfo(){
-		return cityLevelInfo;
-	}
+	public String getLevelId() { return levelId; }
 	
 	public String getRingType(){
 		return ringType;
@@ -101,11 +100,19 @@ public class City {
 			player.sendMessage(message);
 		}
 	}
+
+	public void promoteCity(String newLevelId){
+		this.levelId = newLevelId;
+		DataSource.getResponse(CitySystemPlugin.getInstance(), "promote_city.php", new String[]{
+			"city_id="+this.cityId,
+			"level_id="+newLevelId
+		});
+	}
 	
 	public HTTPRequest addCitizen(Player player, Player parent, String role){
 		if(isCitizen(player.getUniqueId()) || (!isCitizen(parent.getUniqueId()) && !parent.hasPermission("citysystem.admin"))) return null;
 		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "add_citizen.php", new String[]{
-			"city_id="+this.city_id,
+			"city_id="+this.cityId,
 			"player_uuid="+player.getUniqueId(),
 			"parent_uuid="+parent.getUniqueId(),
 			"role="+URLEncoder.encode(role!=null ? role : ""),
@@ -150,7 +157,7 @@ public class City {
 		CitizenInfo citizenInfo = this.getCitizen(player_uuid);
 		if(citizenInfo==null) return null;
 		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "remove_citizen.php", new String[]{
-			"city_id="+this.city_id,
+			"city_id="+this.cityId,
 			"player="+player_uuid.toString()
 		});
 		request.onFinish(()->{
@@ -197,7 +204,7 @@ public class City {
 			newRole = role;
 		}
 		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "set_citizen_role.php", new String[]{
-			"city_id="+this.city_id,
+			"city_id="+this.cityId,
 			"player="+player_uuid,
 			"responsible="+responsible.getUniqueId().toString(),
 			"responsible_admin="+(responsible.hasPermission("citysystem.admin") ? "true" : "false"),
