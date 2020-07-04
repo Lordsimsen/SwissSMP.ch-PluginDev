@@ -1,5 +1,6 @@
 package ch.swisssmp.addonabnahme;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
@@ -39,9 +40,9 @@ public class AddonInstanceGuides {
 			HTTPRequest request = AddonManager.downloadAddonInstanceInfo(city_id, techtree_id, addon_id);
 			if(request==null) continue;
 			request.onFinish(()->{
-				YamlConfiguration yamlConfiguration = request.getYamlResponse();
-				if(yamlConfiguration==null || !yamlConfiguration.contains("addon")) return;
-				AddonInstanceInfo addonInfo = AddonInstanceInfo.get(yamlConfiguration.getConfigurationSection("addon"));
+				JsonObject json = request.getJsonResponse();
+				if(json==null || !json.has("addon")) return;
+				AddonInstanceInfo addonInfo = AddonInstanceInfo.get(json.getAsJsonObject("addon"));
 				if(addonInfo==null) return;
 				addonInfo.apply(npc);
 			});

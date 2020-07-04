@@ -3,6 +3,9 @@ package ch.swisssmp.addonabnahme;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
@@ -102,26 +105,27 @@ public class AddonInstanceInfo {
 		return this.unlockTrades;
 	}
 	
-	public static AddonInstanceInfo get(ConfigurationSection dataSection){
-		int city_id = dataSection.getInt("city_id");
-		String addon_id = dataSection.getString("addon_id");
-		AddonState state = AddonState.get(dataSection.getString("state"));
-		AddonInstanceInfo result = get(city_id, addon_id, dataSection.getInt("guide_active")>0);
+	public static AddonInstanceInfo get(JsonObject json){
+		int city_id = JsonUtil.getInt("city_id", json);
+		String addon_id = JsonUtil.getString("addon_id", json);
+		AddonState state = AddonState.get(JsonUtil.getString("state", json));
+		AddonInstanceInfo result = get(city_id, addon_id, JsonUtil.getInt("guide_active", json)>0);
 		if(result==null){
 			return null;
 		}
 		result.setAddonState(state);
-		if(dataSection.contains("reason")){
-			result.setAddonStateReason(dataSection.getString("reason"));
+		if(json.has("reason")){
+			result.setAddonStateReason(JsonUtil.getString("reason", json));
 		}
-		if(state==AddonState.Available && dataSection.contains("cost")){
-			AddonUnlockTrade trade = AddonUnlockTrade.get(UnlockType.Perpetual, dataSection.getConfigurationSection("cost"));
+		if(state==AddonState.Available && json.has("cost")){
+			AddonUnlockTrade trade = AddonUnlockTrade.get(UnlockType.Perpetual, json.getAsJsonObject("cost"));
 			if(trade!=null) result.unlockTrades.add(trade);
 		}
-		else if(state==AddonState.Accepted && dataSection.contains("licenses")){
-			ConfigurationSection licensesSection = dataSection.getConfigurationSection("licenses");
-			for(String key : licensesSection.getKeys(false)){
-				ConfigurationSection licenseSection = licensesSection.getConfigurationSection(key);
+		else if(state==AddonState.Accepted && json.has("licenses")){
+			JsonArray licensesSection = json.getAsJsonArray("licenses");
+			for(JsonElement element : licensesSection){
+				if(!element.isJsonObject()) continue;
+				JsonObject licenseSection = element.getAsJsonObject();
 				AddonUnlockTrade trade = AddonUnlockTrade.get(UnlockType.Rental, licenseSection);
 				if(trade==null) continue;
 				result.unlockTrades.add(trade);

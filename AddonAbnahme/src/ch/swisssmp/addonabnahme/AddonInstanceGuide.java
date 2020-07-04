@@ -1,5 +1,6 @@
 package ch.swisssmp.addonabnahme;
 
+import com.google.gson.JsonObject;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -49,9 +50,9 @@ public class AddonInstanceGuide {
 			return;
 		}
 		request.onFinish(()->{
-			YamlConfiguration yamlConfiguration = request.getYamlResponse();
-			if(yamlConfiguration==null || !yamlConfiguration.contains("addon")) return;
-			ConfigurationSection addonSection = yamlConfiguration.getConfigurationSection("addon");
+			JsonObject json = request.getJsonResponse();
+			if(json==null || !json.has("addon")) return;
+			JsonObject addonSection = json.getAsJsonObject("addon");
 			AddonInstanceInfo instance = AddonInstanceInfo.get(addonSection);
 			if(instance==null){
 				return;
@@ -67,11 +68,11 @@ public class AddonInstanceGuide {
 		String addon_id = info.getAddonInfo().getAddonId();
 		HTTPRequest request = AddonManager.downloadAddonInstanceInfo(city_id, info.getCity().getTechtreeId(), addon_id);
 		request.onFinish(()->{
-			YamlConfiguration yamlConfiguration = request.getYamlResponse();
-			if(yamlConfiguration==null || !yamlConfiguration.contains("addon")){
+			JsonObject json = request.getJsonResponse();
+			if(json==null || !json.has("addon")){
 				return;
 			}
-			ConfigurationSection addonSection = yamlConfiguration.getConfigurationSection("addon");
+			JsonObject addonSection = json.getAsJsonObject("addon");
 			AddonInstanceInfo instanceInfo = AddonInstanceInfo.get(addonSection);
 			if(instanceInfo==null){
 				return;

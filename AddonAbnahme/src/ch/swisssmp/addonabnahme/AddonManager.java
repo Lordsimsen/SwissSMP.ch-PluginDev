@@ -3,6 +3,7 @@ package ch.swisssmp.addonabnahme;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -57,13 +58,13 @@ public class AddonManager {
 		});
 	}
 	
-	public static void createAddonGuide(Player player, Sign sign, AddonInstanceInfo signInfo, YamlConfiguration yamlConfiguration){
+	public static void createAddonGuide(Player player, Sign sign, AddonInstanceInfo signInfo, JsonObject json){
 
-		if(yamlConfiguration==null || !yamlConfiguration.contains("addon")){
+		if(json==null || !json.has("addon")){
 			SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Konnte den Addon Guide nicht platzieren. (Systemfehler)");
 			return;
 		}
-		ConfigurationSection addonSection = yamlConfiguration.getConfigurationSection("addon");
+		JsonObject addonSection = json.getAsJsonObject("addon");
 		AddonInstanceInfo instanceInfo = AddonInstanceInfo.get(addonSection);
 		if(instanceInfo==null){
 			SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Konnte den Addon Guide nicht platzieren. (Systemfehler)");

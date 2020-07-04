@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -36,12 +38,10 @@ public class EventListener implements Listener {
 	
 	@EventHandler
 	private void onCreateCustomItemBuilder(CreateCustomItemBuilderEvent event) {
-		ConfigurationSection dataSection = event.getConfigurationSection();
-		if(dataSection.contains("soulbound") && dataSection.getBoolean("soulbound")) {
+		JsonObject json = event.getJson();
+		if(json.has("soulbound") && JsonUtil.getBool("soulbound", json)) {
 			CustomItemBuilder itemBuilder = event.getCustomItemBuilder();
-			itemBuilder.addComponent((ItemStack itemStack)->{
-				Soulbinder.setSoulbound(itemStack);
-			});
+			itemBuilder.addComponent(Soulbinder::setSoulbound);
 		}
 	}
 	

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.*;
@@ -519,12 +521,12 @@ public class EventListener implements Listener {
      */
     @EventHandler
     private void onItemBuilderCreate(CreateCustomItemBuilderEvent event) {
-        ConfigurationSection dataSection = event.getConfigurationSection();
-        if (!dataSection.contains("tournament_lance")) return;
-        ConfigurationSection lanceSection = dataSection.getConfigurationSection("tournament_lance");
+        JsonObject json = event.getJson();
+        if (!json.has("tournament_lance")) return;
+        JsonObject lanceSection = json.getAsJsonObject("tournament_lance");
 
-        LanceColor primary = LanceColor.of(lanceSection.getString("primary_color"));
-        LanceColor secondary = LanceColor.of(lanceSection.getString("secondary_color"));
+        LanceColor primary = LanceColor.of(JsonUtil.getString("primary_color", lanceSection));
+        LanceColor secondary = LanceColor.of(JsonUtil.getString("secondary_color", lanceSection));
 
         event.getCustomItemBuilder().addComponent((ItemStack itemStack) -> {
             CompoundTag nbt = ItemUtil.getData(itemStack);

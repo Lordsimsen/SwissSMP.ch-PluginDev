@@ -1,5 +1,5 @@
 name: LaPoste
-version: 2
+version: 3
 main: ch.swisssmp.laposte.LaPostePlugin
 api-version: '1.13'
 depend: [SwissSMPUtils,CustomItems,WebCore,ResourcepackManager]

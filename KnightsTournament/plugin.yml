@@ -1,5 +1,5 @@
 main: ch.swisssmp.knightstournament.KnightsTournamentPlugin
-version: 3
+version: 4
 api-version: 1.13
 name: KnightsTournament
 authors: [detig_iii, WhiteGuggi]

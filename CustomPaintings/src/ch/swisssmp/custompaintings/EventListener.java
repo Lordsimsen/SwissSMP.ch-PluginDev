@@ -18,11 +18,11 @@ import org.bukkit.inventory.ItemStack;
 public class EventListener implements Listener {
     @EventHandler
     private void onCreateCustomItemBuilder(CreateCustomItemBuilderEvent event){
-        if(!event.getConfigurationSection().contains("painting")){
+        if(!event.getJson().has("painting")){
             return;
         }
 
-        final String id = event.getConfigurationSection().getString("painting");
+        final String id = event.getJson().get("painting").getAsString();
 
         event.getCustomItemBuilder().addComponent((itemStack)->{
             ItemUtil.setString(itemStack, CustomPainting.ID_PROPERTY, id);

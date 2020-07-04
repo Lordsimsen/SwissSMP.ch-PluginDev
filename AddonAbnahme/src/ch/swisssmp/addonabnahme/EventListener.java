@@ -65,7 +65,7 @@ public class EventListener implements Listener {
 				"z="+event.getBlock().getZ()
 		});
 		request.onFinish(()->{
-			AddonManager.createAddonGuide(player, sign, signInfo, request.getYamlResponse());
+			AddonManager.createAddonGuide(player, sign, signInfo, request.getJsonResponse());
 		});
 	}
 	
