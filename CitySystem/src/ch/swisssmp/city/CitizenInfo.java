@@ -2,6 +2,8 @@ package ch.swisssmp.city;
 
 import java.util.UUID;
 
+import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -60,13 +62,13 @@ public class CitizenInfo {
 		this.role = role;
 	}
 	
-	public static CitizenInfo get(ConfigurationSection dataSection){
-		PlayerInfo playerInfo = PlayerInfo.get(dataSection);
-		CitizenRank rank = CitizenRank.get(dataSection.getString("rank"));
-		String role = dataSection.getString("role");
+	public static CitizenInfo get(JsonObject json){
+		PlayerInfo playerInfo = PlayerInfo.get(json);
+		CitizenRank rank = CitizenRank.get(JsonUtil.getString("rank", json));
+		String role = JsonUtil.getString("role", json);
 		UUID parent;
 		try{
-			parent = UUID.fromString(dataSection.getString("parent_uuid"));
+			parent = JsonUtil.getUUID("parent_uuid", json);
 		}
 		catch(Exception e){
 			parent = null;

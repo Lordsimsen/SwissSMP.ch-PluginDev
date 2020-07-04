@@ -23,7 +23,7 @@ public class ItemManager {
 	}
 	
 	public static ItemStack createRing(String ringType, City city, PlayerInfo player){
-		boolean isMayor = city!=null && player!=null ? player.getUniqueId().equals(city.getMayor()) : false;
+		boolean isMayor = (city != null && player != null) && player.getUniqueId().equals(city.getMayor());
 		CustomItemBuilder ringBuilder = CustomItems.getCustomItemBuilder(ringType);
 		ringBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		ringBuilder.addItemFlags(ItemFlag.HIDE_ENCHANTS);

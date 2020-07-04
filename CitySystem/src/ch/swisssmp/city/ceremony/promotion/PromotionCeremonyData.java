@@ -41,7 +41,7 @@ public class PromotionCeremonyData {
             for(JsonElement element : itemsSection){
                 if(!element.isJsonObject()) continue;
                 try{
-                    ItemStack itemStack = getItem(element);
+                    ItemStack itemStack = getItem(element.getAsJsonObject());
                     if(itemStack==null) continue;
                     tribute.add(itemStack);
                 }
@@ -52,7 +52,7 @@ public class PromotionCeremonyData {
         }
     }
 
-    private static ItemStack getItem(JsonElement json){
+    private static ItemStack getItem(JsonObject json){
         CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(json);
         if(itemBuilder==null) return null;
         return itemBuilder.build();

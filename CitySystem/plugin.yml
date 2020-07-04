@@ -1,5 +1,5 @@
 main: ch.swisssmp.city.CitySystemPlugin
-version: 3
+version: 4
 api-version: 1.13
 name: CitySystem
 authors: [detig_iii,WhiteGuggi]

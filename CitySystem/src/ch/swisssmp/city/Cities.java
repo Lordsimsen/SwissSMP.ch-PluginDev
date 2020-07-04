@@ -3,6 +3,9 @@ package ch.swisssmp.city;
 import java.util.Collection;
 import java.util.HashMap;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
 import ch.swisssmp.utils.ConfigurationSection;
@@ -42,16 +45,16 @@ public class Cities {
 				"world="+URLEncoder.encode(Bukkit.getWorlds().get(0).getName())
 		});
 		request.onFinish(()->{
-			load(request.getYamlResponse());
+			load(request.getJsonResponse());
 		});
 	}
 	
-	private static void load(YamlConfiguration yamlConfiguration){
-		if(yamlConfiguration==null || !yamlConfiguration.contains("cities")) return;
+	private static void load(JsonObject json){
+		if(json==null || !json.has("cities")) return;
 		cities.clear();
-		ConfigurationSection citiesSection = yamlConfiguration.getConfigurationSection("cities");
-		for(String key : citiesSection.getKeys(false)){
-			ConfigurationSection citySection = citiesSection.getConfigurationSection(key);
+		JsonArray citiesArray = json.getAsJsonArray("cities");
+		for(JsonElement element : citiesArray){
+			JsonObject citySection = element.getAsJsonObject();
 			City.load(citySection);
 		}
 	}

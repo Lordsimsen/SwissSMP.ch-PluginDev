@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.swisssmp.ceremonies.Phase;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.SoundCategory;
@@ -63,17 +64,17 @@ public class PresentRingPhase extends Phase {
 		long time = origin.getWorld().getTime();
 		HTTPRequest request = CitySystem.createCity(name, mayor, founders, ringType, origin, time);
 		request.onFinish(()->{
-			sendFoundingFeedback(request.getYamlResponse());
+			sendFoundingFeedback(request.getJsonResponse());
 		});
 	}
 	
-	private void sendFoundingFeedback(YamlConfiguration yamlConfiguration){
-		if(yamlConfiguration==null || !yamlConfiguration.contains("city")){
+	private void sendFoundingFeedback(JsonObject json){
+		if(json==null || !json.has("city")){
 			ceremony.broadcast(ChatColor.RED+"Es ist etwas §cschiefgelaufen und die §cStadt konnte nicht §cgegründet werden.§c §cBitte kontaktiert §cdie §cSpielleitung.");
 			ceremony.cancel();
 			return;
 		}
-		City city = City.load(yamlConfiguration.getConfigurationSection("city"));
+		City city = City.load(json.getAsJsonObject("city"));
 		String playersString = "";
 		List<Player> participants = ceremony.getPlayers();
 		for(int i = 0; i < participants.size(); i++){

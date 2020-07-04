@@ -6,14 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import ch.swisssmp.utils.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
@@ -21,35 +21,36 @@ public class City {
 	private final int cityId;
 	private final String techtreeId;
 	
-	private String name;
+	private final String name;
 	private String levelId;
 	private String ringType;
 	private UUID mayor;
-	private List<CitizenInfo> citizens = new ArrayList<CitizenInfo>();
-	private HashSet<UUID> founders = new HashSet<UUID>();
+	private final List<CitizenInfo> citizens = new ArrayList<CitizenInfo>();
+	private final HashSet<UUID> founders = new HashSet<UUID>();
 	
-	public City(ConfigurationSection dataSection){
-		this.cityId = dataSection.getInt("id");
-		this.techtreeId = dataSection.getString("techtree_id");
-		this.name = dataSection.getString("name");
-		this.levelId = dataSection.getString("level_id");
-		this.ringType = dataSection.getString("ring_type");
+	public City(JsonObject json){
+		this.cityId = JsonUtil.getInt("id", json);
+		this.techtreeId = JsonUtil.getString("techtree_id", json);
+		this.name = JsonUtil.getString("name", json);
+		this.levelId = JsonUtil.getString("level_id", json);
+		this.ringType = JsonUtil.getString("ring_type", json);
 		try{
-			this.mayor = UUID.fromString(dataSection.getString("mayor"));
+			this.mayor = UUID.fromString(JsonUtil.getString("mayor", json));
 		}
 		catch(Exception e){
 			this.mayor = null;
 		}
-		ConfigurationSection citizensSection = dataSection.getConfigurationSection("citizens");
-		if(citizensSection!=null){
-			for(String key : citizensSection.getKeys(false)){
-				ConfigurationSection citizenSection = citizensSection.getConfigurationSection(key);
+		JsonArray citizensArray = json.has("citizens") ? json.getAsJsonArray("citizens") : null;
+		if(citizensArray!=null){
+			for(JsonElement element : citizensArray){
+				if(!element.isJsonObject()) continue;
+				JsonObject citizenSection = element.getAsJsonObject();
 				CitizenInfo info = CitizenInfo.get(citizenSection);
 				if(info==null) continue;
 				citizens.add(info);
 			}
 		}
-		List<String> foundersList = dataSection.getStringList("founders");
+		List<String> foundersList = JsonUtil.getStringList("founders", json);
 		if(foundersList!=null){
 			for(String founder : foundersList){
 				try{
@@ -119,9 +120,9 @@ public class City {
 			"world="+URLEncoder.encode(Bukkit.getWorlds().get(0).getName())
 		});
 		request.onFinish(()->{
-			YamlConfiguration yamlConfiguration = request.getYamlResponse();
-			if(yamlConfiguration!=null && yamlConfiguration.contains("citizen")){
-				CitizenInfo citizen = CitizenInfo.get(yamlConfiguration.getConfigurationSection("citizen"));
+			JsonObject json = request.getJsonResponse();
+			if(json!=null && json.has("citizen")){
+				CitizenInfo citizen = CitizenInfo.get(json.getAsJsonObject("citizen"));
 				if(citizen.getRank()==CitizenRank.CITIZEN && founders.contains(citizen.getUniqueId())){
 					citizen.setRank(CitizenRank.FOUNDER);
 				}
@@ -133,8 +134,8 @@ public class City {
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
 				return;
 			}
-			else if(yamlConfiguration!=null && yamlConfiguration.contains("result")){
-				switch(yamlConfiguration.getString("result")){
+			else if(json!=null && json.has("result")){
+				switch(JsonUtil.getString("result", json)){
 				case "limit_reached":
 					parent.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+player.getDisplayName()+ChatColor.RED+" kann nicht einer weiteren Stadt beitreten.");
 					break;
@@ -279,8 +280,8 @@ public class City {
 		return this.getCitizen(player_uuid)!=null;
 	}
 	
-	public static City load(ConfigurationSection dataSection){
-		City result = new City(dataSection);
+	public static City load(JsonObject json){
+		City result = new City(json);
 		Cities.add(result);
 		return result;
 	}
