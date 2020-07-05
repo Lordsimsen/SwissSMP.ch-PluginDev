@@ -78,8 +78,6 @@ public class TellCommand implements TabExecutor {
         recipient.spigot().sendMessage(recipientMessage.spigot());
         ChatManager.log(senderUid, senderName, recipient.getName(), worldName, message);
 
-        Bukkit.getLogger().info(recipientMessage.toString());
-
         if(senderUid!=null){
             PlayerConversations.setConversationPartner(senderUid, recipient.getUniqueId());
             PlayerConversations.setConversationPartner(recipient.getUniqueId(), senderUid);
