@@ -1,5 +1,5 @@
 main: ch.swisssmp.permissionmanager.PermissionManagerPlugin
-version: 1.6
+version: 2
 api-version: 1.13
 name: PermissionManager
 author: detig_iii

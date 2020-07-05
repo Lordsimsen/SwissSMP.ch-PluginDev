@@ -1,5 +1,5 @@
 main: ch.swisssmp.customitems.CustomItemsPlugin
-version: 6
+version: 7
 api-version: 1.13
 name: CustomItems
 author: detig_iii
