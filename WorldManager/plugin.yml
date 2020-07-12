@@ -28,7 +28,7 @@ commands:
     usage: "Verwendung: /<command> <subcommand> <Welt> [<Seed=Zufall>]"
     permission: worldmanager.admin
   world name:
-    description: Setzt den Anzeigename einer Welt
+    description: Setzt den Anzeigenamen einer Welt
     usage: "Verwendung: /<command> <subcommand> <Welt> [<Anzeige-Name>]"
     permission: worldmanager.admin
   world goto:
