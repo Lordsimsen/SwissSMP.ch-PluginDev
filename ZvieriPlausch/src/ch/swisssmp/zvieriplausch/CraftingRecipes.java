@@ -18,7 +18,7 @@ public class CraftingRecipes {
      */
     public static void registerCraftingRecipes(){
         ItemStack zvieriHotChocolate = getTaggedCustomItemStack("HOT_CHOCOLATE");
-        ShapedRecipe zvieriHotChoolateRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "zvieri_hot_chocolate"), zvieriHotChocolate);
+        ShapedRecipe zvieriHotChoolateRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "zvieri_hot_chocolate"), zvieriHotChocolate);
         zvieriHotChoolateRecipe.shape(
                 "s",
                 "p",
@@ -30,13 +30,13 @@ public class CraftingRecipes {
         Bukkit.getServer().addRecipe(zvieriHotChoolateRecipe);
 
         ItemStack pasta = getTaggedCustomItemStack("PASTA");
-        ShapedRecipe pastaRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "pasta_horizontal"), pasta);
+        ShapedRecipe pastaRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "pasta_horizontal"), pasta);
         pastaRecipe.shape(
                 "ww"
         );
         pastaRecipe.setIngredient('w', new RecipeChoice.ExactChoice(getTaggedItemStack(Material.WHEAT)));
 
-        ShapedRecipe pastaVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "pasta_vertical"), pasta);
+        ShapedRecipe pastaVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "pasta_vertical"), pasta);
         pastaVerticalRecipe.shape(
                 "w",
                 "w"
@@ -48,13 +48,13 @@ public class CraftingRecipes {
 
 
         ItemStack hashBrowns = getTaggedCustomItemStack("HASH_BROWNS");
-        ShapedRecipe hashBrownsRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "hash_browns_horizontal"), hashBrowns);
+        ShapedRecipe hashBrownsRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "hash_browns_horizontal"), hashBrowns);
         hashBrownsRecipe.shape(
                 "pp"
         );
         hashBrownsRecipe.setIngredient('p', new RecipeChoice.ExactChoice(getTaggedItemStack(Material.BAKED_POTATO)));
 
-        ShapedRecipe hashBrownsVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "hash_browns_vertical"), hashBrowns);
+        ShapedRecipe hashBrownsVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "hash_browns_vertical"), hashBrowns);
         hashBrownsVerticalRecipe.shape(
                 "p",
                 "p"
@@ -66,7 +66,7 @@ public class CraftingRecipes {
 
 
         ItemStack meatFeast = getTaggedCustomItemStack("MEAT_FEAST");
-        ShapedRecipe meatFeastRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "meat_feast_horizontal"), meatFeast);
+        ShapedRecipe meatFeastRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "meat_feast_horizontal"), meatFeast);
         meatFeastRecipe.shape(
                 "pbc"
         );
@@ -74,7 +74,7 @@ public class CraftingRecipes {
         meatFeastRecipe.setIngredient('b', new RecipeChoice.ExactChoice(getTaggedItemStack(Material.COOKED_BEEF)));
         meatFeastRecipe.setIngredient('c', new RecipeChoice.ExactChoice(getTaggedItemStack(Material.COOKED_CHICKEN)));
 
-        ShapedRecipe meatFeastHorizontalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "meat_feast_vertical"), meatFeast);
+        ShapedRecipe meatFeastHorizontalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "meat_feast_vertical"), meatFeast);
         meatFeastHorizontalRecipe.shape(
                 "p",
                 "b",
@@ -89,7 +89,7 @@ public class CraftingRecipes {
 
 
         ItemStack honeyMilk = getTaggedCustomItemStack("HONEY_MILK");
-        ShapedRecipe honeyMilkRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "honey_milk"), honeyMilk);
+        ShapedRecipe honeyMilkRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "honey_milk"), honeyMilk);
         honeyMilkRecipe.shape(
                 "h",
                 "m"
@@ -101,7 +101,7 @@ public class CraftingRecipes {
 
 
         ItemStack ricePudding = getTaggedCustomItemStack("RICE_PUDDING");
-        ShapedRecipe ricePuddingRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "rice_pudding"), ricePudding);
+        ShapedRecipe ricePuddingRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "rice_pudding"), ricePudding);
         ricePuddingRecipe.shape(
                 "w",
                 "m"
@@ -113,7 +113,7 @@ public class CraftingRecipes {
 
 
         ItemStack sushi = getTaggedCustomItemStack("SUSHI");
-        ShapedRecipe sushiRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "sushi"), sushi);
+        ShapedRecipe sushiRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "sushi"), sushi);
         sushiRecipe.shape(
                 "s",
                 "k",
@@ -127,7 +127,7 @@ public class CraftingRecipes {
 
 
         ItemStack schniPo = getTaggedCustomItemStack("SCHNITZEL_FRIES");
-        ShapedRecipe schniPoRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "schnitzel_fries"), schniPo);
+        ShapedRecipe schniPoRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "schnitzel_fries"), schniPo);
         schniPoRecipe.shape(
                 "w ",
                 "pb"
@@ -140,7 +140,7 @@ public class CraftingRecipes {
 
 
         ItemStack veggie = getTaggedCustomItemStack("VEGGIES_DELIGHT");
-        ShapedRecipe veggieRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "veggies_delight_horizontal"), veggie);
+        ShapedRecipe veggieRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "veggies_delight_horizontal"), veggie);
         veggieRecipe.shape(
                 "kwc"
         );
@@ -148,7 +148,7 @@ public class CraftingRecipes {
         veggieRecipe.setIngredient('w', new RecipeChoice.ExactChoice(getTaggedItemStack(Material.WHEAT)));
         veggieRecipe.setIngredient('c', new RecipeChoice.ExactChoice(getTaggedItemStack(Material.CARROT)));
 
-        ShapedRecipe veggieVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "veggies_delight_vertical"), veggie);
+        ShapedRecipe veggieVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "veggies_delight_vertical"), veggie);
         veggieVerticalRecipe.shape(
                 "k",
                 "w",
@@ -163,7 +163,7 @@ public class CraftingRecipes {
 
 
         ItemStack spaghetti = getTaggedCustomItemStack("SPAGHETTI_BOLOGNESE");
-        ShapedRecipe spaghettiRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "spaghetti_bolognese"), spaghetti);
+        ShapedRecipe spaghettiRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "spaghetti_bolognese"), spaghetti);
         spaghettiRecipe.shape(
                 "r",
                 "b",
@@ -177,7 +177,7 @@ public class CraftingRecipes {
 
 
         ItemStack creeperSucre = getTaggedCustomItemStack("CREEPER_SUCRE");
-        ShapedRecipe creeperSucreRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "creeper_sucre"), creeperSucre);
+        ShapedRecipe creeperSucreRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "creeper_sucre"), creeperSucre);
         creeperSucreRecipe.shape(
                 "wps",
                 " c "
@@ -191,7 +191,7 @@ public class CraftingRecipes {
 
 
         ItemStack zhGeschnetzeltes = getTaggedCustomItemStack("ZURICH_GESCHNETZELTES");
-        ShapedRecipe zhGeschnetzeltesRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "zurich_geschnetzeltes"), zhGeschnetzeltes);
+        ShapedRecipe zhGeschnetzeltesRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "zurich_geschnetzeltes"), zhGeschnetzeltes);
         zhGeschnetzeltesRecipe.shape(
                 "brm"
         );
@@ -203,7 +203,7 @@ public class CraftingRecipes {
 
 
         ItemStack pekingDuck = getTaggedCustomItemStack("PEKING_DUCK");
-        ShapedRecipe pekingDuckRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "peking_duck"), pekingDuck);
+        ShapedRecipe pekingDuckRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "peking_duck"), pekingDuck);
         pekingDuckRecipe.shape(
                 "s",
                 "c",
@@ -217,7 +217,7 @@ public class CraftingRecipes {
 
 
         ItemStack pizza = getTaggedCustomItemStack("PIZZA_MARGHERITA");
-        ShapedRecipe pizzaRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "pizza_margherita"), pizza);
+        ShapedRecipe pizzaRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "pizza_margherita"), pizza);
         pizzaRecipe.shape(
                 "c",
                 "r",
@@ -231,7 +231,7 @@ public class CraftingRecipes {
 
 
         ItemStack maritimePlatter = getTaggedCustomItemStack("MARITIME_PLATTER");
-        ShapedRecipe maritimePlatterRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "maritime_platter"), maritimePlatter);
+        ShapedRecipe maritimePlatterRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "maritime_platter"), maritimePlatter);
         maritimePlatterRecipe.shape(
                 "ksp"
         );
@@ -239,7 +239,7 @@ public class CraftingRecipes {
         maritimePlatterRecipe.setIngredient('s', new RecipeChoice.ExactChoice(getTaggedItemStack(Material.COOKED_SALMON)));
         maritimePlatterRecipe.setIngredient('p', new RecipeChoice.ExactChoice(getTaggedCustomItemStack("PUFFERFISH_EXTRACT")));
 
-        ShapedRecipe maritimePlatterVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "maritime_platter_vertical"), maritimePlatter);
+        ShapedRecipe maritimePlatterVerticalRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "maritime_platter_vertical"), maritimePlatter);
         maritimePlatterVerticalRecipe.shape(
                 "k",
                 "s",
@@ -254,7 +254,7 @@ public class CraftingRecipes {
 
 
         ItemStack lordsBlessing = getTaggedCustomItemStack("LORDS_BLESSING");
-        ShapedRecipe lordsBlessingRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "lords_blessing"), lordsBlessing);
+        ShapedRecipe lordsBlessingRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "lords_blessing"), lordsBlessing);
         lordsBlessingRecipe.shape(
                 "cpn",
                 " w "
@@ -268,7 +268,7 @@ public class CraftingRecipes {
 
 
         ItemStack dameBlanche = getTaggedCustomItemStack("DAME_BLANCHE");
-        ShapedRecipe dameBlancheRecipe = new ShapedRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), "dame_blanche"), dameBlanche);
+        ShapedRecipe dameBlancheRecipe = new ShapedRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), "dame_blanche"), dameBlanche);
         dameBlancheRecipe.shape(
                 "b",
                 "c",
@@ -298,7 +298,7 @@ public class CraftingRecipes {
 
     private static void checkItemBuilder(CustomItemBuilder builder){
         if(builder == null){
-            throw new NullPointerException(ZvieriGamePlugin.getPrefix() + " ItemBuilder " + builder + " konnte nicht geladen werden");
+            throw new NullPointerException(ZvieriPlauschPlugin.getPrefix() + " ItemBuilder " + builder + " konnte nicht geladen werden");
         };
     }
 
@@ -314,9 +314,9 @@ public class CraftingRecipes {
         ItemUtil.setBoolean(result, "zvieriGameItem", true);
         ItemStack ingredientStack = new ItemStack(ingredient);
         ItemUtil.setBoolean(ingredientStack, "zvieriGameItem", true);
-        Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), key), result
+        Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), key), result
                 , new RecipeChoice.ExactChoice(ingredientStack), experience, cookingTime));
-        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), key), result
+        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), key), result
                 , new RecipeChoice.ExactChoice(ingredientStack), experience, cookingTime/2));
     }
 
@@ -324,9 +324,9 @@ public class CraftingRecipes {
         ItemUtil.setBoolean(result, "zvieriGameItem", true);
         ItemStack ingredientStack = CustomItems.getCustomItemBuilder(customIngredientEnum).build();
         ItemUtil.setBoolean(ingredientStack, "zvieriGameItem", true);
-        Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), key), result
+        Bukkit.addRecipe(new FurnaceRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), key), result
                 , new RecipeChoice.ExactChoice(ingredientStack), experience, cookingTime));
-        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), key), result
+        Bukkit.addRecipe(new SmokingRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), key), result
                 , new RecipeChoice.ExactChoice(ingredientStack), experience, cookingTime/2));
     }
 
@@ -348,7 +348,7 @@ public class CraftingRecipes {
         ItemStack container = new ItemStack(Material.GLASS_BOTTLE);
         ItemUtil.setBoolean(container, "zvieriGameItem", true);
 
-        CustomRecipeAPI.addRecipe(new BrewingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), key), ingredientStack
+        CustomRecipeAPI.addRecipe(new BrewingRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), key), ingredientStack
         , (itemStack) -> itemStack.isSimilar(container), action));
     }
 
@@ -359,7 +359,7 @@ public class CraftingRecipes {
         ItemStack container = new ItemStack(Material.GLASS_BOTTLE);
         ItemUtil.setBoolean(container, "zvieriGameItem", true);
 
-        CustomRecipeAPI.addRecipe(new BrewingRecipe(new NamespacedKey(ZvieriGamePlugin.getInstance(), key), ingredientStack
+        CustomRecipeAPI.addRecipe(new BrewingRecipe(new NamespacedKey(ZvieriPlauschPlugin.getInstance(), key), ingredientStack
                 , (itemStack) -> itemStack.isSimilar(container), action));
 
 

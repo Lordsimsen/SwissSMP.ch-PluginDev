@@ -1,18 +1,18 @@
 package ch.swisssmp.zvieriplausch.game;
 
-import ch.swisssmp.zvieriplausch.ZvieriGame;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschGame;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 public abstract class Phase implements Runnable {
 
-    private final ZvieriGame game;
+    private final ZvieriPlauschGame game;
     private boolean completed = false;
 
-    protected Phase(ZvieriGame game) {
+    protected Phase(ZvieriPlauschGame game) {
         this.game = game;
     }
 
-    protected ZvieriGame getGame(){
+    protected ZvieriPlauschGame getGame(){
         return game;
     }
 

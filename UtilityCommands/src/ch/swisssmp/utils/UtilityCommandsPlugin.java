@@ -14,7 +14,7 @@ public class UtilityCommandsPlugin extends JavaPlugin{
 		plugin = this;
 		pdfFile = getDescription();
 
-		Bukkit.getPluginManager().registerEvents(new TeleportListener(), this);
+		Bukkit.getPluginManager().registerEvents(new BackLocationListener(), this);
 		Bukkit.getPluginManager().registerEvents(new InventorySeeListener(), this);
 		Bukkit.getPluginManager().registerEvents(new VanishListener(), this);
 

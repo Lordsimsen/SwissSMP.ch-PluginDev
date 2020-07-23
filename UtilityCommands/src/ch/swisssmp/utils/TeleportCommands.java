@@ -5,6 +5,7 @@ import ch.swisssmp.text.HoverEvent;
 import ch.swisssmp.text.RawText;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -68,6 +69,24 @@ public class TeleportCommands implements TabExecutor {
                         for(Entity entity : teleported) {
                             entity.teleport(target.getLocation());
                         }
+                        return true;
+                    }
+                    case 3:{
+                        Player player = (Player) sender;
+                        if(!player.hasPermission("smp.commands.teleport.position")){
+                           return false;
+                        }
+                        Location location;
+                        try {
+                            location = new Location(player.getWorld(), Double.parseDouble(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]));
+                        } catch (Exception e){
+                            player.spigot().sendMessage(new RawText(
+                                    new RawText("Konnte Position nicht lesen.")
+                                            .color(ChatColor.RED)
+                            ).spigot());
+                            return true;
+                        }
+                        player.teleport(location);
                         return true;
                     }
                     default:

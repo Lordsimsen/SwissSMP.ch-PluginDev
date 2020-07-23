@@ -18,6 +18,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -28,19 +29,16 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     public static final Material baseMaterial = Material.HAY_BLOCK;
     public static final float ceremonyRange = 20;
 
-    private static Collection<Player> ceremoniesParticipants = new ArrayList<Player>();
-    private static Collection<CityPromotionCeremony> ceremonies = new ArrayList<CityPromotionCeremony>();
+    private static final Collection<Player> ceremoniesParticipants = new ArrayList<Player>();
+    private static final Collection<CityPromotionCeremony> ceremonies = new ArrayList<CityPromotionCeremony>();
 
     public final ch.swisssmp.utils.Random random = new Random();
 
     private final City city;
-    private final int requiredPlayers;
-    private final int requiredHay;
     private final Block chest;
     private final Player initiator;
-    private final int ironTribute = 3;
-    private final int goldTribute = 2;
-    private final int diamondTribute = 1;
+
+    private final PromotionCeremonyData ceremonyParameters;
 
     private CityCeremonyCircleEffect ringEffect;
 
@@ -58,28 +56,23 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     private final long orbitTime = 1200;
     private Location spectatorLocation;
 
-    private CityPromotionCeremony(Block Chest, Player initiator, City city){
+    private CityPromotionCeremony(Block Chest, Player initiator, City city, PromotionCeremonyData data){
         super(CitySystemPlugin.getInstance());
         this.city = city;
         cityName = city.getName();
         this.chest = Chest;
         this.initiator = initiator;
         participants.add(initiator);
-        requiredHay = 9; //Todo via CityLevelInfo
-        requiredPlayers = 1; //Todo
 
-//        switch(city.getRank()){ //Todo
-//            case Gemeinschaft: requiredPlayers = 3; requiredHay = 9; ceremonyRange = 20; ironTribute = 30; goldTribute = 15; diamondTribute = 10;
-//            case Stadt: requiredPlayers = 4; ceremonyRange = 25; ....
-//        }
-    }
-
-    public int getRequiredPlayers(){
-        return requiredPlayers;
+        ceremonyParameters = data;
     }
 
     public Block getChest(){
         return chest;
+    }
+
+    public City getCity(){
+        return city;
     }
 
     public String getCityName(){
@@ -92,6 +85,11 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     public List<Player> getPlayers(){
         return participants;
+    }
+
+
+    public PromotionCeremonyData getCeremonyParameters() {
+        return ceremonyParameters;
     }
 
     public CityCeremonyCircleEffect getRingEffect(){
@@ -179,9 +177,6 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     public void run(){
         super.run();
         this.updateSpectatorLocation();
-//        if(!(Chest.getState() instanceof org.bukkit.block.Chest)){
-//            cancel();
-//        }
     }
 
     @Override
@@ -267,11 +262,9 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     }
 
-    public static CityPromotionCeremony start(Block Chest, Player initiator, City city){
+    public static CityPromotionCeremony start(Block Chest, Player initiator, City city, PromotionCeremonyData data){
         if(ceremoniesParticipants.contains(initiator) || Ceremonies.isParticipantAnywhere(initiator)) return null; //Todo permission ?
         List<Player> nearbyPlayers = getNearbyPlayers(Chest.getLocation());
-//        int requiredPlayers = HTTPrequest oder whatever //Todo find out the amount of players needed to advance
-//        if(nearbyPlayers.size() < requiredPlayers) return null;
         for(CityPromotionCeremony nearby : ceremonies){
             if(nearby.getChest().getLocation().distanceSquared(Chest.getLocation()) < 10000){
                 SwissSMPler.get(initiator).sendActionBar(ChatColor.RED + "Es findet bereits eine Aufstiegszeremonie in der Nähe statt");
@@ -279,7 +272,7 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
             }
         }
         ceremoniesParticipants.add(initiator);
-        CityPromotionCeremony result = new CityPromotionCeremony(Chest, initiator, city);
+        CityPromotionCeremony result = new CityPromotionCeremony(Chest, initiator, city, data);
         ceremonies.add(result);
         result.begin(CitySystemPlugin.getInstance());
         return result;
@@ -290,7 +283,7 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         if(!participants.contains(event.getPlayer())) return;
         participants.remove(event.getPlayer());
         ceremoniesParticipants.remove(event.getPlayer());
-//        if(initiator!=event.getPlayer() && this.participants.size()>=requiredPlayers) return; //Todo reinsert
+        if(initiator != event.getPlayer() && this.participants.size() >= ceremonyParameters.getPromotionPlayercount()) return;
         this.cancel();
     }
 
@@ -309,5 +302,4 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         Climax,
         Ending
     }
-
 }

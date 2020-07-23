@@ -8,9 +8,9 @@ import org.bukkit.World;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ZvieriGamePlugin extends JavaPlugin{
+public class ZvieriPlauschPlugin extends JavaPlugin{
 	
-	private static ZvieriGamePlugin plugin;
+	private static ZvieriPlauschPlugin plugin;
 	
 	@Override
 	public void onEnable() {
@@ -55,7 +55,7 @@ public class ZvieriGamePlugin extends JavaPlugin{
 		return "[" + ChatColor.GOLD + "ZvieriPlausch" + ChatColor.RESET + "]";
 	}
 
-	public static ZvieriGamePlugin getInstance() {
+	public static ZvieriPlauschPlugin getInstance() {
 		return plugin;
 	}
 

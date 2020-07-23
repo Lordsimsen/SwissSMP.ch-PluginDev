@@ -4,7 +4,7 @@ import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
-import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -37,7 +37,7 @@ public class RestockView implements Listener {
         this.player = player;
         this.gamePhase = gamePhase;
         try {
-            this.ingredientsSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("ingredients");
+            this.ingredientsSection = ZvieriPlauschPlugin.getInstance().getConfig().getConfigurationSection("ingredients");
         } catch (NullPointerException e){
             Bukkit.getLogger().info("Ingredients not found in config");
             gamePhase.cancel();
@@ -50,7 +50,7 @@ public class RestockView implements Listener {
 
     public static RestockView open(ZvieriArena arena, GamePhase gamePhase, Player player){
         RestockView selection = new RestockView(arena, gamePhase, player);
-        Bukkit.getPluginManager().registerEvents(selection, ZvieriGamePlugin.getInstance());
+        Bukkit.getPluginManager().registerEvents(selection, ZvieriPlauschPlugin.getInstance());
         selection.open();
         return selection;
     }
@@ -125,7 +125,7 @@ public class RestockView implements Listener {
         result.setAmount(ingredientsSection.getInt(ingredientId + ".buyAmount"));
 
         Inventory storage = this.arena.getStorageChest().getBlockInventory();
-        Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskLater(ZvieriPlauschPlugin.getInstance(), () -> {
             boolean stackExists = false;
             for(int i = 0; i < storage.getStorageContents().length; i++){
                 if(storage.getItem(i) != null && storage.getItem(i).isSimilar(result)){

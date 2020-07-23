@@ -35,8 +35,7 @@ public class BurningPhase extends Phase implements Listener {
 
     @Override
     public void begin(){
-        if(CityPromotionCeremony.getNearbyPlayers(chest.getLocation()).size() < ceremony.getRequiredPlayers()) {
-//            ceremony.cancel();
+        if(CityPromotionCeremony.getNearbyPlayers(chest.getLocation()).size() < ceremony.getCeremonyParameters().getPromotionPlayercount()) {
             cancel();
         }
         super.begin();
@@ -115,7 +114,8 @@ public class BurningPhase extends Phase implements Listener {
     @Override
     public void cancel(){
         super.cancel();
-        this.broadcastTitleParticipants(ChatColor.RED + "Abbruch!", ChatColor.YELLOW + "Etwas lief schief..");
+        this.broadcastTitleParticipants(ChatColor.RED + "Abbruch!", ChatColor.YELLOW + "Ihr habt versagt.");
+        ceremony.cancel();
     }
 
     private void broadcastTitleParticipants(String title, String subtitle){
@@ -127,19 +127,6 @@ public class BurningPhase extends Phase implements Listener {
     @EventHandler
     private void onIgnition(BlockIgniteEvent event){
         Bukkit.getLogger().info("BlockigniteEvent");
-//        if(!(event.getIgnitingEntity() instanceof Player)) {
-//            Bukkit.getLogger().info("BlockigniteEvent not a player");
-//            return;
-//        }
-//        Player player = (Player) event.getIgnitingEntity();
-//        if(!ceremony.getPlayers().contains(player)) {
-//            Bukkit.getLogger().info("BlockigniteEvent not a ceremony participant");
-//            return;
-//        }
-//        if(!event.getBlock().getType().equals(CityPromotionCeremony.baseMaterial)) {
-//            Bukkit.getLogger().info("BlockigniteEvent not basematerial");
-//            return;
-//        }
         if(!ceremony.getPlayers().contains(event.getPlayer())) return;
         if(ignitionReminder != null || !ignitionReminder.isCancelled()) ignitionReminder.cancel();
         fireIgnited = true;

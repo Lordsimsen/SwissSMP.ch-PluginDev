@@ -59,7 +59,7 @@ public class ZvieriArenenEditor implements Listener{
 		ZvieriArenenEditor editor;
 		if(showAll) {
 			if(ZvieriArenen.getAll().size() == 0) {
-				p.sendMessage(ZvieriGamePlugin.getPrefix() + " Es wurde noch keine Arena erstellt. "
+				p.sendMessage(ZvieriPlauschPlugin.getPrefix() + " Es wurde noch keine Arena erstellt. "
 						+ "Verwende /zvieriarena create [Name] um eine Arena zu erstellen");
 				return null;
 			}
@@ -67,13 +67,13 @@ public class ZvieriArenenEditor implements Listener{
 		} else {
 			Collection<ZvieriArena> arenen = ZvieriArenen.get(p.getWorld());
 			if(arenen.size() == 0) {
-				p.sendMessage(ZvieriGamePlugin.getPrefix() + " In dieser Welt gibt es keine Arenen. "
+				p.sendMessage(ZvieriPlauschPlugin.getPrefix() + " In dieser Welt gibt es keine Arenen. "
 						+ "Verwende /zvieriarenen um alle geladenen Arenen anzuzeigen");
 				return null;
 			}
 			editor = new ZvieriArenenEditor(p, arenen, "Arenen in " + p.getWorld().getName());
 		}
-		Bukkit.getPluginManager().registerEvents(editor,  ZvieriGamePlugin.getInstance());
+		Bukkit.getPluginManager().registerEvents(editor,  ZvieriPlauschPlugin.getInstance());
 		editor.open();
 		return editor;
 	}

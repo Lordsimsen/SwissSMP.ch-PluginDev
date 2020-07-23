@@ -6,6 +6,9 @@ import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremonyMusic;
+import ch.swisssmp.text.ClickEvent;
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawText;
 import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -42,7 +45,15 @@ public class BeginningPhase extends Phase {
         for(Player player : Bukkit.getWorlds().get(0).getPlayers()){
             if(Ceremonies.isParticipantAnywhere(player)) continue;
             if(chest.getWorld()!=player.getWorld() || chest.getLocation().distanceSquared(player.getLocation())<10000) continue;
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw "+player.getName()+" {\"text\":\"\",\"extra\":[{\"text\":\"[\u00A7cStädtesystem\u00A7r] \"},{\"text\":\""+initiator.getDisplayName()+" \u00A7r\u00A7a \u00A7ahat \u00A7aeine \u00A7aAufstiegszeremonie \u00A7agestartet! \u00A7aSchaue \u00A7amit \"},{\"text\":\"\u00A7e/zuschauen\u00A7r\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/zuschauen "+initiator.getName()+"\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"Dieser Zeremonie zuschauen\"}},{\"text\":\"\u00A7a zu.\"}]}");
+            player.spigot().sendMessage(new RawText(
+                    new RawText(CitySystemPlugin.getPrefix())
+                    , new RawText(" " + initiator.getDisplayName())
+                    , new RawText(" hat eine Stadtaufstiegszeremonie gestartet!")
+                    , new RawText(" Zuschauen")
+                    .color(ChatColor.YELLOW)
+                    .hoverEvent(HoverEvent.showText("Klicke um zuzuschauen"))
+                    .clickEvent(ClickEvent.runCommand("/zuschauen " + initiator.getName()))
+            ).spigot());
         }
 
         particleTask = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), () ->{

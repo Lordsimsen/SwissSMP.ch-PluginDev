@@ -1,7 +1,7 @@
 name: ZvieriPlausch
-version: 3
+version: 4
 api-version: '1.13'
-main: ch.swisssmp.zvieriplausch.ZvieriGamePlugin
+main: ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin
 author: WhiteGuggi
 description: Zvieri Minigame
 depend: [SwissSMPUtils,CustomEditorAPI,NPCs,WaypointAPI,CustomItems,ResourcepackManager,WorldEdit,WorldGuard,WGRegionEvents,CustomRecipeAPI,CustomPaintings,RawTextBuilderAPI]

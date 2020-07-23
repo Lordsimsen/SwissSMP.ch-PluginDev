@@ -6,7 +6,7 @@ import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
-import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin;
 import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
@@ -17,6 +17,7 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.Furnace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -25,7 +26,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -64,6 +64,10 @@ public class GamePhaseListener implements Listener {
         if(arena == null) return;
         if(arena.getGame() == null) return;
         Block furnace = event.getBlock();
+        ItemStack source = event.getSource();
+        if(!ItemUtil.getBoolean(source, "zvieriGameItem")) return;
+        ItemStack fuel = ((Furnace) furnace.getState()).getInventory().getFuel();
+        if(!ItemUtil.getBoolean(fuel, "zvieriGameItem")) return;
         World world = arena.getWorld();
         ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(arena.getArenaRegion());
         BlockVector3 min = region.getMinimumPoint();
@@ -111,7 +115,7 @@ public class GamePhaseListener implements Listener {
             Player player = event.getPlayer();
             RestockView.open(this.arena, this.gamePhase, player);
         }
-        ConfigurationSection dishesSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("dishes");
+        ConfigurationSection dishesSection = ZvieriPlauschPlugin.getInstance().getConfig().getConfigurationSection("dishes");
         for(Counter counter : gamePhase.getCounters()) {
             if(!counter.isOccupied()) continue;
             if(!counter.getClient().getNPCInstance().getIdentifier().equalsIgnoreCase(event.getNPC().getIdentifier())) continue;

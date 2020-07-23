@@ -21,7 +21,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
@@ -30,12 +29,12 @@ import org.bukkit.util.BoundingBox;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ZvieriGame implements Runnable{
+public class ZvieriPlauschGame implements Runnable{
 
     private final static long PREPARATION_TIME = 600;
     private final String gameName;
 
-    private static List<ZvieriGame> games = new ArrayList<ZvieriGame>();
+    private static List<ZvieriPlauschGame> games = new ArrayList<ZvieriPlauschGame>();
 
     private List<Player> participants;
 
@@ -48,7 +47,7 @@ public class ZvieriGame implements Runnable{
 
     private BukkitTask task;
 
-    private ZvieriGame(ZvieriArena arena, Level level){
+    private ZvieriPlauschGame(ZvieriArena arena, Level level){
         this.arena = arena;
         this.level = level;
         participants = new ArrayList<Player>();
@@ -115,8 +114,8 @@ public class ZvieriGame implements Runnable{
         }
     }
 
-    public static ZvieriGame prepare(ZvieriArena arena, Level level){
-        ZvieriGame game = new ZvieriGame(arena, level);
+    public static ZvieriPlauschGame prepare(ZvieriArena arena, Level level){
+        ZvieriPlauschGame game = new ZvieriPlauschGame(arena, level);
         games.add(game);
         game.start();
         return game;
@@ -125,7 +124,7 @@ public class ZvieriGame implements Runnable{
     private void start(){
         arena.getRecipeDisplay().setLevel(level);
         this.currentPhase = new PreparationPhase(this, PREPARATION_TIME);
-        task = Bukkit.getScheduler().runTaskTimer(ZvieriGamePlugin.getInstance(), this, 0, 1);
+        task = Bukkit.getScheduler().runTaskTimer(ZvieriPlauschPlugin.getInstance(), this, 0, 1);
     }
 
     public void startNow(){

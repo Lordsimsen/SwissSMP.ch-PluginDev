@@ -10,7 +10,7 @@ import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.zvieriplausch.Dish;
 import ch.swisssmp.zvieriplausch.RecipePaintings;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
-import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -61,7 +61,7 @@ public class RecipeDisplay {
     public void applyRecipe(Dish dish) {
         CustomPainting painting = getPainting();
         if(painting == null){
-            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " CustomPaiting für " + dish.toString() + " nicht gefunden");
+            Bukkit.getLogger().info(ZvieriPlauschPlugin.getPrefix() + " CustomPaiting für " + dish.toString() + " nicht gefunden");
             return;
         }
         File file = RecipePaintings.getLocalFile(dish);

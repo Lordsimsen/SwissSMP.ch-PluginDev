@@ -1,10 +1,10 @@
 main: ch.swisssmp.city.CitySystemPlugin
-version: 4
+version: 5
 api-version: 1.13
 name: CitySystem
 authors: [detig_iii,WhiteGuggi]
 description: Erlaubt Spielern ingame Verwaltung ihrer Städte
-depend: [SwissSMPUtils,WebCore,CustomItems,CustomEditorAPI,NPCs,Ceremonies]
+depend: [SwissSMPUtils,WebCore,CustomItems,CustomEditorAPI,NPCs,Ceremonies,RawTextBuilderAPI]
 permissions:
   citysystem.found:
     description: Erlaubt Gründung einer neuen Stadt

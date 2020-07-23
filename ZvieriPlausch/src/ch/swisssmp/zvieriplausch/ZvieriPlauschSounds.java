@@ -1,6 +1,6 @@
 package ch.swisssmp.zvieriplausch;
 
-public class ZvieriSound {
+public class ZvieriPlauschSounds {
 
     public static final String FRENCH_MUSIC = "zvieri.music.french";
 

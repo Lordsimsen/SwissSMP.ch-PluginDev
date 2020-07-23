@@ -1,8 +1,13 @@
 package ch.swisssmp.city.ceremony.promotion.phases;
 
 import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.city.City;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
+import ch.swisssmp.city.ceremony.promotion.PromotionCeremonyData;
+import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
+import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
@@ -14,22 +19,24 @@ import org.bukkit.inventory.meta.FireworkMeta;
 public class EndingPhase extends Phase {
 
     private final CityPromotionCeremony ceremony;
+    private final PromotionCeremonyData parameters;
     private final Block chest;
 
     private long time = 0;
 
     public EndingPhase(CityPromotionCeremony ceremony){
         this.ceremony = ceremony;
+        parameters = ceremony.getCeremonyParameters();
         this.chest = ceremony.getChest();
     }
 
     @Override
     public void begin(){
         super.begin();
-        this.updateCity();
+        this.updateCity(ceremony.getCity(), parameters.getLevelId());
         Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () ->{
             String title = "Gratulation!";
-            String subtitle = "" + ChatColor.LIGHT_PURPLE + ceremony.getCityName() + ChatColor.YELLOW + " ist nun eine " + ChatColor.LIGHT_PURPLE + " (Stufe)";
+            String subtitle = "" + ChatColor.LIGHT_PURPLE + ceremony.getCityName() + ChatColor.RESET + " ist nun eine " + ChatColor.LIGHT_PURPLE + parameters.getLevelId();
             this.announceTitleLong(title, subtitle);
             this.broadcastMessage(subtitle);
         }, 20L);
@@ -50,7 +57,7 @@ public class EndingPhase extends Phase {
     public void run() {
         time++;
         if(time%15 == 0) this.spawnFireworks();
-        if(time>=100){
+        if(time>=(parameters.getFireworkCycles()*15) + 1){
             setCompleted();
         }
     }
@@ -96,8 +103,16 @@ public class EndingPhase extends Phase {
 
     }
 
-    private void updateCity(){
-        //Todo this, that and this and uh
-        Bukkit.getLogger().info("city " + ceremony.getCityName() + " has been promoted!");
+    private void updateCity(City city, String levelId){
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "set_level_id.php", new String[]{ //TODO correct?
+                "city_id="+city.getId(),
+                "level_id="+levelId});
+        request.onFinish(() ->{
+            JsonObject json = request.getJsonResponse();
+            if(json == null || !json.get("success").getAsBoolean()){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't promote city " + city.getName());
+            }
+        });
+        Bukkit.getLogger().info("city " + city.getName() + " has been promoted");
     }
 }

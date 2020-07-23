@@ -26,7 +26,7 @@ public class PlayerDataContainer {
     private PlayerDataContainer(ZvieriArena arena){
         this.arena = arena;
 
-        File pluginDirectory = new File(arena.getWorld().getWorldFolder(), "plugindata/ZvieriGame");
+        File pluginDirectory = new File(arena.getWorld().getWorldFolder(), "plugindata/ZvieriPlausch");
         dataFile = new File(pluginDirectory, "playerData.yml");
 
         if(!pluginDirectory.exists()) {
@@ -36,7 +36,7 @@ public class PlayerDataContainer {
             try {
                 dataFile.createNewFile();
             } catch (IOException e){
-                Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " " + e.getMessage());
+                Bukkit.getLogger().info(ZvieriPlauschPlugin.getPrefix() + " " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -45,7 +45,7 @@ public class PlayerDataContainer {
 
         arenaSection = getArenaSection();
         if(arenaSection == null) {
-            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Konnte Spielerdaten nicht laden.");
+            Bukkit.getLogger().info(ZvieriPlauschPlugin.getPrefix() + " Konnte Spielerdaten nicht laden.");
             return;
         }
         unlockedPlayers = new ArrayList<>();
@@ -206,8 +206,8 @@ public class PlayerDataContainer {
     }
 
     public void resetHighscores(){
-        for(int i = 0; i < highscoreScores.length; i++){
-            highscoreScores[i] = 0;
+        for(int i = 0; i < LEVELS; i++){
+            updateHighscore((i+1), 0, new ArrayList<Player>());
         }
         save();
     }

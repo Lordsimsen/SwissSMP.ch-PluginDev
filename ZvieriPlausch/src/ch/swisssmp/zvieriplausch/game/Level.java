@@ -6,7 +6,7 @@ import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.zvieriplausch.Dish;
-import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin;
 import com.google.gson.JsonObject;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -41,7 +41,7 @@ public class Level {
     Gives the recipe for [dishEnum] in form of a piece of paper with the ingredients necessary as its lore
      */
     protected ItemStack getRecipe(String dishEnum){
-        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        Configuration config = ZvieriPlauschPlugin.getInstance().getConfig();
         ConfigurationSection dishes = config.getConfigurationSection("dishes");
         ItemStack recipe = new ItemStack(Material.PAPER);
         ItemMeta recipeMeta = recipe.getItemMeta();
@@ -64,7 +64,7 @@ public class Level {
     as possible orders.
      */
     protected Client spawnClient(long time, Location location){
-        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        Configuration config = ZvieriPlauschPlugin.getInstance().getConfig();
         ConfigurationSection levels = config.getConfigurationSection("levels");
         switch(level){
             case 1:{
@@ -291,7 +291,7 @@ public class Level {
     }
 
     private void setDuration() {
-        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        Configuration config = ZvieriPlauschPlugin.getInstance().getConfig();
         ConfigurationSection levels = config.getConfigurationSection("levels");
         duration = levels.getInt("level_" + getLevelNumber() + ".duration");
     }
@@ -323,13 +323,13 @@ public class Level {
     }
 
     public String getName(){
-        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        Configuration config = ZvieriPlauschPlugin.getInstance().getConfig();
         ConfigurationSection levels = config.getConfigurationSection("levels");
         return levels.getString("level_" + getLevelNumber() + ".name");
     }
 
     public int getThreshhold(){
-        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        Configuration config = ZvieriPlauschPlugin.getInstance().getConfig();
         ConfigurationSection levels = config.getConfigurationSection("levels");
         return levels.getInt("level_" + getLevelNumber() + ".threshhold");
     }

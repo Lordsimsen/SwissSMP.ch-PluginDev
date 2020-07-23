@@ -5,6 +5,7 @@ import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremonyMusic;
+import ch.swisssmp.city.ceremony.promotion.PromotionCeremonyData;
 import ch.swisssmp.utils.Random;
 import net.minecraft.server.v1_16_R1.BlockPosition;
 import net.minecraft.server.v1_16_R1.Blocks;
@@ -28,7 +29,6 @@ public class ClimaxPhase extends Phase {
     private BukkitTask musicTask;
 
     private ItemStack[] tribute;
-    private boolean awaitingCompletion;
     private long time;
 
     public ClimaxPhase(CityPromotionCeremony ceremony){
@@ -97,7 +97,6 @@ public class ClimaxPhase extends Phase {
             Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), droppedItem::remove, 60L);
 
             tribute[i].setAmount(tribute[i].getAmount() - 1);
-//            itemPops++;
 
             if(randomDouble < 0.5){
                 Color primaryColor;
@@ -136,7 +135,7 @@ public class ClimaxPhase extends Phase {
     @Override
     public void finish(){
         super.finish();
-        spawnExplosions(chest.getLocation());
+        spawnExplosions(chest.getLocation(), ceremony.getCeremonyParameters());
         chest.setType(Material.AIR);
         if(musicTask != null || !musicTask.isCancelled()) musicTask.cancel();
     }
@@ -165,7 +164,8 @@ public class ClimaxPhase extends Phase {
         FireBurstEffect.play(CitySystemPlugin.getInstance(), effectLocation.getBlock(), 5, primaryColor, secondaryColor);
     }
 
-    private void spawnExplosions(Location location){
+    private void spawnExplosions(Location location, PromotionCeremonyData data){
+        int cycles = data.getClimaxExplosionCycles();
         BukkitTask explosions = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), () ->{
             double x = random.nextDouble();
             double y = random.nextDouble();
@@ -174,6 +174,6 @@ public class ClimaxPhase extends Phase {
             loc.getWorld().strikeLightning(loc);
             loc.getWorld().createExplosion(loc, 1, false);
         }, 5L, 5L);
-        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), explosions::cancel, 26L);
+        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), explosions::cancel, (5*cycles) + 1);
     }
 }
