@@ -58,6 +58,6 @@ public class ZoneContainers {
             if(result.isPresent()) return result;
         }
         
-        return Optional.empty();
+        return Optional.of(new MissingZone(zoneUid));
     }
 }

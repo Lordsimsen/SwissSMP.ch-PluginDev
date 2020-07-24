@@ -2,6 +2,7 @@ package ch.swisssmp.zones.editor.selection;
 
 import ch.swisssmp.zones.PolygonZone;
 import ch.swisssmp.zones.util.Edge;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -69,6 +70,11 @@ public class DefaultPolygonSelector implements PointSelector {
     @Override
     public PointSelectionState getState() {
         return state;
+    }
+
+    @Override
+    public String getInstructions(){
+        return ChatColor.RED+"LINKSKLICK: Punkt hinzufügen | RECHTSKLICK: Punkt entfernen";
     }
 
     private Block getClosest(Collection<Block> points){

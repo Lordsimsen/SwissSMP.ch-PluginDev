@@ -68,9 +68,9 @@ public class WorldEditHandler {
             return false;
         }
 
-        BlockVector min = adapt(cuboidRegion.getMinimumPoint());
-        BlockVector max = adapt(cuboidRegion.getMaximumPoint());
-        zone.setPoints(min, max);
+        BlockVector a = adapt(cuboidRegion.getPos1());
+        BlockVector b = adapt(cuboidRegion.getPos2());
+        zone.setPoints(a, b);
         return true;
     }
 

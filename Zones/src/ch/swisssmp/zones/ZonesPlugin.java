@@ -17,13 +17,17 @@ public class ZonesPlugin extends JavaPlugin {
         Bukkit.getPluginCommand("zones").setExecutor(new ZonesCommand());
         Bukkit.getPluginCommand("zone").setExecutor(new ZoneCommand());
 
-        ZoneType cuboidZoneType = new GenericZoneType(this, "generic_cuboid", "Generische Quader-Zone", "WORLD_GUARD_CUBOID_ZONE", RegionType.CUBOID);
-        ZoneType polygonZoneType = new GenericZoneType(this, "generic_polygon", "Generische Polygon-Zone", "WORLD_GUARD_POLYGON_ZONE", RegionType.POLYGON);
+        ZoneType cuboidZoneType = new GenericZoneType(this, "generic_cuboid", "Quader-Zone", "WORLD_GUARD_CUBOID_ZONE", RegionType.CUBOID);
+        ZoneType polygonZoneType = new GenericZoneType(this, "generic_polygon", "Polygon-Zone", "WORLD_GUARD_POLYGON_ZONE", RegionType.POLYGON);
+        ZoneType missingZoneType = MissingZoneType.initialize(this);
         Zones.setGenericCuboidZoneType(cuboidZoneType);
         Zones.setGenericPolygonZoneType(polygonZoneType);
         Zones.registerZoneType(cuboidZoneType);
         Zones.registerZoneType(polygonZoneType);
+        Zones.registerZoneType(missingZoneType);
         ZoneContainers.loadAll();
+
+        Zones.updateTokens();
 
         Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
     }

@@ -43,6 +43,7 @@ public class ZoneTypesView extends CustomEditorView implements PaginatedView {
         if(page>0) slots.add(new ChangePageSlot(this, 8, false));
         if(page<maxPage) slots.add(new ChangePageSlot(this, pageSize-1, true));
         for(ZoneType type : zoneTypes){
+            if(type.isInternal()) continue;
             int slot = remapSlot(index);
             slots.add(new ZoneTypeSlot(this, slot, type));
             index++;

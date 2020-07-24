@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SelectionOutliner {
@@ -24,6 +25,7 @@ public class SelectionOutliner {
     }
 
     protected static List<Edge> buildBoxEdges(Block a, Block b) {
+        if(a==null || b==null) return Collections.emptyList();
         World world = a.getWorld();
         double minX = a.getX()+0.5;
         double minY = a.getY()+0.5;
