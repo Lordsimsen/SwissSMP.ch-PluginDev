@@ -120,7 +120,7 @@ public abstract class CustomEditorView implements Listener {
 	}
 	
 	protected void open(){
-		Bukkit.getPluginManager().registerEvents(this, CustomEditorAPI.getInstance());
+		Bukkit.getPluginManager().registerEvents(this, CustomEditorAPIPlugin.getInstance());
 		try{
 			this.slots = this.initializeEditor();
 			this.inventory = this.createInventory();
@@ -158,13 +158,13 @@ public abstract class CustomEditorView implements Listener {
 	
 	public void clearCursorLater(){
 		if(this.view==null) return;
-		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(CustomEditorAPIPlugin.getInstance(), ()->{
 			this.view.setCursor(null);
 		}, 1L);
 	}
 	
 	public void setItemLater(int slot, ItemStack itemStack){
-		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(CustomEditorAPIPlugin.getInstance(), ()->{
 			this.inventory.setItem(slot,itemStack);
 		}, 1L);
 	}
@@ -174,9 +174,10 @@ public abstract class CustomEditorView implements Listener {
 	}
 
 	public void closeLater(Runnable callback){
-		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(CustomEditorAPIPlugin.getInstance(), ()->{
 			if(this.view==null) return;
 			this.view.close();
+			this.unregisterEvents();
 			if(callback!=null) callback.run();
 		}, 1L);
 	}
