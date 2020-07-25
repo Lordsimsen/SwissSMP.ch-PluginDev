@@ -176,9 +176,9 @@ public class JsonUtil {
     public static Material getMaterial(JsonElement json) {
         Material result;
         try {
-            result = json != null ? Material.valueOf(json.getAsString()) : null;
+            result = json != null ? Material.valueOf(json.getAsString().toUpperCase()) : null;
         } catch (Exception ignored) {
-            return null;
+            result = null;
         }
         if (result != null || json == null) return result;
         NamespacedKey key = getKey(json);
@@ -194,11 +194,14 @@ public class JsonUtil {
     }
 
     public static Enchantment getEnchantment(JsonElement json) {
-        try {
-            return json != null ? Enchantment.getByKey(getKey(json)) : null;
-        } catch (Exception ignored) {
-            return null;
+        if(json==null) return null;
+        String value = json.getAsString();
+        Enchantment[] values = Enchantment.values();
+        for (Enchantment e : values) {
+            if (e.toString().equalsIgnoreCase(value)) return e;
         }
+
+        return Enchantment.getByKey(getKey(json));
     }
 
     public static void set(String key, Enchantment value, JsonObject json) {
