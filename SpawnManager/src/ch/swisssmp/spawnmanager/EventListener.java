@@ -117,7 +117,7 @@ public class EventListener implements Listener {
 		
 		double distanceToPreviousBed = previousBed!=null && block!=null ? previousBed.distanceSquared(block.getLocation()) : Double.MAX_VALUE;
 		if(distanceToPreviousBed>36){
-			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GREEN+"Spawpunkt gesetzt!");
+			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GREEN+"Spawnpunkt gesetzt!");
 		}
 		else if(isDay){
 			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.YELLOW+"Du fühlst dich erholt.");
