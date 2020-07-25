@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ch.swisssmp.world.WorldDataPatcher;
 import ch.swisssmp.world.WorldManagerPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -11,7 +12,6 @@ import org.bukkit.command.CommandSender;
 import ch.swisssmp.utils.FileUtil;
 import ch.swisssmp.webcore.FTPConnection;
 import ch.swisssmp.webcore.HTTPRequest;
-import ch.swisssmp.world.WorldManager;
 
 public class WorldTransferManager {
 

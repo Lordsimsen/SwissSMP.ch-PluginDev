@@ -87,6 +87,9 @@ public class WorldManager {
 		Bukkit.getLogger().info("[WorldManager] Deaktiviere Welt "+worldName);
 		World world = Bukkit.getWorld(worldName);
 		if(world==null) return true;
+		for(Chunk chunk : world.getLoadedChunks()){
+			chunk.unload(false);
+		}
 		if(Bukkit.unloadWorld(world, false)){
 			File sessionLockFile = new File(world.getWorldFolder(), "session.lock");
 			if(sessionLockFile.exists()) sessionLockFile.delete();
@@ -96,6 +99,24 @@ public class WorldManager {
 			return true;
 		}
 		else return false;
+	}
+
+	/**
+	 * Renames a Minecraft World within the main world container
+	 * @param worldName - The old name of the World
+	 * @param newName - The new name of the World
+	 * @return <code>true</code> if successful; otherwise <code>false</code>
+	 */
+	public static boolean renameWorld(String worldName, String newName){
+		File file = new File(Bukkit.getWorldContainer(), worldName);
+		File newFile = new File(Bukkit.getWorldContainer(), newName);
+		File levelFile = new File(Bukkit.getWorldContainer(), worldName+"/level.dat");
+		if(!levelFile.exists() || !levelFile.isFile()){
+			Bukkit.getLogger().info(WorldManagerPlugin.getPrefix()+" "+file.getPath()+" ist kein Weltordner.");
+			return false;
+		}
+
+		return file.renameTo(newFile) && WorldDataPatcher.changeLevelName(newFile, newName);
 	}
 	
 	protected static YamlConfiguration getWorldSettings(String worldName){

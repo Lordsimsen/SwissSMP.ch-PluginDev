@@ -1,5 +1,5 @@
 main: ch.swisssmp.world.WorldManagerPlugin
-version: 8
+version: 9
 api-version: 1.13
 name: WorldManager
 author: detig_iii
@@ -27,9 +27,13 @@ commands:
     description: Öffnet den Editor zum erstellen einer neuen Welt
     usage: "Verwendung: /<command> <subcommand> <Welt> [<Seed=Zufall>]"
     permission: worldmanager.admin
-  world name:
+  world displayname:
     description: Setzt den Anzeigenamen einer Welt
     usage: "Verwendung: /<command> <subcommand> <Welt> [<Anzeige-Name>]"
+    permission: worldmanager.admin
+  world rename:
+    description: Ändert den Namen einer Welt (darf nicht geladen sein)
+    usage: "Verwendung: /<command> <subcommand> <Welt> <Name>"
     permission: worldmanager.admin
   world goto:
     description: Teleportiert dich in eine Welt
