@@ -159,8 +159,8 @@ public class JsonUtil {
 
     public static NamespacedKey getKey(JsonElement json) {
         String keyString = json.getAsString();
-        String namespace = keyString.substring(0, keyString.indexOf(":"));
-        String key = keyString.substring(namespace.length() + 1);
+        String namespace = keyString.contains(":") ? keyString.substring(0, keyString.indexOf(":")) : "minecraft";
+        String key = keyString.contains(":") ? keyString.substring(namespace.length() + 1) : keyString;
         //noinspection deprecation
         return json != null ? new NamespacedKey(namespace, key) : null;
     }
