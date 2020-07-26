@@ -41,7 +41,7 @@ public class City {
 		return name;
 	}
 
-	public String getCityLevelId() { return levelId; }
+	public String getLevelId() { return levelId; }
 	
 	public String getRingType(){
 		return ringType;

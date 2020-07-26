@@ -76,10 +76,6 @@ public class PromotionCeremonyData {
         return fireworkCycles;
     }
 
-    public String getLevelId(){
-        return levelId;
-    }
-
     public List<ItemStack> getTribute(){
         return tribute;
     }
