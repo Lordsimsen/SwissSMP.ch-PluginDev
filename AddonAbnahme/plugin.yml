@@ -1,5 +1,5 @@
 main: ch.swisssmp.addonabnahme.AddonAbnahme
-version: 3
+version: 4
 api-version: 1.13
 name: AddonAbnahme
 depend: [WebCore,CitySystem,NPCs]
