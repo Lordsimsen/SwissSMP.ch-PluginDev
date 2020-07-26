@@ -85,8 +85,8 @@ public class CraftingListener implements Listener {
 		}
 		
 		String renameText = event.getInventory().getRenameText();
-		CitizenInfo citizenInfo = city.getCitizen(renameText);
-		if(citizenInfo==null && billInfo.getCitizen()==null){
+		Citizen citizen = city.getCitizen(renameText);
+		if(citizen ==null && billInfo.getCitizen()==null){
 			//neither existing citizen nor existing assignment -> create new citizen bill
 			Player player = Bukkit.getPlayer(renameText);
 			if(player==null){
@@ -100,11 +100,11 @@ public class CraftingListener implements Listener {
 			billInfo.setCitizen(PlayerInfo.get(player));
 			billInfo.setParent(PlayerInfo.get((Player)event.getView().getPlayer()));
 		}
-		else if(citizenInfo!=null && billInfo.getCitizen()==null){
+		else if(citizen !=null && billInfo.getCitizen()==null){
 			//existing citizen, no assignment -> recreate citizen bill
-			billInfo.setCitizen(citizenInfo.getPlayerInfo());
-			billInfo.setParent(city.getCitizen(citizenInfo.getParent()).getPlayerInfo());
-			billInfo.setCitizenRole(citizenInfo.getRole());
+			billInfo.setCitizen(citizen.getPlayerInfo());
+			billInfo.setParent(city.getCitizen(citizen.getParent()).getPlayerInfo());
+			billInfo.setCitizenRole(citizen.getRole());
 			billInfo.setSignedByCitizen();
 			billInfo.setSignedByParent();
 		}
@@ -137,7 +137,7 @@ public class CraftingListener implements Listener {
 			event.setCancelled(true);
 		}
 		if(billInfo.isSignedByCitizen() && billInfo.isSignedByParent()){
-			CitizenInfo citizen = billInfo.getCity().getCitizen(billInfo.getCitizen().getUniqueId());
+			Citizen citizen = billInfo.getCity().getCitizen(billInfo.getCitizen().getUniqueId());
 			if(citizen==null){
 				event.setCancelled(true);
 				return;

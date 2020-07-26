@@ -80,7 +80,7 @@ public class PromotionCeremonyData {
     }
 
     public static PromotionCeremonyData load(City city){
-        String levelId = city.getLevelId();
+        String levelId = city.getCityLevelId();
 
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_promotion_ceremony.php", new String[]{
                 "level_id="+levelId});

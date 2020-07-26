@@ -8,7 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
-import ch.swisssmp.city.CitizenInfo;
+import ch.swisssmp.city.Citizen;
 import ch.swisssmp.city.City;
 import ch.swisssmp.city.CityView;
 import ch.swisssmp.customitems.CustomItemBuilder;
@@ -38,12 +38,12 @@ public class CitySlot extends ButtonSlot {
 	@Override
 	protected List<String> getNormalDescription() {
 		List<String> result = new ArrayList<String>();
-		CitizenInfo mayorInfo = city.getCitizen(city.getMayor());
+		Citizen mayorInfo = city.getCitizen(city.getMayor());
 		if(mayorInfo!=null) result.add("Bürgermeister: "+mayorInfo.getDisplayName());
-		Collection<CitizenInfo> citizens = city.getCitizens();
+		Collection<Citizen> citizens = city.getCitizens();
 		result.add("Bürger:");
 		int limit = 5;
-		for(CitizenInfo citizen : citizens){
+		for(Citizen citizen : citizens){
 			String displayString = "- "+citizen.getDisplayName();
 			if(citizen.getRole()!=null && !citizen.getRole().isEmpty()){
 				displayString+=ChatColor.ITALIC+" ("+citizen.getRole()+")";

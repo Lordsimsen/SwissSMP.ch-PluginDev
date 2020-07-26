@@ -25,7 +25,7 @@ public class CityView extends CustomEditorView implements Listener {
 	protected Collection<EditorSlot> initializeEditor() {
 		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
 		int index = 0;
-		for(CitizenInfo citizen : city.getCitizens()){
+		for(Citizen citizen : city.getCitizens()){
 			result.add(new CitizenSlot(this,index,citizen));
 			index++;
 		}

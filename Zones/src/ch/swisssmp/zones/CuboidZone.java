@@ -13,6 +13,9 @@ public class CuboidZone extends Zone {
     private BlockVector a;
     private BlockVector b;
 
+    private BlockVector min;
+    private BlockVector max;
+
     protected CuboidZone(ZoneCollection collection, UUID uid, String regionId, ZoneType type){
         super(collection, uid, regionId, type);
 
@@ -21,12 +24,14 @@ public class CuboidZone extends Zone {
     public void setPoints(BlockVector a, BlockVector b){
         this.a = a;
         this.b = b;
+        recalculate();
         updateWorldGuardRegion();
     }
 
     public void setPoints(Block a, Block b){
         this.a = new BlockVector(a.getX(), a.getY(), a.getZ());
         this.b = new BlockVector(b.getX(), b.getY(), b.getZ());
+        recalculate();
         updateWorldGuardRegion();
     }
 
@@ -40,12 +45,12 @@ public class CuboidZone extends Zone {
 
     @Override
     public BlockVector getMin() {
-        return b==null ? a : a==null ? b : new BlockVector(Math.min(a.getX(),b.getX()),Math.min(a.getY(),b.getY()),Math.min(a.getZ(),b.getZ()));
+        return min;
     }
 
     @Override
     public BlockVector getMax() {
-        return a==null ? b : b==null ? a : new BlockVector(Math.max(a.getX(),b.getX()),Math.max(a.getY(),b.getY()),Math.max(a.getZ(),b.getZ()));
+        return max;
     }
 
     @Override
@@ -81,5 +86,11 @@ public class CuboidZone extends Zone {
     protected void loadData(JsonObject json) {
         a = JsonUtil.getBlockVector("a", json);
         b = JsonUtil.getBlockVector("b", json);
+        recalculate();
+    }
+
+    private void recalculate(){
+        min = b==null ? a : a==null ? b : new BlockVector(Math.min(a.getX(),b.getX()),Math.min(a.getY(),b.getY()),Math.min(a.getZ(),b.getZ()));;
+        max = a==null ? b : b==null ? a : new BlockVector(Math.max(a.getX(),b.getX()),Math.max(a.getY(),b.getY()),Math.max(a.getZ(),b.getZ()));;
     }
 }

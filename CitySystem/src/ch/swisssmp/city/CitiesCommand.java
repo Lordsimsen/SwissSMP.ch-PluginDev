@@ -62,7 +62,7 @@ public class CitiesCommand implements CommandExecutor{
 				String ring_type;
 				if(args.length>3){
 					ring_type = args[3];
-					CitizenInfo citizen = city.getCitizen(args[2]);
+					Citizen citizen = city.getCitizen(args[2]);
 					if(citizen==null){
 						sender.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Bürger "+args[2]+" nicht gefunden.");
 						return true;

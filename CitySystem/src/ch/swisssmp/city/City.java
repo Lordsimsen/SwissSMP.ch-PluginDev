@@ -21,7 +21,7 @@ public class City {
 	private String levelId;
 	private String ringType;
 	private UUID mayor;
-	private final List<CitizenInfo> citizens = new ArrayList<CitizenInfo>();
+	private final List<Citizen> citizens = new ArrayList<Citizen>();
 	private final HashSet<UUID> founders = new HashSet<UUID>();
 	
 	private City(UUID uid, String techtreeId){
@@ -41,7 +41,7 @@ public class City {
 		return name;
 	}
 
-	public String getLevelId() { return levelId; }
+	public String getCityLevelId() { return levelId; }
 	
 	public String getRingType(){
 		return ringType;
@@ -51,9 +51,9 @@ public class City {
 		return mayor;
 	}
 	
-	public CitizenInfo getCitizen(String name){
+	public Citizen getCitizen(String name){
 		if(name==null) return null;
-		for(CitizenInfo citizen : this.citizens){
+		for(Citizen citizen : this.citizens){
 			if(citizen.getName()==null) continue;
 			if(citizen.getName().toLowerCase().equals(name.toLowerCase())) return citizen;
 		}
@@ -61,7 +61,7 @@ public class City {
 	}
 	
 	public void broadcast(String message){
-		for(CitizenInfo citizen : this.citizens){
+		for(Citizen citizen : this.citizens){
 			Player player = Bukkit.getPlayer(citizen.getUniqueId());
 			if(player==null) continue;
 			player.sendMessage(message);
@@ -88,7 +88,7 @@ public class City {
 		request.onFinish(()->{
 			JsonObject json = request.getJsonResponse();
 			if(json!=null && json.has("citizen")){
-				CitizenInfo citizen = CitizenInfo.get(json.getAsJsonObject("citizen"));
+				Citizen citizen = Citizen.get(json.getAsJsonObject("citizen"));
 				if(citizen.getRank()==CitizenRank.CITIZEN && founders.contains(citizen.getUniqueId())){
 					citizen.setRank(CitizenRank.FOUNDER);
 				}
@@ -121,8 +121,8 @@ public class City {
 	}
 	
 	public HTTPRequest removeCitizen(Player responsible, UUID player_uuid){
-		CitizenInfo citizenInfo = this.getCitizen(player_uuid);
-		if(citizenInfo==null) return null;
+		Citizen citizen = this.getCitizen(player_uuid);
+		if(citizen ==null) return null;
 		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "remove_citizen.php", new String[]{
 			"city_id="+this.uid,
 			"player="+player_uuid.toString()
@@ -132,7 +132,7 @@ public class City {
 			if(yamlConfiguration==null || !yamlConfiguration.contains("result")) return;
 			String result = yamlConfiguration.getString("result");
 			if(!result.equals("success")) return;
-			citizens.remove(citizenInfo);
+			citizens.remove(citizen);
 			ItemManager.updateItems();
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
@@ -143,22 +143,22 @@ public class City {
 		return request;
 	}
 	
-	public CitizenInfo getCitizen(UUID player_uuid){
-		for(CitizenInfo citizen : this.citizens){
+	public Citizen getCitizen(UUID player_uuid){
+		for(Citizen citizen : this.citizens){
 			if(citizen.getUniqueId().equals(player_uuid)) return citizen;
 		}
 		return null;
 	}
 	
-	public Collection<CitizenInfo> getCitizens(){
-		return new ArrayList<CitizenInfo>(citizens);
+	public Collection<Citizen> getCitizens(){
+		return new ArrayList<Citizen>(citizens);
 	}
 	
 	public HTTPRequest setCitizenRole(Player responsible, UUID player_uuid, String role){
 		if(player_uuid==null || role==null || !isCitizen(player_uuid)) return null;
 		if(!isCitizen(responsible.getUniqueId()) && !responsible.hasPermission("citysystem.admin")) return null;
 		
-		CitizenInfo citizen = this.getCitizen(player_uuid);
+		Citizen citizen = this.getCitizen(player_uuid);
 		String newRole;
 		role = role.replaceAll("(§[a-z0-9])", "");
 		if(role.toLowerCase().startsWith("kein titel")){
@@ -184,7 +184,7 @@ public class City {
 		return request;
 	}
 	
-	private void setCitizenRole(Player responsible, CitizenInfo citizen, String role, YamlConfiguration yamlConfiguration){
+	private void setCitizenRole(Player responsible, Citizen citizen, String role, YamlConfiguration yamlConfiguration){
 		if(yamlConfiguration==null || !yamlConfiguration.contains("result")){
 			responsible.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Konte den Titel nicht setzen. (Systemfehler)");
 			return;
@@ -223,10 +223,10 @@ public class City {
 	}
 	
 	private void setMayor(UUID mayor){
-		CitizenInfo prevMayor = this.getCitizen(this.mayor);
+		Citizen prevMayor = this.getCitizen(this.mayor);
 		if(prevMayor!=null) prevMayor.setRank(this.isFounder(this.mayor) ? CitizenRank.FOUNDER : CitizenRank.CITIZEN);
 		this.mayor = mayor;
-		CitizenInfo newMayor = this.getCitizen(this.mayor);
+		Citizen newMayor = this.getCitizen(this.mayor);
 		if(newMayor!=null) newMayor.setRank(CitizenRank.MAYOR);
 	}
 	
@@ -262,7 +262,7 @@ public class City {
 			for(JsonElement element : citizensArray){
 				if(!element.isJsonObject()) continue;
 				JsonObject citizenSection = element.getAsJsonObject();
-				CitizenInfo info = CitizenInfo.get(citizenSection);
+				Citizen info = Citizen.get(citizenSection);
 				if(info==null) continue;
 				citizens.add(info);
 			}

@@ -62,9 +62,9 @@ public class ItemManager {
 			if(itemStack==null || itemStack.getType()!=Material.DIAMOND_SWORD) continue;
 			SigilRingInfo ringInfo = SigilRingInfo.get(itemStack);
 			if(ringInfo==null || ringInfo.getOwner()==null) continue;
-			CitizenInfo citizenInfo = ringInfo.getCity().getCitizen(ringInfo.getOwner().getUniqueId());
-			if(citizenInfo!=null){
-				ringInfo.setRank(citizenInfo.getRank());
+			Citizen citizen = ringInfo.getCity().getCitizen(ringInfo.getOwner().getUniqueId());
+			if(citizen !=null){
+				ringInfo.setRank(citizen.getRank());
 			}
 			else {
 				ringInfo.invalidate();
@@ -78,11 +78,11 @@ public class ItemManager {
 			if(itemStack==null || itemStack.getType()!=Material.WOODEN_SWORD) continue;
 			CitizenBillInfo billInfo = CitizenBillInfo.get(itemStack);
 			if(billInfo==null || billInfo.getCitizen()==null || billInfo.getParent()==null) continue;
-			CitizenInfo citizenInfo = billInfo.getCity().getCitizen(billInfo.getCitizen().getUniqueId());
-			if(citizenInfo!=null){
+			Citizen citizen = billInfo.getCity().getCitizen(billInfo.getCitizen().getUniqueId());
+			if(citizen !=null){
 				billInfo.setSignedByCitizen();
 				billInfo.setSignedByParent();
-				billInfo.setCitizenRole(citizenInfo.getRole());
+				billInfo.setCitizenRole(citizen.getRole());
 			}
 			else if(billInfo.isSignedByCitizen() && billInfo.isSignedByParent()){
 				billInfo.invalidate();

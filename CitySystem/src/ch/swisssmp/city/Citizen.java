@@ -6,16 +6,15 @@ import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import org.bukkit.inventory.ItemStack;
 
-import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.PlayerInfo;
 
-public class CitizenInfo {
+public class Citizen {
 	private final PlayerInfo playerInfo;
 	private CitizenRank rank;
 	private UUID parent;
 	private String role;
 	
-	protected CitizenInfo(PlayerInfo playerInfo, CitizenRank rank, UUID parent, String role){
+	protected Citizen(PlayerInfo playerInfo, CitizenRank rank, UUID parent, String role){
 		this.playerInfo = playerInfo;
 		this.rank = rank;
 		this.parent = parent;
@@ -62,7 +61,7 @@ public class CitizenInfo {
 		this.role = role;
 	}
 	
-	public static CitizenInfo get(JsonObject json){
+	public static Citizen get(JsonObject json){
 		PlayerInfo playerInfo = PlayerInfo.get(json);
 		CitizenRank rank = CitizenRank.get(JsonUtil.getString("rank", json));
 		String role = JsonUtil.getString("role", json);
@@ -73,6 +72,6 @@ public class CitizenInfo {
 		catch(Exception e){
 			parent = null;
 		}
-		return new CitizenInfo(playerInfo, rank, parent, role);
+		return new Citizen(playerInfo, rank, parent, role);
 	}
 }
