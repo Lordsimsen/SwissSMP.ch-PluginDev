@@ -20,15 +20,13 @@ public class PromotionCeremonyData {
 
     private String levelId;
 
-    private int promotionPlayercount;
-    private int promotionHaybalecount;
+    private final int promotionPlayercount;
+    private final int promotionHaybalecount;
 
-    private int climaxExplosionCycles;
-    private int fireworkCycles;
+    private final int climaxExplosionCycles;
+    private final int fireworkCycles;
 
     private List<ItemStack> tribute;
-
-    private static List<PromotionCeremonyData> promotionCeremonyDataList = new ArrayList<>();
 
     private PromotionCeremonyData(JsonObject json){
         levelId = JsonUtil.getString("level_id", json);
@@ -62,7 +60,6 @@ public class PromotionCeremonyData {
         return promotionPlayercount;
     }
 
-
     public int getPromotionHaybalecount(){
         return promotionHaybalecount;
     }
@@ -75,7 +72,16 @@ public class PromotionCeremonyData {
         return fireworkCycles;
     }
 
+    public String getLevelId(){
+        return levelId;
+    }
+
+    public List<ItemStack> getTribute(){
+        return tribute;
+    }
+
     public static PromotionCeremonyData load(City city){
+        List<PromotionCeremonyData> dataContainer = new ArrayList<>();
         String levelId = city.getLevelId();
 
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_promotion_ceremony.php", new String[]{
@@ -84,10 +90,11 @@ public class PromotionCeremonyData {
             JsonObject json = request.getJsonResponse();
             if(json == null || !json.get("success").getAsBoolean()){
                 Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't load promotionceremony data for level: " + levelId);
+                return;
             }
-            promotionCeremonyDataList.add(new PromotionCeremonyData(json));
+            dataContainer.add(new PromotionCeremonyData(json));
             return;
         });
-        return promotionCeremonyDataList.get(0); //todo not quite
+        return dataContainer.get(0);
     }
 }

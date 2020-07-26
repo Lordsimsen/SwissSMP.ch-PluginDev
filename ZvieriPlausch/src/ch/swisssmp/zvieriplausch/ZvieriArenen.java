@@ -26,7 +26,7 @@ public class ZvieriArenen {
 	}
 	
 	public static void save(World world) {
-		File pluginDirectory = new File(world.getWorldFolder(), "plugindata/ZvieriGame");
+		File pluginDirectory = new File(world.getWorldFolder(), "plugindata/ZvieriPlausch");
 		File dataFile = new File(pluginDirectory, "arenen.yml");
 		
 		if(!pluginDirectory.exists()) {
@@ -47,7 +47,7 @@ public class ZvieriArenen {
 	
 	public static void load(World world) {
 		unload(world);
-		File dataFile = new File(world.getWorldFolder(), "plugindata/ZvieriGame/arenen.yml");
+		File dataFile = new File(world.getWorldFolder(), "plugindata/ZvieriPlausch/arenen.yml");
 		if(dataFile.exists()) {
 			ZvieriArenen.load(world, dataFile);
 		} else{ }

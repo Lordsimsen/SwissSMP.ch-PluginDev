@@ -2,12 +2,13 @@ package ch.swisssmp.observatory;
 
 import ch.swisssmp.city.City;
 import ch.swisssmp.utils.SwissSMPler;
+import com.sk89q.worldedit.world.weather.WeatherType;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.WeatherType;
+
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
@@ -39,7 +40,9 @@ public class EventListener implements Listener {
         //check whether material is one of the predefined ones. if not, return
 
         String timeLock = ""; //TODO read from item/material
-        WeatherType weatherLock = WeatherType.CLEAR; //TODO read from item/material
+        String weather = "";
+        org.bukkit.WeatherType weatherT = org.bukkit.WeatherType.valueOf(weather);
+        WeatherType weatherLock = new WeatherType(weatherT.toString()); //TODO read from item/material
 
         Block block = frame.getLocation().getBlock();
         Observatory observatory = ObservatoryEntries.blockinObservatoryArea(block);
