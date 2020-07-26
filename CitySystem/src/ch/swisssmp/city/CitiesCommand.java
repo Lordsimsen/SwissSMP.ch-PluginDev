@@ -21,7 +21,7 @@ public class CitiesCommand implements CommandExecutor{
 		if(args!=null && args.length>0){
 			switch(args[0].toLowerCase()){
 			case "reload":{
-				Cities.load();
+				Cities.loadAll();
 				sender.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.GREEN+"Städte neu geladen.");
 				return true;
 			}
@@ -52,7 +52,7 @@ public class CitiesCommand implements CommandExecutor{
 				if(args.length<3) return false;
 				Player player = (Player) sender;
 				String key = args[1];
-				City city = City.get(key);
+				City city = CitySystem.findCity(key).orElse(null);
 				if(city==null){
 					sender.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Stadt "+key+" nicht gefunden.");
 					return true;

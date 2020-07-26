@@ -1,9 +1,8 @@
 package ch.swisssmp.city;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+import com.google.gson.JsonObject;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -29,5 +28,21 @@ public class CitySystem {
 				String.join("&", founderNames)
 		});
 		return request;
+	}
+
+	public static Optional<City> findCity(String key){
+		return Cities.findCity(key);
+	}
+
+	public static Optional<City> getCity(UUID uid){
+		return Cities.getCity(uid);
+	}
+
+	public static Collection<City> getCities(){
+		return Cities.getAll();
+	}
+
+	public static Optional<City> loadCity(JsonObject json){
+		return Cities.load(json);
 	}
 }

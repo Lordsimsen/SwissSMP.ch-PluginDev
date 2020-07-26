@@ -40,7 +40,7 @@ public class EventListener implements Listener {
 		AddonInstanceInfo signInfo = AddonInstanceInfo.get(lines);
 		Sign sign = (Sign) event.getBlock().getState();
 		if(signInfo==null){
-			City city = City.get(lines[1]);
+			City city = City.find(lines[1]);
 			if(city==null){
 				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Stadt "+lines[1]+" nicht gefunden.");
 			}

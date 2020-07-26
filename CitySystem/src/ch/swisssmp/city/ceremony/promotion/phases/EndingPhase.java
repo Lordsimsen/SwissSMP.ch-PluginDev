@@ -105,7 +105,7 @@ public class EndingPhase extends Phase {
 
     private void updateCity(City city, String levelId){
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "set_level_id.php", new String[]{ //TODO correct?
-                "city_id="+city.getId(),
+                "city_id="+city.getUniqueId(),
                 "level_id="+levelId});
         request.onFinish(() ->{
             JsonObject json = request.getJsonResponse();

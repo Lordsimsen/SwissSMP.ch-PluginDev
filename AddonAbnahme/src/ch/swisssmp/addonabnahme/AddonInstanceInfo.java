@@ -18,7 +18,6 @@ import com.google.gson.JsonPrimitive;
 import ch.swisssmp.addonabnahme.AddonUnlockTrade.UnlockType;
 import ch.swisssmp.city.City;
 import ch.swisssmp.npc.NPCInstance;
-import ch.swisssmp.utils.ConfigurationSection;
 
 public class AddonInstanceInfo {
 	
@@ -146,7 +145,7 @@ public class AddonInstanceInfo {
 	
 	public static AddonInstanceInfo get(String[] lines){
 		String cityName = lines[1];
-		City city = City.get(cityName);
+		City city = City.find(cityName);
 		if(city==null) return null;
 		Techtree techtree = Techtree.get(city.getTechtreeId());
 		if(techtree==null) return null;

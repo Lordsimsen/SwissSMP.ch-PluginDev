@@ -1,10 +1,6 @@
 package ch.swisssmp.city;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import ch.swisssmp.utils.*;
 import com.google.gson.JsonArray;
@@ -18,53 +14,23 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
 public class City {
-	private final int cityId;
+	private final UUID uid;
 	private final String techtreeId;
 	
-	private final String name;
+	private String name;
 	private String levelId;
 	private String ringType;
 	private UUID mayor;
 	private final List<CitizenInfo> citizens = new ArrayList<CitizenInfo>();
 	private final HashSet<UUID> founders = new HashSet<UUID>();
 	
-	public City(JsonObject json){
-		this.cityId = JsonUtil.getInt("id", json);
-		this.techtreeId = JsonUtil.getString("techtree_id", json);
-		this.name = JsonUtil.getString("name", json);
-		this.levelId = JsonUtil.getString("level_id", json);
-		this.ringType = JsonUtil.getString("ring_type", json);
-		try{
-			this.mayor = UUID.fromString(JsonUtil.getString("mayor", json));
-		}
-		catch(Exception e){
-			this.mayor = null;
-		}
-		JsonArray citizensArray = json.has("citizens") ? json.getAsJsonArray("citizens") : null;
-		if(citizensArray!=null){
-			for(JsonElement element : citizensArray){
-				if(!element.isJsonObject()) continue;
-				JsonObject citizenSection = element.getAsJsonObject();
-				CitizenInfo info = CitizenInfo.get(citizenSection);
-				if(info==null) continue;
-				citizens.add(info);
-			}
-		}
-		List<String> foundersList = JsonUtil.getStringList("founders", json);
-		if(foundersList!=null){
-			for(String founder : foundersList){
-				try{
-					founders.add(UUID.fromString(founder));
-				}
-				catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-		}
+	private City(UUID uid, String techtreeId){
+		this.uid = uid;
+		this.techtreeId = techtreeId;
 	}
 	
-	public int getId(){
-		return cityId;
+	public UUID getUniqueId(){
+		return uid;
 	}
 	
 	public String getTechtreeId(){
@@ -105,7 +71,7 @@ public class City {
 	public void promoteCity(String newLevelId){
 		this.levelId = newLevelId;
 		DataSource.getResponse(CitySystemPlugin.getInstance(), "promote_city.php", new String[]{
-			"city_id="+this.cityId,
+			"city_id="+this.uid.toString(),
 			"level_id="+newLevelId
 		});
 	}
@@ -113,7 +79,7 @@ public class City {
 	public HTTPRequest addCitizen(Player player, Player parent, String role){
 		if(isCitizen(player.getUniqueId()) || (!isCitizen(parent.getUniqueId()) && !parent.hasPermission("citysystem.admin"))) return null;
 		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "add_citizen.php", new String[]{
-			"city_id="+this.cityId,
+			"city_id="+this.uid,
 			"player_uuid="+player.getUniqueId(),
 			"parent_uuid="+parent.getUniqueId(),
 			"role="+URLEncoder.encode(role!=null ? role : ""),
@@ -158,7 +124,7 @@ public class City {
 		CitizenInfo citizenInfo = this.getCitizen(player_uuid);
 		if(citizenInfo==null) return null;
 		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "remove_citizen.php", new String[]{
-			"city_id="+this.cityId,
+			"city_id="+this.uid,
 			"player="+player_uuid.toString()
 		});
 		request.onFinish(()->{
@@ -205,7 +171,7 @@ public class City {
 			newRole = role;
 		}
 		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "set_citizen_role.php", new String[]{
-			"city_id="+this.cityId,
+			"city_id="+this.uid,
 			"player="+player_uuid,
 			"responsible="+responsible.getUniqueId().toString(),
 			"responsible_admin="+(responsible.hasPermission("citysystem.admin") ? "true" : "false"),
@@ -279,18 +245,48 @@ public class City {
 	public boolean isCitizen(UUID player_uuid){
 		return this.getCitizen(player_uuid)!=null;
 	}
-	
-	public static City load(JsonObject json){
-		City result = new City(json);
-		Cities.add(result);
-		return result;
+
+	private void loadData(JsonObject json){
+
+		this.name = JsonUtil.getString("name", json);
+		this.levelId = JsonUtil.getString("level_id", json);
+		this.ringType = JsonUtil.getString("ring_type", json);
+		try{
+			this.mayor = UUID.fromString(JsonUtil.getString("mayor", json));
+		}
+		catch(Exception e){
+			this.mayor = null;
+		}
+		JsonArray citizensArray = json.has("citizens") ? json.getAsJsonArray("citizens") : null;
+		if(citizensArray!=null){
+			for(JsonElement element : citizensArray){
+				if(!element.isJsonObject()) continue;
+				JsonObject citizenSection = element.getAsJsonObject();
+				CitizenInfo info = CitizenInfo.get(citizenSection);
+				if(info==null) continue;
+				citizens.add(info);
+			}
+		}
+		List<String> foundersList = JsonUtil.getStringList("founders", json);
+		if(foundersList!=null){
+			for(String founder : foundersList){
+				try{
+					founders.add(UUID.fromString(founder));
+				}
+				catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		}
 	}
-	
-	public static City get(String key){
-		return Cities.getCity(key);
-	}
-	
-	public static City get(int city_id){
-		return Cities.getCity(city_id);
+
+	protected static Optional<City> load(JsonObject json){
+		if(json==null) return Optional.empty();
+		UUID uid = JsonUtil.getUUID("city_id", json);
+		String techtreeId = JsonUtil.getString("techtree_id", json);
+		if(uid==null) return null;
+		City city = new City(uid, techtreeId);
+		city.loadData(json);
+		return Optional.of(city);
 	}
 }

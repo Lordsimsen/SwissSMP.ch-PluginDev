@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import ch.swisssmp.utils.nbt.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
@@ -36,7 +37,7 @@ public class SigilRingInfo {
 		nbtTag.putString("city_tool", "sigil_ring");
 		nbtTag.putString("ring_type", ring_type);
 		nbtTag.remove("customEnum");
-		if(city!=null) nbtTag.putInt("city_id", city.getId());
+		if(city!=null) NBTUtil.set("city_id", city.getUniqueId(), nbtTag);
 		else if(nbtTag.containsKey("city_id")) nbtTag.remove("city_id");
 		if(owner!=null){
 			nbtTag.putString("owner", owner.getUniqueId().toString());
@@ -107,8 +108,8 @@ public class SigilRingInfo {
 		if(nbtTag==null) return null;
 		String city_tool = nbtTag.getString("city_tool");
 		if(city_tool==null || !city_tool.equals("sigil_ring")) return null;
-		int city_id = nbtTag.getInt("city_id");
-		City city = City.get(city_id);
+		UUID cityId = NBTUtil.getUUID("city_id", nbtTag);
+		City city = CitySystem.getCity(cityId).orElse(null);
 		if(city==null) return null;
 		String ring_type = nbtTag.getString("ring_type");
 		if(ring_type==null) ring_type = "metal_ring";

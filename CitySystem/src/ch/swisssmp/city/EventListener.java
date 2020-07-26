@@ -120,7 +120,7 @@ public class EventListener implements Listener {
 			//Todo add some boolean or a reference to the task below in order to prevent multiple tasking
 
 			Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () -> {
-				CityPromotionCeremony ceremony = CityPromotionCeremony.start(block, player, null); //todo replace null with info.getCity()
+				CityPromotionCeremony ceremony = CityPromotionCeremony.start(block, player, null, null); //todo replace null with info.getCity()
 				Bukkit.getPluginManager().registerEvents(ceremony, CitySystemPlugin.getInstance());
 			}, (100)); //(12000-time)
 		} else{

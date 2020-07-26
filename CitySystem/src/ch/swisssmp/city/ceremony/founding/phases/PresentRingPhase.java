@@ -74,7 +74,7 @@ public class PresentRingPhase extends Phase {
 			ceremony.cancel();
 			return;
 		}
-		City city = City.load(json.getAsJsonObject("city"));
+		City city = CitySystem.loadCity(json.getAsJsonObject("city")).orElse(null);
 		String playersString = "";
 		List<Player> participants = ceremony.getPlayers();
 		for(int i = 0; i < participants.size(); i++){
@@ -94,7 +94,7 @@ public class PresentRingPhase extends Phase {
 		catch(Exception e){
 			e.printStackTrace();
 		}
-		String code = Base64.encodeBase64URLSafeString(("techtree_"+city.getTechtreeId()+","+city.getId()).getBytes());
+		String code = Base64.encodeBase64URLSafeString(("techtree_"+city.getTechtreeId()+","+city.getUniqueId()).getBytes());
 		ceremony.getInitiator().sendMessage(CitySystemPlugin.getPrefix()+ChatColor.YELLOW+"Folge dieser Anleitung, um den Techtree im Forum zu aktivieren:");
 		ceremony.getInitiator().sendMessage(ChatColor.YELLOW+""+ChatColor.UNDERLINE+"https://minecraft.swisssmp.ch/techtree-code?code="+code);
 		cityFounded = true;
