@@ -2,6 +2,7 @@ package ch.swisssmp.city;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -41,8 +42,8 @@ public class CityView extends CustomEditorView implements Listener {
 		return Mathf.ceilToInt(city.getCitizens().size()/9f)*9;
 	}
 
-	public static CityView open(Player player, int city_id){
-		City city = City.get(city_id);
+	public static CityView open(Player player, UUID cityId){
+		City city = CitySystem.getCity(cityId).orElse(null);
 		if(city==null) return null;
 		return open(player, city);
 	}

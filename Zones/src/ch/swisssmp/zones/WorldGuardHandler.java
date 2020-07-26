@@ -185,7 +185,7 @@ public class WorldGuardHandler {
         int z = Integer.MAX_VALUE;
         for(BlockVector v : points){
             x = Math.min(x,v.getBlockX());
-            z = Math.min(z,v.getBlockX());
+            z = Math.min(z,v.getBlockZ());
         }
         return new BlockVector(x,minY,z);
     }
@@ -195,7 +195,7 @@ public class WorldGuardHandler {
         int z = Integer.MIN_VALUE;
         for(BlockVector v : points){
             x = Math.max(x,v.getBlockX());
-            z = Math.max(z,v.getBlockX());
+            z = Math.max(z,v.getBlockZ());
         }
         return new BlockVector(x,maxY,z);
     }

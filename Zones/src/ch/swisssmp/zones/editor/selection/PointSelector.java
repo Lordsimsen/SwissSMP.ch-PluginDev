@@ -33,4 +33,6 @@ public interface PointSelector {
      * The current state of the selection as evaluated by the selector
      */
     PointSelectionState getState();
+
+    String getInstructions();
 }

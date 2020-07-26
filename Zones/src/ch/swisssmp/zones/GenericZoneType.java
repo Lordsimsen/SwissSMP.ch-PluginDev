@@ -29,7 +29,7 @@ public class GenericZoneType extends ZoneType {
 
     @Override
     public String getDisplayName(String name) {
-        return ChatColor.AQUA+name;
+        return ChatColor.RESET+name;
     }
 
     @Override
@@ -58,4 +58,7 @@ public class GenericZoneType extends ZoneType {
     public VisualizationColorScheme getVisualizationColorScheme() {
         return getDefaultVisualizationColorScheme();
     }
+
+    @Override
+    public boolean isInternal(){return false;}
 }

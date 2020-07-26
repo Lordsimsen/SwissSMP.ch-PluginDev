@@ -13,7 +13,7 @@ import java.util.List;
 public class WireframeVisualizer extends BukkitRunnable {
 
     private static final double maxDistanceSquared = 2500;
-    private static final double animationSpeed = 0.2; //Blocks Per Frame (20 Frames / Second)
+    private static final double animationSpeed = 0.5; //Blocks Per Frame (20 Frames / Second)
     private static final double averageMarkerDistance = 15;
 
     private final World world;
@@ -62,7 +62,7 @@ public class WireframeVisualizer extends BukkitRunnable {
     }
 
     private void markRegion(List<Edge> edges){
-        Particle.DustOptions lineDust = new Particle.DustOptions(color, 1);
+        Particle.DustOptions lineDust = new Particle.DustOptions(color, 2.5f);
         Location playerLocation = player.getLocation();
         for(int i = 0; i < segmentCount; i++){
             double offset = i*segmentLength + t * animationSpeed;

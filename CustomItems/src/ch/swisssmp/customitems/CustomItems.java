@@ -32,7 +32,9 @@ import com.google.gson.JsonObject;
 import ch.swisssmp.webcore.DataSource;
 
 public class CustomItems{
-	
+
+	private static final CustomItemBuilder INVALID_BUILDER = new CustomItemBuilder(Material.BARRIER).setDisplayName("???");
+
 	protected static void reload(){
 		CustomMaterialTemplates.load();
 		CustomItemTemplates.load();
@@ -52,7 +54,7 @@ public class CustomItems{
 	 * @return Den gefundenen customEnum oder <code>null</code>.
 	 */
 	public static String getCustomEnum(ItemStack itemStack){
-		if(itemStack==null)return null;
+		if(itemStack==null) return null;
 		return ItemUtil.getString(itemStack, "customEnum");
 	}
 	
@@ -76,7 +78,7 @@ public class CustomItems{
 	public static CustomItemBuilder getCustomItemBuilder(String customEnum, int amount){
 		IBuilderTemplate template = CustomItemTemplate.get(customEnum);
 		if(template==null) template = CustomMaterialTemplate.get(customEnum);
-		if(template==null) return null;
+		if(template==null) return INVALID_BUILDER;
 		JsonObject json = template.getData();
 		CustomItemBuilder result = new CustomItemBuilder();
 		if(template instanceof CustomMaterialTemplate){
@@ -107,7 +109,7 @@ public class CustomItems{
 	 * @return Ein CustomItemBuilder mit allen Voreinstellungen aus der dataSection.
 	 */
 	public static CustomItemBuilder getCustomItemBuilder(JsonObject json, int amount){
-		if(json==null) return null;
+		if(json==null) return INVALID_BUILDER;
 		CustomItemBuilder customItemBuilder;
 		if(json.has("custom_enum")){
 			customItemBuilder = getCustomItemBuilder(JsonUtil.getString("custom_enum", json));
@@ -115,7 +117,7 @@ public class CustomItems{
 		else{
 			customItemBuilder = new CustomItemBuilder();
 		}
-		if(customItemBuilder==null) return null;
+		if(customItemBuilder==null) return INVALID_BUILDER;
 		getCustomItemBuilder(json, customItemBuilder);
 		customItemBuilder.setAmount(amount);
 		return customItemBuilder;
@@ -297,7 +299,7 @@ public class CustomItems{
 		if(customItemBuilder.getMaterial()==null || customItemBuilder.getMaterial()==Material.AIR){
 			Bukkit.getLogger().info("[CustomItems] ItemBuilder konnte nicht abgeschlossen werden, da kein Material angegeben wurde.");
 			Bukkit.getLogger().info(json.toString());
-			return null;
+			return INVALID_BUILDER;
 		}
 		return customItemBuilder;
 	}

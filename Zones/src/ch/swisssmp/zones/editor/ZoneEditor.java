@@ -10,13 +10,17 @@ import ch.swisssmp.zones.editor.visualization.WireframeVisualizer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -28,6 +32,7 @@ public class ZoneEditor implements Listener {
     private final VisualizationColorScheme colorScheme;
 
     private WireframeVisualizer visualizer;
+    private InstructionDisplay instructionDisplay;
     private boolean finished = false;
 
     private ZoneEditor(Player player, Zone zone, PointSelector selector, VisualizationColorScheme colorScheme){
@@ -45,9 +50,10 @@ public class ZoneEditor implements Listener {
         selector.initialize();
         visualizer = WireframeVisualizer.start(player, getVisualizationColor());
         visualizer.setEdges(selector.getEdges());
+        instructionDisplay = InstructionDisplay.run(player, selector);
         Bukkit.getPluginManager().registerEvents(this, ZonesPlugin.getInstance());
         ZoneEditors.add(player,this);
-        SwissSMPler.get(player).sendMessage("["+ChatColor.YELLOW+"Zonen"+ChatColor.RESET+"] "+ChatColor.YELLOW+"Auswahl-Modus gestartet! Punkte mit Rechtsklick hinzufügen und mit Linksklick entfernen. Beende die Auswahl mit Schleichen + Rechtsklick.");
+        SwissSMPler.get(player).sendMessage("["+ChatColor.YELLOW+"Zonen"+ChatColor.RESET+"] "+ChatColor.YELLOW+"Auswahl-Modus gestartet! Beende die Auswahl, indem du den Kartentisch anklickst.");
     }
 
     public Player getPlayer(){
@@ -60,13 +66,40 @@ public class ZoneEditor implements Listener {
 
     @EventHandler
     private void onPlayerInteract(PlayerInteractEvent event){
-        if(event.getPlayer()!=player) return;
-        if(event.getAction()!= Action.RIGHT_CLICK_BLOCK && event.getAction()!=Action.LEFT_CLICK_BLOCK) return;
-        Player player = event.getPlayer();
-        if(player.isSneaking()) return;
-        ClickType click = event.getAction()==Action.LEFT_CLICK_BLOCK ? ClickType.LEFT : ClickType.RIGHT;
+        if(event.getPlayer()!=this.player) return;
+        if(event.getAction()!= Action.RIGHT_CLICK_BLOCK) return;
+        Block block = event.getClickedBlock();
+        if(player.isSneaking() || block.getType() == Material.CARTOGRAPHY_TABLE) return;
+        ItemStack itemStack = event.getItem();
+        if(Zone.get(itemStack).orElse(null)!=zone) return;
         event.setCancelled(true);
-        boolean changed = selector.click(event.getClickedBlock(), click);
+        onPlayerInteractBlock(block, ClickType.RIGHT);
+    }
+
+    @EventHandler
+    private void onPlayerDamageBlock(BlockDamageEvent event){
+        Bukkit.getLogger().info("Block Damage!");
+        if(event.getPlayer()!=this.player){
+            Bukkit.getLogger().info("Wrong player");
+            return;
+        }
+        Block block = event.getBlock();
+        if(player.isSneaking() || block.getType() == Material.CARTOGRAPHY_TABLE){
+            Bukkit.getLogger().info("Sneaking or cartography table");
+            return;
+        }
+        ItemStack itemStack = event.getItemInHand();
+        if(Zone.get(itemStack).orElse(null)!=zone){
+            Bukkit.getLogger().info("Wrong zone");
+            return;
+        }
+        event.setCancelled(true);
+        onPlayerInteractBlock(block, ClickType.LEFT);
+        Bukkit.getLogger().info("Mark Block!");
+    }
+
+    private void onPlayerInteractBlock(Block block, ClickType clickType){
+        boolean changed = selector.click(block, clickType);
         if(!changed) return;
         visualizer.setEdges(selector.getEdges());
         visualizer.setColor(getVisualizationColor());
@@ -102,7 +135,8 @@ public class ZoneEditor implements Listener {
     }
 
     private void finish(){
-        visualizer.cancel();
+        if(visualizer!=null) visualizer.cancel();
+        if(instructionDisplay!=null) instructionDisplay.cancel();
         HandlerList.unregisterAll(this);
         ZoneEditors.remove(player);
     }

@@ -1,7 +1,5 @@
 package ch.swisssmp.city;
 
-import ch.swisssmp.ceremonies.SpectateCommand;
-import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -18,7 +16,7 @@ public class CitySystemPlugin extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents(new CraftingListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new PlayerInteractListener(), plugin);
 		Bukkit.getPluginCommand("cities").setExecutor(new CitiesCommand());
-		Cities.load();
+		Cities.loadAll();
 		CraftingRecipes.register();
 		ItemManager.updateItems();
 		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");

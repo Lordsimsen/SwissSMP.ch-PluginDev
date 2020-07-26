@@ -115,5 +115,6 @@ public class PolygonZone extends Zone {
         }
         this.minY = JsonUtil.getInt("min_y", json);
         this.maxY = JsonUtil.getInt("max_y", json);
+        this.recalculateBounds();
     }
 }

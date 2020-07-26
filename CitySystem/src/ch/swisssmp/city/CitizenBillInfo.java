@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import ch.swisssmp.utils.nbt.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
@@ -33,7 +34,7 @@ public class CitizenBillInfo {
 		CompoundTag nbtTag = ItemUtil.getData(itemStack);
 		if(nbtTag==null) nbtTag = new CompoundTag();
 		nbtTag.putString("city_tool", "citizen_bill");
-		if(city!=null && !invalid) nbtTag.putInt("city_id", city.getId());
+		if(city!=null && !invalid) NBTUtil.set("city_id", city.getUniqueId(), nbtTag);
 		else if(nbtTag.containsKey("city_id")) nbtTag.remove("city_id");
 		if(citizen!=null && parentInfo!=null){
 			nbtTag.putString("citizen", citizen.getUniqueId().toString());
@@ -138,8 +139,8 @@ public class CitizenBillInfo {
 		if(nbtTag==null) return null;
 		String city_tool = nbtTag.getString("city_tool");
 		if(city_tool==null || !city_tool.equals("citizen_bill")) return null;
-		int city_id = nbtTag.getInt("city_id");
-		City city = City.get(city_id);
+		UUID cityId = NBTUtil.getUUID("city_id", nbtTag);
+		City city = CitySystem.getCity(cityId).orElse(null);
 		if(city==null) return null;
 		CitizenBillInfo result = new CitizenBillInfo(city);
 		if(nbtTag.containsKey("citizen") && nbtTag.containsKey("citizen_name")){

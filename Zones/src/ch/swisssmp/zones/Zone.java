@@ -25,7 +25,7 @@ public abstract class Zone implements Removable {
     private final RegionType regionType;
     private String name;
 
-    private final List<BlockVector> points = new ArrayList<>();
+    private ItemStack tokenStackCache = null;
 
     protected Zone(ZoneCollection collection, UUID uid, String regionId, ZoneType type){
         this.collection = collection;
@@ -75,13 +75,18 @@ public abstract class Zone implements Removable {
     public abstract BlockVector getMax();
 
     public ItemStack getItemStack(){
-        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(type.getCustomEnum());
-        itemBuilder.setDisplayName(type.getDisplayName(name));
-        itemBuilder.setLore(getItemLore());
-        itemBuilder.setAmount(1);
-        ItemStack result = itemBuilder.build();
-        ItemUtil.setString(result, ID_PROPERTY, uid.toString());
-        return result;
+        if(this.tokenStackCache==null) this.updateCachedTokenStack();
+        return tokenStackCache.clone();
+    }
+
+    public void updateTokenStack(ItemStack itemStack){
+        if(this.tokenStackCache==null) this.updateCachedTokenStack();
+        itemStack.setType(tokenStackCache.getType());
+        itemStack.setItemMeta(tokenStackCache.getItemMeta());
+    }
+
+    public void updateTokenStacks(){
+        Zones.updateTokens(this);
     }
 
     public abstract boolean isSetupComplete();
@@ -101,6 +106,8 @@ public abstract class Zone implements Removable {
         json.add("data", saveData());
         File file = getFile();
         JsonUtil.save(file, json);
+        this.updateCachedTokenStack();
+        this.updateTokenStacks();
     }
 
     public void remove(){
@@ -119,6 +126,21 @@ public abstract class Zone implements Removable {
 
     protected abstract JsonObject saveData();
     protected abstract void loadData(JsonObject json);
+
+    private void updateCachedTokenStack(){
+        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(type.getCustomEnum());
+        itemBuilder.setDisplayName(type.getDisplayName(name));
+        itemBuilder.setLore(getItemLore());
+        itemBuilder.setAmount(1);
+        ItemStack result = itemBuilder.build();
+        ItemUtil.setString(result, ID_PROPERTY, uid.toString());
+        this.tokenStackCache = result;
+    }
+
+
+    public static Optional<Zone> get(ItemStack itemStack){
+        return Zones.getZone(itemStack);
+    }
 
     protected static Optional<Zone> load(ZoneCollection collection, JsonObject json){
         UUID uid;

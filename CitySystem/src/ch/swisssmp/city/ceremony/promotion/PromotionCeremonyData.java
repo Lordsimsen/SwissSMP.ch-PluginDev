@@ -50,6 +50,10 @@ public class PromotionCeremonyData {
         }
     }
 
+    public String getLevelId(){
+        return levelId;
+    }
+
     private static ItemStack getItem(JsonObject json){
         CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(json);
         if(itemBuilder==null) return null;

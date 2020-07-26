@@ -1,5 +1,5 @@
-main: ch.swisssmp.editor.CustomEditorAPI
-version: 2.3
+main: ch.swisssmp.editor.CustomEditorAPIPlugin
+version: 3
 api-version: 1.13
 name: CustomEditorAPI
 author: detig_iii
