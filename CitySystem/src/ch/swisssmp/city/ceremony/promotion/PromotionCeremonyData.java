@@ -1,7 +1,9 @@
 package ch.swisssmp.city.ceremony.promotion;
 
 import ch.swisssmp.city.City;
+import ch.swisssmp.city.CityLevel;
 import ch.swisssmp.city.CitySystemPlugin;
+import ch.swisssmp.city.Techtree;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.JsonUtil;
@@ -18,46 +20,23 @@ import java.util.List;
 
 public class PromotionCeremonyData {
 
-    private String levelId;
-
     private final int promotionPlayercount;
     private final int promotionHaybalecount;
 
     private final int climaxExplosionCycles;
     private final int fireworkCycles;
 
-    private List<ItemStack> tribute;
+    private final ItemStack[] tribute;
 
-    private PromotionCeremonyData(JsonObject json){
-        levelId = JsonUtil.getString("level_id", json);
-        promotionPlayercount = JsonUtil.getInt("promotion_playercount", json);
-        promotionHaybalecount = JsonUtil.getInt("promotion_haybalecount", json);
-        climaxExplosionCycles = JsonUtil.getInt("climax_explosion_cycles", json);
-        fireworkCycles = JsonUtil.getInt("firework_cycles", json);
-        JsonArray itemsSection = json.getAsJsonArray("items");
-        if(itemsSection!=null){
-            for(JsonElement element : itemsSection){
-                if(!element.isJsonObject()) continue;
-                try{
-                    ItemStack itemStack = getItem(element.getAsJsonObject());
-                    if(itemStack==null) continue;
-                    tribute.add(itemStack);
-                }
-                catch(Exception e){
-                    continue;
-                }
-            }
-        }
-    }
+    private PromotionCeremonyData(CityLevel cityLevel){
+        JsonObject levelConfiguration = cityLevel.getConfiguration();
+        JsonObject ceremonySection = levelConfiguration.has("ceremony") ? levelConfiguration.getAsJsonObject("ceremony") : new JsonObject();
 
-    public String getLevelId(){
-        return levelId;
-    }
-
-    private static ItemStack getItem(JsonObject json){
-        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(json);
-        if(itemBuilder==null) return null;
-        return itemBuilder.build();
+        promotionPlayercount = JsonUtil.getInt("promotion_playercount", ceremonySection);
+        promotionHaybalecount = JsonUtil.getInt("promotion_haybalecount", ceremonySection);
+        climaxExplosionCycles = JsonUtil.getInt("climax_explosion_cycles", ceremonySection);
+        fireworkCycles = JsonUtil.getInt("firework_cycles", ceremonySection);
+        tribute = cityLevel.getCost();
     }
 
     public int getPromotionPlayercount(){
@@ -76,25 +55,15 @@ public class PromotionCeremonyData {
         return fireworkCycles;
     }
 
-    public List<ItemStack> getTribute(){
+    public ItemStack[] getTribute(){
         return tribute;
     }
 
     public static PromotionCeremonyData load(City city){
-        List<PromotionCeremonyData> dataContainer = new ArrayList<>();
         String levelId = city.getLevelId();
-
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_promotion_ceremony.php", new String[]{
-                "level_id="+levelId});
-        request.onFinish(() ->{
-            JsonObject json = request.getJsonResponse();
-            if(json == null || !json.get("success").getAsBoolean()){
-                Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't load promotionceremony data for level: " + levelId);
-                return;
-            }
-            dataContainer.add(new PromotionCeremonyData(json));
-            return;
-        });
-        return dataContainer.get(0);
+        Techtree techtree = city.getTechtree();
+        int currentLevelIndex = techtree.getLevelIndex(levelId);
+        CityLevel newLevel = techtree.getLevel(currentLevelIndex + 1);
+        return new PromotionCeremonyData(newLevel);
     }
 }

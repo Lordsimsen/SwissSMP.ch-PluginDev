@@ -42,11 +42,13 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     private CityCeremonyCircleEffect ringEffect;
 
-    private List<Player> participants = new ArrayList<Player>();
+    private List<Player> participants;
 
     private BukkitTask timeoutTask;
     private BukkitTask musicTask;
     private BukkitTask ringEffectTask;
+
+    private CitizenProximityCheck participantsCheckTask;
 
     private PromotionPhase phase = null;
 
@@ -62,7 +64,7 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         cityName = city.getName();
         this.chest = Chest;
         this.initiator = initiator;
-        participants.add(initiator);
+//        participants.add(initiator);
 
         ceremonyParameters = data;
     }
@@ -83,7 +85,7 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         return initiator;
     }
 
-    public List<Player> getPlayers(){
+    public List<Player> getParticipants(){
         return participants;
     }
 
@@ -102,13 +104,6 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     public void setRingEffectTask(BukkitTask task){
         this.ringEffectTask = task;
-    }
-
-    public void addParticipant(Player player){
-        if(isParticipant(player)) return;
-        participants.add(player);
-        ceremoniesParticipants.add(player);
-        this.broadcast(player.getDisplayName() + ChatColor.RESET + ChatColor.LIGHT_PURPLE + " steht bereit!");
     }
 
     public void setMusic(Location location, String music, long length){
@@ -142,24 +137,20 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         }
         switch(phase){
             case Beginning:{
-                Bukkit.getLogger().info("Beginning initiated");
                 phase = PromotionPhase.Burning;
                 BurningPhase burningPhase = new BurningPhase(this);
                 Bukkit.getPluginManager().registerEvents(burningPhase, CitySystemPlugin.getInstance());
                 return burningPhase;
             }
             case Burning:{
-                Bukkit.getLogger().info("Burning initiated");
                 phase = PromotionPhase.Climax;
                 return new ClimaxPhase(this);
             }
             case Climax:{
-                Bukkit.getLogger().info("Climax initiated");
                 phase = PromotionPhase.Ending;
                 return new EndingPhase(this);
             }
             case Ending:{
-                Bukkit.getLogger().info("Ending initiated");
                 this.complete();
                 return null;
             }
@@ -171,18 +162,23 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     public void begin(JavaPlugin plugin){
         super.begin(CitySystemPlugin.getInstance());
         timeoutTask = Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), this::cancel, 12000L);
+        participantsCheckTask = new CitizenProximityCheck(this);
+        participantsCheckTask.runTaskTimer(CitySystemPlugin.getInstance(), 1L, 40L);
+        participants = participantsCheckTask.getCeremonyParticipants();
     }
 
     @Override
     public void run(){
         super.run();
         this.updateSpectatorLocation();
+        participants = participantsCheckTask.getCeremonyParticipants();
     }
 
     @Override
     protected void finish(){
         super.finish();
         if(timeoutTask != null) timeoutTask.cancel();
+        if(participantsCheckTask != null) participantsCheckTask.cancel();
         for(Player player : this.participants){
             ceremoniesParticipants.remove(player);
         }

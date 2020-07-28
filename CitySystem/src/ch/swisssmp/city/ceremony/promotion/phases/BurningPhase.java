@@ -75,7 +75,7 @@ public class BurningPhase extends Phase implements Listener {
     }
 
     private void startMusic(){
-        for(Player player : ceremony.getPlayers()){
+        for(Player player : ceremony.getParticipants()){
             player.stopSound(CityPromotionCeremonyMusic.shaker, SoundCategory.RECORDS);
         }
         ceremony.setMusic(chest.getLocation(), CityPromotionCeremonyMusic.finale, 932);
@@ -86,6 +86,7 @@ public class BurningPhase extends Phase implements Listener {
 
     @Override
     public void run() {
+        if(ceremony.getParticipants().size() < ceremony.getCeremonyParameters().getPromotionPlayercount()) cancel();
         if(fireIgnited) {
             double randomDouble = ceremony.random.nextDouble();
             if (randomDouble < 0.1) playRandomLocatedFireBurst(chest.getLocation(), 2);
@@ -119,7 +120,7 @@ public class BurningPhase extends Phase implements Listener {
     }
 
     private void broadcastTitleParticipants(String title, String subtitle){
-        for(Player player : ceremony.getPlayers()){
+        for(Player player : ceremony.getParticipants()){
             SwissSMPler.get(player).sendTitle(title, subtitle);
         }
     }
@@ -127,7 +128,7 @@ public class BurningPhase extends Phase implements Listener {
     @EventHandler
     private void onIgnition(BlockIgniteEvent event){
         Bukkit.getLogger().info("BlockigniteEvent");
-        if(!ceremony.getPlayers().contains(event.getPlayer())) return;
+        if(!ceremony.getParticipants().contains(event.getPlayer())) return;
         if(ignitionReminder != null || !ignitionReminder.isCancelled()) ignitionReminder.cancel();
         fireIgnited = true;
     }

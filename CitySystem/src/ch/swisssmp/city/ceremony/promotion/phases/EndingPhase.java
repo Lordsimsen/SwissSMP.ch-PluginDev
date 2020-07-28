@@ -5,9 +5,7 @@ import ch.swisssmp.city.City;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import ch.swisssmp.city.ceremony.promotion.PromotionCeremonyData;
-import ch.swisssmp.webcore.DataSource;
-import ch.swisssmp.webcore.HTTPRequest;
-import com.google.gson.JsonObject;
+import ch.swisssmp.utils.JsonUtil;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
@@ -19,6 +17,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 public class EndingPhase extends Phase {
 
     private final CityPromotionCeremony ceremony;
+    private final City city;
     private final PromotionCeremonyData parameters;
     private final Block chest;
 
@@ -26,6 +25,7 @@ public class EndingPhase extends Phase {
 
     public EndingPhase(CityPromotionCeremony ceremony){
         this.ceremony = ceremony;
+        this.city = ceremony.getCity();
         parameters = ceremony.getCeremonyParameters();
         this.chest = ceremony.getChest();
     }
@@ -33,10 +33,10 @@ public class EndingPhase extends Phase {
     @Override
     public void begin(){
         super.begin();
-        this.updateCity(ceremony.getCity(), parameters.getLevelId());
+        city.promoteCity();
         Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () ->{
-            String title = "Gratulation!";
-            String subtitle = "" + ChatColor.LIGHT_PURPLE + ceremony.getCityName() + ChatColor.RESET + " ist nun eine " + ChatColor.LIGHT_PURPLE + parameters.getLevelId();
+            String title = ChatColor.GREEN + "Gratulation!";
+            String subtitle = JsonUtil.getString("promotion_message", city.getLevel().getConfiguration()).replace("{city}", city.getName());
             this.announceTitleLong(title, subtitle);
             this.broadcastMessage(subtitle);
         }, 20L);
@@ -44,7 +44,7 @@ public class EndingPhase extends Phase {
     }
 
     private void announceTitleLong(String title, String subtitle){
-        for(Player player : ceremony.getPlayers()){
+        for(Player player : ceremony.getParticipants()){
             player.sendTitle(title, subtitle, 10, 120, 30);
         }
     }
@@ -63,7 +63,7 @@ public class EndingPhase extends Phase {
     }
 
     private void playMusicFinale(){
-        for(Player player : ceremony.getPlayers()){
+        for(Player player : ceremony.getParticipants()){
             player.stopSound("founding_ceremony_drums", SoundCategory.RECORDS);
         }
         chest.getWorld().playSound(chest.getLocation(), "founding_ceremony_finale", 15, 1);
@@ -100,19 +100,5 @@ public class EndingPhase extends Phase {
         meta.setPower(rp);
 
         firework.setFireworkMeta(meta);
-
-    }
-
-    private void updateCity(City city, String levelId){
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "set_level_id.php", new String[]{ //TODO correct?
-                "city_id="+city.getUniqueId(),
-                "level_id="+levelId});
-        request.onFinish(() ->{
-            JsonObject json = request.getJsonResponse();
-            if(json == null || !json.get("success").getAsBoolean()){
-                Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't promote city " + city.getName());
-            }
-        });
-        Bukkit.getLogger().info("city " + city.getName() + " has been promoted");
     }
 }
