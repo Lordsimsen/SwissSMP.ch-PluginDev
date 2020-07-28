@@ -1,22 +1,21 @@
-package ch.swisssmp.addonabnahme;
+package ch.swisssmp.city;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 public enum AddonState {
-	Blocked("Blockiert", ChatColor.DARK_RED, Material.RED_WOOL),
-	Unavailable("Nicht verfügbar", ChatColor.GRAY, Material.GRAY_WOOL),
-	Available("Verfügbar", ChatColor.GREEN, Material.LIME_WOOL),
-	Activated("Aktiviert", ChatColor.AQUA, Material.CYAN_WOOL),
-	Accepted("Freigeschaltet", ChatColor.GREEN, Material.GREEN_WOOL),
-	Examination("In Prüfung", ChatColor.BLUE, Material.BLUE_WOOL)
+	BLOCKED("Blockiert", ChatColor.DARK_RED, Material.RED_WOOL),
+	UNAVAILABLE("Nicht verfügbar", ChatColor.GRAY, Material.GRAY_WOOL),
+	AVAILABLE("Verfügbar", ChatColor.GREEN, Material.LIME_WOOL),
+	ACTIVATED("Aktiviert", ChatColor.AQUA, Material.CYAN_WOOL),
+	ACCEPTED("Freigeschaltet", ChatColor.GREEN, Material.GREEN_WOOL)
 	;
 	
 	private final String display_name;
 	private final ChatColor color;
 	private final Material material;
 	
-	private AddonState(String display_name, ChatColor color, Material material){
+	AddonState(String display_name, ChatColor color, Material material){
 		this.display_name = display_name;
 		this.color = color;
 		this.material = material;
@@ -36,8 +35,7 @@ public enum AddonState {
 	
 	public static AddonState get(String key){
 		try{
-			AddonState result = AddonState.valueOf(key);
-			return result;
+			return AddonState.valueOf(key);
 		}
 		catch(Exception e){
 			for(AddonState state : AddonState.values()){

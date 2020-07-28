@@ -16,7 +16,7 @@ import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.webcore.HTTPRequest;
 
-public class PlayerInteractListener implements Listener {
+class PlayerInteractListener implements Listener {
 
 	@EventHandler
 	private void onPlayerInteract(PlayerInteractEvent event){

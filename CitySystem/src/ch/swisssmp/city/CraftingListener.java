@@ -23,7 +23,7 @@ import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.PlayerInfo;
 import ch.swisssmp.webcore.HTTPRequest;
 
-public class CraftingListener implements Listener {
+class CraftingListener implements Listener {
 	
 	@EventHandler
 	private void onPrepareCraftCitizenBill(PrepareItemCraftEvent event){

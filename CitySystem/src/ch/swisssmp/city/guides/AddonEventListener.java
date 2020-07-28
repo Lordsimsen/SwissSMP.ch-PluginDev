@@ -1,5 +1,6 @@
-package ch.swisssmp.addonabnahme;
+package ch.swisssmp.city.guides;
 
+import ch.swisssmp.city.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
@@ -12,17 +13,13 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import ch.swisssmp.city.City;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.npc.conversations.NPCConversation;
 import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
 import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.webcore.DataSource;
-import ch.swisssmp.webcore.HTTPRequest;
 
-public class EventListener implements Listener {
+public class AddonEventListener implements Listener {
 	
 	@EventHandler
 	private void onResourcepackUpdate(PlayerResourcePackUpdateEvent event){
@@ -37,35 +34,39 @@ public class EventListener implements Listener {
 		if((!lines[0].toLowerCase().equals("[addonabnahme]") && !lines[0].toLowerCase().equals("[addon]")) || !player.hasPermission("addonabnahme.request")){
 			return;
 		}
-		AddonInstanceInfo signInfo = AddonInstanceInfo.get(lines);
+		Addon addon = AddonUtility.findAddon(lines).orElse(null);
 		Sign sign = (Sign) event.getBlock().getState();
-		if(signInfo==null){
-			City city = City.find(lines[1]);
+		City city;
+		if(addon!=null){
+			city = addon.getCity();
+		}
+		else{
+			city = CitySystem.findCity(lines[1]).orElse(null);
 			if(city==null){
 				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Stadt "+lines[1]+" nicht gefunden.");
+				return;
 			}
-			else{
+			Techtree techtree = city.getTechtree();
+			AddonType type = techtree!=null ? techtree.findAddonType(lines[2]).orElse(null) : null;
+			if(type==null){
 				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Addon "+lines[2]+" nicht gefunden.");
+				return;
 			}
-			return;
+
+			addon = city.createAddon(type);
 		}
-		if(!signInfo.getCity().isCitizen(player.getUniqueId()) && !player.hasPermission("addonabnahme.admin")){
-			SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Du bist kein Bürger von "+signInfo.getCity().getName()+".");
+		if(!city.isCitizen(player.getUniqueId()) && !player.hasPermission("addonabnahme.admin")){
+			SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Du bist kein Bürger von "+city.getName()+".");
 			event.setCancelled(true);
 			return;
 		}
-		HTTPRequest request = DataSource.getResponse(AddonAbnahme.getInstance(), "register_addon.php", new String[]{
-				"player="+player.getUniqueId().toString(),
-				"city="+signInfo.getCity().getId(),
-				"addon="+URLEncoder.encode(signInfo.getAddonInfo().getAddonId()),
-				"techtree="+URLEncoder.encode(signInfo.getCity().getTechtreeId()),
-				"world="+URLEncoder.encode(event.getBlock().getWorld().getName()),
-				"x="+event.getBlock().getX(),
-				"y="+event.getBlock().getY(),
-				"z="+event.getBlock().getZ()
-		});
-		request.onFinish(()->{
-			AddonManager.createAddonGuide(player, sign, signInfo, request.getJsonResponse());
+
+		addon.setOrigin(event.getBlock());
+		Techtree techtree = city.getTechtree();
+		techtree.updateAddonState(addon);
+		Addon finalAddon = addon;
+		addon.save((success)->{
+			CitySystem.createAddonGuide(player, sign, finalAddon);
 		});
 	}
 	
@@ -73,28 +74,28 @@ public class EventListener implements Listener {
 	private void onNPCInteract(PlayerInteractNPCEvent event){
 		if(event.getHand()!=EquipmentSlot.HAND) return;
 		NPCInstance npc = event.getNPC();
-		String identifier = npc.getIdentifier();
-		if(identifier==null || !identifier.equals("addon_instance_guide")) return;
-		NPCConversation c = NPCConversation.get(event.getPlayer());
-		if(c!=null && c.getNPC().getNPCId().equals(event.getNPC().getNPCId())) return;
-		if(c!=null) c.cancel();
+		// Check if it is an AddonGuide
+		AddonGuide guide = AddonGuide.get(npc).orElse(null);
+		if(guide==null) return;
+		// Check if there is an ongoing conversation between the player and the npc
+		NPCConversation runningConversation = NPCConversation.get(event.getPlayer());
+		if(runningConversation!=null && runningConversation.getNPC().getNPCId().equals(event.getNPC().getNPCId())) return;
+		// Cancel if the ongoing conversation is not between the player and the npc
+		if(runningConversation!=null) runningConversation.cancel();
+		// Check if the villager is already trading to prevent two players from unlocking the same addon at the same time
 		Villager villager = (event.getNPC().getEntity() instanceof Villager ? (Villager) event.getNPC().getEntity() : null);
 		if(villager!=null && villager.isTrading()) return;
-		AddonInstanceInfo info = AddonInstanceInfo.get(npc);
-		if(info==null){
-			npc.remove(); //some auto cleanup
-			return;
-		}
-		City city = info.getCity();
+		Addon addon = guide.getAddon();
+		City city = addon.getCity();
 		if(event.getPlayer().isSneaking() && city.isCitizen(event.getPlayer().getUniqueId())){
-			AddonInstanceGuide.openGuideView(event.getPlayer(), npc);
+			guide.openGuideView(event.getPlayer());
 			return;
 		}
-		AddonInstanceGuide.startConversation(event.getPlayer(), npc);
+		guide.startConversation(event.getPlayer());
 	}
 	
 	@EventHandler(ignoreCancelled=true,priority=EventPriority.MONITOR)
 	private void onChunkLoad(ChunkLoadEvent event){
-		AddonInstanceGuides.updateAll(event.getChunk());
+		AddonGuides.updateAll(event.getChunk());
 	}
 }

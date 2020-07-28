@@ -14,7 +14,7 @@ import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
-public class CitiesCommand implements CommandExecutor{
+class CitiesCommand implements CommandExecutor{
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

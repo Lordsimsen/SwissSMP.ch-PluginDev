@@ -1,4 +1,4 @@
-package ch.swisssmp.addonabnahme;
+package ch.swisssmp.city;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -11,7 +11,7 @@ import ch.swisssmp.webcore.DataSource;
 public class LivemapInterface {
 	private static boolean linkActive = false;
 	
-	public static void updateAddonIcon(AddonInfo addon){
+	public static void updateAddonIcon(AddonType addon){
 		if(!linkActive) return;
 		MarkerIcon icon = Livemap.getIcon(addon.getIconId());
 		if(icon==null){

@@ -26,5 +26,6 @@
     <orderEntry type="module" module-name="Ceremonies" />
     <orderEntry type="library" name="NBT" level="project" />
     <orderEntry type="module" module-name="RawTextBuilderAPI" />
+    <orderEntry type="module" module-name="LivemapMarkerAPI" />
   </component>
 </module>

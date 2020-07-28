@@ -40,7 +40,7 @@ import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.scheduler.BukkitTask;
 
-public class EventListener implements Listener {
+class EventListener implements Listener {
 	private static final Material INITIATOR_MATERIAL = Material.BLAZE_POWDER;
 	private static boolean ceremonyAnnounced = false;
 	

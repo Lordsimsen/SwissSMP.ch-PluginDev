@@ -1,20 +1,20 @@
-package ch.swisssmp.addonabnahme.event;
+package ch.swisssmp.city.guides.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import ch.swisssmp.addonabnahme.AddonInstanceGuideView;
+import ch.swisssmp.city.guides.AddonGuideView;
 
 public class GuideViewEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
 	
-    private final AddonInstanceGuideView view;
+    private final AddonGuideView view;
     
-	public GuideViewEvent(AddonInstanceGuideView view) {
+	public GuideViewEvent(AddonGuideView view) {
 		this.view = view;
 	}
 	
-	public AddonInstanceGuideView getView(){
+	public AddonGuideView getView(){
 		return view;
 	}
 

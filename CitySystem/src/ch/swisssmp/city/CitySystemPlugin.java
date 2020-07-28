@@ -1,8 +1,8 @@
 package ch.swisssmp.city;
 
+import ch.swisssmp.city.guides.AddonEventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CitySystemPlugin extends JavaPlugin{
@@ -11,21 +11,26 @@ public class CitySystemPlugin extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		plugin = this;
-		PluginDescriptionFile pdfFile = getDescription();
+		LivemapInterface.link();
 		Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
+		Bukkit.getPluginManager().registerEvents(new AddonEventListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new CraftingListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new PlayerInteractListener(), plugin);
-		Bukkit.getPluginCommand("cities").setExecutor(new CitiesCommand());
+		this.getCommand("cities").setExecutor(new CitiesCommand());
+		this.getCommand("addon").setExecutor(new AddonCommand());
+		Techtrees.loadAll();
 		Cities.loadAll();
 		CraftingRecipes.register();
 		ItemManager.updateItems();
-		Bukkit.getLogger().info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
+		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 
 	@Override
 	public void onDisable() {
-		PluginDescriptionFile pdfFile = getDescription();
-		Bukkit.getLogger().info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
+		Cities.unloadAll();
+		Techtrees.unloadAll();
+		Bukkit.getScheduler().cancelTasks(this);
+		Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
 	}
 	
 	public static String getPrefix(){

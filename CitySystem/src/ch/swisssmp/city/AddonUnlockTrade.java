@@ -1,4 +1,4 @@
-package ch.swisssmp.addonabnahme;
+package ch.swisssmp.city;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
-import ch.swisssmp.utils.ConfigurationSection;
 
 public class AddonUnlockTrade {
     private final List<ItemStack> items = new ArrayList<ItemStack>();
@@ -87,12 +86,12 @@ public class AddonUnlockTrade {
     }
 
     protected enum UnlockType {
-        Perpetual,
-        Rental;
+        PERPETUAL,
+        RENTAL;
 
         protected static UnlockType get(String value) {
-            if (value.toLowerCase().equals("rental")) return Rental;
-            return Perpetual;
+            if (value.toLowerCase().equals("rental")) return RENTAL;
+            return PERPETUAL;
         }
     }
 }

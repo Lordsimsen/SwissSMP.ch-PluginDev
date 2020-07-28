@@ -12,7 +12,7 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 
-public class Cities {
+class Cities {
 	private static final HashSet<City> cities = new HashSet<>();
 
 	protected static Optional<City> findCity(String key){
@@ -52,6 +52,10 @@ public class Cities {
 			if(city==null) continue;
 			cities.add(city);
 		}
+	}
+
+	protected static void unloadAll(){
+		cities.clear();
 	}
 	
 	protected static Optional<City> getCity(UUID cityId){

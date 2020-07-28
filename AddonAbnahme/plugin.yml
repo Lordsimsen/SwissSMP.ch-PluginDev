@@ -1,4 +1,4 @@
-main: ch.swisssmp.addonabnahme.AddonAbnahme
+main: ch.swisssmp.addonabnahme.AddonAbnahmePlugin
 version: 4
 api-version: 1.13
 name: AddonAbnahme
@@ -12,11 +12,3 @@ permissions:
     description: Erlaubt die Anmeldung eines Addons
     default: false
 commands:
-  addon:
-    description: Hauptbefehl zur Verwaltung von Addons
-    usage: "Verwendung: /<command> <subcommand> [Argumente]"
-    permission: addonabnahme.admin
-  addon reload:
-    description: Aktualisiert Guides
-    usage: "Verwendung: /<command> <subcommand>"
-    permission: addonabnahme.admin

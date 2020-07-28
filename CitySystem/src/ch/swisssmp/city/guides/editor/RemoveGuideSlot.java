@@ -1,33 +1,28 @@
-package ch.swisssmp.addonabnahme.editor;
+package ch.swisssmp.city.guides.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
-import ch.swisssmp.addonabnahme.AddonInstanceGuide;
-import ch.swisssmp.addonabnahme.AddonInstanceInfo;
+import ch.swisssmp.city.guides.AddonGuide;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.ButtonSlot;
-import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.SwissSMPler;
 
 public class RemoveGuideSlot extends ButtonSlot {
 
-	private final NPCInstance npc;
-	private final AddonInstanceInfo instance;
+	private final AddonGuide guide;
 	
 	private boolean confirmed = false;
 	
-	public RemoveGuideSlot(CustomEditorView view, int slot, NPCInstance npc, AddonInstanceInfo instance) {
+	public RemoveGuideSlot(CustomEditorView view, int slot, AddonGuide guide) {
 		super(view, slot);
-		this.npc = npc;
-		this.instance = instance;
+		this.guide = guide;
 	}
 
 	@Override
@@ -38,7 +33,7 @@ public class RemoveGuideSlot extends ButtonSlot {
 			return;
 		}
 		this.getView().closeLater();
-		AddonInstanceGuide.remove(npc, instance);
+		guide.remove();
 
 		SwissSMPler.get(this.getView().getPlayer()).sendActionBar(ChatColor.RED+"Addon Guide entfernt");
 	}

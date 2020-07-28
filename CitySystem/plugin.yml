@@ -33,3 +33,11 @@ commands:
     description: Erstellt einen Siegelring
     usage: "Verwendung: /<command> ring [Stadt] (Besitzer) [Typ]"
     permission: citysystem.admin
+  addon:
+    description: Hauptbefehl zur Verwaltung von Addons
+    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    permission: addonabnahme.admin
+  addon reload:
+    description: Aktualisiert Guides
+    usage: "Verwendung: /<command> <subcommand>"
+    permission: addonabnahme.admin

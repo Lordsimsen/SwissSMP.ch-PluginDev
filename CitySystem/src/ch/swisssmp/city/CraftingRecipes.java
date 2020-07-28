@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 
 
-public class CraftingRecipes {
+class CraftingRecipes {
 	
 	private static ShapedRecipe citizenBillRecipe;
 	
