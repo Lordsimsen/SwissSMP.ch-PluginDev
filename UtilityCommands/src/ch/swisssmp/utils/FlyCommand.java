@@ -34,7 +34,7 @@ public class FlyCommand implements CommandExecutor {
             player.sendMessage(ChatColor.AQUA + "Du bist nun beflügelt.");
         }
         if(!player.equals(sender)) sender.sendMessage(ChatColor.AQUA + "Flugmodus für " + ChatColor.DARK_PURPLE + player.getName()
-                + ChatColor.AQUA + (player.isInvulnerable()?" aktiviert." : " deaktiviert."));
+                + ChatColor.AQUA + (player.getAllowFlight() ? " aktiviert." : " deaktiviert."));
 
         return true;
     }
