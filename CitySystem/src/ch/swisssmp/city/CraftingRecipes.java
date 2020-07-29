@@ -20,7 +20,7 @@ class CraftingRecipes {
 	@SuppressWarnings({ "deprecation" })
 	private static void registerCitizenBill(){
 		ItemStack ringStack = ItemManager.createRing("METAL_RING");
-		ItemStack result = ItemManager.createCitizenBill(new CitizenBillInfo(null));
+		ItemStack result = ItemManager.createCitizenBill(new CitizenBill());
 		citizenBillRecipe = new ShapedRecipe(new NamespacedKey(CitySystemPlugin.getInstance(),"citizen_bill"), result);
 		citizenBillRecipe.setGroup("Städtesystem");
 		citizenBillRecipe.shape("epe","prp","epe");

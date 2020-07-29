@@ -34,7 +34,7 @@ class Cities {
 	}
 	
 	protected static void loadAll(){
-		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "load_cities.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_cities.php", new String[]{
 				"world="+URLEncoder.encode(Bukkit.getWorlds().get(0).getName())
 		});
 		request.onFinish(()->{

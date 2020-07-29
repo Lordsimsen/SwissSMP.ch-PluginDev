@@ -2,6 +2,7 @@ package ch.swisssmp.city;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import ch.swisssmp.utils.nbt.NBTUtil;
@@ -14,22 +15,30 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.PlayerInfo;
+import ch.swisssmp.utils.PlayerData;
 
 public class SigilRingInfo {
 	
-	private final City city;
+	private final UUID cityId;
 	private final String ring_type;
-	private PlayerInfo owner;
+	private PlayerData owner;
 	private CitizenRank rank;
 	
 	private boolean invalid = false;
 	
-	public SigilRingInfo(City city, String ring_type){
-		this.city = city;
+	public SigilRingInfo(UUID cityId, String ring_type){
+		this.cityId = cityId;
 		this.ring_type = ring_type;
 	}
-	
+
+	public City getCity(){
+		return CitySystem.getCity(cityId).orElse(null);
+	}
+
+	public Optional<Citizenship> getCitizenship(){
+		return CitySystem.getCitizenship(cityId, owner.getUniqueId());
+	}
+
 	public void apply(ItemStack itemStack){
 		if(itemStack==null) return;
 		CompoundTag nbtTag = ItemUtil.getData(itemStack);
@@ -37,6 +46,7 @@ public class SigilRingInfo {
 		nbtTag.putString("city_tool", "sigil_ring");
 		nbtTag.putString("ring_type", ring_type);
 		nbtTag.remove("customEnum");
+		City city = getCity();
 		if(city!=null) NBTUtil.set("city_id", city.getUniqueId(), nbtTag);
 		else if(nbtTag.containsKey("city_id")) nbtTag.remove("city_id");
 		if(owner!=null){
@@ -72,21 +82,18 @@ public class SigilRingInfo {
 			result.add(ChatColor.GRAY+"Eigentum von "+this.owner.getDisplayName()+(rank!=null ? "," : ""));
 			if(rank!=null){
 				String display_rank = (invalid ? "Ehemal. " : "") + rank.getDisplayName();
-				result.add(ChatColor.GRAY+display_rank+" von "+city.getName());
+				City city = getCity();
+				if(city!=null) result.add(ChatColor.GRAY+display_rank+" von "+city.getName());
 			}
 		}
 		return result;
 	}
 	
-	public City getCity(){
-		return city;
+	public void setOwner(PlayerData playerData){
+		this.owner = playerData;
 	}
 	
-	public void setOwner(PlayerInfo playerInfo){
-		this.owner = playerInfo;
-	}
-	
-	public PlayerInfo getOwner(){
+	public PlayerData getOwner(){
 		return owner;
 	}
 	
@@ -113,11 +120,11 @@ public class SigilRingInfo {
 		if(city==null) return null;
 		String ring_type = nbtTag.getString("ring_type");
 		if(ring_type==null) ring_type = "metal_ring";
-		SigilRingInfo result = new SigilRingInfo(city, ring_type);
+		SigilRingInfo result = new SigilRingInfo(cityId, ring_type);
 		if(nbtTag.containsKey("owner") && nbtTag.containsKey("owner_name")){
 			UUID owner_uuid = UUID.fromString(nbtTag.getString("owner"));
 			String owner_name = nbtTag.getString("owner_name");
-			result.setOwner(new PlayerInfo(owner_uuid, owner_name, owner_name));
+			result.setOwner(new PlayerData(owner_uuid, owner_name, owner_name));
 		}
 		if(nbtTag.containsKey("citizen_rank")){
 			result.setRank(CitizenRank.get(nbtTag.getString("citizen_rank")));

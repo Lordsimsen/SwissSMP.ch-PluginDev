@@ -62,12 +62,26 @@ public class CitySystem {
 		return Techtrees.getTechtree(id);
 	}
 
+	public static Collection<Techtree> getTechtrees(){return Techtrees.getAll();}
+
 	public static void reloadTechtrees(){
 		reloadTechtrees(null);
 	}
 
 	public static void reloadTechtrees(Runnable callback){
 		Techtrees.loadAll(callback);
+	}
+
+	public static Optional<Citizenship> getCitizenship(UUID cityId, String playerName){
+		return Citizenships.getCitizenship(cityId, playerName);
+	}
+
+	public static Optional<Citizenship> getCitizenship(UUID cityId, Player player){
+		return getCitizenship(cityId, player.getUniqueId());
+	}
+
+	public static Optional<Citizenship> getCitizenship(UUID cityId, UUID playerUid){
+		return Citizenships.getCitizenship(cityId, playerUid);
 	}
 
 	public static AddonGuide createAddonGuide(Player player, Sign sign, Addon addon){

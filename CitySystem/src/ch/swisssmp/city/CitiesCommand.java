@@ -9,7 +9,7 @@ import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import ch.swisssmp.utils.PlayerInfo;
+import ch.swisssmp.utils.PlayerData;
 import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
@@ -58,20 +58,20 @@ class CitiesCommand implements CommandExecutor{
 					return true;
 				}
 				
-				PlayerInfo owner;
+				PlayerData owner;
 				String ring_type;
 				if(args.length>3){
 					ring_type = args[3];
-					Citizen citizen = city.getCitizen(args[2]);
-					if(citizen==null){
+					Citizenship citizenship = city.getCitizenship(args[2]);
+					if(citizenship ==null){
 						sender.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Bürger "+args[2]+" nicht gefunden.");
 						return true;
 					}
-					owner = citizen.getPlayerInfo();
+					owner = citizenship.getPlayerData();
 				}
 				else{
 					ring_type = args[2];
-					owner = PlayerInfo.get(player);
+					owner = PlayerData.get(player);
 				}
 				
 				ItemStack itemStack = ItemManager.createRing(ring_type, city, owner);

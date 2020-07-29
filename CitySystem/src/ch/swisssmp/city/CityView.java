@@ -25,8 +25,8 @@ public class CityView extends CustomEditorView implements Listener {
 	protected Collection<EditorSlot> initializeEditor() {
 		Collection<EditorSlot> result = new ArrayList<EditorSlot>();
 		int index = 0;
-		for(Citizen citizen : city.getCitizens()){
-			result.add(new CitizenSlot(this,index,citizen));
+		for(Citizenship citizenship : city.getCitizenships()){
+			result.add(new CitizenSlot(this,index, citizenship));
 			index++;
 		}
 		return result;
@@ -39,7 +39,7 @@ public class CityView extends CustomEditorView implements Listener {
 
 	@Override
 	protected int getInventorySize() {
-		return Mathf.ceilToInt(city.getCitizens().size()/9f)*9;
+		return Mathf.ceilToInt(city.getCitizenships().size()/9f)*9;
 	}
 
 	public static CityView open(Player player, UUID cityId){

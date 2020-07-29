@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
-import ch.swisssmp.utils.PlayerInfo;
+import ch.swisssmp.utils.PlayerData;
 
 public class ItemManager {
 	
@@ -22,21 +22,21 @@ public class ItemManager {
 		return createRing(ringType, null, null);
 	}
 	
-	public static ItemStack createRing(String ringType, City city, PlayerInfo player){
+	public static ItemStack createRing(String ringType, City city, PlayerData player){
 		boolean isMayor = (city != null && player != null) && player.getUniqueId().equals(city.getMayor());
 		CustomItemBuilder ringBuilder = CustomItems.getCustomItemBuilder(ringType);
 		ringBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		ringBuilder.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		ringBuilder.setAttackDamage(0);
 		ItemStack ring = ringBuilder.build();
-		SigilRingInfo ringInfo = new SigilRingInfo(city,ringType);
+		SigilRingInfo ringInfo = new SigilRingInfo(city.getUniqueId(),ringType);
 		ringInfo.setOwner(player);
 		ringInfo.setRank(isMayor ? CitizenRank.MAYOR : CitizenRank.FOUNDER);
 		ringInfo.apply(ring);
 		return ring;
 	}
 	
-	public static ItemStack createCitizenBill(CitizenBillInfo billInfo){
+	public static ItemStack createCitizenBill(CitizenBill billInfo){
 		CustomItemBuilder billBuilder = CustomItems.getCustomItemBuilder("contract");
 		if(billBuilder==null) return null;
 		
@@ -62,9 +62,9 @@ public class ItemManager {
 			if(itemStack==null || itemStack.getType()!=Material.DIAMOND_SWORD) continue;
 			SigilRingInfo ringInfo = SigilRingInfo.get(itemStack);
 			if(ringInfo==null || ringInfo.getOwner()==null) continue;
-			Citizen citizen = ringInfo.getCity().getCitizen(ringInfo.getOwner().getUniqueId());
-			if(citizen !=null){
-				ringInfo.setRank(citizen.getRank());
+			Citizenship citizenship = ringInfo.getCitizenship().orElse(null);
+			if(citizenship !=null){
+				ringInfo.setRank(citizenship.getRank());
 			}
 			else {
 				ringInfo.invalidate();
@@ -76,13 +76,13 @@ public class ItemManager {
 	private static void updateCitizenBills(Inventory inventory){
 		for(ItemStack itemStack : inventory){
 			if(itemStack==null || itemStack.getType()!=Material.WOODEN_SWORD) continue;
-			CitizenBillInfo billInfo = CitizenBillInfo.get(itemStack);
-			if(billInfo==null || billInfo.getCitizen()==null || billInfo.getParent()==null) continue;
-			Citizen citizen = billInfo.getCity().getCitizen(billInfo.getCitizen().getUniqueId());
-			if(citizen !=null){
+			CitizenBill billInfo = CitizenBill.get(itemStack);
+			if(billInfo==null || billInfo.getPlayerData()==null || billInfo.getParent()==null) continue;
+			Citizenship citizenship = billInfo.getCitizenship().orElse(null);
+			if(citizenship !=null){
 				billInfo.setSignedByCitizen();
 				billInfo.setSignedByParent();
-				billInfo.setCitizenRole(citizen.getRole());
+				billInfo.setCitizenRole(citizenship.getRole());
 			}
 			else if(billInfo.isSignedByCitizen() && billInfo.isSignedByParent()){
 				billInfo.invalidate();
@@ -95,7 +95,7 @@ public class ItemManager {
 		SigilRingInfo ringInfo = SigilRingInfo.get(ring);
 		if(ringInfo==null) return null;
 		City city = ringInfo.getCity();
-		if(city==null || (!city.isCitizen(player.getUniqueId()) && !player.hasPermission("citysystem.admin"))){
+		if(city==null || (!city.isCitizen(player.getUniqueId()) && !player.hasPermission(CitySystemPermission.ADMIN))){
 			return null;
 		}
 		return city;

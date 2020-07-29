@@ -34,11 +34,10 @@ import org.bukkit.metadata.MetadataValue;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.BlockUtil;
-import ch.swisssmp.utils.PlayerInfo;
+import ch.swisssmp.utils.PlayerData;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.HTTPRequest;
-import org.bukkit.scheduler.BukkitTask;
 
 class EventListener implements Listener {
 	private static final Material INITIATOR_MATERIAL = Material.BLAZE_POWDER;
@@ -153,8 +152,8 @@ class EventListener implements Listener {
 			onDropInitiatorMaterial(event);
 			return;
 		}
-		CitizenBillInfo billInfo = CitizenBillInfo.get(event.getItemDrop().getItemStack());
-		if(billInfo!=null && billInfo.getCitizen()!=null){
+		CitizenBill billInfo = CitizenBill.get(event.getItemDrop().getItemStack());
+		if(billInfo!=null && billInfo.getPlayerData()!=null){
 			onDropCitizenBill(event, billInfo);
 		}
 	}
@@ -165,12 +164,12 @@ class EventListener implements Listener {
 		event.getItemDrop().setMetadata("player", new FixedMetadataValue(CitySystemPlugin.getInstance(),event.getPlayer().getUniqueId()));
 	}
 	
-	private void onDropCitizenBill(PlayerDropItemEvent event, CitizenBillInfo billInfo){
+	private void onDropCitizenBill(PlayerDropItemEvent event, CitizenBill billInfo){
 		City city = billInfo.getCity();
 		if(!city.isCitizen(event.getPlayer().getUniqueId())) return;
 		boolean isFounder = city.isFounder(event.getPlayer().getUniqueId());
 		boolean isMayor = city.isMayor(event.getPlayer().getUniqueId());
-		boolean isOwner = billInfo.getCitizen().getUniqueId().equals(event.getPlayer().getUniqueId());
+		boolean isOwner = billInfo.getPlayerData().getUniqueId().equals(event.getPlayer().getUniqueId());
 		if(!isFounder && !isMayor && !isOwner) return;
 		event.getItemDrop().setMetadata("player", new FixedMetadataValue(CitySystemPlugin.getInstance(),event.getPlayer().getUniqueId()));
 	}
@@ -188,8 +187,8 @@ class EventListener implements Listener {
 			item.remove();
 			return;
 		}
-		CitizenBillInfo billInfo = CitizenBillInfo.get(itemStack);
-		if(billInfo!=null && billInfo.getCitizen()!=null && billInfo.isSignedByCitizen() && billInfo.isSignedByParent()){
+		CitizenBill billInfo = CitizenBill.get(itemStack);
+		if(billInfo!=null && billInfo.getPlayerData()!=null && billInfo.isSignedByCitizen() && billInfo.isSignedByParent()){
 			handleCitizenBillDestruction(responsible, billInfo);
 			item.remove();
 		}
@@ -206,53 +205,42 @@ class EventListener implements Listener {
 			}
 			catch(Exception e){
 				e.printStackTrace();
-				continue;
 			}
 		}
 		return Bukkit.getPlayer(player_uuid);
 	}
 	
-	private void handleCitizenBillDestruction(Player responsible, CitizenBillInfo billInfo){
+	private void handleCitizenBillDestruction(Player responsible, CitizenBill billInfo){
 		City city = billInfo.getCity();
 		if(city==null) return;
-		PlayerInfo citizen = billInfo.getCitizen();
-		UUID citizen_uuid = citizen.getUniqueId();
-		if(city.isMayor(citizen_uuid)||city.isFounder(citizen_uuid)){
-			if(!responsible.getUniqueId().equals(citizen_uuid) && !city.isMayor(responsible.getUniqueId()) && !responsible.hasPermission("citysystem.admin")){
-				SwissSMPler.get(responsible).sendActionBar(ChatColor.RED+"Du kannst "+citizen.getDisplayName()+" nicht aus der Stadt entfernen.");
+		PlayerData playerData = billInfo.getPlayerData();
+		UUID citizenUid = playerData.getUniqueId();
+		Citizenship citizenship = city.getCitizenship(citizenUid).orElse(null);
+		if(citizenship==null){
+			return;
+		}
+		if(city.isMayor(citizenUid)||city.isFounder(citizenUid)){
+			if(!responsible.getUniqueId().equals(citizenUid) && !city.isMayor(responsible.getUniqueId()) && !responsible.hasPermission(CitySystemPermission.ADMIN)){
+				SwissSMPler.get(responsible).sendActionBar(ChatColor.RED+"Du kannst "+playerData.getDisplayName()+" nicht aus der Stadt entfernen.");
 				return;
 			}
-			else if(city.isMayor(citizen_uuid) && city.getCitizens().size()>1){
+			else if(city.isMayor(citizenUid) && city.getCitizenships().size()>1){
 				responsible.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Trete dein Amt als Bürgermeister ab, bevor du "+city.getName()+" verlässt.");
 				return;
 			}
 		}
-		HTTPRequest request = billInfo.getCity().removeCitizen(responsible, billInfo.getCitizen().getUniqueId());
-		if(request!=null) request.onFinish(()->{
-			sendRemoveCitizenResponse(billInfo, responsible, request.getYamlResponse());
+
+		city.removeCitizen(citizenship, (success)->{
+			if(!success){
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Konnte "+playerData.getName()+" nicht entfernen. (Systemfehler)");
+				return;
+			}
+
+			citizenship.announceCitizenshipRevoked(responsible);
+			responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GRAY + "Du hast "+playerData.getName()+" aus der Bürgerliste von " + city.getName() + " entfernt.");
+			ItemManager.updateItems();
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
 		});
-	}
-	
-	private void sendRemoveCitizenResponse(CitizenBillInfo billInfo, Player player, YamlConfiguration response){
-		boolean isOwner = player.getUniqueId().equals(billInfo.getCitizen().getUniqueId());
-		String name = billInfo.getCitizen().getName();
-		if(response!=null && response.contains("result") && response.getString("result").equals("success")){
-			if(isOwner){
-				player.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.GRAY+billInfo.getCity().getName()+" verlassen.");
-			}
-			else{
-				player.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.GRAY+"Du hast "+name+" aus der Bürgerliste von "+billInfo.getCity().getName()+" entfernt.");
-			}
-		}
-		else{
-			String result = response!=null && response.contains("result") ? response.getString("result") : "error";
-			if(result.equals("not_citizen")) return;
-			if(isOwner){
-				player.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Austritt fehlgeschlagen.");
-			}
-			else{
-				player.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Konnte "+name+" nicht entfernen.");
-			}
-		}
 	}
 }

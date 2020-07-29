@@ -25,7 +25,7 @@ import org.bukkit.inventory.meta.BookMeta.Generation;
 import org.bukkit.util.BlockVector;
 
 import ch.swisssmp.city.Cities;
-import ch.swisssmp.city.Citizen;
+import ch.swisssmp.city.Citizenship;
 import ch.swisssmp.city.City;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.livemap_render_api.LivemapView;
@@ -162,8 +162,8 @@ public class CityMapDisplay {
 		int remainingLines = 7;
 		int maxLinesPerPage = 14;
 		for(City city : cities) {
-			Collection<Citizen> citizens = city.getCitizens();
-			Optional<Citizen> mayor = citizens.stream().filter(c->c.getUniqueId().equals(city.getMayor())).findAny();
+			Collection<Citizenship> citizenships = city.getCitizenships();
+			Optional<Citizenship> mayor = citizenships.stream().filter(c->c.getUniqueId().equals(city.getMayor())).findAny();
 			String cityNameString = city.getName();
 			if(cityNameString.length()>19) {
 				cityNameString = cityNameString.substring(0,17)+"..";
@@ -173,7 +173,7 @@ public class CityMapDisplay {
 					.color(ChatColor.BLACK)
 					.hoverEvent(HoverEvent.showText(
 						new RawText(city.getName()+"\n").color(ChatColor.AQUA),
-						new RawText(citizens.size()+" Bürger\n").color(ChatColor.GRAY),
+						new RawText(citizenships.size()+" Bürger\n").color(ChatColor.GRAY),
 						new RawText("Bürgermeister:\n"),
 						new RawText(mayor.isPresent() ? mayor.get().getDisplayName() : "unbekannt").color(ChatColor.GRAY)
 					))

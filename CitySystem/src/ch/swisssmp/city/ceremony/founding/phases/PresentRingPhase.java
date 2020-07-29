@@ -18,8 +18,7 @@ import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
-import ch.swisssmp.utils.PlayerInfo;
-import ch.swisssmp.utils.YamlConfiguration;
+import ch.swisssmp.utils.PlayerData;
 import ch.swisssmp.webcore.HTTPRequest;
 
 public class PresentRingPhase extends Phase {
@@ -120,7 +119,7 @@ public class PresentRingPhase extends Phase {
 	
 	private void giveRings(String ringType, City city){
 		for(Player player : this.ceremony.getPlayers()){
-			ItemStack ring = ItemManager.createRing(ringType, city, PlayerInfo.get(player));
+			ItemStack ring = ItemManager.createRing(ringType, city, PlayerData.get(player));
 			if(player.getInventory().firstEmpty()<0){
 				player.getWorld().dropItem(player.getEyeLocation(), ring);
 				return;

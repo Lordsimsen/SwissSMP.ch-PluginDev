@@ -4,7 +4,7 @@ api-version: 1.13
 name: CitySystem
 authors: [detig_iii,WhiteGuggi]
 description: Erlaubt Spielern ingame Verwaltung ihrer Städte
-depend: [SwissSMPUtils,WebCore,CustomItems,CustomEditorAPI,NPCs,Ceremonies,RawTextBuilderAPI]
+depend: [SwissSMPUtils,WebCore,CustomItems,CustomEditorAPI,NPCs,Ceremonies,RawTextBuilderAPI,Zones]
 permissions:
   citysystem.found:
     description: Erlaubt Gründung einer neuen Stadt
@@ -36,8 +36,16 @@ commands:
   addon:
     description: Hauptbefehl zur Verwaltung von Addons
     usage: "Verwendung: /<command> <subcommand> [Argumente]"
-    permission: addonabnahme.admin
+    permission: citysystem.admin
   addon reload:
     description: Aktualisiert Guides
     usage: "Verwendung: /<command> <subcommand>"
-    permission: addonabnahme.admin
+    permission: citysystem.admin
+  techtree:
+    description: Hauptbefehl zur Verwaltung von Techtrees
+    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    permission: citysystem.admin
+  techtree reload:
+    description: Aktualisiert Techtrees
+    usage: "Verwendung: /<command> <subcommand>"
+    permission: citysystem.admin

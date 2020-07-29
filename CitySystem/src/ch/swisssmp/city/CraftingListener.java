@@ -3,6 +3,7 @@ package ch.swisssmp.city;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,8 +21,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.PlayerInfo;
-import ch.swisssmp.webcore.HTTPRequest;
+import ch.swisssmp.utils.PlayerData;
 
 class CraftingListener implements Listener {
 	
@@ -52,7 +52,7 @@ class CraftingListener implements Listener {
 			inventory.setResult(null);
 			return;
 		}
-		ItemStack bill = ItemManager.createCitizenBill(new CitizenBillInfo(city));
+		ItemStack bill = ItemManager.createCitizenBill(new CitizenBill(city));
 		inventory.setResult(bill);
 	}
 	
@@ -71,22 +71,22 @@ class CraftingListener implements Listener {
 	
 	private void onEditCitizenBill(PrepareAnvilEvent event){
 		ItemStack left = event.getInventory().getItem(0);
-		CitizenBillInfo billInfo = CitizenBillInfo.get(left);
+		CitizenBill billInfo = CitizenBill.get(left);
 		if(billInfo==null){
 			event.setResult(null);
 			return;
 		}
 		
 		City city = billInfo.getCity();
-		UUID player_uuid = event.getView().getPlayer().getUniqueId();
-		if(!event.getView().getPlayer().hasPermission("citysystem.admin") && (!city.isCitizen(player_uuid) || (!city.isFounder(player_uuid) && !city.isMayor(player_uuid)))){
+		UUID playerUid = event.getView().getPlayer().getUniqueId();
+		if(!event.getView().getPlayer().hasPermission(CitySystemPermission.ADMIN) && (!city.isCitizen(playerUid) || (!city.isFounder(playerUid) && !city.isMayor(playerUid)))){
 			event.setResult(null);
 			return;
 		}
 		
 		String renameText = event.getInventory().getRenameText();
-		Citizen citizen = city.getCitizen(renameText);
-		if(citizen ==null && billInfo.getCitizen()==null){
+		Citizenship citizenship = city.getCitizenship(renameText).orElse(null);
+		if(citizenship ==null && billInfo.getPlayerData()==null){
 			//neither existing citizen nor existing assignment -> create new citizen bill
 			Player player = Bukkit.getPlayer(renameText);
 			if(player==null){
@@ -97,18 +97,18 @@ class CraftingListener implements Listener {
 				event.setResult(null);
 				return;
 			}
-			billInfo.setCitizen(PlayerInfo.get(player));
-			billInfo.setParent(PlayerInfo.get((Player)event.getView().getPlayer()));
+			billInfo.setPlayerData(PlayerData.get(player));
+			billInfo.setParent(PlayerData.get((Player)event.getView().getPlayer()));
 		}
-		else if(citizen !=null && billInfo.getCitizen()==null){
+		else if(citizenship !=null && billInfo.getPlayerData()==null){
 			//existing citizen, no assignment -> recreate citizen bill
-			billInfo.setCitizen(citizen.getPlayerInfo());
-			billInfo.setParent(city.getCitizen(citizen.getParent()).getPlayerInfo());
-			billInfo.setCitizenRole(citizen.getRole());
+			billInfo.setPlayerData(citizenship.getPlayerData());
+			city.getCitizenship(citizenship.getParent()).ifPresent(parentCitizenship -> billInfo.setParent(parentCitizenship.getPlayerData()));
+			billInfo.setCitizenRole(citizenship.getRole());
 			billInfo.setSignedByCitizen();
 			billInfo.setSignedByParent();
 		}
-		else if(billInfo.getCitizen()!=null){
+		else if(billInfo.getPlayerData()!=null){
 			//text does not belong to a citizen, but bill is linked to player -> assign role
 			billInfo.setCitizenRole(renameText);
 		}
@@ -129,29 +129,56 @@ class CraftingListener implements Listener {
 		if(result==null){
 			return;
 		}
-		CitizenBillInfo billInfo = CitizenBillInfo.get(result);
-		if(billInfo==null){
+		CitizenBill bill = CitizenBill.get(result);
+		if(bill==null){
 			return;
 		}
-		if(billInfo.getCitizen()==null){
+		if(bill.getPlayerData()==null){
 			event.setCancelled(true);
 		}
-		if(billInfo.isSignedByCitizen() && billInfo.isSignedByParent()){
-			Citizen citizen = billInfo.getCity().getCitizen(billInfo.getCitizen().getUniqueId());
-			if(citizen==null){
+		if(bill.isSignedByCitizen() && bill.isSignedByParent()){
+			Citizenship citizenship = bill.getCitizenship().orElse(null);
+			if(citizenship == null){
 				event.setCancelled(true);
 				return;
 			}
-			HTTPRequest request = billInfo.getCity().setCitizenRole((Player) event.getView().getPlayer(), citizen.getUniqueId(), billInfo.getCitizenRole());
-			if(request==null){
+			boolean success = onCitizenRoleChanged((Player) event.getView().getPlayer(), bill, citizenship, result);
+			if(!success){
 				event.setCancelled(true);
-				return;
 			}
-			request.onFinish(()->{
-				billInfo.setCitizenRole(citizen.getRole());
-				billInfo.apply(result);
-			});
 		}
+	}
+
+	private boolean onCitizenRoleChanged(Player responsible, CitizenBill bill, Citizenship citizenship, ItemStack result){
+		City city = bill.getCity();
+		if (!city.isCitizen(responsible) && !responsible.hasPermission(CitySystemPermission.ADMIN)) return false;
+		if(bill.getRole()!=null && bill.getRole().equalsIgnoreCase("bürgermeister")){
+			if(!city.isMayor(responsible) && !responsible.hasPermission(CitySystemPermission.ADMIN)){
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Nur der Bürgermeister kann diesen Titel verleihen.");
+				return false;
+			}
+		}
+		String previousRole = citizenship.getRole();
+		citizenship.setRole(bill.getRole());
+		citizenship.save((success)->{
+			if(success){
+				if (bill.getRole().equalsIgnoreCase("bürgermeister")) {
+					city.setMayor(citizenship.getUniqueId());
+				}
+				citizenship.announceRoleChange(responsible, previousRole);
+				ItemManager.updateItems();
+			}
+			else{
+				// revert role change
+				citizenship.setRole(previousRole);
+				bill.setCitizenRole(previousRole);
+				bill.apply(result);
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Konnte den Titel nicht setzen. (Systemfehler)");
+			}
+		});
+
+		return true;
+		// billInfo.getCity().setCitizenRole((Player) event.getView().getPlayer(), citizenship.getUniqueId(), billInfo.getCitizenRole());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)

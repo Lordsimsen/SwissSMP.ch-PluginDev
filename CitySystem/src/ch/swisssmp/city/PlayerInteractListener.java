@@ -39,24 +39,25 @@ class PlayerInteractListener implements Listener {
 			if(other==null||other.getType()!=Material.FEATHER) return;
 			int inkSlot = inv.first(Material.INK_SAC);
 			if(inkSlot<0) return;
-			CitizenBillInfo billInfo = CitizenBillInfo.get(itemStack);
+			CitizenBill billInfo = CitizenBill.get(itemStack);
 			if(billInfo==null) return;
-			if(billInfo.getCitizen()==null || billInfo.getParent()==null) return;
+			if(billInfo.getPlayerData()==null || billInfo.getParent()==null) return;
+			City city = billInfo.getCity();
 			Player player = event.getPlayer();
 			Player otherPlayer;
-			if(!billInfo.isSignedByCitizen() && billInfo.getCitizen().getUniqueId().equals(player.getUniqueId())){
+			if(!billInfo.isSignedByCitizen() && billInfo.getPlayerData().getUniqueId().equals(player.getUniqueId())){
 				billInfo.setSignedByCitizen();
 				otherPlayer = null;
 			}
 			else if(!billInfo.isSignedByCitizen() && billInfo.getParent().getUniqueId().equals(player.getUniqueId())){
-				SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW+billInfo.getCitizen().getName()+" muss zuerst unterschreiben.");
+				SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW+billInfo.getPlayerData().getName()+" muss zuerst unterschreiben.");
 				return;
 			}
 			else if(billInfo.isSignedByCitizen() && !billInfo.isSignedByParent() && 
-					(billInfo.getParent().getUniqueId().equals(player.getUniqueId()) || player.hasPermission("citysystem.admin"))){
-				otherPlayer = Bukkit.getPlayer(billInfo.getCitizen().getUniqueId());
+					(billInfo.getParent().getUniqueId().equals(player.getUniqueId()) || player.hasPermission(CitySystemPermission.ADMIN))){
+				otherPlayer = Bukkit.getPlayer(billInfo.getPlayerData().getUniqueId());
 				if(otherPlayer==null){
-					SwissSMPler.get(player).sendActionBar(ChatColor.RED+billInfo.getCitizen().getName()+" muss anwesend sein.");
+					SwissSMPler.get(player).sendActionBar(ChatColor.RED+billInfo.getPlayerData().getName()+" muss anwesend sein.");
 					return;
 				}
 				billInfo.setSignedByParent();
@@ -66,12 +67,8 @@ class PlayerInteractListener implements Listener {
 			}
 			ItemStack ink = inv.getItem(inkSlot);
 			if(billInfo.isSignedByCitizen() && billInfo.isSignedByParent() && otherPlayer!=null){
-				HTTPRequest request = billInfo.getCity().addCitizen(otherPlayer, player, billInfo.getCitizenRole());
-				if(request==null){
-					return;
-				}
-				request.onFinish(()->{
-					if(billInfo.getCity().isCitizen(billInfo.getCitizen().getUniqueId())){
+				city.addCitizen(otherPlayer, player, billInfo.getRole(), (success)->{
+					if(success){
 						itemStack.setAmount(2);
 						ink.setAmount(ink.getAmount()-1);
 						billInfo.apply(itemStack);

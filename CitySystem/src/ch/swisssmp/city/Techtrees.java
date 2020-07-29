@@ -5,9 +5,7 @@ import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 class Techtrees {
     private static final Set<Techtree> techtrees = new HashSet<>();
@@ -43,4 +41,14 @@ class Techtrees {
     protected static void unloadAll(){
         techtrees.clear();
     }
+
+    protected static void reloadAll(){
+        reloadAll(null);
+    }
+
+    protected static void reloadAll(Runnable callback){
+        loadAll(callback);
+    }
+
+    protected static Collection<Techtree> getAll(){return Collections.unmodifiableSet(techtrees);}
 }

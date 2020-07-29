@@ -1,6 +1,9 @@
 package ch.swisssmp.city;
 
 import ch.swisssmp.utils.JsonUtil;
+import ch.swisssmp.utils.URLEncoder;
+import ch.swisssmp.webcore.DataSource;
+import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,17 +12,13 @@ import java.util.*;
 
 public class Techtree {
     private final String id;
-    private final String name;
-    private final String addonDetailUrl;
-    private final List<CityLevel> levels;
-    private final Set<AddonType> addonTypes;
+    private String name;
+    private String addonDetailUrl;
+    private List<CityLevel> levels;
+    private Set<AddonType> addonTypes;
 
-    private Techtree(String id, String name, String addonDetailUrl, List<CityLevel> levels, Set<AddonType> addonTypes){
+    private Techtree(String id){
         this.id = id;
-        this.name = name;
-        this.addonDetailUrl = addonDetailUrl;
-        this.levels = new ArrayList<>(levels);
-        this.addonTypes = new HashSet<>(addonTypes);
     }
 
     public String getId(){
@@ -109,12 +108,26 @@ public class Techtree {
         }
     }
 
-    protected static Optional<Techtree> load(JsonObject json){
-        if(json==null) return Optional.empty();
-        String id = JsonUtil.getString("techtree_id", json);
-        String name = JsonUtil.getString("name", json);
-        if(id==null || name==null) return Optional.empty();
-        String addonDetailUrl = JsonUtil.getString("addon_detail_url", json);
+    public void reload(){
+        reload(null);
+    }
+
+    public void reload(Runnable callback){
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_techtree.php", new String[]{
+                "techtree_id="+ URLEncoder.encode(id)
+        });
+        request.onFinish(()->{
+            JsonObject json = request.getJsonResponse();
+            if(json!=null && json.has("techtree")){
+                loadData(json.getAsJsonObject("techtree"));
+            }
+            if(callback!=null) callback.run();
+        });
+    }
+
+    private void loadData(JsonObject json){
+        this.name = JsonUtil.getString("name", json);
+        this.addonDetailUrl = JsonUtil.getString("addon_detail_url", json);
         List<CityLevel> levels = new ArrayList<>();
         if(json.has("levels")){
             for(JsonElement element : json.getAsJsonArray("levels")){
@@ -124,6 +137,7 @@ public class Techtree {
                 levels.add(level);
             }
         }
+        this.levels = levels;
         Set<AddonType> addons = new HashSet<>();
         JsonArray addonsSection = json.has("addons") ? json.getAsJsonArray("addons") : null;
         if(addonsSection!=null){
@@ -135,6 +149,17 @@ public class Techtree {
                 addons.add(addonType);
             }
         }
-        return Optional.of(new Techtree(id, name, addonDetailUrl, levels, addons));
+        this.addonTypes = addons;
+
+        loadIcons();
+    }
+
+    protected static Optional<Techtree> load(JsonObject json){
+        if(json==null) return Optional.empty();
+        String id = JsonUtil.getString("techtree_id", json);
+        if(id==null) return Optional.empty();
+        Techtree techtree = new Techtree(id);
+        techtree.loadData(json);
+        return Optional.of(techtree);
     }
 }
