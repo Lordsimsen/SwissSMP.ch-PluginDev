@@ -4,6 +4,7 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 
 import java.util.*;
 
@@ -31,7 +32,10 @@ class Techtrees {
         for(JsonElement element : json.getAsJsonArray("techtrees")){
             if(!element.isJsonObject()) continue;
             Techtree techtree = Techtree.load(element.getAsJsonObject()).orElse(null);
-            if(techtree==null) continue;
+            if(techtree==null){
+                Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" Konnte Techtree nicht laden:\n"+element.toString());
+                continue;
+            }
             techtrees.add(techtree);
         }
 

@@ -29,7 +29,7 @@ public class ItemManager {
 		ringBuilder.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		ringBuilder.setAttackDamage(0);
 		ItemStack ring = ringBuilder.build();
-		SigilRingInfo ringInfo = new SigilRingInfo(city.getUniqueId(),ringType);
+		SigilRingInfo ringInfo = new SigilRingInfo(city!=null ? city.getUniqueId() : null,ringType);
 		ringInfo.setOwner(player);
 		ringInfo.setRank(isMayor ? CitizenRank.MAYOR : CitizenRank.FOUNDER);
 		ringInfo.apply(ring);

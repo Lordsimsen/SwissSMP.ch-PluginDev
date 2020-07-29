@@ -4,6 +4,7 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,7 +60,10 @@ class Citizenships {
         for(JsonElement element : json.getAsJsonArray("citizenships")){
             if(!element.isJsonObject()) continue;
             Citizenship citizenship = Citizenship.get(element.getAsJsonObject()).orElse(null);
-            if(citizenship==null) continue;
+            if(citizenship==null){
+                Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" Konnte Bürgerschaft nicht laden:\n"+element.toString());
+                continue;
+            }
             citizenships.add(citizenship);
         }
 

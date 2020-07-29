@@ -120,7 +120,7 @@ public class AddonType {
                 : new String[0];
         this.unlockTrades = AddonUnlockTrades.get(json);
         this.autoActivate = JsonUtil.getBool("auto_activate", json);
-        this.configuration = json.getAsJsonObject("configuration");
+        this.configuration = json.has("configuration") && json.get("configuration").isJsonObject() ? json.getAsJsonObject("configuration") : new JsonObject();
     }
 
     protected static Optional<AddonType> load(JsonObject json) {

@@ -34,9 +34,7 @@ class Cities {
 	}
 	
 	protected static void loadAll(){
-		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIES, new String[]{
-				"world="+URLEncoder.encode(Bukkit.getWorlds().get(0).getName())
-		});
+		HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIES);
 		request.onFinish(()->{
 			loadAll(request.getJsonResponse());
 		});
@@ -49,7 +47,10 @@ class Cities {
 		for(JsonElement element : citiesArray){
 			JsonObject citySection = element.getAsJsonObject();
 			City city = City.load(citySection).orElse(null);
-			if(city==null) continue;
+			if(city==null){
+				Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" Konnte Stadt nicht laden:\n"+element.toString());
+				continue;
+			}
 			cities.add(city);
 		}
 	}

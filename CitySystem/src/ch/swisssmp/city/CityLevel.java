@@ -63,7 +63,7 @@ public class CityLevel {
         String id = JsonUtil.getString("id", json);
         String name = JsonUtil.getString("name", json);
         if(id==null || name==null) return Optional.empty();
-        JsonObject configuration = json.getAsJsonObject("configuration");
+        JsonObject configuration = json.has("configuration") && json.get("configuration").isJsonObject() ? json.getAsJsonObject("configuration") : new JsonObject();
         int minPopulation = configuration.has("population") ? JsonUtil.getInt("population", configuration) : 0;
         int minAddonCount = configuration.has("addon_count") ? JsonUtil.getInt("addon_count", configuration) : 0;
         String[] requiredAddons = configuration.has("addons") ? JsonUtil.getStringList("addons", configuration).toArray(new String[0]) : new String[0];
