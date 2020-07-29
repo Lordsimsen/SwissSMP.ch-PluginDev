@@ -32,7 +32,6 @@ public class CitiesView extends CustomEditorView {
 
 	public static CitiesView open(Player player){
 		Collection<City> cities = Cities.getAll();
-		if(cities.size()==0) return null;
 		CitiesView result = new CitiesView(player, cities);
 		result.open();
 		return result;
@@ -45,6 +44,6 @@ public class CitiesView extends CustomEditorView {
 
 	@Override
 	protected int getInventorySize() {
-		return Mathf.ceilToInt(cities.size()/9f)*9;
+		return Math.max(1, Mathf.ceilToInt(cities.size()/9f))*9;
 	}
 }

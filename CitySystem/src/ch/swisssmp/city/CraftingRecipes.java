@@ -16,6 +16,10 @@ class CraftingRecipes {
 		registerCitizenBill();
 		System.out.println("Registriere Rezept!");
 	}
+
+	protected static void unregister(){
+		if(citizenBillRecipe!=null) Bukkit.removeRecipe(citizenBillRecipe.getKey());
+	}
 	
 	@SuppressWarnings({ "deprecation" })
 	private static void registerCitizenBill(){

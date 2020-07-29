@@ -16,8 +16,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JsonUtil {
@@ -71,6 +73,9 @@ public class JsonUtil {
         try {
             return idString != null ? UUID.fromString(idString) : null;
         } catch (Exception e) {
+            if(idString!=null && idString.length()>0){
+                Bukkit.getLogger().warning("[JsonUtil] Konnte ungültige UUID nicht lesen: "+idString);
+            }
             return null;
         }
     }
@@ -134,7 +139,13 @@ public class JsonUtil {
     }
 
     public static List<String> getStringList(String key, JsonObject json){
-        return json.has(key) ? getStringList(json.getAsJsonArray(key)) : null;
+        if(!json.has(key)) return Collections.emptyList();
+        JsonElement element = json.get(key);
+        if(element.isJsonArray()) getStringList(element.getAsJsonArray());
+        if(element.isJsonObject()) return element.getAsJsonObject().entrySet().stream().map(e->e.getValue().toString()).collect(Collectors.toList());
+        String stringValue = element.toString();
+        if(stringValue.equals("[]") || stringValue.equals("{}")) return Collections.emptyList();
+        return Collections.singletonList(element.toString());
     }
 
     public static List<String> getStringList(JsonArray json){

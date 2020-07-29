@@ -23,7 +23,7 @@ public class AddonUnlockTrade {
     private AddonUnlockTrade(UnlockType type, JsonObject json) {
         this.type = type;
         this.description = JsonUtil.getString("description", json);
-        JsonArray itemsArray = json.has("items") ? json.getAsJsonArray("items") : null;
+        JsonArray itemsArray = json.has("items") && json.get("items").isJsonArray() ? json.getAsJsonArray("items") : null;
         if (itemsArray != null) {
             for (JsonElement element : itemsArray) {
                 if (!element.isJsonObject()) continue;

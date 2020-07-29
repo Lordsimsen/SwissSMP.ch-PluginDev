@@ -18,7 +18,7 @@ public class CitySystemPlugin extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents(new PlayerInteractListener(), plugin);
 		this.getCommand("cities").setExecutor(new CitiesCommand());
 		this.getCommand("addon").setExecutor(new AddonCommand());
-		this.getCommand("techtree").setExecutor(new AddonCommand());
+		this.getCommand("techtree").setExecutor(new TechtreeCommand());
 		Techtrees.loadAll();
 		Cities.loadAll();
 		Citizenships.loadAll();
@@ -34,6 +34,7 @@ public class CitySystemPlugin extends JavaPlugin{
 		Citizenships.unloadAll();
 		Cities.unloadAll();
 		Techtrees.unloadAll();
+		CraftingRecipes.unregister();
 		Bukkit.getScheduler().cancelTasks(this);
 		Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
 	}

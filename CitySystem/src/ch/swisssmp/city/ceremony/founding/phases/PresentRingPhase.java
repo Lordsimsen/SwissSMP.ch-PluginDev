@@ -37,12 +37,7 @@ public class PresentRingPhase extends Phase {
 	@Override
 	public void begin(){
 		super.begin();
-//		this.createCity();
-		String title = "Gratulation!";
-		String subtitle = ChatColor.YELLOW+"Du hast die Stadt "+ChatColor.LIGHT_PURPLE+ceremony.getCityName()+ChatColor.YELLOW+" gegründet.";
-		this.announceTitleLong(title, subtitle);
-		
-		this.ceremony.broadcast(ChatColor.GREEN+"Du bist nun Gründer von "+ceremony.getCityName()+"!");
+		this.createCity();
 		playMusicFinale();
 	}
 	
@@ -70,6 +65,12 @@ public class PresentRingPhase extends Phase {
 			ceremony.cancel();
 			return;
 		}
+
+		String title = "Gratulation!";
+		String subtitle = ChatColor.YELLOW+"Du hast die Stadt "+ChatColor.LIGHT_PURPLE+ceremony.getCityName()+ChatColor.YELLOW+" gegründet.";
+		this.announceTitleLong(title, subtitle);
+
+		this.ceremony.broadcast(ChatColor.GREEN+"Du bist nun Gründer von "+ceremony.getCityName()+"!");
 		
 		String playersString = "";
 		List<Player> participants = ceremony.getPlayers();

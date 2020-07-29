@@ -7,6 +7,7 @@ import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 
 import java.util.*;
 
@@ -145,7 +146,10 @@ public class Techtree {
                 if(!element.isJsonObject()) continue;
                 JsonObject addonSection = element.getAsJsonObject();
                 AddonType addonType = AddonType.load(addonSection).orElse(null);
-                if(addonType==null) continue;
+                if(addonType==null){
+                    Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" Konnte AddonType vom Techtree "+id+" nicht laden:\n"+element.toString());
+                    continue;
+                }
                 addons.add(addonType);
             }
         }

@@ -4,6 +4,7 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,7 +52,10 @@ public class Addons {
         for(JsonElement element : json.getAsJsonArray("addons")){
             if(!element.isJsonObject()) continue;
             Addon addon = Addon.load(element.getAsJsonObject()).orElse(null);
-            if(addon==null) continue;
+            if(addon==null){
+                Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" Konnte Addon nicht laden:\n"+element.toString());
+                continue;
+            }
             addons.add(addon);
         }
 

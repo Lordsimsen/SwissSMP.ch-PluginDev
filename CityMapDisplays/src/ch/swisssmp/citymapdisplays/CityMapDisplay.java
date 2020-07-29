@@ -24,7 +24,6 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
 import org.bukkit.util.BlockVector;
 
-import ch.swisssmp.city.Cities;
 import ch.swisssmp.city.Citizenship;
 import ch.swisssmp.city.City;
 import ch.swisssmp.customitems.CustomItemBuilder;
@@ -89,7 +88,7 @@ public class CityMapDisplay {
 	
 	public void applyCity(City city) {
 		HTTPRequest request = DataSource.getResponse(CityMapDisplaysPlugin.getInstance(), "city_region.php", new String[] {
-				"city_id="+city.getId()
+				"city_id="+city.getUniqueId()
 		});
 		request.onFinish(()->{
 			YamlConfiguration yamlConfiguration = request.getYamlResponse();
@@ -127,7 +126,7 @@ public class CityMapDisplay {
 		}
 
 		CustomPaintings.replace(uid.toString(), file);
-		this.currentCityId = city.getId();
+		this.currentCityId = city.getUniqueId();
 		CityMapDisplays.save();
 	}
 	
