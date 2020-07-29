@@ -141,7 +141,7 @@ public class JsonUtil {
     public static List<String> getStringList(String key, JsonObject json){
         if(!json.has(key)) return Collections.emptyList();
         JsonElement element = json.get(key);
-        if(element.isJsonArray()) getStringList(element.getAsJsonArray());
+        if(element.isJsonArray()) return getStringList(element.getAsJsonArray());
         if(element.isJsonObject()) return element.getAsJsonObject().entrySet().stream().map(e->e.getValue().toString()).collect(Collectors.toList());
         String stringValue = element.toString();
         if(stringValue.equals("[]") || stringValue.equals("{}")) return Collections.emptyList();
