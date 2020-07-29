@@ -28,14 +28,16 @@ public class FlyCommand implements CommandExecutor {
         }
         if (player.getAllowFlight()) {
             player.setAllowFlight(false);
-            player.sendMessage(ChatColor.AQUA + "Du hast deine Flügel verloren.");
+            player.sendMessage(ChatColor.AQUA + "Flugmodus deaktiviert.");
         } else {
             player.setAllowFlight(true);
-            player.sendMessage(ChatColor.AQUA + "Du bist nun beflügelt.");
+            player.sendMessage(ChatColor.AQUA + "Flugmodus aktiviert.");
         }
-        if(!player.equals(sender)) sender.sendMessage(ChatColor.AQUA + "Flugmodus für " + ChatColor.DARK_PURPLE + player.getName()
-                + ChatColor.AQUA + (player.getAllowFlight() ? " aktiviert." : " deaktiviert."));
-
+        if(!player.equals(sender)) {
+            sender.sendMessage(ChatColor.AQUA + "Flugmodus für " + ChatColor.DARK_PURPLE + player.getName()
+                    + ChatColor.AQUA + (player.getAllowFlight() ? " aktiviert." : " deaktiviert.");
+        }
+        
         return true;
     }
 }
