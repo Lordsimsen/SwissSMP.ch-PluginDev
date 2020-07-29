@@ -61,19 +61,16 @@ public class PresentRingPhase extends Phase {
 		String ringType = ceremony.getRingType();
 		Block origin = ceremony.getFire();
 		long time = origin.getWorld().getTime();
-		HTTPRequest request = CitySystem.createCity(name, mayor, founders, ringType, origin, time);
-		request.onFinish(()->{
-			sendFoundingFeedback(request.getJsonResponse());
-		});
+		CitySystem.createCity(name, mayor, founders, ringType, origin, time, this::sendFoundingFeedback);
 	}
 	
-	private void sendFoundingFeedback(JsonObject json){
-		if(json==null || !json.has("city")){
+	private void sendFoundingFeedback(City city){
+		if(city==null){
 			ceremony.broadcast(ChatColor.RED+"Es ist etwas §cschiefgelaufen und die §cStadt konnte nicht §cgegründet werden.§c §cBitte kontaktiert §cdie §cSpielleitung.");
 			ceremony.cancel();
 			return;
 		}
-		City city = CitySystem.loadCity(json.getAsJsonObject("city")).orElse(null);
+		
 		String playersString = "";
 		List<Player> participants = ceremony.getPlayers();
 		for(int i = 0; i < participants.size(); i++){

@@ -1,6 +1,7 @@
 package ch.swisssmp.city;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import ch.swisssmp.city.guides.AddonGuide;
 import ch.swisssmp.npc.NPCInstance;
@@ -19,22 +20,8 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
 public class CitySystem {
-	public static HTTPRequest createCity(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time){
-		List<String> founderNames = new ArrayList<String>();
-		for(Player player : founders){
-			founderNames.add("founders[]="+player.getUniqueId().toString());
-		}
-		return DataSource.getResponse(CitySystemPlugin.getInstance(), "create_city.php", new String[]{
-				"name="+URLEncoder.encode(name),
-				"mayor="+mayor.getUniqueId().toString(),
-				"world="+URLEncoder.encode(origin.getWorld().getName()),
-				"place[x]="+origin.getX(),
-				"place[y]="+origin.getY(),
-				"place[z]="+origin.getZ(),
-				"time="+time,
-				"ring="+URLEncoder.encode(ringType),
-				String.join("&", founderNames)
-		});
+	public static void createCity(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time, Consumer<City> callback){
+		City.create(name, mayor, founders, ringType, origin, time, callback);
 	}
 
 	public static Optional<City> findCity(String key){
@@ -52,10 +39,6 @@ public class CitySystem {
 
 	public static Collection<City> getCities(){
 		return Cities.getAll();
-	}
-
-	public static Optional<City> loadCity(JsonObject json){
-		return Cities.load(json);
 	}
 
 	public static Optional<Techtree> getTechtree(String id){

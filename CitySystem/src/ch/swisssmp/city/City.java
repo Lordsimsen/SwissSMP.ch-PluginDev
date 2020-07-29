@@ -8,6 +8,7 @@ import ch.swisssmp.utils.*;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import ch.swisssmp.webcore.DataSource;
@@ -264,5 +265,31 @@ public class City {
         City city = new City(uid, techtreeId);
         city.loadData(json);
         return Optional.of(city);
+    }
+
+    protected static void create(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time, Consumer<City> callback){
+        List<String> founderNames = new ArrayList<String>();
+        for(Player player : founders){
+            founderNames.add("founders[]="+player.getUniqueId().toString());
+        }
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "create_city.php", new String[]{
+                "name="+URLEncoder.encode(name),
+                "mayor="+mayor.getUniqueId().toString(),
+                "world="+URLEncoder.encode(origin.getWorld().getName()),
+                "place[x]="+origin.getX(),
+                "place[y]="+origin.getY(),
+                "place[z]="+origin.getZ(),
+                "time="+time,
+                "ring="+URLEncoder.encode(ringType),
+                String.join("&", founderNames)
+        });
+        request.onFinish(()->{
+            JsonObject json = request.getJsonResponse();
+            boolean success = json!=null && JsonUtil.getBool("success", json);
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null) Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+            City city = json!=null && success && json.has("city") ? load(json.getAsJsonObject("city")).orElse(null) : null;
+            callback.accept(city);
+        });
     }
 }

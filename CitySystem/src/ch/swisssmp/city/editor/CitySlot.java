@@ -38,8 +38,7 @@ public class CitySlot extends ButtonSlot {
 	@Override
 	protected List<String> getNormalDescription() {
 		List<String> result = new ArrayList<String>();
-		Citizenship mayorInfo = city.getCitizenship(city.getMayor());
-		if(mayorInfo!=null) result.add("Bürgermeister: "+mayorInfo.getDisplayName());
+		city.getCitizenship(city.getMayor()).ifPresent(mayorInfo -> result.add("Bürgermeister: " + mayorInfo.getDisplayName()));
 		Collection<Citizenship> citizenships = city.getCitizenships();
 		result.add("Bürger:");
 		int limit = 5;
