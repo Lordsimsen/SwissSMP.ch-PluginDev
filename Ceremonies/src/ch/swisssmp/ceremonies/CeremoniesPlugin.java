@@ -21,7 +21,7 @@ public class CeremoniesPlugin extends JavaPlugin {
         Bukkit.getLogger().info(getDescription().getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
     }
 
-    public String getPrefix(){
+    public static String getPrefix(){
         return "[" + ChatColor.GOLD + "Ceremonies" + ChatColor.RESET + "]";
     }
 }

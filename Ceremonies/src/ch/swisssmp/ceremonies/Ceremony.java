@@ -1,7 +1,14 @@
 package ch.swisssmp.ceremonies;
 
+import ch.swisssmp.text.ClickEvent;
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
+import ch.swisssmp.text.RawText;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -18,8 +25,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Function;
 
 public abstract class Ceremony implements Listener, Runnable {
 
@@ -28,7 +37,7 @@ public abstract class Ceremony implements Listener, Runnable {
 	private BukkitTask task;
 	private Phase current;
 	
-	private HashMap<UUID,Spectator> spectators = new HashMap<UUID,Spectator>();
+	private final HashMap<UUID,Spectator> spectators = new HashMap<UUID,Spectator>();
 
 	public Ceremony(JavaPlugin plugin){
 		this.plugin = plugin;
@@ -78,7 +87,7 @@ public abstract class Ceremony implements Listener, Runnable {
 		if(this.task!=null){
 			this.task.cancel();
 		}
-		if(this.current!=null && !this.current.isCompleted()){
+		if(this.current!=null && !this.current.isCompleted() && !this.current.isCancelled()){
 			this.current.cancel();
 			this.current.finish();
 		}
@@ -94,6 +103,22 @@ public abstract class Ceremony implements Listener, Runnable {
 		}
 		this.current = phase;
 		phase.begin();
+	}
+
+	public void broadcastSpectatorCommand(RawBase message, String key, Function<Player,Boolean> filter){
+		Location initialSpectatorLocation = this.getInitialSpectatorLocation();
+		World world = initialSpectatorLocation.getWorld();
+		BaseComponent spectatorMessage = new RawText(message
+				, new RawText(" Zuschauen")
+				.color(ChatColor.YELLOW)
+				.hoverEvent(HoverEvent.showText("Klicke um zuzuschauen"))
+				.clickEvent(ClickEvent.runCommand("/zuschauen " + key))
+		).spigot();
+		for(Player player : world.getPlayers()){
+			if(Ceremonies.isParticipantAnywhere(player)) continue;
+			if(!filter.apply(player)) continue;
+			player.spigot().sendMessage(spectatorMessage);
+		}
 	}
 	
 	@EventHandler
@@ -165,6 +190,8 @@ public abstract class Ceremony implements Listener, Runnable {
 		spectator.leave();
 		this.spectators.remove(player.getUniqueId());
 	}
+
+	protected Collection<Spectator> getSpectators(){return spectators.values();}
 	
 	protected abstract boolean isMatch(String key);
 	public abstract Location getSpectatorLocation();

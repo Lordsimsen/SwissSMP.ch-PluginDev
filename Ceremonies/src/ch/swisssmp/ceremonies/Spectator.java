@@ -21,6 +21,8 @@ public class Spectator {
 		this.ceremony = ceremony;
 		this.player = player;
 	}
+
+	public Player getPlayer(){return player;}
 	
 	public void initialize(){
 		ViewerInfo.of(player).save();
@@ -43,7 +45,7 @@ public class Spectator {
 	public void cancel(){
 		ready = false;
 	}
-	
+
 	public void leave(){
 		Bukkit.getScheduler().runTaskLater(plugin, ()->{
 			CameraStudio.inst().unhidePlayer(player);

@@ -1,10 +1,10 @@
 main: ch.swisssmp.ceremonies.CeremoniesPlugin
-version: 1.0
+version: 2
 api-version: 1.13
 name: Ceremonies
 authors: [detig_iii,WhiteGuggi]
 description: Vorlage für Zeremonien aller Art
-depend: [SwissSMPUtils,CameraStudio]
+depend: [SwissSMPUtils,CameraStudio,RawTextBuilderAPI]
 permissions:
   ceremony.spectate:
     description: Erlaubt dir, Zeremonien als Zuschauer bezuwohnen
