@@ -7,6 +7,7 @@ import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -15,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DeathMessages {
@@ -52,7 +54,6 @@ public class DeathMessages {
         VanillaDeathMessage vanillaDeathMessage = vanillaDeathMessageOpt.get();
 
         Random r = new Random();
-        Bukkit.getLogger().info(player.getDisplayName() + "_" + oldMessage + "_" + entity + "_" + block + "_" + killer);
         List<CustomDeathMessage> matchingCustomDeathMessages = customDeathMessages.stream()
                 .filter(msg -> msg.vanillaId == vanillaDeathMessage.id)
                 .filter(msg -> msg.cause == null || (msg.cause == null && cause == null) || (msg.cause != null && msg.cause.equals(cause)))
@@ -60,30 +61,31 @@ public class DeathMessages {
                 .filter(msg -> (msg.block == null && block == null) || (msg.block != null && msg.block.equals(block)))
                 .collect(Collectors.toList());
         CustomDeathMessage randomMessage = matchingCustomDeathMessages.get(r.nextInt(matchingCustomDeathMessages.size() - 1));
-        Bukkit.getLogger().info(vanillaDeathMessage.mask); // ["{Player}","{Mob}"]
-        JsonObject mask = JsonUtil.parse(vanillaDeathMessage.mask);
-        JsonArray maskJsonArray = mask.getAsJsonArray();
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(vanillaDeathMessage.mask);
+        JsonArray array = element.getAsJsonArray();
         String vanillaMessage = vanillaDeathMessage.message;
         String customMessage = randomMessage.message;
         ArrayList<String> masks = new ArrayList<>();
-        for (JsonElement maskElement : maskJsonArray) {
+        for (JsonElement maskElement : array) {
             masks.add(maskElement.getAsString());
         }
         for (String maskString : masks) {
-            vanillaMessage = vanillaMessage.replace(maskString, ",");
+            vanillaMessage = vanillaMessage.replace(maskString, ";");
         }
         String oldCopy = new StringBuffer(oldMessage).toString();
-        String[] splitVanillaMessage = vanillaMessage.split(";");
-
+        String[] splitVanillaMessage = vanillaMessage.split(Pattern.quote(";"));
         for (String splitVanillaMessagePart : splitVanillaMessage) {
             oldCopy = oldCopy.replace(splitVanillaMessagePart, "\n");
         }
-        String[] splitOldMessage = oldCopy.split("\n");
+        String[] splitOldMessage = oldCopy.split(Pattern.quote("\n"));
+        for (String om : splitOldMessage) {
+        }
         for (String maskElement : masks) {
             String maskInsert = new String();
             if ("{Player}".equals(maskElement)) {
                 maskInsert = player.getDisplayName();
-            } else if (("{Mob}".equals(maskElement) || "{Killer}".equals(maskElement)) && !killer.isEmpty()) {
+            } else if (("{Mob}".equals(maskElement) || "{Killer}".equals(maskElement)) && killer != null && !killer.isEmpty()) {
                 maskInsert = killer;
             } else {
                 maskInsert = splitOldMessage[masks.indexOf(maskElement)];
