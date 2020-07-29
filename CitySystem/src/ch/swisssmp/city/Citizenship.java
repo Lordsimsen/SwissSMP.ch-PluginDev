@@ -122,7 +122,7 @@ public class Citizenship {
     }
 
     public void save(Consumer<Boolean> callback) {
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "save_citizenship.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.SAVE_CITIZENSHIP, new String[]{
                 "player=" + playerData.getUniqueId(),
                 "city="+cityId,
                 "rank=" + rank,
@@ -146,7 +146,7 @@ public class Citizenship {
     }
 
     public void remove(Consumer<Boolean> callback) {
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "remove_citizenship.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.REMOVE_CITIZENSHIP, new String[]{
                 "player=" + playerData.getUniqueId(),
 				"city="+cityId
         });

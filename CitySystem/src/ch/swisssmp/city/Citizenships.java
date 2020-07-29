@@ -40,7 +40,7 @@ class Citizenships {
     }
 
     protected static void loadAll(Runnable callback){
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_citizenships.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIZENSHIPS, new String[]{
 
         });
 

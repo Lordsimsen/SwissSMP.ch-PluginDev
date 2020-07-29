@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.swisssmp.city.guides.AddonGuide;
+import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -45,9 +47,13 @@ public class AddonUnlockView implements Listener {
 		if(event.getView().getTopInventory().getHolder()!=this.villager) return;
 		if(event.getSlotType()!=SlotType.RESULT) return;
 		if(event.getInventory().getItem(event.getSlot())==null) return;
-		MerchantInventory merchantInventory = (MerchantInventory) event.getInventory();
-		AddonUtility.unlockAddon(player,addon,merchantInventory.getSelectedRecipe().getIngredients());
 		event.setCancelled(true);
+		AddonState oldState = addon.getState();
+		AddonStateReason oldReason = addon.getStateReason();
+		if(!addon.unlock()){
+			return;
+		}
+		MerchantInventory merchantInventory = (MerchantInventory) event.getInventory();
 		for(ItemStack price : merchantInventory.getSelectedRecipe().getIngredients()){
 			merchantInventory.removeItem(price);
 		}
@@ -60,7 +66,20 @@ public class AddonUnlockView implements Listener {
 		merchantInventory.clear();
 		Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(),()->{
 			event.getView().close();
+			addon.announceUnlock(player);
 		},3L);
+		addon.save((success)->{
+			if(!success){
+				addon.setAddonState(oldState, oldReason);
+				for(ItemStack price : merchantInventory.getSelectedRecipe().getIngredients()){
+					world.dropItem(player.getEyeLocation(),price);
+				}
+				SwissSMPler.get(player).sendActionBar(ChatColor.RED+"Etwas ist schiefgelaufen.");
+				return;
+			}
+
+			addon.announceUnlock(player);
+		});
 	}
 	
 	private static List<MerchantRecipe> getTrades(AddonUnlockTrade[] trades, ItemStack result){

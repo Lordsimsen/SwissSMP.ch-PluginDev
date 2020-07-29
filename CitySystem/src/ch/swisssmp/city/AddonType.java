@@ -20,7 +20,9 @@ public class AddonType {
 
     private final String addonId;
     private String name;
-    private List<String> description;
+    private List<String> shortDescription;
+    private List<String> requirementsDescription;
+    private List<String> offersDescription;
     private String livemapIconUrl;
     private final HashSet<String> synonyms = new HashSet<String>();
 
@@ -30,6 +32,7 @@ public class AddonType {
 
     // unlocking
     private AddonUnlockTrade[] unlockTrades;
+    private boolean autoActivate;
 
     private JsonObject configuration;
 
@@ -53,8 +56,16 @@ public class AddonType {
         return name;
     }
 
-    public List<String> getDescription(){
-        return description;
+    public List<String> getShortDescription(){
+        return shortDescription;
+    }
+
+    public List<String> getRequirementsDescription(){
+        return requirementsDescription;
+    }
+
+    public List<String> getOffersDescription(){
+        return offersDescription;
     }
 
     public int getCityLevel() {
@@ -70,6 +81,8 @@ public class AddonType {
     }
 
     public AddonUnlockTrade[] getUnlockTrades(){return unlockTrades;}
+
+    public boolean getAutoActivate(){return autoActivate;}
 
     public JsonObject getConfiguration() {
         return configuration;
@@ -91,7 +104,9 @@ public class AddonType {
 
     private void loadData(JsonObject json) {
         this.name = JsonUtil.getString("name", json);
-        this.description = JsonUtil.getStringList("description", json);
+        this.shortDescription = JsonUtil.getStringList("short_description", json);
+        this.requirementsDescription = JsonUtil.getStringList("requirements_description", json);
+        this.offersDescription = JsonUtil.getStringList("offers_description", json);
         this.livemapIconUrl = JsonUtil.getString("icon", json);
         this.synonyms.clear();
         if (json.has("synonyms")) {
@@ -104,6 +119,7 @@ public class AddonType {
                 .toArray(String[]::new)
                 : new String[0];
         this.unlockTrades = AddonUnlockTrades.get(json);
+        this.autoActivate = JsonUtil.getBool("auto_activate", json);
         this.configuration = json.getAsJsonObject("configuration");
     }
 

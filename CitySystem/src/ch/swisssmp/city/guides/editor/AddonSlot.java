@@ -31,7 +31,7 @@ public class AddonSlot extends InfoSlot {
 
 	@Override
 	protected List<String> getNormalDescription() {
-		return type.getDescription();
+		return type.getShortDescription();
 	}
 
 	@Override

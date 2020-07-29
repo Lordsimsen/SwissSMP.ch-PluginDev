@@ -34,7 +34,7 @@ public class AddonEventListener implements Listener {
 		if((!lines[0].toLowerCase().equals("[addonabnahme]") && !lines[0].toLowerCase().equals("[addon]")) || !player.hasPermission("addonabnahme.request")){
 			return;
 		}
-		Addon addon = AddonUtility.findAddon(lines).orElse(null);
+		Addon addon = CitySystem.findAddon(lines).orElse(null);
 		Sign sign = (Sign) event.getBlock().getState();
 		City city;
 		if(addon!=null){

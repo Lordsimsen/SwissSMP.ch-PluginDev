@@ -113,7 +113,7 @@ public class Techtree {
     }
 
     public void reload(Runnable callback){
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_techtree.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_TECHTREE, new String[]{
                 "techtree_id="+ URLEncoder.encode(id)
         });
         request.onFinish(()->{

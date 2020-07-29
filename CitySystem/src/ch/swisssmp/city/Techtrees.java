@@ -19,7 +19,7 @@ class Techtrees {
     }
 
     protected static void loadAll(Runnable callback){
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "techtrees.php");
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_TECHTREES);
         request.onFinish(()->{
             loadAll(request.getJsonResponse(), callback);
         });

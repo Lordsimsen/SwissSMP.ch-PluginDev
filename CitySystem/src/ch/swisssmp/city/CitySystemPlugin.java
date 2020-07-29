@@ -22,6 +22,7 @@ public class CitySystemPlugin extends JavaPlugin{
 		Techtrees.loadAll();
 		Cities.loadAll();
 		Citizenships.loadAll();
+		Addons.loadAll();
 		CraftingRecipes.register();
 		ItemManager.updateItems();
 		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
@@ -29,6 +30,7 @@ public class CitySystemPlugin extends JavaPlugin{
 
 	@Override
 	public void onDisable() {
+		Addons.unloadAll();
 		Citizenships.unloadAll();
 		Cities.unloadAll();
 		Techtrees.unloadAll();

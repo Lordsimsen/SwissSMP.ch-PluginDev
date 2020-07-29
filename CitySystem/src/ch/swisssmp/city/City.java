@@ -23,7 +23,6 @@ public class City {
     private String ringType;
     private UUID mayor;
     private final HashSet<UUID> founders = new HashSet<UUID>();
-    private final HashSet<Addon> addons = new HashSet<>();
 
     private City(UUID uid, String techtreeId) {
         this.uid = uid;
@@ -71,8 +70,12 @@ public class City {
         return Citizenships.getCitizenship(uid, playerUid);
     }
 
+    public Collection<Addon> getAddons(){
+        return Addons.getAll(this);
+    }
+
     public Optional<Addon> getAddon(String addonId) {
-        return addons.stream().filter(a -> a.getAddonId().equals(addonId)).findAny();
+        return CitySystem.getAddon(uid, addonId);
     }
 
     public Optional<Addon> getAddon(AddonType type) {
@@ -87,7 +90,7 @@ public class City {
         Addon existing = getAddon(addonId).orElse(null);
         if (existing != null) return existing;
         Addon addon = new Addon(addonId, uid);
-        addons.add(addon);
+        Addons.add(addon);
         return addon;
     }
 
@@ -99,10 +102,6 @@ public class City {
         Techtree techtree = getTechtree();
         if (techtree == null || !techtree.getLevel(levelId).isPresent()) return false;
         this.levelId = levelId;
-        DataSource.getResponse(CitySystemPlugin.getInstance(), "set_city_level.php", new String[]{
-                "city_id=" + this.uid.toString(),
-                "level_id=" + URLEncoder.encode(levelId)
-        });
         return true;
     }
 
@@ -206,7 +205,7 @@ public class City {
                 "ring_type=" + ringType,
                 "mayor=" + mayor));
         arguments.addAll(founders.stream().map(f->"founders[]="+f).collect(Collectors.toList()));
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "save_city.php", arguments.toArray(new String[0]));
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.SAVE_CITY, arguments.toArray(new String[0]));
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
             boolean success = (json!=null && json.has("success") && JsonUtil.getBool("success", json));
@@ -223,7 +222,7 @@ public class City {
     }
 
     public void reload(Runnable callback){
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_city.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITY, new String[]{
                 "city_id="+ uid
         });
         request.onFinish(()->{
@@ -272,7 +271,7 @@ public class City {
         for(Player player : founders){
             founderNames.add("founders[]="+player.getUniqueId().toString());
         }
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "create_city.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.CREATE_CITY, new String[]{
                 "name="+URLEncoder.encode(name),
                 "mayor="+mayor.getUniqueId().toString(),
                 "world="+URLEncoder.encode(origin.getWorld().getName()),

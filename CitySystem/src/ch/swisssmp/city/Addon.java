@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 
 public class Addon {
@@ -102,6 +103,22 @@ public class Addon {
         }
     }
 
+    public boolean unlock(){
+        AddonType type = getType();
+        if(type==null) return false;
+        boolean autoActivate = type.getAutoActivate();
+        this.state = autoActivate ? AddonState.ACTIVATED : AddonState.ACCEPTED;
+        this.reason = AddonStateReason.NONE;
+        return true;
+    }
+
+    public void announceUnlock(Player responsible){
+        City city = getCity();
+        if(city!=null) {
+            city.broadcast(CitySystemPlugin.getPrefix()+ChatColor.GREEN+city.getName()+" hat das Addon "+getType().getName()+" aktiviert!");
+        }
+    }
+
     public void setOrigin(Block block){
         this.origin = block!=null ? new BlockVector(block.getX(),block.getY(),block.getZ()) : null;
         this.worldName = block!=null ? block.getWorld().getName() : null;
@@ -137,7 +154,7 @@ public class Addon {
     }
 
     public void save(Consumer<Boolean> callback) {
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "save_addon.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.SAVE_ADDON, new String[]{
                 "addon_id=" + URLEncoder.encode(addonId),
                 "city_id=" + cityId,
                 "state=" + state,
@@ -165,7 +182,7 @@ public class Addon {
     }
 
     public void reload(Consumer<Boolean> callback) {
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), "get_addon.php", new String[]{
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_ADDON, new String[]{
                 "addon_id="+URLEncoder.encode(addonId),
                 "city_id="+cityId
         });
