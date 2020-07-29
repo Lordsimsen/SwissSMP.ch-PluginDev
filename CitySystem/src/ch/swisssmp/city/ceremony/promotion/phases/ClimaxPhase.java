@@ -47,7 +47,7 @@ public class ClimaxPhase extends Phase {
     }
 
     private void startMusic(){
-        for(Player player : ceremony.getParticipants()){
+        for(Player player : ceremony.getPlayers()){
             player.stopSound(CityPromotionCeremonyMusic.shaker, SoundCategory.RECORDS);
             player.stopSound(CityPromotionCeremonyMusic.drums, SoundCategory.RECORDS);
         }

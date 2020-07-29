@@ -42,7 +42,7 @@ public class PledgeAllegiancePhase extends Phase implements ITributeListener {
 			this.updateNearbyPlayers();
 			if(this.nearbyPlayers.size()==0){
 //				if(ceremony.getPlayers().size()<2) ceremony.cancel();
-				if(ceremony.getPlayers().size()<1) ceremony.cancel();
+				if(ceremony.getParticipants().size()<1) ceremony.cancel();
 				else setCompleted();
 				return;
 			}
@@ -51,7 +51,7 @@ public class PledgeAllegiancePhase extends Phase implements ITributeListener {
 			}, 0, 100);
 		this.autoContinueTask = Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()->{
 //			if(ceremony.getPlayers().size()<2){
-			if(ceremony.getPlayers().size()<1){
+			if(ceremony.getParticipants().size()<1){
 				ceremony.cancel();
 				return;
 			}

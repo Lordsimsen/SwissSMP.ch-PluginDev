@@ -39,7 +39,7 @@ public class CityView extends CustomEditorView implements Listener {
 
 	@Override
 	protected int getInventorySize() {
-		return Mathf.ceilToInt(city.getCitizenships().size()/9f)*9;
+		return Math.max(1, Mathf.ceilToInt(city.getCitizenships().size()/9f))*9;
 	}
 
 	public static CityView open(Player player, UUID cityId){

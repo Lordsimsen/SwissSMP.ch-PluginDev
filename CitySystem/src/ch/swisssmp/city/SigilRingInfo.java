@@ -46,8 +46,7 @@ public class SigilRingInfo {
 		nbtTag.putString("city_tool", "sigil_ring");
 		nbtTag.putString("ring_type", ring_type);
 		nbtTag.remove("customEnum");
-		City city = getCity();
-		if(city!=null) NBTUtil.set("city_id", city.getUniqueId(), nbtTag);
+		if(cityId!=null && !invalid) NBTUtil.set("city_id", cityId, nbtTag);
 		else if(nbtTag.containsKey("city_id")) nbtTag.remove("city_id");
 		if(owner!=null){
 			nbtTag.putString("owner", owner.getUniqueId().toString());

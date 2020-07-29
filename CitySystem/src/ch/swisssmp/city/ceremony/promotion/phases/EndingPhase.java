@@ -2,10 +2,12 @@ package ch.swisssmp.city.ceremony.promotion.phases;
 
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.city.City;
+import ch.swisssmp.city.CityLevel;
 import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import ch.swisssmp.city.ceremony.promotion.PromotionCeremonyData;
 import ch.swisssmp.utils.JsonUtil;
+import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
@@ -21,6 +23,7 @@ public class EndingPhase extends Phase {
     private final PromotionCeremonyData parameters;
     private final Block chest;
 
+    private boolean promotionCompleted = false;
     private long time = 0;
 
     public EndingPhase(CityPromotionCeremony ceremony){
@@ -33,10 +36,24 @@ public class EndingPhase extends Phase {
     @Override
     public void begin(){
         super.begin();
-        city.promoteCity();
+        city.promoteCity((success)->{
+            if(this.isCancelled()) return;
+            if(success) announcePromotion();
+            else{
+                ceremony.broadcast(CitySystemPlugin.getPrefix()+ChatColor.RED+"Etwas ist schiefgelaufen und er Stadtaufstieg konnte nicht vollzogen werden. Bitte kontaktiert die Spielleitung.");
+            }
+            promotionCompleted = true;
+        });
+    }
+
+    private void announcePromotion(){
+        CityLevel level = city.getLevel();
+        JsonObject configuration = level.getConfiguration();
+        String subtitle = (configuration!=null && configuration.has("promotion_message")
+                ? JsonUtil.getString("promotion_message", configuration)
+                : "{name} hat die Stadtstufe "+level.getName()+" erreicht!").replace("{name}", city.getName());
         Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () ->{
             String title = ChatColor.GREEN + "Gratulation!";
-            String subtitle = JsonUtil.getString("promotion_message", city.getLevel().getConfiguration()).replace("{city}", city.getName());
             this.announceTitleLong(title, subtitle);
             this.broadcastMessage(subtitle);
         }, 20L);
@@ -55,6 +72,7 @@ public class EndingPhase extends Phase {
 
     @Override
     public void run() {
+        if(!promotionCompleted) return;
         time++;
         if(time%15 == 0) this.spawnFireworks();
         if(time>=(parameters.getFireworkCycles()*15) + 1){
@@ -63,7 +81,7 @@ public class EndingPhase extends Phase {
     }
 
     private void playMusicFinale(){
-        for(Player player : ceremony.getParticipants()){
+        for(Player player : ceremony.getPlayers()){
             player.stopSound("founding_ceremony_drums", SoundCategory.RECORDS);
         }
         chest.getWorld().playSound(chest.getLocation(), "founding_ceremony_finale", 15, 1);

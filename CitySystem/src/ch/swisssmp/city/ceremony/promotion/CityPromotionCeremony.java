@@ -1,10 +1,10 @@
 package ch.swisssmp.city.ceremony.promotion;
 
 import ch.swisssmp.ceremonies.Ceremonies;
-import ch.swisssmp.ceremonies.Ceremony;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.city.City;
 import ch.swisssmp.city.CitySystemPlugin;
+import ch.swisssmp.city.ceremony.CityCeremony;
 import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect;
 import ch.swisssmp.city.ceremony.promotion.phases.*;
 import ch.swisssmp.utils.Random;
@@ -18,31 +18,26 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
-public class CityPromotionCeremony extends Ceremony implements Listener {
+public class CityPromotionCeremony extends CityCeremony implements Listener {
 
     public static final Material baseMaterial = Material.HAY_BLOCK;
     public static final float ceremonyRange = 20;
 
-    private static final Collection<Player> ceremoniesParticipants = new ArrayList<Player>();
     private static final Collection<CityPromotionCeremony> ceremonies = new ArrayList<CityPromotionCeremony>();
 
     public final ch.swisssmp.utils.Random random = new Random();
 
     private final City city;
     private final Block chest;
-    private final Player initiator;
 
     private final PromotionCeremonyData ceremonyParameters;
 
     private CityCeremonyCircleEffect ringEffect;
-
-    private List<Player> participants;
 
     private BukkitTask timeoutTask;
     private BukkitTask musicTask;
@@ -59,12 +54,10 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
     private Location spectatorLocation;
 
     private CityPromotionCeremony(Block Chest, Player initiator, City city, PromotionCeremonyData data){
-        super(CitySystemPlugin.getInstance());
+        super(initiator);
         this.city = city;
         cityName = city.getName();
         this.chest = Chest;
-        this.initiator = initiator;
-//        participants.add(initiator);
 
         ceremonyParameters = data;
     }
@@ -79,14 +72,6 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     public String getCityName(){
         return cityName;
-    }
-
-    public Player getInitiator(){
-        return initiator;
-    }
-
-    public List<Player> getParticipants(){
-        return participants;
     }
 
 
@@ -104,16 +89,6 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     public void setRingEffectTask(BukkitTask task){
         this.ringEffectTask = task;
-    }
-
-    public void setMusic(Location location, String music, long length){
-        if(musicTask != null) musicTask.cancel();
-        musicTask = Bukkit.getScheduler().runTaskTimerAsynchronously(CitySystemPlugin.getInstance(), () ->{
-            for(Player player : this.participants){
-                player.stopSound(music, SoundCategory.RECORDS);
-            }
-            location.getWorld().playSound(location, music, SoundCategory.RECORDS, 15, 1);
-        }, 0, length);
     }
 
     private void updateSpectatorLocation(){
@@ -164,14 +139,12 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         timeoutTask = Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), this::cancel, 12000L);
         participantsCheckTask = new CitizenProximityCheck(this);
         participantsCheckTask.runTaskTimer(CitySystemPlugin.getInstance(), 1L, 40L);
-        participants = participantsCheckTask.getCeremonyParticipants();
     }
 
     @Override
     public void run(){
         super.run();
         this.updateSpectatorLocation();
-        participants = participantsCheckTask.getCeremonyParticipants();
     }
 
     @Override
@@ -179,66 +152,15 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         super.finish();
         if(timeoutTask != null) timeoutTask.cancel();
         if(participantsCheckTask != null) participantsCheckTask.cancel();
-        for(Player player : this.participants){
-            ceremoniesParticipants.remove(player);
-        }
         if(ringEffectTask != null) ringEffectTask.cancel();
         stopMusic();
         HandlerList.unregisterAll(this);
         ceremonies.remove(this);
     }
 
-    private void stopMusic(){
-        if(musicTask!=null) musicTask.cancel();
-        for(Player player : this.participants){
-            player.stopSound(CityPromotionCeremonyMusic.shaker, SoundCategory.RECORDS);
-            player.stopSound(CityPromotionCeremonyMusic.drums, SoundCategory.RECORDS);
-        }
-    }
-
-    @Override
-    public boolean isParticipant(Player player){
-        return this.participants.contains(player);
-    }
-
-    @Override
-    public void broadcast(String message){
-        for(Player player : this.participants){
-            player.sendMessage(this.getPrefix()+message);
-        }
-    }
-
-    @Override
-    public void broadcastTitle(String title, String subtitle) {
-        for(Player player : this.participants){
-            SwissSMPler.get(player).sendTitle(title, subtitle);
-        }
-    }
-
-    @Override
-    public void broadcastActionBar(String message) {
-        for(Player player : this.participants){
-            SwissSMPler.get(player).sendActionBar(message);
-        }
-    }
-
-    @Override
-    protected boolean isMatch(String key){
-        return (this.initiator.getName().toLowerCase().contains(key) || this.initiator.getDisplayName().toLowerCase().contains(key));
-    }
-
     @Override
     public Location getSpectatorLocation(){
         return spectatorLocation.clone();
-    }
-
-    @Override
-    public Location getInitialSpectatorLocation(){
-        return initiator.getLocation().add(1, 0, 0);
-    }
-
-    private String getPrefix(){
-        return ChatColor.WHITE + "[" + ChatColor.DARK_PURPLE + "Stadtaufstieg" + ChatColor.WHITE + "]" + ChatColor.RESET;
     }
 
     public static List<Player> getNearbyPlayers(Location location){
@@ -260,7 +182,7 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
 
     public static CityPromotionCeremony start(Block Chest, Player initiator, City city, PromotionCeremonyData data){
         if(ceremoniesParticipants.contains(initiator) || Ceremonies.isParticipantAnywhere(initiator)) return null; //Todo permission ?
-        List<Player> nearbyPlayers = getNearbyPlayers(Chest.getLocation());
+        // List<Player> nearbyPlayers = getNearbyPlayers(Chest.getLocation());
         for(CityPromotionCeremony nearby : ceremonies){
             if(nearby.getChest().getLocation().distanceSquared(Chest.getLocation()) < 10000){
                 SwissSMPler.get(initiator).sendActionBar(ChatColor.RED + "Es findet bereits eine Aufstiegszeremonie in der Nähe statt");
@@ -271,16 +193,24 @@ public class CityPromotionCeremony extends Ceremony implements Listener {
         CityPromotionCeremony result = new CityPromotionCeremony(Chest, initiator, city, data);
         ceremonies.add(result);
         result.begin(CitySystemPlugin.getInstance());
+        Bukkit.getPluginManager().registerEvents(result, CitySystemPlugin.getInstance());
         return result;
     }
 
     @EventHandler
     private void onPlayerQuit(PlayerQuitEvent event){
+        Collection<Player> participants = this.getParticipants();
+        Player initiator = this.getInitiator();
         if(!participants.contains(event.getPlayer())) return;
         participants.remove(event.getPlayer());
         ceremoniesParticipants.remove(event.getPlayer());
-        if(initiator != event.getPlayer() && this.participants.size() >= ceremonyParameters.getPromotionPlayercount()) return;
+        if(initiator!=event.getPlayer() && participants.size()>=2) return;
         this.cancel();
+    }
+
+    @Override
+    protected String getPrefix(){
+        return ChatColor.WHITE + "[" + ChatColor.DARK_PURPLE + "Stadtaufstieg" + ChatColor.WHITE + "]" + ChatColor.RESET;
     }
 
     @EventHandler

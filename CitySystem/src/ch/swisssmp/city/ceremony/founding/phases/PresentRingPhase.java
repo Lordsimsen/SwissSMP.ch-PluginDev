@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.swisssmp.ceremonies.Phase;
-import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.SoundCategory;
@@ -19,7 +18,6 @@ import ch.swisssmp.city.CitySystemPlugin;
 import ch.swisssmp.city.ItemManager;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.utils.PlayerData;
-import ch.swisssmp.webcore.HTTPRequest;
 
 public class PresentRingPhase extends Phase {
 	
@@ -42,7 +40,7 @@ public class PresentRingPhase extends Phase {
 	}
 	
 	private void announceTitleLong(String title, String subtitle){
-		for(Player player : ceremony.getPlayers()){
+		for(Player player : ceremony.getParticipants()){
 			player.sendTitle(title, subtitle, 10, 120, 30);
 		}
 	}
@@ -52,7 +50,7 @@ public class PresentRingPhase extends Phase {
 		foundingRequestSent = true;
 		String name = ceremony.getCityName();
 		Player mayor = ceremony.getInitiator();
-		Collection<Player> founders = ceremony.getPlayers();
+		Collection<Player> founders = ceremony.getParticipants();
 		String ringType = ceremony.getRingType();
 		Block origin = ceremony.getFire();
 		long time = origin.getWorld().getTime();
@@ -73,7 +71,7 @@ public class PresentRingPhase extends Phase {
 		this.ceremony.broadcast(ChatColor.GREEN+"Du bist nun Gründer von "+ceremony.getCityName()+"!");
 		
 		String playersString = "";
-		List<Player> participants = ceremony.getPlayers();
+		List<Player> participants = ceremony.getParticipants();
 		for(int i = 0; i < participants.size(); i++){
 			Player player = participants.get(i);
 			String name = player.getName();
@@ -109,14 +107,14 @@ public class PresentRingPhase extends Phase {
 	
 	private void playMusicFinale(){
 		Block block = ceremony.getFire();
-		for(Player player : ceremony.getPlayers()){
+		for(Player player : ceremony.getParticipants()){
 			player.stopSound("founding_ceremony_drums", SoundCategory.RECORDS);
 		}
 		block.getWorld().playSound(block.getLocation(), "founding_ceremony_finale", 15, 1);
 	}
 	
 	private void giveRings(String ringType, City city){
-		for(Player player : this.ceremony.getPlayers()){
+		for(Player player : this.ceremony.getParticipants()){
 			ItemStack ring = ItemManager.createRing(ringType, city, PlayerData.get(player));
 			if(player.getInventory().firstEmpty()<0){
 				player.getWorld().dropItem(player.getEyeLocation(), ring);

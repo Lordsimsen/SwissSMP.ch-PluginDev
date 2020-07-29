@@ -37,13 +37,11 @@ class Citizenships {
     }
 
     protected static void loadAll(){
-        loadAll((Runnable) null);
+        loadAll(()->Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+"Alle Bürgerschaften geladen."));
     }
 
     protected static void loadAll(Runnable callback){
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIZENSHIPS, new String[]{
-
-        });
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIZENSHIPS);
 
         request.onFinish(()->{
             loadAll(request.getJsonResponse());
@@ -54,6 +52,7 @@ class Citizenships {
     private static void loadAll(JsonObject json){
         citizenships.clear();
         if(json==null || !json.has("citizenships")){
+            Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+"Konnte Bürgerschaften nicht laden:\n"+json);
             return;
         }
         Collection<Citizenship> citizenships = new Stack<>();

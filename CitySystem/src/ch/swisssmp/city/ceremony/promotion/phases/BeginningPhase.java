@@ -1,6 +1,7 @@
 package ch.swisssmp.city.ceremony.promotion.phases;
 
 import ch.swisssmp.ceremonies.Ceremonies;
+import ch.swisssmp.ceremonies.CeremoniesPlugin;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.ceremonies.effects.FireBurstEffect;
 import ch.swisssmp.city.CitySystemPlugin;
@@ -8,6 +9,7 @@ import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremony;
 import ch.swisssmp.city.ceremony.promotion.CityPromotionCeremonyMusic;
 import ch.swisssmp.text.ClickEvent;
 import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
 import ch.swisssmp.text.RawText;
 import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.Bukkit;
@@ -42,19 +44,10 @@ public class BeginningPhase extends Phase {
         Player initiator = ceremony.getInitiator();
         initiator.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + "Versammle deine Bürger um den Altar! Die Zeremonie beginnt in einer Stunde!");
         broadcastTitle("", ChatColor.LIGHT_PURPLE + "Die Zeremonie beginnt in einer Minecraft-Stunde!");
-        for(Player player : Bukkit.getWorlds().get(0).getPlayers()){
-            if(Ceremonies.isParticipantAnywhere(player)) continue;
-            if(chest.getWorld()!=player.getWorld() || chest.getLocation().distanceSquared(player.getLocation())<10000) continue;
-            player.spigot().sendMessage(new RawText(
-                    new RawText(CitySystemPlugin.getPrefix())
-                    , new RawText(" " + initiator.getDisplayName())
-                    , new RawText(" hat eine Stadtaufstiegszeremonie gestartet!")
-                    , new RawText(" Zuschauen")
-                    .color(ChatColor.YELLOW)
-                    .hoverEvent(HoverEvent.showText("Klicke um zuzuschauen"))
-                    .clickEvent(ClickEvent.runCommand("/zuschauen " + initiator.getName()))
-            ).spigot());
-        }
+        RawBase spectateMessage = new RawText(new RawText(CitySystemPlugin.getPrefix())
+                , new RawText(initiator.getDisplayName())
+                , new RawText(" hat eine Stadtaufstiegszeremonie gestartet!")).color(ChatColor.GREEN);
+        ceremony.broadcastSpectatorCommand(spectateMessage, initiator.getName(), (player)->!ceremony.getCity().isCitizen(player));
 
         particleTask = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), () ->{
             FireBurstEffect.play(CitySystemPlugin.getInstance(), chest, 5, Color.fromRGB(255,215,0), Color.fromRGB(0,255,255));
@@ -92,6 +85,7 @@ public class BeginningPhase extends Phase {
 
     private void broadcastTitle(String title, String subtitle){
         for(Player player : CityPromotionCeremony.getNearbyPlayers(chest.getLocation())){
+            if(!ceremony.getCity().isCitizen(player)) continue;
             SwissSMPler.get(player).sendTitle(title, subtitle);
         }
     }

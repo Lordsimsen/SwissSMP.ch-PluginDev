@@ -105,13 +105,16 @@ public class City {
         return true;
     }
 
-    public boolean promoteCity() {
+    public void promoteCity(Consumer<Boolean> callback) {
         Techtree techtree = getTechtree();
         int currentLevel = techtree.getLevelIndex(levelId);
-        if (currentLevel + 1 >= techtree.getLevels().size()) return false;
+        if (currentLevel + 1 >= techtree.getLevels().size()){
+            callback.accept(false);
+            return;
+        };
         String newLevelId = techtree.getLevel(currentLevel + 1).getId();
         this.setLevel(newLevelId);
-        return true;
+        save(callback);
     }
 
     public void addCitizen(Player player, Player parent, String role, Consumer<Boolean> callback) {

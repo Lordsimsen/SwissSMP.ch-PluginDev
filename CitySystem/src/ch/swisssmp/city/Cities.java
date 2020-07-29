@@ -19,7 +19,10 @@ class Cities {
 		String lowerCaseKey = key.toLowerCase();
 		return cities.stream().filter(c->c.getName().equalsIgnoreCase(lowerCaseKey) || c.getName().toLowerCase().startsWith(lowerCaseKey)).findAny();
 	}
-	
+	protected static void add(City city){
+		cities.add(city);
+	}
+
 	protected static void remove(String key){
 		City city = findCity(key).orElse(null);
 		if(city==null) return;

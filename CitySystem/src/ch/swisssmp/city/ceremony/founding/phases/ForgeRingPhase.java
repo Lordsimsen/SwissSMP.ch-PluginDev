@@ -69,7 +69,7 @@ public class ForgeRingPhase extends Phase implements ITributeListener {
 	
 	private void startMusic(){
 		Block block = ceremony.getFire();
-		for(Player player : ceremony.getPlayers()){
+		for(Player player : ceremony.getParticipants()){
 			player.stopSound("founding_ceremony_shaker", SoundCategory.RECORDS);
 		}
 		ceremony.setMusic(block.getLocation(), "founding_ceremony_finale", 932);

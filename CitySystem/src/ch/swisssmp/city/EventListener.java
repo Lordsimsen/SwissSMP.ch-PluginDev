@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -74,7 +75,10 @@ class EventListener implements Listener {
 		Player player = event.getPlayer();
 		if(!player.isOp()) return; //Todo remove when done
 		SigilRingInfo info = SigilRingInfo.get(event.getItem());
-//        if(info == null) return;
+        if(info == null){
+        	Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+"Not a sigil ring");
+        	return;
+		}
 //        if(!info.getOwner().getUniqueId().equals(player.getUniqueId())) {
 //            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Du musst deinen eigenen Siegelring benutzen");
 //            return;
@@ -85,6 +89,7 @@ class EventListener implements Listener {
 //        }
 		Block block = event.getClickedBlock();
 		if(!(block.getState() instanceof org.bukkit.block.Chest)) {
+			Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+"Not a chest");
 			return;
 		}
 
@@ -99,21 +104,27 @@ class EventListener implements Listener {
 			return;
 		}
 
-		/**
+		/*
 		 * Checks whether the haypile below the Chest is of adequate size.
 		 */
 		if(!HayPile.checkSize(block, CityPromotionCeremony.baseMaterial, data.getPromotionHaybalecount())) {
+			if(block.getRelative(BlockFace.DOWN).getType()==Material.HAY_BLOCK){
+				SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW+"Baue einen grösseren Heuhaufen.");
+			}
+			else{
+				Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+"Not a tribute chest");
+			}
 			return;
 		}
 
-		/**
+		/*
 		 * Checks whether at least the required tribute is present in the tributechest.
 		 */
 		Inventory inventory = ((Chest) block.getState()).getBlockInventory();
 		for(ItemStack required : data.getTribute()){
 			int proposedAmount = 0;
-			for(ItemStack proposed : inventory.getContents()){
-				if(required == null || required.getType() == Material.AIR) continue;
+			for(ItemStack proposed : inventory){
+				if(proposed==null || required == null || required.getType() == Material.AIR) continue;
 				if(proposed.getType() != required.getType()) continue;
 				proposedAmount += proposed.getAmount();
 			}
@@ -137,7 +148,6 @@ class EventListener implements Listener {
 
 			Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () -> {
 				CityPromotionCeremony ceremony = CityPromotionCeremony.start(block, player, city, data);
-				Bukkit.getPluginManager().registerEvents(ceremony, CitySystemPlugin.getInstance());
 			}, (100)); //Todo replace with (12000-time)
 			ceremonyAnnounced = true;
 		} else{

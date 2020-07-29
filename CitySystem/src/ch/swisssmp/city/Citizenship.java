@@ -126,7 +126,7 @@ public class Citizenship {
                 "player=" + playerData.getUniqueId(),
                 "city="+cityId,
                 "rank=" + rank,
-                "role=" + URLEncoder.encode(role),
+                "role=" + (role!=null ? URLEncoder.encode(role) : ""),
                 "parent_uuid=" + parent
         });
         request.onFinish(() -> {

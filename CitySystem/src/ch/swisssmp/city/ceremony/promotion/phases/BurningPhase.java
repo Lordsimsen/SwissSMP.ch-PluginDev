@@ -75,7 +75,7 @@ public class BurningPhase extends Phase implements Listener {
     }
 
     private void startMusic(){
-        for(Player player : ceremony.getParticipants()){
+        for(Player player : ceremony.getPlayers()){
             player.stopSound(CityPromotionCeremonyMusic.shaker, SoundCategory.RECORDS);
         }
         ceremony.setMusic(chest.getLocation(), CityPromotionCeremonyMusic.finale, 932);

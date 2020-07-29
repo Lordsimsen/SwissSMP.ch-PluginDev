@@ -11,7 +11,10 @@ import org.bukkit.entity.Player;
 
 public class CitySystem {
 	public static void createCity(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time, Consumer<City> callback){
-		City.create(name, mayor, founders, ringType, origin, time, callback);
+		City.create(name, mayor, founders, ringType, origin, time, (city)->{
+			if(city!=null) Cities.add(city);
+			if(callback!=null) callback.accept(city);
+		});
 	}
 
 	public static Optional<City> findCity(String key){

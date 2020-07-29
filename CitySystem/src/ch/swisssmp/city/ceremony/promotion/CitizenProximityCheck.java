@@ -16,8 +16,6 @@ public class CitizenProximityCheck extends BukkitRunnable {
     private final Location location;
     private final double CEREMONY_RADIUS = 50;
 
-    private List<Player> citizens = new ArrayList<>();
-
     protected CitizenProximityCheck(CityPromotionCeremony ceremony){
         this.ceremony = ceremony;
         this.location = ceremony.getChest().getLocation();
@@ -30,11 +28,7 @@ public class CitizenProximityCheck extends BukkitRunnable {
             Player player = (Player) entity;
             if(player.getGameMode()!= GameMode.SURVIVAL) continue;
             if(Ceremonies.isParticipantAnywhere(player) || !player.hasPermission("citysystem.promote") || !ceremony.getCity().isCitizen(player.getUniqueId())) continue;
-            citizens.add(player);
+            ceremony.addParticipant(player);
         }
-    }
-
-    protected List<Player> getCeremonyParticipants(){
-        return citizens;
     }
 }
