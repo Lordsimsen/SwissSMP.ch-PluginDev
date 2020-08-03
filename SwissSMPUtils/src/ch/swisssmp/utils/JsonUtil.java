@@ -220,7 +220,24 @@ public class JsonUtil {
     }
 
     public static Color getColor(String key, JsonObject json) {
-        return Color.fromRGB(getInt(key, json));
+        return getColor(json.get(key));
+    }
+
+    public static Color getColor(JsonElement element) {
+        return element!=null && element.isJsonPrimitive() ? Color.fromRGB(element.getAsInt()) : null;
+    }
+
+    public static ChatColor getChatColor(String key, JsonObject json) {
+        return getChatColor(json.get(key));
+    }
+
+    public static ChatColor getChatColor(JsonElement element){
+        try{
+            return element!=null && element.isJsonPrimitive() ? ChatColor.valueOf(element.getAsString()) : null;
+        }
+        catch(Exception ignored){
+            return null;
+        }
     }
 
     public static void set(String key, Color value, JsonObject json) {
