@@ -35,7 +35,7 @@ public class BurningPhase extends Phase implements Listener {
 
     @Override
     public void begin(){
-        if(CityPromotionCeremony.getNearbyPlayers(chest.getLocation()).size() < ceremony.getCeremonyParameters().getPromotionPlayercount()) {
+        if(CityPromotionCeremony.getNearbyPlayers(chest.getLocation()).size() < ceremony.getCeremonyParameters().getPromotionPlayerCount()) {
             cancel();
         }
         super.begin();
@@ -86,7 +86,7 @@ public class BurningPhase extends Phase implements Listener {
 
     @Override
     public void run() {
-        if(ceremony.getParticipants().size() < ceremony.getCeremonyParameters().getPromotionPlayercount()) cancel();
+        if(ceremony.getParticipants().size() < ceremony.getCeremonyParameters().getPromotionPlayerCount()) cancel();
         if(fireIgnited) {
             double randomDouble = ceremony.random.nextDouble();
             if (randomDouble < 0.1) playRandomLocatedFireBurst(chest.getLocation(), 2);

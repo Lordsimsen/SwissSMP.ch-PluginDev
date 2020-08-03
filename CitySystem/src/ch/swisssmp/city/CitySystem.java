@@ -8,6 +8,7 @@ import ch.swisssmp.npc.NPCInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class CitySystem {
 	public static void createCity(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time, Consumer<City> callback){
@@ -61,6 +62,38 @@ public class CitySystem {
 
 	public static void reloadCities(Consumer<Boolean> callback){
 		Cities.loadAll(callback);
+	}
+
+	public static boolean checkCityLevel(City city, String levelId){
+		return checkCityLevel(city.getUniqueId(), city.getTechtreeId(), levelId);
+	}
+
+	public static boolean checkCityLevel(City city, CityLevel level){
+		return checkCityLevel(city.getUniqueId(), level.getTechtree().getId(), level.getId());
+	}
+
+	public static boolean checkCityLevel(City city, Techtree techtree, String levelId){
+		return checkCityLevel(city.getUniqueId(), techtree.getId(), levelId);
+	}
+
+	public static boolean checkCityLevel(UUID cityId, String techtreeId, String levelId){
+		return CityPromotions.check(cityId,techtreeId,levelId);
+	}
+
+	public static void unlockCityLevel(UUID cityId, String techtreeId, String levelId, Consumer<Boolean> callback){
+		CityPromotions.add(cityId, techtreeId, levelId, callback);
+	}
+
+	public static void lockCityLevel(UUID cityId, String techtreeId, String levelId, Consumer<Boolean> callback){
+		CityPromotions.remove(cityId, techtreeId, levelId, callback);
+	}
+
+	public static Optional<CityLevel> getCityLevel(ItemStack tokenStack){
+		return CityLevel.get(tokenStack);
+	}
+
+	public static Optional<CityPromotion> getCityPromotion(ItemStack keyStack){
+		return CityPromotion.get(keyStack);
 	}
 
 	public static Optional<Citizenship> getCitizenship(UUID cityId, String playerName){

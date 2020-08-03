@@ -34,6 +34,6 @@ public class CityLevelSlot extends InfoSlot {
 
     @Override
     protected CustomItemBuilder createSlotBase() {
-        return new CustomItemBuilder(Material.BOOK);
+        return level.getTokenBuilder();
     }
 }

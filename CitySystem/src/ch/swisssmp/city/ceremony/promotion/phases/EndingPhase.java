@@ -36,7 +36,8 @@ public class EndingPhase extends Phase {
     @Override
     public void begin(){
         super.begin();
-        city.promoteCity((success)->{
+        CityLevel level = parameters.getLevel();
+        city.unlockLevel(level, (success)->{
             if(this.isCancelled()) return;
             if(success) announcePromotion();
             else{
@@ -47,7 +48,7 @@ public class EndingPhase extends Phase {
     }
 
     private void announcePromotion(){
-        CityLevel level = city.getLevel();
+        CityLevel level = parameters.getLevel();
         JsonObject configuration = level.getConfiguration();
         String subtitle = (configuration!=null && configuration.has("promotion_message")
                 ? JsonUtil.getString("promotion_message", configuration)

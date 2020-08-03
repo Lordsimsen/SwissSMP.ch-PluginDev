@@ -37,8 +37,6 @@ import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.BlockUtil;
 import ch.swisssmp.utils.PlayerData;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.YamlConfiguration;
-import ch.swisssmp.webcore.HTTPRequest;
 
 class EventListener implements Listener {
 	private static final Material INITIATOR_MATERIAL = Material.BLAZE_POWDER;
@@ -72,42 +70,43 @@ class EventListener implements Listener {
 	@EventHandler
 	private void onTributeAnnounce(PlayerInteractEvent event){
 		if(event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+		ItemStack itemStack = event.getItem();
+		if(itemStack==null) return;
 		Player player = event.getPlayer();
-		if(!player.isOp()) return; //Todo remove when done
-		SigilRingInfo info = SigilRingInfo.get(event.getItem());
-        if(info == null){
-        	Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not a sigil ring");
-        	return;
-		}
-//        if(!info.getOwner().getUniqueId().equals(player.getUniqueId())) {
-//            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Du musst deinen eigenen Siegelring benutzen");
-//            return;
-//        }
-//        if(!info.getCitizenRrank().equals(CitizenRank.MAYOR)) {
-//            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Nur der Bürgermeister kann eine Zeremonie initieren!");
-//            return;
-//        }
 		Block block = event.getClickedBlock();
 		if(!(block.getState() instanceof org.bukkit.block.Chest)) {
 			Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not a chest");
 			return;
 		}
 
-		City city = info.getCity();
+		CityPromotion promotion = CitySystem.getCityPromotion(itemStack).orElse(null);
+        if(promotion == null){
+        	Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not a promotion key");
+        	return;
+		}
+
+        City city = promotion.getCity();
 		if(city == null){
-			Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't load city from SigilRingInfo from " + info.getOwner());
+			Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't load city from promotion key: " + promotion.getCityId());
 			return;
 		}
-		PromotionCeremonyData data = PromotionCeremonyData.load(city);
-		if(data == null){
-			Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't load Promotion ceremony data for city: " + city.getName());
+
+        if(!city.isMayor(player)) {
+            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Nur der Bürgermeister kann die Aufstiegszeremonie initiieren!");
+            return;
+        }
+
+        CityLevel level = promotion.getLevel();
+        if(level==null){
+			Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Couldn't load city level from promotion key: " + promotion.getTechtreeId()+"/"+promotion.getLevelId());
 			return;
 		}
+		PromotionCeremonyData data = PromotionCeremonyData.create(level);
 
 		/*
 		 * Checks whether the haypile below the Chest is of adequate size.
 		 */
-		if(!HayPile.checkSize(block, CityPromotionCeremony.baseMaterial, data.getPromotionHaybalecount())) {
+		if(!HayPile.checkSize(block, CityPromotionCeremony.baseMaterial, data.getPromotionHaybaleCount())) {
 			if(block.getRelative(BlockFace.DOWN).getType()==Material.HAY_BLOCK){
 				SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW+"Baue einen grösseren Heuhaufen.");
 			}

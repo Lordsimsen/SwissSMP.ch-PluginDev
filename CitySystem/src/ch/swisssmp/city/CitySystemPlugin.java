@@ -1,6 +1,6 @@
 package ch.swisssmp.city;
 
-import ch.swisssmp.city.command.*;
+import ch.swisssmp.city.commands.*;
 import ch.swisssmp.city.guides.AddonEventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

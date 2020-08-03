@@ -19,7 +19,6 @@ public class City {
     private final String techtreeId;
 
     private String name;
-    private String levelId;
     private String ringType;
     private UUID mayor;
     private final HashSet<UUID> founders = new HashSet<UUID>();
@@ -45,13 +44,12 @@ public class City {
         return name;
     }
 
-    public String getLevelId() {
-        return levelId;
+    public boolean hasLevel(CityLevel level) {
+        return CitySystem.checkCityLevel(this, level);
     }
 
-    public CityLevel getLevel() {
-        Techtree techtree = CitySystem.getTechtree(techtreeId).orElse(null);
-        return techtree != null ? techtree.getLevel(levelId).orElse(null) : null;
+    public boolean hasLevel(String levelId){
+        return CitySystem.checkCityLevel(this, levelId);
     }
 
     public String getRingType() {
@@ -98,23 +96,22 @@ public class City {
         getCitizenships().forEach((citizenship)->SwissSMPler.get(citizenship.getUniqueId()).sendMessage(message));
     }
 
-    public boolean setLevel(String levelId) {
-        Techtree techtree = getTechtree();
-        if (techtree == null || !techtree.getLevel(levelId).isPresent()) return false;
-        this.levelId = levelId;
-        return true;
-    }
-
-    public void promoteCity(Consumer<Boolean> callback) {
-        Techtree techtree = getTechtree();
-        int currentLevel = techtree.getLevelIndex(levelId);
-        if (currentLevel + 1 >= techtree.getLevels().size()){
+    public void unlockLevel(String levelId, Consumer<Boolean> callback){
+        Techtree techtree = this.getTechtree();
+        CityLevel level = techtree!=null ? techtree.getLevel(levelId).orElse(null) : null;
+        if(level==null){
             callback.accept(false);
             return;
-        };
-        String newLevelId = techtree.getLevel(currentLevel + 1).getId();
-        this.setLevel(newLevelId);
-        save(callback);
+        }
+        unlockLevel(level, callback);
+    }
+
+    public void unlockLevel(CityLevel level, Consumer<Boolean> callback) {
+        CitySystem.unlockCityLevel(uid, level.getTechtree().getId(), level.getId(), callback);
+    }
+
+    public void lockLevel(CityLevel level, Consumer<Boolean> callback) {
+        CitySystem.lockCityLevel(uid, level.getTechtree().getId(), level.getId(), callback);
     }
 
     public void addCitizen(Player player, Player parent, String role, Consumer<Boolean> callback) {
@@ -192,10 +189,6 @@ public class City {
         return CitySystem.getCitizenship(uid, playerUid).isPresent();
     }
 
-    public Collection<String> getZones(){
-        return Collections.singletonList(name.toLowerCase());
-    }
-
     public void save(){
         save(null);
     }
@@ -204,7 +197,6 @@ public class City {
         List<String> arguments = new ArrayList<>();
         arguments.addAll(Arrays.asList("city_id=" + uid,
                 "name=" + name,
-                "level=" + levelId,
                 "ring_type=" + ringType,
                 "mayor=" + mayor));
         arguments.addAll(founders.stream().map(f->"founders[]="+f).collect(Collectors.toList()));
@@ -265,7 +257,6 @@ public class City {
     private void loadData(JsonObject json) {
 
         this.name = JsonUtil.getString("name", json);
-        this.levelId = JsonUtil.getString("level", json);
         this.ringType = JsonUtil.getString("ring_type", json);
         try {
             this.mayor = UUID.fromString(JsonUtil.getString("mayor", json));

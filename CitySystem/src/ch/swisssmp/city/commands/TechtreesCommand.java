@@ -1,4 +1,4 @@
-package ch.swisssmp.city.command;
+package ch.swisssmp.city.commands;
 
 import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.city.CitySystemPlugin;

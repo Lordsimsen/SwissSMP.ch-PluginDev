@@ -46,7 +46,7 @@ public class Techtree {
     }
 
     public CityLevel getLevel(int index){
-        return levels.get(index);
+        return index>=0 && index<levels.size() ? levels.get(index) : null;
     }
 
     public Optional<CityLevel> getLevel(String id){
@@ -87,10 +87,13 @@ public class Techtree {
     public void updateAddonState(Addon addon){
         if(addon.getState()==AddonState.ACCEPTED || addon.getState()==AddonState.ACTIVATED || addon.getState()==AddonState.BLOCKED) return;
         City city = addon.getCity();
-        int currentLevel = levels.indexOf(city.getLevel());
         AddonType type = addon.getType();
-        int requiredLevel = type.getCityLevel();
-        if(currentLevel<requiredLevel){
+        CityLevel requiredLevel = this.getLevel(type.getCityLevel());
+        if(requiredLevel==null){
+            addon.setAddonState(AddonState.UNAVAILABLE, AddonStateReason.NONE);
+            return;
+        }
+        if(!city.hasLevel(requiredLevel)){
             addon.setAddonState(AddonState.UNAVAILABLE, AddonStateReason.CITY_LEVEL);
             return;
         }
