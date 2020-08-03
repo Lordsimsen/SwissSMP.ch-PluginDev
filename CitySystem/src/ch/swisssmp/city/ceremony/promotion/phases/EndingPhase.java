@@ -40,7 +40,7 @@ public class EndingPhase extends Phase {
             if(this.isCancelled()) return;
             if(success) announcePromotion();
             else{
-                ceremony.broadcast(CitySystemPlugin.getPrefix()+ChatColor.RED+"Etwas ist schiefgelaufen und er Stadtaufstieg konnte nicht vollzogen werden. Bitte kontaktiert die Spielleitung.");
+                ceremony.broadcast(CitySystemPlugin.getPrefix()+ChatColor.RED+" Etwas ist schiefgelaufen und er Stadtaufstieg konnte nicht vollzogen werden. Bitte kontaktiert die Spielleitung.");
             }
             promotionCompleted = true;
         });

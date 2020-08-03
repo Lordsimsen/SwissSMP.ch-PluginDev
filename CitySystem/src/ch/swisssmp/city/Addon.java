@@ -35,9 +35,9 @@ public class Addon {
         this.addonId = addonId;
     }
 
-    public String getName(){
+    public String getName() {
         AddonType type = getType();
-        return type!=null ? type.getName() : "Unbekanntes Addon";
+        return type != null ? type.getName() : "Unbekanntes Addon";
     }
 
     public String getAddonId() {
@@ -79,69 +79,72 @@ public class Addon {
         return this.reason;
     }
 
-    public String getStateReasonMessage(){
+    public String getStateReasonMessage() {
         City city = getCity();
         Techtree techtree = city.getTechtree();
         AddonType type = techtree.getAddonType(addonId).orElse(null);
-        switch(reason){
-            case CITY_LEVEL:{
+        switch (reason) {
+            case CITY_LEVEL: {
                 CityLevel level = techtree.getLevel(type.getCityLevel());
-                return ChatColor.GRAY+"Benötigt Stadtstufe\n"+ChatColor.RED+level.getName();
+                return ChatColor.GRAY + "Benötigt Stadtstufe\n" + ChatColor.RED + level.getName();
             }
-            case REQUIRED_ADDONS:{
+            case REQUIRED_ADDONS: {
+                Bukkit.getLogger().info(this.addonId+" requires addons "+String.join(", ", type.getRequiredAddons()));
                 Collection<String> missingAddons = Arrays.stream(type.getRequiredAddons())
-                        .map(a->techtree.getAddonType(a).orElse(null))
+                        .map(a -> techtree.getAddonType(a).orElse(null))
                         .filter(Objects::nonNull)
-                        .map(t->new AbstractMap.SimpleEntry<AddonType,Addon>(t,city.getAddon(t).orElse(null)))
-                        .filter(e->e.getValue()==null || (e.getValue().getState()!=AddonState.ACCEPTED && e.getValue().getState()!=AddonState.ACTIVATED))
-                        .map(e->e.getKey().getName())
+                        .map(t -> new AbstractMap.SimpleEntry<>(t, city.getAddon(t).orElse(null)))
+                        .filter(e -> e.getValue() == null || (e.getValue().getState() != AddonState.ACCEPTED && e.getValue().getState() != AddonState.ACTIVATED))
+                        .map(e -> e.getKey().getName())
                         .collect(Collectors.toList());
-                return ChatColor.GRAY+"Benötigt Addon"+(missingAddons.size()>1?"s":"")+"\n"+String.join(ChatColor.RED+"- ", missingAddons);
+                return ChatColor.GRAY + "Benötigt Addon" + (missingAddons.size() > 1
+                        ? "s\n" + missingAddons.stream().map(a->"- " + ChatColor.RED + a).collect(Collectors.joining("\n"))
+                        : "\n"+ChatColor.RED+missingAddons.stream().findFirst().orElse("???"));
             }
             default:
                 return null;
         }
     }
 
-    public boolean unlock(){
+    public boolean unlock() {
         AddonType type = getType();
-        if(type==null) return false;
+        if (type == null) return false;
         boolean autoActivate = type.getAutoActivate();
         this.state = autoActivate ? AddonState.ACTIVATED : AddonState.ACCEPTED;
         this.reason = AddonStateReason.NONE;
         return true;
     }
 
-    public void announceUnlock(Player responsible){
+    public void announceUnlock(Player responsible) {
         City city = getCity();
-        if(city!=null) {
-            city.broadcast(CitySystemPlugin.getPrefix()+ChatColor.GREEN+city.getName()+" hat das Addon "+getType().getName()+" aktiviert!");
+        if (city != null) {
+            city.broadcast(CitySystemPlugin.getPrefix() + " " + ChatColor.GREEN + city.getName() + " hat das Addon " + getType().getName() + " aktiviert!");
         }
     }
 
-    public void setOrigin(Block block){
-        this.origin = block!=null ? new BlockVector(block.getX(),block.getY(),block.getZ()) : null;
-        this.worldName = block!=null ? block.getWorld().getName() : null;
+    public void setOrigin(Block block) {
+        this.origin = block != null ? new BlockVector(block.getX(), block.getY(), block.getZ()) : null;
+        this.worldName = block != null ? block.getWorld().getName() : null;
     }
 
-    public void setOrigin(String worldName, BlockVector vector){
+    public void setOrigin(String worldName, BlockVector vector) {
         this.origin = origin;
         this.worldName = worldName;
     }
 
-    public BlockVector getOrigin(){
+    public BlockVector getOrigin() {
         return origin;
     }
 
-    public String getWorldName(){
+    public String getWorldName() {
         return worldName;
     }
 
-    public boolean hasGuideActive(){
+    public boolean hasGuideActive() {
         return guideActive;
     }
 
-    public void setGuideActive(boolean active){
+    public void setGuideActive(boolean active) {
         this.guideActive = active;
     }
 
@@ -149,7 +152,7 @@ public class Addon {
         return data;
     }
 
-    public void save(){
+    public void save() {
         save(null);
     }
 
@@ -163,17 +166,17 @@ public class Addon {
                 "y=" + (origin != null ? origin.getBlockY() : 0),
                 "z=" + (origin != null ? origin.getBlockZ() : 0),
                 "world=" + (worldName != null ? worldName : ""),
-                "guide_active="+(guideActive ? 1 : 0),
-                "data=" + URLEncoder.encode(data.toString())
+                "guide_active=" + (guideActive ? 1 : 0),
+                "data=" + (data != null ? URLEncoder.encode(data.toString()) : "[]")
         });
-        request.onFinish(()->{
+        request.onFinish(() -> {
             JsonObject json = request.getJsonResponse();
-            boolean success = (json!=null && json.has("success") && JsonUtil.getBool("success", json));
-            if(json!=null && json.has("message")){
-                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+JsonUtil.getString("message", json));
+            boolean success = (json != null && json.has("success") && JsonUtil.getBool("success", json));
+            if (json != null && json.has("message")) {
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " " + JsonUtil.getString("message", json));
             }
 
-            if(callback!=null) callback.accept(success);
+            if (callback != null) callback.accept(success);
         });
     }
 
@@ -183,14 +186,20 @@ public class Addon {
 
     public void reload(Consumer<Boolean> callback) {
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_ADDON, new String[]{
-                "addon_id="+URLEncoder.encode(addonId),
-                "city_id="+cityId
+                "addon_id=" + URLEncoder.encode(addonId),
+                "city_id=" + cityId
         });
-        request.onFinish(()->{
+        request.onFinish(() -> {
             JsonObject json = request.getJsonResponse();
-            JsonObject data = json!=null && json.has("addon") ? json.getAsJsonObject("addon") : null;
-            if(data!=null) loadData(data);
-            if(callback!=null) callback.accept(data!=null);
+            boolean success = json != null && JsonUtil.getBool("success", json);
+            String message = json != null ? JsonUtil.getString("message", json) : null;
+            if (message != null) {
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " " + message);
+            }
+            if (success) {
+                loadData(json.getAsJsonObject("addon"));
+            }
+            if (callback != null) callback.accept(success);
         });
     }
 
@@ -200,7 +209,7 @@ public class Addon {
         origin = new BlockVector(JsonUtil.getInt("x", json), JsonUtil.getInt("y", json), JsonUtil.getInt("z", json));
         worldName = JsonUtil.getString("world", json);
         guideActive = JsonUtil.getBool("guide_active", json);
-        data = json.has("data") ? json.getAsJsonObject("data") : new JsonObject();
+        data = json.has("data") && json.get("data").isJsonObject() ? json.getAsJsonObject("data") : new JsonObject();
     }
 
     protected static Optional<Addon> load(JsonObject json) {

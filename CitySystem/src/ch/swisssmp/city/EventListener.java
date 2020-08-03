@@ -76,7 +76,7 @@ class EventListener implements Listener {
 		if(!player.isOp()) return; //Todo remove when done
 		SigilRingInfo info = SigilRingInfo.get(event.getItem());
         if(info == null){
-        	Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+"Not a sigil ring");
+        	Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not a sigil ring");
         	return;
 		}
 //        if(!info.getOwner().getUniqueId().equals(player.getUniqueId())) {
@@ -89,7 +89,7 @@ class EventListener implements Listener {
 //        }
 		Block block = event.getClickedBlock();
 		if(!(block.getState() instanceof org.bukkit.block.Chest)) {
-			Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+"Not a chest");
+			Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not a chest");
 			return;
 		}
 
@@ -112,7 +112,7 @@ class EventListener implements Listener {
 				SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW+"Baue einen grösseren Heuhaufen.");
 			}
 			else{
-				Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+"Not a tribute chest");
+				Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not a tribute chest");
 			}
 			return;
 		}
@@ -144,7 +144,7 @@ class EventListener implements Listener {
 		}
 		if(!ceremonyAnnounced) {
 			SwissSMPler.get(player).sendActionBar(ChatColor.GREEN + "Versammle deine Bürger vor Sonnenuntergang am Festplatz!");
-			SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + "Die Zeremonie beginnt bei Sonnenuntergang!");
+			SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + " Die Zeremonie beginnt bei Sonnenuntergang!");
 
 			Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () -> {
 				CityPromotionCeremony ceremony = CityPromotionCeremony.start(block, player, city, data);
@@ -235,19 +235,19 @@ class EventListener implements Listener {
 				return;
 			}
 			else if(city.isMayor(citizenUid) && city.getCitizenships().size()>1){
-				responsible.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Trete dein Amt als Bürgermeister ab, bevor du "+city.getName()+" verlässt.");
+				responsible.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+" Trete dein Amt als Bürgermeister ab, bevor du "+city.getName()+" verlässt.");
 				return;
 			}
 		}
 
 		city.removeCitizen(citizenship, (success)->{
 			if(!success){
-				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Konnte "+playerData.getName()+" nicht entfernen. (Systemfehler)");
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Konnte "+playerData.getName()+" nicht entfernen. (Systemfehler)");
 				return;
 			}
 
 			citizenship.announceCitizenshipRevoked(responsible);
-			responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GRAY + "Du hast "+playerData.getName()+" aus der Bürgerliste von " + city.getName() + " entfernt.");
+			responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GRAY + " Du hast "+playerData.getName()+" aus der Bürgerliste von " + city.getName() + " entfernt.");
 			ItemManager.updateItems();
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");

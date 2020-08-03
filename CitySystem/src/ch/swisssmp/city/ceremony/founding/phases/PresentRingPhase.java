@@ -70,17 +70,17 @@ public class PresentRingPhase extends Phase {
 
 		this.ceremony.broadcast(ChatColor.GREEN+"Du bist nun Gründer von "+ceremony.getCityName()+"!");
 		
-		String playersString = "";
+		StringBuilder playersString = new StringBuilder();
 		List<Player> participants = ceremony.getParticipants();
 		for(int i = 0; i < participants.size(); i++){
 			Player player = participants.get(i);
 			String name = player.getName();
-			if(i==0) playersString+=name;
-			else if(i<participants.size()-1) playersString+=", "+name;
-			else playersString+=" und "+name;
+			if(i==0) playersString.append(name);
+			else if(i<participants.size()-1) playersString.append(", ").append(name);
+			else playersString.append(" und ").append(name);
 		}
 		for(Player player : Bukkit.getOnlinePlayers()){
-			player.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.GREEN+playersString+" haben die Stadt "+ceremony.getCityName()+" gegründet!");
+			player.sendMessage(CitySystemPlugin.getPrefix()+" "+ChatColor.GREEN+playersString+" haben die Stadt "+ceremony.getCityName()+" gegründet!");
 		}
 		super.complete();
 		try{
@@ -90,7 +90,7 @@ public class PresentRingPhase extends Phase {
 			e.printStackTrace();
 		}
 		String code = Base64.encodeBase64URLSafeString(("techtree_"+city.getTechtreeId()+","+city.getUniqueId()).getBytes());
-		ceremony.getInitiator().sendMessage(CitySystemPlugin.getPrefix()+ChatColor.YELLOW+"Folge dieser Anleitung, um den Techtree im Forum zu aktivieren:");
+		ceremony.getInitiator().sendMessage(CitySystemPlugin.getPrefix()+ChatColor.YELLOW+" Folge dieser Anleitung, um den Techtree im Forum zu aktivieren:");
 		ceremony.getInitiator().sendMessage(ChatColor.YELLOW+""+ChatColor.UNDERLINE+"https://minecraft.swisssmp.ch/techtree-code?code="+code);
 		cityFounded = true;
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");

@@ -33,6 +33,12 @@ public class CitySystem {
 		return Addons.getAll(cityId);
 	}
 
+	public static void reloadAddons(){reloadAddons(null);}
+
+	public static void reloadAddons(Consumer<Boolean> callback){
+		Addons.loadAll(callback);
+	}
+
 	public static Collection<City> getCities(){
 		return Cities.getAll();
 	}
@@ -47,8 +53,14 @@ public class CitySystem {
 		reloadTechtrees(null);
 	}
 
-	public static void reloadTechtrees(Runnable callback){
+	public static void reloadTechtrees(Consumer<Boolean> callback){
 		Techtrees.loadAll(callback);
+	}
+
+	public static void reloadCities(){reloadCities(null);}
+
+	public static void reloadCities(Consumer<Boolean> callback){
+		Cities.loadAll(callback);
 	}
 
 	public static Optional<Citizenship> getCitizenship(UUID cityId, String playerName){
@@ -71,11 +83,15 @@ public class CitySystem {
 		return AddonUtility.getAddon(npc);
 	}
 
-	public static Optional<Addon> findAddon(String[] lines) {
-		return AddonUtility.findAddon(lines);
+	public static Optional<Addon> findAddon(String[] lines, boolean createIfMissing) {
+		return findAddon(lines[1],lines[2], createIfMissing);
 	}
 
-	public static Optional<Addon> findAddon(Block block) {
-		return AddonUtility.findAddon(block);
+	public static Optional<Addon> findAddon(Block block, boolean createIfMissing) {
+		return AddonUtility.findAddon(block, createIfMissing);
+	}
+
+	public static Optional<Addon> findAddon(String cityKey, String addonKey, boolean createIfMissing) {
+		return AddonUtility.findAddon(cityKey, addonKey, createIfMissing);
 	}
 }

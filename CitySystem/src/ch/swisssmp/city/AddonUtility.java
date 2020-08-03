@@ -17,25 +17,27 @@ import java.util.UUID;
 
 class AddonUtility {
 
-    protected static Optional<Addon> findAddon(String[] lines) {
-        String cityName = lines[1];
-        City city = CitySystem.findCity(cityName).orElse(null);
+    protected static Optional<Addon> findAddon(String cityKey, String addonKey, boolean createIfMissing) {
+        City city = CitySystem.findCity(cityKey).orElse(null);
         if (city == null) return Optional.empty();
         Techtree techtree = CitySystem.getTechtree(city.getTechtreeId()).orElse(null);
         if (techtree == null) return Optional.empty();
-        String addonKey = lines[2];
         AddonType type = techtree.findAddonType(addonKey).orElse(null);
         if (type == null) return Optional.empty();
-        Addon result = city.getAddon(type).orElse(city.createAddon(type));
-        techtree.updateAddonState(result);
-        result.save();
+        Addon result = city.getAddon(type).orElse(null);
+        if(result==null && createIfMissing){
+            result = city.createAddon(type);
+            techtree.updateAddonState(result);
+            result.save();
+        }
         return Optional.of(result);
     }
 
-    protected static Optional<Addon> findAddon(Block block) {
+    protected static Optional<Addon> findAddon(Block block, boolean createIfMissing) {
         if (!(block.getState() instanceof Sign)) return Optional.empty();
         Sign sign = (Sign) block.getState();
-        return findAddon(sign.getLines());
+        String[] lines = sign.getLines();
+        return findAddon(lines[1],lines[2], createIfMissing);
     }
 
     protected static Optional<Addon> getAddon(NPCInstance npc) {
@@ -50,8 +52,8 @@ class AddonUtility {
 
     protected static AddonGuide createAddonGuide(Player player, Sign sign, Addon addon){
         if(addon.hasGuideActive()){
-            SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix()+ ChatColor.RED+"Dieses Addon hat bereits einen Addon Guide.");
-            SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+"Entferne zuerst diesen und versuche es dann nochmals.");
+            SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix()+ ChatColor.RED+" Dieses Addon hat bereits einen Addon Guide.");
+            SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+" Entferne zuerst diesen und versuche es dann nochmals.");
             return null;
         }
         Location location = sign.getLocation();

@@ -1,5 +1,6 @@
 package ch.swisssmp.city;
 
+import ch.swisssmp.city.command.*;
 import ch.swisssmp.city.guides.AddonEventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,9 +17,14 @@ public class CitySystemPlugin extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents(new AddonEventListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new CraftingListener(), plugin);
 		Bukkit.getPluginManager().registerEvents(new PlayerInteractListener(), plugin);
+		this.getCommand("citizenship").setExecutor(new CitizenshipCommand());
+		this.getCommand("citizenships").setExecutor(new CitizenshipsCommand());
+		this.getCommand("city").setExecutor(new CityCommand());
 		this.getCommand("cities").setExecutor(new CitiesCommand());
 		this.getCommand("addon").setExecutor(new AddonCommand());
+		this.getCommand("addons").setExecutor(new AddonsCommand());
 		this.getCommand("techtree").setExecutor(new TechtreeCommand());
+		this.getCommand("techtrees").setExecutor(new TechtreesCommand());
 		Techtrees.loadAll();
 		Cities.loadAll();
 		Citizenships.loadAll();
@@ -40,7 +46,7 @@ public class CitySystemPlugin extends JavaPlugin{
 	}
 	
 	public static String getPrefix(){
-		return "["+ChatColor.RED+"Städtesystem"+ChatColor.RESET+"] ";
+		return "["+ChatColor.RED+"Städtesystem"+ChatColor.RESET+"]";
 	}
 	
 	public static CitySystemPlugin getInstance(){

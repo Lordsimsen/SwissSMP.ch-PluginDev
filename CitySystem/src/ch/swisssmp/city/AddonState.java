@@ -8,7 +8,7 @@ public enum AddonState {
 	UNAVAILABLE("Nicht verfügbar", ChatColor.GRAY, Material.GRAY_WOOL),
 	AVAILABLE("Verfügbar", ChatColor.GREEN, Material.LIME_WOOL),
 	ACTIVATED("Aktiviert", ChatColor.AQUA, Material.CYAN_WOOL),
-	ACCEPTED("Freigeschaltet", ChatColor.GREEN, Material.GREEN_WOOL)
+	ACCEPTED("Freigeschaltet", ChatColor.DARK_GREEN, Material.GREEN_WOOL)
 	;
 	
 	private final String display_name;

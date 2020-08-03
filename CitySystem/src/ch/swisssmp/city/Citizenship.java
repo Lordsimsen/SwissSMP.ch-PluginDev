@@ -91,18 +91,18 @@ public class Citizenship {
             if (!role.isEmpty()) {
                 if (actor == null) actor = ChatColor.GREEN + "Du hast";
                 else actor += ChatColor.GREEN + " hat";
-                SwissSMPler.get(citizenPlayer).sendMessage(CitySystemPlugin.getPrefix() + actor + ChatColor.GREEN + " dir den Titel " + role + " verliehen!");
+                SwissSMPler.get(citizenPlayer).sendMessage(CitySystemPlugin.getPrefix() + " "+actor + ChatColor.GREEN + " dir den Titel " + role + " verliehen!");
             } else if (!previous.isEmpty()) {
                 if (actor == null) actor = ChatColor.GRAY + "Du hast";
                 else actor += ChatColor.GRAY + " hat";
-                SwissSMPler.get(citizenPlayer).sendMessage(CitySystemPlugin.getPrefix() + actor + ChatColor.GRAY + " deinen Titel " + previous + " entfernt.");
+                SwissSMPler.get(citizenPlayer).sendMessage(CitySystemPlugin.getPrefix() + " "+actor + ChatColor.GRAY + " deinen Titel " + previous + " entfernt.");
             }
         }
     }
 
     public void announceCitizenshipAwarded(Player responsible){
         City city = getCity();
-        SwissSMPler.get(playerData.getUniqueId()).sendMessage(CitySystemPlugin.getPrefix() + responsible.getDisplayName() + ChatColor.GREEN + " hat dich in " + city.getName() + " aufgenommen!");
+        SwissSMPler.get(playerData.getUniqueId()).sendMessage(CitySystemPlugin.getPrefix() + " "+responsible.getDisplayName() + ChatColor.GREEN + " hat dich in " + city.getName() + " aufgenommen!");
     }
 
     public void announceCitizenshipRevoked(Player responsible){
@@ -110,10 +110,10 @@ public class Citizenship {
         City city = getCity();
         boolean isOwner = responsible.getUniqueId().equals(playerUid);
         if(isOwner){
-            SwissSMPler.get(playerUid).sendMessage(CitySystemPlugin.getPrefix()+ChatColor.GRAY+city.getName()+" verlassen.");
+            SwissSMPler.get(playerUid).sendMessage(CitySystemPlugin.getPrefix()+" "+ChatColor.GRAY+city.getName()+" verlassen.");
         }
         else{
-            SwissSMPler.get(playerUid).sendMessage(CitySystemPlugin.getPrefix()+ChatColor.GRAY+"Du wurdest aus "+city.getName()+" ausgeschlossen.");
+            SwissSMPler.get(playerUid).sendMessage(CitySystemPlugin.getPrefix()+" "+ChatColor.GRAY+"Du wurdest aus "+city.getName()+" ausgeschlossen.");
         }
     }
 

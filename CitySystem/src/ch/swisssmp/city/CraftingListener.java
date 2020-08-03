@@ -154,7 +154,7 @@ class CraftingListener implements Listener {
 		if (!city.isCitizen(responsible) && !responsible.hasPermission(CitySystemPermission.ADMIN)) return false;
 		if(bill.getRole()!=null && bill.getRole().equalsIgnoreCase("bürgermeister")){
 			if(!city.isMayor(responsible) && !responsible.hasPermission(CitySystemPermission.ADMIN)){
-				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Nur der Bürgermeister kann diesen Titel verleihen.");
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Nur der Bürgermeister kann diesen Titel verleihen.");
 				return false;
 			}
 		}
@@ -173,7 +173,7 @@ class CraftingListener implements Listener {
 				citizenship.setRole(previousRole);
 				bill.setCitizenRole(previousRole);
 				bill.apply(result);
-				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Konnte den Titel nicht setzen. (Systemfehler)");
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Konnte den Titel nicht setzen. (Systemfehler)");
 			}
 		});
 

@@ -16,36 +16,88 @@ permissions:
     description: Erlaubt Verwaltung des Plugins
     default: op
 commands:
+  addon:
+    description: Hauptbefehl zur Verwaltung einzelner Addons
+    usage: "/<command> <subcommand> [Argumente]"
+    permission: citysystem.admin
+  addon reload:
+    description: Aktualisiert ein Addon
+    usage: "/<command> <subcommand> <Stadt> <Addon>"
+    permission: citysystem.admin
+  addons:
+    description: Zeigt alle geladenen Addons an
+    usage: "/<command>"
+    permission: citysystem.admin
+  addons reload:
+    description: Aktualisiert alle Addons
+    usage: "/<command> <subcommand>"
+    permission: citysystem.admin
+  citizenship:
+    description: Hauptbefehl zur Verwaltung einzelner Bürgerschaften
+    usage: "/<command>"
+    permission: citysystem.admin
+  citizenship add:
+    description: Erstellt eine Bürgerschaft
+    usage: "/<command> <subcommand> <Spieler> <Stadt> [Rang] [Rolle]"
+    permission: citysystem.admin
+  citizenship remove:
+    description: Löst eine Bürgerschaft auf
+    usage: "/<command> <subcommand> <Spieler> <Stadt> [Rang] [Rolle]"
+    permission: citysystem.admin
+  citizenship reload:
+    description: Lädt eine Bürgerschaft neu
+    usage: "/<command> <subcommand> <Spieler> <Stadt> [Rang] [Rolle]"
+    permission: citysystem.admin
+  citizenships:
+    description: Hauptbefehl zur Verwaltung aller Bürgerschaften
+    usage: "/<command>"
+    permission: citysystem.admin
+  citizenships reload:
+    description: Lädt alle Städte neu
+    usage: "/<command> reload"
+    permission: citysystem.admin
+  city:
+    description: Hauptbefehl zur Verwaltung einzelner Städte
+    usage: "/<command>"
+    permission: citysystem.admin
+  city ring:
+    description: Erstellt einen Siegelring
+    usage: "/<command> ring [Stadt] (Besitzer) [Typ]"
+    permission: citysystem.admin
+  city delete:
+    description: Löscht eine Stadt und alle zugehörigen Addons
+    usage: "/<command> delete [Stadt]"
+    permission: citysystem.admin
+  city reload:
+    description: Lädt eine Stadt neu
+    usage: "/<command> delete [Stadt]"
+    permission: citysystem.admin
   cities:
     description: Zeigt alle Städte an
-    usage: "Verwendung: /<command>"
+    usage: "/<command>"
     permission: citysystem.admin
     aliases: [city]
   cities reload:
     description: Lädt alle Städte neu
-    usage: "Verwendung: /<command> reload"
-    permission: citysystem.admin
-  cities delete:
-    description: Löscht eine Stadt und alle zugehörigen Addons
-    usage: "Verwendung: /<command> delete [Stadt]"
-    permission: citysystem.admin
-  cities ring:
-    description: Erstellt einen Siegelring
-    usage: "Verwendung: /<command> ring [Stadt] (Besitzer) [Typ]"
-    permission: citysystem.admin
-  addon:
-    description: Hauptbefehl zur Verwaltung von Addons
-    usage: "Verwendung: /<command> <subcommand> [Argumente]"
-    permission: citysystem.admin
-  addon reload:
-    description: Aktualisiert Guides
-    usage: "Verwendung: /<command> <subcommand>"
+    usage: "/<command> reload"
     permission: citysystem.admin
   techtree:
     description: Hauptbefehl zur Verwaltung von Techtrees
-    usage: "Verwendung: /<command> <subcommand> [Argumente]"
+    usage: "/<command>"
+    permission: citysystem.admin
+  techtree view:
+    description: Zeigt eine Techtree-Ansicht
+    usage: "/<command> <subcommand> <Techtree-Id> [Stadt]"
     permission: citysystem.admin
   techtree reload:
-    description: Aktualisiert Techtrees
-    usage: "Verwendung: /<command> <subcommand>"
+    description: Aktualisiert einen Techtree
+    usage: "/<command> <subcommand> [Techtree-Id]"
+    permission: citysystem.admin
+  techtrees:
+    description: Zeigt alle verfügbaren Techtrees an
+    usage: "/<command>"
+    permission: citysystem.admin
+  techtrees reload:
+    description: Aktualisiert alle Techtrees
+    usage: "/<command> <subcommand>"
     permission: citysystem.admin

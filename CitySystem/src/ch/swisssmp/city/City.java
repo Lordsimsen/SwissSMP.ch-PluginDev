@@ -127,13 +127,13 @@ public class City {
         citizenship.save((success)->{
             if(success){
                 citizenship.announceCitizenshipAwarded(parent);
-                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + "Du hast " + player.getDisplayName() + ChatColor.GREEN + " aufgenommen!");
+                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + " Du hast " + player.getDisplayName() + ChatColor.GREEN + " aufgenommen!");
                 ItemManager.updateItems();
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
             }
             else{
-                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Konnte " + player.getDisplayName() + ChatColor.RED + " nicht aufnehmen. (Systemfehler)");
+                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Konnte " + player.getDisplayName() + ChatColor.RED + " nicht aufnehmen. (Systemfehler)");
             }
             callback.accept(success);
         });
@@ -212,8 +212,9 @@ public class City {
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
             boolean success = (json!=null && json.has("success") && JsonUtil.getBool("success", json));
-            if(json!=null && json.has("message")){
-                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+JsonUtil.getString("message", json));
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
             }
 
             if(callback!=null) callback.accept(success);
@@ -224,16 +225,40 @@ public class City {
         reload(null);
     }
 
-    public void reload(Runnable callback){
+    public void reload(Consumer<Boolean> callback){
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITY, new String[]{
                 "city_id="+ uid
         });
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
+            boolean success = (json!=null && json.has("success") && JsonUtil.getBool("success", json));
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+            }
             if(json!=null && json.has("city")){
                 loadData(json.getAsJsonObject("city"));
             }
-            if(callback!=null) callback.run();
+            if(callback!=null) callback.accept(success);
+        });
+    }
+
+    public void delete(Consumer<Boolean> callback){
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.REMOVE_CITY, new String[]{
+                "city=" + this.uid
+        });
+        request.onFinish(() -> {
+            JsonObject json = request.getJsonResponse();
+            boolean success = json!=null && JsonUtil.getBool("success", json);
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+                return;
+            }
+            if(success){
+                Cities.remove(this);
+            }
+            if(callback!=null) callback.accept(success);
         });
     }
 

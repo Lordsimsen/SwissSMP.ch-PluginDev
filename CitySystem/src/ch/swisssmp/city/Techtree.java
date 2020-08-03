@@ -10,10 +10,13 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Techtree {
     private final String id;
     private String name;
+    private List<String> description;
     private String addonDetailUrl;
     private List<CityLevel> levels;
     private Set<AddonType> addonTypes;
@@ -28,6 +31,10 @@ public class Techtree {
 
     public String getName(){
         return name;
+    }
+
+    public List<String> getDescription(){
+        return description;
     }
 
     public String getAddonDetailUrl(){
@@ -56,6 +63,11 @@ public class Techtree {
     }
 
     public Set<AddonType> getAddonTypes(){return Collections.unmodifiableSet(addonTypes);}
+
+    public Set<AddonType> getAddonTypes(CityLevel level){
+        int index = this.levels.indexOf(level);
+        if(index<0) return Collections.emptySet();
+        return addonTypes.stream().filter(t->t.getCityLevel()==index).collect(Collectors.toSet());}
 
     public Optional<AddonType> getAddonType(String key){
         return addonTypes.stream().filter(a->a.getAddonId().equalsIgnoreCase(key) || a.getName().equalsIgnoreCase(key)).findAny();
@@ -113,27 +125,33 @@ public class Techtree {
         reload(null);
     }
 
-    public void reload(Runnable callback){
+    public void reload(Consumer<Boolean> callback){
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_TECHTREE, new String[]{
                 "techtree_id="+ URLEncoder.encode(id)
         });
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
-            if(json!=null && json.has("techtree")){
+            boolean success = json!=null && JsonUtil.getBool("success", json);
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+            }
+            if(success){
                 loadData(json.getAsJsonObject("techtree"));
             }
-            if(callback!=null) callback.run();
+            if(callback!=null) callback.accept(success);
         });
     }
 
     private void loadData(JsonObject json){
         this.name = JsonUtil.getString("name", json);
+        this.description = JsonUtil.getStringList("description", json);
         this.addonDetailUrl = JsonUtil.getString("addon_detail_url", json);
         List<CityLevel> levels = new ArrayList<>();
         if(json.has("levels")){
             for(JsonElement element : json.getAsJsonArray("levels")){
                 if(!element.isJsonObject()) continue;
-                CityLevel level = CityLevel.load(element.getAsJsonObject()).orElse(null);
+                CityLevel level = CityLevel.load(this, element.getAsJsonObject()).orElse(null);
                 if(level==null) continue;
                 levels.add(level);
             }

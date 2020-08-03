@@ -1,5 +1,6 @@
 package ch.swisssmp.city;
 
+import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonElement;
@@ -7,6 +8,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Addons {
@@ -33,15 +35,20 @@ public class Addons {
     }
 
     protected static void loadAll(){
-        loadAll((Runnable) null);
+        loadAll((Consumer<Boolean>) null);
     }
 
-    protected static void loadAll(Runnable callback){
+    protected static void loadAll(Consumer<Boolean> callback){
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_ADDONS);
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
+            boolean success = json!=null && JsonUtil.getBool("success", json);
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+            }
             loadAll(json);
-            if(callback!=null) callback.run();
+            if(callback!=null) callback.accept(success);
         });
     }
 

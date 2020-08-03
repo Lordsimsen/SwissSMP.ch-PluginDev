@@ -20,6 +20,8 @@ public class AddonType {
 
     private final String addonId;
     private String name;
+    private int slotX;
+    private int slotY;
     private List<String> shortDescription;
     private List<String> requirementsDescription;
     private List<String> offersDescription;
@@ -43,6 +45,9 @@ public class AddonType {
     public String getAddonId() {
         return addonId;
     }
+
+    public int getSlotX(){return this.slotX;}
+    public int getSlotY(){return this.slotY;}
 
     public String getIconId() {
         return "addon_" + addonId;
@@ -104,6 +109,8 @@ public class AddonType {
 
     private void loadData(JsonObject json) {
         this.name = JsonUtil.getString("name", json);
+        this.slotX = JsonUtil.getInt("slot_x", json);
+        this.slotY = JsonUtil.getInt("slot_y", json);
         this.shortDescription = JsonUtil.getStringList("short_description", json);
         this.requirementsDescription = JsonUtil.getStringList("requirements_description", json);
         this.offersDescription = JsonUtil.getStringList("offers_description", json);
@@ -113,11 +120,7 @@ public class AddonType {
             this.synonyms.addAll(JsonUtil.getStringList("synonyms", json));
         }
         this.cityLevel = JsonUtil.getInt("level", json);
-        this.requiredAddons = json.has("required_addons")
-                ? StreamSupport.stream(json.getAsJsonArray("required_addons").spliterator(), false)
-                .map(JsonElement::toString)
-                .toArray(String[]::new)
-                : new String[0];
+        this.requiredAddons = json.has("required_addons") ? JsonUtil.getStringList("required_addons", json).toArray(new String[0]) : new String[0];
         this.unlockTrades = AddonUnlockTrades.get(json);
         this.autoActivate = JsonUtil.getBool("auto_activate", json);
         this.configuration = json.has("configuration") && json.get("configuration").isJsonObject() ? json.getAsJsonObject("configuration") : new JsonObject();
