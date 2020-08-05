@@ -21,16 +21,19 @@ public class CitySystemPlugin extends JavaPlugin{
 		this.getCommand("citizenships").setExecutor(new CitizenshipsCommand());
 		this.getCommand("city").setExecutor(new CityCommand());
 		this.getCommand("cities").setExecutor(new CitiesCommand());
+		this.getCommand("citypromotion").setExecutor(new CityPromotionCommand());
+		this.getCommand("citypromotions").setExecutor(new CityPromotionsCommand());
 		this.getCommand("addon").setExecutor(new AddonCommand());
 		this.getCommand("addons").setExecutor(new AddonsCommand());
 		this.getCommand("techtree").setExecutor(new TechtreeCommand());
 		this.getCommand("techtrees").setExecutor(new TechtreesCommand());
 		Techtrees.loadAll();
 		Cities.loadAll();
+		CityPromotions.loadAll();
 		Citizenships.loadAll();
 		Addons.loadAll();
 		CraftingRecipes.register();
-		ItemManager.updateItems();
+		ItemUtility.updateItems();
 		Bukkit.getLogger().info(getDescription().getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
 	}
 
@@ -38,6 +41,7 @@ public class CitySystemPlugin extends JavaPlugin{
 	public void onDisable() {
 		Addons.unloadAll();
 		Citizenships.unloadAll();
+		CityPromotions.unloadAll();
 		Cities.unloadAll();
 		Techtrees.unloadAll();
 		CraftingRecipes.unregister();

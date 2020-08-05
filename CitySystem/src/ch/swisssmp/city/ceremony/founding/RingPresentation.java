@@ -61,7 +61,7 @@ public class RingPresentation implements Runnable {
 	private ArmorStand spawnRingStand(Location location, CityFoundingCeremony ceremony){
 		ItemStack itemStack;
 		try{
-			CustomItemBuilder ringBuilder = CustomItems.getCustomItemBuilder(ceremony.getRingType());
+			CustomItemBuilder ringBuilder = CustomItems.getCustomItemBuilder(ceremony.getRingType().toString());
 			if(ceremony.getInitiator()==player){
 				ringBuilder.addEnchantment(Enchantment.DURABILITY, 1, false);
 			}

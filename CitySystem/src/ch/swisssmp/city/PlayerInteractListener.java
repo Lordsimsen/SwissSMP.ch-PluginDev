@@ -14,7 +14,6 @@ import org.bukkit.inventory.PlayerInventory;
 
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.webcore.HTTPRequest;
 
 class PlayerInteractListener implements Listener {
 
@@ -24,7 +23,7 @@ class PlayerInteractListener implements Listener {
 		ItemStack itemStack = event.getItem();
 		if(itemStack==null) return;
 		if(itemStack.getType()==Material.DIAMOND_SWORD){
-			City city = ItemManager.getCity(event.getPlayer(), itemStack);
+			City city = ItemUtility.getCity(event.getPlayer(), itemStack);
 			if(city==null) return;
 			String city_tool = ItemUtil.getString(itemStack, "city_tool");
 			switch(city_tool){

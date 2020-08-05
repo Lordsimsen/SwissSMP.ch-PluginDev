@@ -125,7 +125,7 @@ public class City {
             if(success){
                 citizenship.announceCitizenshipAwarded(parent);
                 parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + " Du hast " + player.getDisplayName() + ChatColor.GREEN + " aufgenommen!");
-                ItemManager.updateItems();
+                ItemUtility.updateItems();
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
             }
@@ -285,7 +285,7 @@ public class City {
         return Optional.of(city);
     }
 
-    protected static void create(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time, Consumer<City> callback){
+    protected static void create(String name, Player mayor, Collection<Player> founders, SigilRingType ringType, Block origin, long time, Consumer<City> callback){
         List<String> founderNames = new ArrayList<String>();
         for(Player player : founders){
             founderNames.add("founders[]="+player.getUniqueId().toString());
@@ -298,7 +298,7 @@ public class City {
                 "place[y]="+origin.getY(),
                 "place[z]="+origin.getZ(),
                 "time="+time,
-                "ring="+URLEncoder.encode(ringType),
+                "ring="+URLEncoder.encode(ringType.toString().toLowerCase()),
                 String.join("&", founderNames)
         });
         request.onFinish(()->{

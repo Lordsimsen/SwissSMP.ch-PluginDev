@@ -76,9 +76,32 @@ commands:
     description: Zeigt alle Städte an
     usage: "/<command>"
     permission: citysystem.admin
-    aliases: [city]
   cities reload:
     description: Lädt alle Städte neu
+    usage: "/<command> reload"
+    permission: citysystem.admin
+  citypromotion:
+    description: Basisbefehl für Stufenaufstiege
+    usage: "/<command>"
+    permission: citysystem.admin
+  citypromotion key:
+    description: Erzeugt einen Zeremonieschlüssel
+    usage: "/<command> <subcommand> <Stadt> [<Techtree-Id>] <Stufe>"
+    permission: citysystem.admin
+  citypromotion add:
+    description: Fügt einen Stufenaufstieg hinzu
+    usage: "/<command> <subcommand> <Stadt> [<Techtree-Id>] <Stufe>"
+    permission: citysystem.admin
+  citypromotion remove:
+    description: Entfernt einen Stufenaufstieg
+    usage: "/<command> <subcommand> <Stadt> [<Techtree-Id>] <Stufe>"
+    permission: citysystem.admin
+  citypromotions:
+    description: Basisbefehl zur Verwaltung aller Stufenaufstiege
+    usage: "/<command>"
+    permission: citysystem.admin
+  citypromotions reload:
+    description: Lädt alle Stufenaufstiege neu
     usage: "/<command> reload"
     permission: citysystem.admin
   techtree:

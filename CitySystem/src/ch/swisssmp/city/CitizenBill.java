@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ch.swisssmp.customitems.CustomItemBuilder;
+import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.nbt.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -15,7 +18,9 @@ import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.PlayerData;
 
 public class CitizenBill {
-	
+
+	public static final CitizenBill EMPTY = new CitizenBill();
+
 	private final UUID cityId;
 	private PlayerData playerData;
 	private PlayerData parentInfo;
@@ -49,6 +54,16 @@ public class CitizenBill {
 	public Optional<Citizenship> getCitizenship(){
 		UUID playerUid = playerData.getUniqueId();
 		return CitySystem.getCitizenship(cityId, playerUid);
+	}
+
+	public ItemStack createItemStack(){
+		CustomItemBuilder billBuilder = CustomItems.getCustomItemBuilder("contract");
+		if(billBuilder==null) return null;
+
+		billBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+		ItemStack result = billBuilder.build();
+		this.apply(result);
+		return result;
 	}
 
 	public void apply(ItemStack itemStack){

@@ -47,13 +47,14 @@ class CraftingListener implements Listener {
 			if(matrix[slot]==null || matrix[slot].getType()!=Material.PAPER) return;
 		}
 		ItemStack center = inventory.getMatrix()[4];
-		City city = ItemManager.getCity((Player)view.getPlayer(), center);
+		City city = ItemUtility.getCity((Player)view.getPlayer(), center);
 		if(city==null){
 			inventory.setResult(null);
 			return;
 		}
-		ItemStack bill = ItemManager.createCitizenBill(new CitizenBill(city));
-		inventory.setResult(bill);
+		CitizenBill bill = new CitizenBill(city);
+		ItemStack itemStack = bill.createItemStack();
+		inventory.setResult(itemStack);
 	}
 	
 	@EventHandler
@@ -166,7 +167,7 @@ class CraftingListener implements Listener {
 					city.setMayor(citizenship.getUniqueId());
 				}
 				citizenship.announceRoleChange(responsible, previousRole);
-				ItemManager.updateItems();
+				ItemUtility.updateItems();
 			}
 			else{
 				// revert role change

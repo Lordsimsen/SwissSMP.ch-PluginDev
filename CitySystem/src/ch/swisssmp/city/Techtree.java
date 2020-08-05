@@ -53,6 +53,10 @@ public class Techtree {
         return levels.stream().filter(l->l.getId().equalsIgnoreCase(id)).findAny();
     }
 
+    public boolean hasLevel(String levelId){
+        return getLevel(levelId).isPresent();
+    }
+
     public int getLevelIndex(String levelId){
         CityLevel level = getLevel(levelId).orElse(null);
         return level!=null ? getLevelIndex(level) : -1;

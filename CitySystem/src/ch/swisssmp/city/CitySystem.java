@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CitySystem {
-	public static void createCity(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time, Consumer<City> callback){
+	public static void createCity(String name, Player mayor, Collection<Player> founders, SigilRingType ringType, Block origin, long time, Consumer<City> callback){
 		City.create(name, mayor, founders, ringType, origin, time, (city)->{
 			if(city!=null) Cities.add(city);
 			if(callback!=null) callback.accept(city);
@@ -62,6 +62,12 @@ public class CitySystem {
 
 	public static void reloadCities(Consumer<Boolean> callback){
 		Cities.loadAll(callback);
+	}
+
+	public static void reloadCityPromotions(){reloadCityPromotions(null);}
+
+	public static void reloadCityPromotions(Consumer<Boolean> callback){
+		CityPromotions.loadAll(callback);
 	}
 
 	public static boolean checkCityLevel(City city, String levelId){

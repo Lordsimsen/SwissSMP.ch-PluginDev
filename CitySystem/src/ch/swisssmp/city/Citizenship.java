@@ -15,17 +15,22 @@ import org.bukkit.inventory.ItemStack;
 
 public class Citizenship {
     private final UUID cityId;
-    private final PlayerData playerData;
-    private CitizenRank rank;
     private final UUID parent;
+    private PlayerData playerData;
+    private CitizenRank rank;
     private String role;
 
-    protected Citizenship(UUID cityId, PlayerData playerData, CitizenRank rank, UUID parent, String role) {
+    protected Citizenship(UUID cityId, PlayerData playerData, CitizenRank rank, UUID parent, String role){
         this.cityId = cityId;
         this.playerData = playerData;
-        this.rank = rank;
         this.parent = parent;
+        this.rank = rank;
         this.role = role;
+    }
+
+    private Citizenship(UUID cityId, UUID parent) {
+        this.cityId = cityId;
+        this.parent = parent;
     }
 
     public UUID getCityId() {
@@ -117,6 +122,28 @@ public class Citizenship {
         }
     }
 
+    public void reload(){
+        reload(null);
+    }
+
+    public void reload(Consumer<Boolean> callback){
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIZENSHIP, new String[]{
+                "player=" + playerData.getUniqueId(),
+                "city="+cityId
+        });
+        request.onFinish(() -> {
+            JsonObject json = request.getJsonResponse();
+            boolean success = json != null && JsonUtil.getBool("success", json);
+            String message = json != null ? JsonUtil.getString("message", json) : null;
+            if (message != null) {
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " " + message);
+            }
+            if(success) this.loadData(json.getAsJsonObject("citizenship"));
+
+            if (callback != null) callback.accept(success);
+        });
+    }
+
     public void save() {
         save(null);
     }
@@ -127,7 +154,7 @@ public class Citizenship {
                 "city="+cityId,
                 "rank=" + rank,
                 "role=" + (role!=null ? URLEncoder.encode(role) : ""),
-                "parent_uuid=" + parent
+                "parent=" + parent
         });
         request.onFinish(() -> {
             JsonObject json = request.getJsonResponse();
@@ -159,28 +186,25 @@ public class Citizenship {
         });
     }
 
-    private JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        json.add("player", playerData.toJson());
-        JsonUtil.set("rank", rank.toString(), json);
-        JsonUtil.set("role", role, json);
-        JsonUtil.set("parent_uuid", parent, json);
-        return json;
+    private void loadData(JsonObject json){
+        PlayerData.get(json).ifPresent(playerData -> this.playerData = playerData);
+        this.rank = CitizenRank.get(JsonUtil.getString("rank", json));
+        this.role = JsonUtil.getString("role", json);
     }
 
     public static Optional<Citizenship> get(JsonObject json) {
         UUID cityId = JsonUtil.getUUID("city_id", json);
-        PlayerData playerData = PlayerData.get(json).orElse(null);
-        if (cityId == null || playerData == null) return Optional.empty();
-
-        CitizenRank rank = CitizenRank.get(JsonUtil.getString("rank", json));
-        String role = JsonUtil.getString("role", json);
+        if (cityId == null || PlayerData.get(json).orElse(null) == null) return Optional.empty();
         UUID parent;
         try {
             parent = JsonUtil.getUUID("parent_uuid", json);
         } catch (Exception e) {
             parent = null;
         }
-        return Optional.of(new Citizenship(cityId, playerData, rank, parent, role));
+
+        Citizenship result = new Citizenship(cityId, parent);
+        result.loadData(json);
+
+        return Optional.of(result);
     }
 }

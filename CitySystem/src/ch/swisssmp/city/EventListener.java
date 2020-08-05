@@ -49,12 +49,12 @@ class EventListener implements Listener {
 	
 	@EventHandler
 	private void onPlayerJoin(PlayerJoinEvent event){
-		ItemManager.updateItems(event.getPlayer().getInventory());
+		ItemUtility.updateItems(event.getPlayer().getInventory());
 	}
 	
 	@EventHandler
 	private void onOpenInventory(InventoryOpenEvent event){
-		ItemManager.updateItems(event.getInventory());
+		ItemUtility.updateItems(event.getInventory());
 	}
 	
 	@EventHandler
@@ -247,7 +247,7 @@ class EventListener implements Listener {
 
 			citizenship.announceCitizenshipRevoked(responsible);
 			responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GRAY + " Du hast "+playerData.getName()+" aus der Bürgerliste von " + city.getName() + " entfernt.");
-			ItemManager.updateItems();
+			ItemUtility.updateItems();
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
 		});

@@ -37,9 +37,9 @@ class CityPromotions {
 
     protected static void add(CityPromotion promotion, Consumer<Boolean> callback){
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.ADD_CITY_PROMOTION, new String[]{
-                "city_id="+promotion.getCityId(),
-                "techtree_id="+ URLEncoder.encode(promotion.getTechtreeId()),
-                "level_id="+URLEncoder.encode(promotion.getLevelId())
+                "city="+promotion.getCityId(),
+                "techtree="+ URLEncoder.encode(promotion.getTechtreeId()),
+                "level="+URLEncoder.encode(promotion.getLevelId())
         });
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
@@ -67,9 +67,9 @@ class CityPromotions {
 
     protected static void remove(CityPromotion promotion, Consumer<Boolean> callback){
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.REMOVE_CITY_PROMOTION, new String[]{
-                "city_id="+promotion.getCityId(),
-                "techtree_id="+ URLEncoder.encode(promotion.getTechtreeId()),
-                "level_id="+URLEncoder.encode(promotion.getLevelId())
+                "city="+promotion.getCityId(),
+                "techtree="+ URLEncoder.encode(promotion.getTechtreeId()),
+                "level="+URLEncoder.encode(promotion.getLevelId())
         });
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
