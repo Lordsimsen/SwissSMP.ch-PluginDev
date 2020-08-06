@@ -2,10 +2,13 @@ package ch.swisssmp.observatory;
 
 import ch.swisssmp.city.City;
 import ch.swisssmp.utils.SwissSMPler;
+import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.weather.WeatherType;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -18,6 +21,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Collection;
 
 public class EventListener implements Listener {
 
@@ -37,7 +42,7 @@ public class EventListener implements Listener {
         if(!player.hasPermission("observatory.use")) return;
         ItemFrame frame = (ItemFrame) event.getRightClicked();
         ItemStack itemStack = frame.getItem();
-        //check whether material is one of the predefined ones. if not, return
+        //TODO check whether material is one of the predefined ones. if not, return
 
         String timeLock = ""; //TODO read from item/material
         String weather = "";
@@ -66,10 +71,12 @@ public class EventListener implements Listener {
         SwissSMPler.get(player).sendActionBar(ChatColor.GREEN + "Parameter angenommen! Schalte Wettermaschine an..");
         SwissSMPler.get(triggerPlayer).sendActionBar(ChatColor.GREEN + "Parameter angenommen! Schalte Wettermaschine an..");
 
-        //TODO could play some sounds, maybe power some lamps to make it seem the MultiblockStructure is processing.
         Bukkit.getScheduler().runTaskLater(ObservatoryPlugin.getInstance(), () -> {
-            ApplicableRegionSet cityRegions = city.getApplicableRegionSet(); //TODO by the dude who makes the zones plugin I guess
-            for(ProtectedRegion cityRegion : cityRegions){
+            Collection<String> cityRegions = city.getZones();
+            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+            RegionManager regions = container.get((World) player.getWorld());
+            for(String cityRegionKey : cityRegions){
+                ProtectedRegion cityRegion = regions.getRegion(cityRegionKey);
                 cityRegion.setFlag(Flags.WEATHER_LOCK, weatherLock);
                 cityRegion.setFlag(Flags.TIME_LOCK, timeLock);
         //            String id = cityRegion.getId();
@@ -94,13 +101,33 @@ public class EventListener implements Listener {
         if(observatory == null) return;
 
         City city = observatory.getCity();
-        ApplicableRegionSet cityRegions = city.getApplicableRegionSet(); //TODO by the dude who makes the zones plugin I guess
-        for(ProtectedRegion cityRegion : cityRegions){
+        if(event.getDamager() instanceof Player) {
+            Player player = (Player) event.getDamager();
+            if(!city.isCitizen(player)) {
+                SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Keine Berechtigung!");
+                event.setCancelled(true);
+                return;
+            } else{
+                SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Deaktiviere Wettermaschine.");
+            }
+        }
+
+        Collection<String> cityRegions = city.getZones();
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regions = container.get((World) entity.getWorld());
+        for(String cityRegionKey : cityRegions){
+            ProtectedRegion cityRegion = regions.getRegion(cityRegionKey);
             cityRegion.setFlag(Flags.WEATHER_LOCK, null);
             cityRegion.setFlag(Flags.TIME_LOCK, null);
 //            String id = cityRegion.getId();
 //            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "rg flag " + id + " time-lock");
 //            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "rg flag " + id + " weather-lock");
         }
+    }
+
+    @EventHandler
+    private void onClockModify(PlayerInteractEntityEvent event){
+        if(!(event.getRightClicked() instanceof ItemFrame)) return;
+        //Todo find observatory, city, set time if active..
     }
 }

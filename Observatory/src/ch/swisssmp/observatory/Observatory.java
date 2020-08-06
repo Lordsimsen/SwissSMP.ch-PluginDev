@@ -12,10 +12,10 @@ public class Observatory {
     private final int id;
     private final Location center;
 
-    public Observatory(World world, int id, int city_id, Location center) { //TODO needs the city too, doesn't it?
+    public Observatory(World world, int id, int city_id, Location center) {
         this.world = world;
         this.id = id;
-        this.city = City.get(city_id);
+        this.city = ch.swisssmp.city.Cities.getCity(city_id);
         this.center = center;
     }
 

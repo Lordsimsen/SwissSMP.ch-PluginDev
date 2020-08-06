@@ -13,6 +13,7 @@
       <module fileurl="file://$PROJECT_DIR$/AreaTransformations/AreaTransformations.iml" filepath="$PROJECT_DIR$/AreaTransformations/AreaTransformations.iml" />
       <module fileurl="file://$PROJECT_DIR$/AuctionHouse/AuctionHouse.iml" filepath="$PROJECT_DIR$/AuctionHouse/AuctionHouse.iml" />
       <module fileurl="file://$PROJECT_DIR$/BigDoors/BigDoors.iml" filepath="$PROJECT_DIR$/BigDoors/BigDoors.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BoatRaces/BoatRaces.iml" filepath="$PROJECT_DIR$/BoatRaces/BoatRaces.iml" />
       <module fileurl="file://$PROJECT_DIR$/BookAuthor/BookAuthor.iml" filepath="$PROJECT_DIR$/BookAuthor/BookAuthor.iml" />
       <module fileurl="file://$PROJECT_DIR$/CameraStudio/CameraStudio.iml" filepath="$PROJECT_DIR$/CameraStudio/CameraStudio.iml" />
       <module fileurl="file://$PROJECT_DIR$/Ceremonies/Ceremonies.iml" filepath="$PROJECT_DIR$/Ceremonies/Ceremonies.iml" />
@@ -110,6 +111,7 @@
       <module fileurl="file://$PROJECT_DIR$/Warehouses/Warehouses.iml" filepath="$PROJECT_DIR$/Warehouses/Warehouses.iml" />
       <module fileurl="file://$PROJECT_DIR$/Warps/Warps.iml" filepath="$PROJECT_DIR$/Warps/Warps.iml" />
       <module fileurl="file://$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" filepath="$PROJECT_DIR$/WaypointAPI/WaypointAPI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Weaver/Weaver.iml" filepath="$PROJECT_DIR$/Weaver/Weaver.iml" />
       <module fileurl="file://$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" filepath="$PROJECT_DIR$/../SwissSMP.ch-WebCore/WebCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" filepath="$PROJECT_DIR$/WorldGuardManager/WorldGuardManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorldGuardTools/WorldGuardTools.iml" filepath="$PROJECT_DIR$/WorldGuardTools/WorldGuardTools.iml" />
