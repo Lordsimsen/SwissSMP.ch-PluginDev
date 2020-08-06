@@ -4,11 +4,14 @@ api-version: 1.13
 name: Weberei
 author: WhiteGuggi
 description: Weberei-Addon. Erlaubt tragen eines Stadtbanners im Helmslot
-depend: [SwissSMPUtils]
+depend: [SwissSMPUtils,CitySystem,WebCore]
 permissions:
   weaver.use:
     default: op
     description: Erlaubt Nutzen der Weberei-Funktion
+  weaver.setbanner:
+    default: op
+    description: Erlaubt Setzen des Stadtbanners mit Siegelring
 commands:
   banner:
     description: Erlaubt Tragen des Stadtbanners im Helmslot

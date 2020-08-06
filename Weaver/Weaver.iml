@@ -28,5 +28,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="SwissSMPUtils" />
+    <orderEntry type="module" module-name="CitySystem" />
+    <orderEntry type="module" module-name="WebCore" />
   </component>
 </module>

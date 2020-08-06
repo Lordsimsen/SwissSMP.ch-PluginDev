@@ -1,5 +1,7 @@
 package ch.swisssmp.weaver;
 
+import ch.swisssmp.utils.SwissSMPler;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,12 +22,14 @@ public class PlayerCommand implements CommandExecutor {
         int slot = inventory.getHeldItemSlot();
         ItemStack banner = inventory.getItem(slot);
 
-        //TODO check whether "banner" is actually the registered city banner. Mind people with multiple citizenships
+        if(!CityBanner.isBanner(banner, player)) {
+            SwissSMPler.get(player).sendActionBar(ChatColor.RED + "Ungültiges Banner");
+            return true;
+        }
 
-        ItemStack from = inventory.getHelmet();
-
+        ItemStack helmet = inventory.getHelmet();
         inventory.setHelmet(banner);
-        inventory.setItem(slot, from);
+        inventory.setItem(slot, helmet);
 
         return true;
     }
