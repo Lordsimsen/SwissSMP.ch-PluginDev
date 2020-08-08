@@ -89,12 +89,12 @@ public class BurningPhase extends Phase implements Listener {
         if(ceremony.getParticipants().size() < ceremony.getCeremonyParameters().getPromotionPlayerCount()) cancel();
         if(fireIgnited) {
             double randomDouble = ceremony.random.nextDouble();
-            if (randomDouble < 0.1) playRandomLocatedFireBurst(chest.getLocation(), 2);
+            if (randomDouble < 0.03) playFireBurst(chest.getLocation());
         }
     }
 
-    private void playRandomLocatedFireBurst(Location location, int bound){
-        Location hayPileCorner = location.add(-bound,-bound,-bound);
+    private void playFireBurst(Location location){
+        Location hayPileCorner = location.add(0,-1,0);
         int x = ceremony.random.nextInt(4);
         int y = ceremony.random.nextInt(3);
         int z = ceremony.random.nextInt(4);
