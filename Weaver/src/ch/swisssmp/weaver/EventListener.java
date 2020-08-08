@@ -1,8 +1,6 @@
 package ch.swisssmp.weaver;
 
 import ch.swisssmp.city.SigilRingInfo;
-import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
 import org.bukkit.block.banner.Pattern;
@@ -16,7 +14,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.BannerMeta;
 
 import java.util.List;
 
@@ -31,7 +28,7 @@ public class EventListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         if(!player.hasPermission("weaver.use")) return;
         ItemStack banner = event.getCursor();
-        if(!CityBanner.isBanner(banner, player)) return;
+        if(!CityBanners.isBanner(banner, player)) return;
         event.setCancelled(true);
 
         ItemStack helmet = ((PlayerInventory) inventory).getHelmet();
@@ -49,7 +46,7 @@ public class EventListener implements Listener {
         PlayerInventory inventory = player.getInventory();
         ItemStack helmet = inventory.getHelmet();
         if(helmet != null || !helmet.getType().equals(Material.AIR)) return;
-        if(!CityBanner.isBanner(banner, player)) return;
+        if(!CityBanners.isBanner(banner, player)) return;
         inventory.setHelmet(banner);
     }
 
@@ -60,25 +57,25 @@ public class EventListener implements Listener {
         SigilRingInfo ringInfo = SigilRingInfo.get(ring);
         if(ringInfo == null) return;
         Player player = event.getPlayer();
-        if(!ringInfo.getOwner().getUniqueId().equals(player.getUniqueId())) return;
+        if(!ringInfo.getOwner().getUniqueId().equals(player.getUniqueId()) || !ringInfo.getCity().getMayor().equals(player.getUniqueId())) return;
         if(!player.hasPermission("weaver.setbanner")) return;
 
-        if(!(event.getClickedBlock().getState() instanceof Banner)) {
-            Bukkit.getLogger().info("not a banner");
-            return;
-        }
+        if(!(event.getClickedBlock().getState() instanceof Banner)) return;
         event.setCancelled(true);
         Banner banner = (Banner) event.getClickedBlock().getState();
         List<Pattern> patterns = banner.getPatterns();
-        DyeColor baseColor = banner.getBaseColor();
 
-        ItemStack bannerStack = new ItemStack(Material.BLACK_BANNER);
-        BannerMeta bannerStackMeta = (BannerMeta) bannerStack.getItemMeta();
-        bannerStackMeta.setBaseColor(baseColor); //use MaterialData, but Materialdata is subject to removal. BlockData replaces it ...
-        bannerStackMeta.setPatterns(patterns);
+        CityBanners.registerBanner(patterns, ringInfo.getCity());
 
-        bannerStack.setItemMeta(bannerStackMeta);
-        CityBanner.registerBanner(bannerStack, ringInfo.getCity());
+//        DyeColor baseColor = banner.getBaseColor();
+//
+//        ItemStack bannerStack = new ItemStack(Material.BLACK_BANNER);
+//        BannerMeta bannerStackMeta = (BannerMeta) bannerStack.getItemMeta();
+//        bannerStackMeta.setBaseColor(baseColor); //use MaterialData, but Materialdata is subject to removal. BlockData replaces it ...
+//        bannerStackMeta.setPatterns(patterns);
+//
+//        bannerStack.setItemMeta(bannerStackMeta);
+//        CityBanner.registerBanner(bannerStack, ringInfo.getCity());
 
     }
 }
