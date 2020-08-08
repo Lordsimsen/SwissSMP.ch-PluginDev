@@ -9,10 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-public class PlayerCommand implements CommandExecutor {
+public class BannerCommand implements CommandExecutor {
 
-    @Override
+    @Deprecated @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        //Subject for removal. Won't be used and can basically be done with /hat for admins.
         if(!(sender instanceof Player)){
             sender.sendMessage("/banner kann nur ingame verwendet werden");
             return true;

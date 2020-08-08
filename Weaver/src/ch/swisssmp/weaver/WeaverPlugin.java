@@ -13,6 +13,8 @@ public class WeaverPlugin extends JavaPlugin {
     public void onEnable(){
         plugin = this;
 
+        Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
+
         Bukkit.getLogger().info(getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
     }
 

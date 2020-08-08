@@ -1,6 +1,7 @@
 package ch.swisssmp.weaver;
 
 import ch.swisssmp.city.SigilRingInfo;
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
@@ -21,7 +22,6 @@ import java.util.List;
 
 public class EventListener implements Listener {
 
-
     @EventHandler
     private void onBannerPut(InventoryClickEvent event){
         Inventory inventory = event.getClickedInventory();
@@ -29,6 +29,7 @@ public class EventListener implements Listener {
         if(!event.getSlotType().equals(InventoryType.SlotType.ARMOR)) return;
 
         Player player = (Player) event.getWhoClicked();
+        if(!player.hasPermission("weaver.use")) return;
         ItemStack banner = event.getCursor();
         if(!CityBanner.isBanner(banner, player)) return;
         event.setCancelled(true);
@@ -37,6 +38,19 @@ public class EventListener implements Listener {
         ((PlayerInventory) inventory).setHelmet(banner);
 
         event.setCurrentItem(helmet);
+    }
+
+    @EventHandler
+    private void onBannerRightclickAir(PlayerInteractEvent event){
+        if(event.getAction() != Action.RIGHT_CLICK_AIR) return;
+        ItemStack banner = event.getItem();
+        Player player = event.getPlayer();
+        if(!player.hasPermission("weaver.use")) return;
+        PlayerInventory inventory = player.getInventory();
+        ItemStack helmet = inventory.getHelmet();
+        if(helmet != null || !helmet.getType().equals(Material.AIR)) return;
+        if(!CityBanner.isBanner(banner, player)) return;
+        inventory.setHelmet(banner);
     }
 
     @EventHandler
@@ -49,8 +63,12 @@ public class EventListener implements Listener {
         if(!ringInfo.getOwner().getUniqueId().equals(player.getUniqueId())) return;
         if(!player.hasPermission("weaver.setbanner")) return;
 
-        if(!(event.getClickedBlock() instanceof Banner)) return;
-        Banner banner = (Banner) event.getClickedBlock();
+        if(!(event.getClickedBlock().getState() instanceof Banner)) {
+            Bukkit.getLogger().info("not a banner");
+            return;
+        }
+        event.setCancelled(true);
+        Banner banner = (Banner) event.getClickedBlock().getState();
         List<Pattern> patterns = banner.getPatterns();
         DyeColor baseColor = banner.getBaseColor();
 

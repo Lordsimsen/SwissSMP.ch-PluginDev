@@ -5,6 +5,7 @@ import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import net.minecraft.server.v1_16_R1.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,9 +36,11 @@ public class CityBanner {
     protected static void registerBanner(ItemStack banner, City city){
         String serializedBanner = ItemUtil.serialize(banner);
 
-        HTTPRequest request = DataSource.getResponse(WeaverPlugin.getInstance(), "/register_banner.php", new String[]{
-                "city=" + city.getUniqueId(),
-                "banner=" + serializedBanner
-        });
+        Bukkit.getLogger().info("Banner registered: " + serializedBanner);
+
+//        HTTPRequest request = DataSource.getResponse(WeaverPlugin.getInstance(), "/register_banner.php", new String[]{
+//                "city=" + city.getUniqueId(),
+//                "banner=" + serializedBanner
+//        });
     }
 }

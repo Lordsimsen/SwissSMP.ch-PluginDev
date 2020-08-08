@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="BoatRaces:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="BoatRaces.jar">
+      <element id="module-output" name="BoatRaces" />
+      <element id="file-copy" path="$PROJECT_DIR$/BoatRaces/src/plugin.yml" />
+    </root>
+  </artifact>
+</component>

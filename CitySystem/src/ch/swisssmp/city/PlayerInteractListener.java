@@ -18,8 +18,15 @@ import ch.swisssmp.utils.SwissSMPler;
 class PlayerInteractListener implements Listener {
 
 	@EventHandler
-	private void onPlayerInteract(PlayerInteractEvent event){
+	private void onPlayerInteract(PlayerInteractEvent event) {
+		Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()-> {
+			listen(event);
+		}, 1);
+	}
+
+	private void listen(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_AIR && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
+		if(event.getClickedBlock().getType().isInteractable()) return;
 		ItemStack itemStack = event.getItem();
 		if(itemStack==null) return;
 		if(itemStack.getType()==Material.DIAMOND_SWORD){
@@ -27,9 +34,9 @@ class PlayerInteractListener implements Listener {
 			if(city==null) return;
 			String city_tool = ItemUtil.getString(itemStack, "city_tool");
 			switch(city_tool){
-			case "sigil_ring":
-				CityView.open(event.getPlayer(),city);
-				break;
+				case "sigil_ring":
+					CityView.open(event.getPlayer(),city);
+					break;
 			}
 		}
 		else if(itemStack.getType()==Material.WOODEN_SWORD){
@@ -52,7 +59,7 @@ class PlayerInteractListener implements Listener {
 				SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW+billInfo.getPlayerData().getName()+" muss zuerst unterschreiben.");
 				return;
 			}
-			else if(billInfo.isSignedByCitizen() && !billInfo.isSignedByParent() && 
+			else if(billInfo.isSignedByCitizen() && !billInfo.isSignedByParent() &&
 					(billInfo.getParent().getUniqueId().equals(player.getUniqueId()) || player.hasPermission(CitySystemPermission.ADMIN))){
 				otherPlayer = Bukkit.getPlayer(billInfo.getPlayerData().getUniqueId());
 				if(otherPlayer==null){
