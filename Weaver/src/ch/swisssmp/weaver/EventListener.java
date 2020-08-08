@@ -1,6 +1,7 @@
 package ch.swisssmp.weaver;
 
 import ch.swisssmp.city.SigilRingInfo;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
 import org.bukkit.block.banner.Pattern;
@@ -65,7 +66,14 @@ public class EventListener implements Listener {
         Banner banner = (Banner) event.getClickedBlock().getState();
         List<Pattern> patterns = banner.getPatterns();
 
-        CityBanners.registerBanner(patterns, ringInfo.getCity());
+        CityBanners.registerBanner(patterns, ringInfo.getCity(), (success)->{
+            if(success){
+                CityBanners.addCityBanner(ringInfo.getCity().getUniqueId(), patterns);
+                player.sendMessage(WeaverPlugin.getPrefix() + ChatColor.GREEN + " Banner als Stadtbanner registriert!");
+            } else{
+                player.sendMessage(WeaverPlugin.getPrefix() + ChatColor.RED + " Etwas ist schief gelaufen. Bitte kontaktiere die Spielleitung bei wiederholtem scheitern.");
+            }
+        });
 
 //        DyeColor baseColor = banner.getBaseColor();
 //

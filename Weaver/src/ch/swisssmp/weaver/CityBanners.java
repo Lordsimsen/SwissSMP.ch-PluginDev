@@ -24,6 +24,10 @@ public class CityBanners {
 
     private static HashMap<UUID, List<Pattern>> cityBanners;
 
+    protected static void addCityBanner(UUID cityId, List<Pattern> patterns){
+        cityBanners.put(cityId, patterns);
+    }
+
 //    private List<Pattern> patterns;
 //    private UUID cityId;
 
@@ -152,8 +156,4 @@ public class CityBanners {
             if(callback!=null) callback.accept(success);
         });
     }
-
-    //city=city.getUniqueId(),
-    //patterns[n][type]=pattern.getPattern().toString(),
-    //patterns[n][color]=pattern.getColor().toString()
 }
