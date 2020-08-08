@@ -3,6 +3,7 @@ package ch.swisssmp.weaver;
 import ch.swisssmp.city.City;
 import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.utils.JsonUtil;
+import ch.swisssmp.utils.URLEncoder;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import com.google.gson.JsonArray;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class CityBanners {
 
@@ -101,9 +103,14 @@ public class CityBanners {
         JsonArray patternArray = json.getAsJsonArray("patterns");
         for(JsonElement element : patternArray){
             if(!element.isJsonObject()) continue;
-            try{
-            patterns.add(new Pattern(DyeColor.valueOf(JsonUtil.getString("color", json)), PatternType.valueOf(JsonUtil.getString("type", json))));
-            } catch (Exception ignored){}
+            JsonObject patternSection = element.getAsJsonObject();
+            DyeColor color = JsonUtil.getDyeColor("color", patternSection);
+            PatternType pattern = JsonUtil.getPattern("type", patternSection);
+            if(color==null || pattern==null){
+                Bukkit.getLogger().warning(WeaverPlugin.getPrefix()+" Konnte Banner Pattern nicht laden:\n"+element.toString());
+                continue;
+            }
+            patterns.add(new Pattern(color, pattern));
         }
 //        banner.setPatterns(patterns);
 //        banner.setCityId(cityId);
@@ -126,16 +133,23 @@ public class CityBanners {
         return false;
     }
 
-    protected static void registerBanner(List<Pattern> patterns, City city){
-        String[] type = new String[patterns.size()];
-        String[] color = new String[patterns.size()];
-        for(int i = 0; i > patterns.size(); i++){
-            type[i] = patterns.get(i).getPattern().toString();
-            color[i] = patterns.get(i).getColor().toString();
+    protected static void registerBanner(List<Pattern> patterns, City city, Consumer<Boolean> callback){
+        List<String> arguments = new ArrayList<>();
+        arguments.add("city="+city.getUniqueId());
+        for(int i = 0; i < patterns.size(); i++){
+            Pattern p = patterns.get(i);
+            arguments.add("patterns["+i+"][type]="+URLEncoder.encode(p.getPattern().getIdentifier()));
+            arguments.add("patterns["+i+"][color]="+ URLEncoder.encode(p.getColor().toString()));
         }
-        HTTPRequest request = DataSource.getResponse(WeaverPlugin.getInstance(), WeaverUrl.SAVE_BANNER, new String[]{
-                "city=" + city.getUniqueId(),
-                "patterns=" ??
+        HTTPRequest request = DataSource.getResponse(WeaverPlugin.getInstance(), WeaverUrl.SAVE_BANNER, arguments.toArray(new String[0]));
+        request.onFinish(()->{
+            JsonObject json = request.getJsonResponse();
+            boolean success = json!=null && JsonUtil.getBool("success", json);
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(WeaverPlugin.getPrefix()+" "+message);
+            }
+            if(callback!=null) callback.accept(success);
         });
     }
 
