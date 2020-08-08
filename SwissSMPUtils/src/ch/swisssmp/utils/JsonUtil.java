@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockVector;
@@ -238,6 +239,38 @@ public class JsonUtil {
         catch(Exception ignored){
             return null;
         }
+    }
+
+    public static DyeColor getDyeColor(String key, JsonObject json){return getDyeColor(json.get(key));}
+
+    public static DyeColor getDyeColor(JsonElement element){
+        try{
+            return element!=null ? DyeColor.valueOf(element.toString()) : null;
+        }
+        catch(Exception ignored){
+            return null;
+        }
+    }
+
+    public static void set(String key, DyeColor color, JsonObject json){
+        json.addProperty(key, color.toString());
+    }
+
+    public static PatternType getPattern(String key, JsonObject json){
+        return getPattern(json.get(key));
+    }
+
+    public static PatternType getPattern(JsonElement element){
+        try{
+            return element!=null ? PatternType.getByIdentifier(element.toString()) : null;
+        }
+        catch(Exception ignored){
+            return null;
+        }
+    }
+
+    public static void set(String key, PatternType pattern, JsonObject json){
+        json.addProperty(key, pattern.getIdentifier());
     }
 
     public static void set(String key, Color value, JsonObject json) {
