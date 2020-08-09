@@ -1,6 +1,7 @@
 package ch.swisssmp.weaver;
 
 import ch.swisssmp.city.SigilRingInfo;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
@@ -28,13 +29,20 @@ public class EventListener implements Listener {
 
         Player player = (Player) event.getWhoClicked();
         if(!player.hasPermission("weaver.use")) return;
-        ItemStack banner = event.getCursor();
+        ItemStack banner = event.getCursor().clone();
         if(!CityBanners.isBanner(banner, player)) return;
-        event.setCancelled(true);
 
         ItemStack helmet = ((PlayerInventory) inventory).getHelmet();
+        if(event.getCursor().getAmount() > 1 && helmet != null) return;
+
+        banner.setAmount(1);
+        event.getCursor().setAmount(event.getCursor().getAmount() -1);
+        event.setCancelled(true);
+
         ((PlayerInventory) inventory).setHelmet(banner);
-        event.setCursor(helmet);
+        if(helmet != null) {
+            Bukkit.getScheduler().runTaskLater(WeaverPlugin.getInstance(), () -> event.setCursor(helmet), 1);
+        }
     }
 
     @EventHandler
@@ -53,6 +61,7 @@ public class EventListener implements Listener {
             return;
         }
         event.getItem().setAmount(event.getItem().getAmount() - 1);
+        banner.setAmount(1);
         inventory.setHelmet(banner);
         event.setCancelled(true);
     }
