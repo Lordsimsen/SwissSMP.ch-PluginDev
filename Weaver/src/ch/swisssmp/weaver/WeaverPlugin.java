@@ -23,9 +23,9 @@ public class WeaverPlugin extends JavaPlugin {
 
     @Override
     public void onDisable(){
+        CityBanners.unloadBanners();
         HandlerList.unregisterAll(this);
         Bukkit.getScheduler().cancelTasks(this);
-        CityBanners.unloadBanners();
         Bukkit.getLogger().info(getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
     }
 

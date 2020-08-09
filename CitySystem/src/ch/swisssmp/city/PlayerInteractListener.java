@@ -26,7 +26,9 @@ class PlayerInteractListener implements Listener {
 
 	private void listen(PlayerInteractEvent event){
 		if(event.getAction()!=Action.RIGHT_CLICK_AIR && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
-		if(event.getClickedBlock().getType().isInteractable()) return;
+		try {
+			if (event.getClickedBlock().getType().isInteractable()) return;
+		} catch (NullPointerException ignored){}
 		ItemStack itemStack = event.getItem();
 		if(itemStack==null) return;
 		if(itemStack.getType()==Material.DIAMOND_SWORD){

@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 public class CityBanners {
 
-    private static HashMap<UUID, List<Pattern>> cityBanners;
+    private static HashMap<UUID, List<Pattern>> cityBanners = new HashMap<>();
 
     protected static void addCityBanner(UUID cityId, List<Pattern> patterns){
         cityBanners.put(cityId, patterns);
@@ -55,6 +55,21 @@ public class CityBanners {
 //    protected void setPatterns(List<Pattern> patterns){
 //        this.patterns = patterns;
 //    }
+
+    public static boolean isBanner(ItemStack banner, Player player){
+        if(!(banner.getItemMeta() instanceof BannerMeta)) return false;
+        BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();
+        List<Pattern> bannerPatterns = bannerMeta.getPatterns();
+
+        for(UUID id : cityBanners.keySet()){
+            City city = CitySystem.getCity(id).orElse(null);
+            if(city == null) continue;
+            if(!city.isCitizen(player)) continue;
+            List<Pattern> cityBannerPatterns = cityBanners.get(id);
+            if(cityBannerPatterns.equals(bannerPatterns)) return true;
+        }
+        return false;
+    }
 
     protected static void unloadBanners(){
         cityBanners.clear();
@@ -98,11 +113,6 @@ public class CityBanners {
 
     private static void reloadBanner(JsonObject json){
         UUID cityId = JsonUtil.getUUID("city_id", json);
-//        CityBanner banner = cityBanners.stream().filter(b -> cityId == b.getCityId()).findAny().orElse(null);
-
-//        if(banner == null){
-//            banner = new CityBanner();
-//        }
         List<Pattern> patterns = new ArrayList<>();
         JsonArray patternArray = json.getAsJsonArray("patterns");
         for(JsonElement element : patternArray){
@@ -116,25 +126,7 @@ public class CityBanners {
             }
             patterns.add(new Pattern(color, pattern));
         }
-//        banner.setPatterns(patterns);
-//        banner.setCityId(cityId);
-//        return banner;
         cityBanners.put(cityId, patterns);
-    }
-
-    public static boolean isBanner(ItemStack banner, Player player){
-        if(!(banner.getItemMeta() instanceof BannerMeta)) return false; //Because Bukkit doesn't have the Material "generic banner", so you can't go over type very well, can you?
-        BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();
-        List<Pattern> bannerPatterns = bannerMeta.getPatterns();
-
-        for(UUID id : cityBanners.keySet()){
-            City city = CitySystem.getCity(id).orElse(null);
-            if(city == null) continue;
-            if(!city.isCitizen(player)) continue;
-            List<Pattern> cityBannerPatterns = cityBanners.get(id);
-            if(cityBannerPatterns.equals(bannerPatterns)) return true; //Will this "equals" work..?
-        }
-        return false;
     }
 
     protected static void registerBanner(List<Pattern> patterns, City city, Consumer<Boolean> callback){
