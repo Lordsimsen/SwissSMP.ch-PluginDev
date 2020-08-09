@@ -5,10 +5,7 @@ import java.util.*;
 
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -39,7 +36,7 @@ public class CustomItemBuilder {
 	private boolean useNMS = false;
 	private boolean useCustomModelDataProperty = false;
 	
-	private String customEnum = "";
+	private NamespacedKey key = null;
 	private int maxCustomDurability = 0;
 	private int customDurability = 0;
 	private int customModelId = 0;
@@ -90,7 +87,7 @@ public class CustomItemBuilder {
 	}
 	public CustomItemBuilder setDurability(short durability){
 		this.durability = durability;
-		if(!this.customEnum.isEmpty() && this.durability>=0){
+		if(key!=null && this.durability>=0){
 			this.unbreakable = true;
 			if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
@@ -215,18 +212,26 @@ public class CustomItemBuilder {
 	public long getExpirationDate(){
 		return expirationDate;
 	}
-	
+
 	public CustomItemBuilder setCustomEnum(String customEnum){
-		this.setCustomEnum(customEnum, null);
+		return this.setCustomEnum(NamespacedKey.minecraft(customEnum.toLowerCase()));
+	}
+
+	public CustomItemBuilder setCustomEnum(NamespacedKey key){
+		this.setCustomEnum(key, null);
 		return this;
 	}
-	
+
 	protected CustomItemBuilder setCustomEnum(String customEnum, CustomMaterialTemplate template){
-		this.customEnum = customEnum;
-		if(this.customEnum==null) return this;
+		return this.setCustomEnum(NamespacedKey.minecraft(customEnum.toLowerCase()), template);
+	}
+	
+	protected CustomItemBuilder setCustomEnum(NamespacedKey key, CustomMaterialTemplate template){
+		this.key = key;
+		if(this.key==null) return this;
 		if(this.material==null){
 			if(template==null){
-				template = CustomMaterialTemplate.get(customEnum);
+				template = CustomMaterialTemplate.get(key).orElse(null);
 			}
 			if(template!=null){
 				Material material = template.getMaterial();
@@ -236,7 +241,7 @@ public class CustomItemBuilder {
 				this.useCustomModelDataProperty = template.useCustomModelDataProperty();
 			}
 		}
-		if(this.durability!=0 && !this.customEnum.isEmpty()){
+		if(this.durability!=0 && key!=null){
 			this.useNMS = true;
 			this.unbreakable |= !this.useCustomModelDataProperty;
 			if(!this.useCustomModelDataProperty && !this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
@@ -247,7 +252,15 @@ public class CustomItemBuilder {
 	}
 
 	public String getCustomEnum(){
-		return customEnum;
+		return key!=null ? key.getKey() : null;
+	}
+
+	public String getNamespace(){
+		return key!=null ? key.getNamespace() : null;
+	}
+
+	public NamespacedKey getKey(){
+		return key;
 	}
 
 	public CustomItemBuilder setAttackDamage(double attackDamage){
@@ -443,8 +456,8 @@ public class CustomItemBuilder {
 			CompoundTag nbtTag = ItemUtil.getData(itemStack);
 			if(nbtTag==null) nbtTag = new CompoundTag();
 			
-			if(!this.customEnum.isEmpty()){
-				nbtTag.putString("customEnum", this.customEnum);
+			if(key!=null){
+				nbtTag.putString("customEnum", !key.getNamespace().equals("minecraft") ? key.toString() : key.getKey());
 			}
 			
 			if(this.maxCustomDurability>0){

@@ -11,6 +11,7 @@ import ch.swisssmp.utils.*;
 import com.google.gson.JsonElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.CraftingInventory;
@@ -57,27 +58,56 @@ public class CustomItems{
 		if(itemStack==null) return null;
 		return ItemUtil.getString(itemStack, "customEnum");
 	}
+
+	public static NamespacedKey getKey(ItemStack itemStack){
+		String customEnum = getCustomEnum(itemStack);
+		if(customEnum==null) return null;
+		if(customEnum.contains(":")){
+			String[] parts = customEnum.split(":");
+			//noinspection deprecation
+			return new NamespacedKey(parts[0].toLowerCase(), parts[1].toLowerCase());
+		}
+
+		return NamespacedKey.minecraft(customEnum.toLowerCase());
+	}
+
+	public static CustomItemBuilder getCustomItemBuilder(String customEnum){
+		return getCustomItemBuilder(customEnum, 1);
+	}
 	
 	/**
 	 * Generiert ein Factory Objekt aufgrund einer voreingestellten Konfiguration, identifiziert durch den customEnum.
 	 * Der generierte ItemStack wird ohne weitere Einstellung eine Menge von 1 haben.
-	 * @param customEnum - Entspricht dem Wert aus dem Web-Interface
+	 * @param key - Entspricht dem Wert aus dem Web-Interface
 	 * @return Ein CustomItemBuilder mit allen Voreinstellungen für den angegebenen CustomEnum.
 	 */
-	public static CustomItemBuilder getCustomItemBuilder(String customEnum){
-		return CustomItems.getCustomItemBuilder(customEnum, 1);
+	public static CustomItemBuilder getCustomItemBuilder(NamespacedKey key){
+		return CustomItems.getCustomItemBuilder(key, 1);
+	}
+
+	public static CustomItemBuilder getCustomItemBuilder(String customEnum, int amount){
+		NamespacedKey key;
+		if(customEnum.contains(":")){
+			String[] parts = customEnum.split(":");
+			//noinspection deprecation
+			key = new NamespacedKey(parts[0].toLowerCase(), parts[1].toLowerCase());
+		}
+		else{
+			key = NamespacedKey.minecraft(customEnum.toLowerCase());
+		}
+		return getCustomItemBuilder(key, amount);
 	}
 
 	/**
 	 * Generiert ein Factory Objekt aufgrund einer voreingestellten Konfiguration, identifiziert durch den customEnum.
 	 * Der generierte ItemStack wird die angegebene Grösse haben.
-	 * @param customEnum - Entspricht dem Wert aus dem Web-Interface
+	 * @param key - Entspricht dem Wert aus dem Web-Interface
 	 * @param amount - Setzt die Grösse
 	 * @return Ein CustomItemBuilder mit allen Voreinstellungen für den angegebenen CustomEnum und der festgelegten Grösse.
 	 */
-	public static CustomItemBuilder getCustomItemBuilder(String customEnum, int amount){
-		IBuilderTemplate template = CustomItemTemplate.get(customEnum);
-		if(template==null) template = CustomMaterialTemplate.get(customEnum);
+	public static CustomItemBuilder getCustomItemBuilder(NamespacedKey key, int amount){
+		IBuilderTemplate template = CustomItemTemplate.get(key).orElse(null);
+		if(template==null) template = CustomMaterialTemplate.get(key).orElse(null);
 		if(template==null) return INVALID_BUILDER;
 		JsonObject json = template.getData();
 		CustomItemBuilder result = new CustomItemBuilder();

@@ -5,28 +5,26 @@ import com.google.gson.JsonObject;
 import org.bukkit.Material;
 
 import ch.swisssmp.utils.ConfigurationSection;
+import org.bukkit.NamespacedKey;
+
+import java.util.Optional;
 
 public class CustomMaterialTemplate implements IBuilderTemplate {
 
-	private final String customEnum;
-	private final Material material;
-	private final short durability;
-	private final int customModelId;
-	private final boolean useCustomModelDataProperty;
+	private final NamespacedKey key;
+	private Material material;
+	private short durability;
+	private int customModelId;
+	private boolean useCustomModelDataProperty;
 	
-	private final JsonObject templateData;
+	private JsonObject templateData;
 	
-	protected CustomMaterialTemplate(JsonObject json){
-		this.customEnum = JsonUtil.getString("custom_enum", json);
-		this.material = JsonUtil.getMaterial("material", json);
-		this.durability = JsonUtil.getShort("durability", json);
-		this.customModelId = JsonUtil.getInt("custom_model_id", json);
-		this.useCustomModelDataProperty = JsonUtil.getBool("use_custom_model_data_property", json);
-		this.templateData = json;
+	private CustomMaterialTemplate(NamespacedKey key){
+		this.key = key;
 	}
 	
-	public String getCustomEnum(){
-		return this.customEnum;
+	public NamespacedKey getKey(){
+		return this.key;
 	}
 	
 	public Material getMaterial(){
@@ -45,12 +43,33 @@ public class CustomMaterialTemplate implements IBuilderTemplate {
 		return this.useCustomModelDataProperty;
 	}
 	
-	public static CustomMaterialTemplate get(String customEnum){
-		return CustomMaterialTemplates.templates.get(customEnum.toLowerCase());
+	protected static Optional<CustomMaterialTemplate> get(NamespacedKey key){
+		return CustomMaterialTemplates.getTemplate(key);
 	}
 
 	@Override
 	public JsonObject getData() {
 		return templateData;
+	}
+
+	private void loadData(JsonObject json){
+		this.material = JsonUtil.getMaterial("material", json);
+		this.durability = JsonUtil.getShort("durability", json);
+		this.customModelId = JsonUtil.getInt("custom_model_id", json);
+		this.useCustomModelDataProperty = JsonUtil.getBool("use_custom_model_data_property", json);
+		this.templateData = json;
+	}
+
+	protected static Optional<CustomMaterialTemplate> load(JsonObject json){
+		String customEnum = JsonUtil.getString("custom_enum", json);
+		String source = JsonUtil.getString("source", json);
+		if(customEnum==null || customEnum.isEmpty()) return Optional.empty();
+		//noinspection deprecation
+		NamespacedKey key = source!=null && !source.isEmpty()
+				? new NamespacedKey(source.toLowerCase(), customEnum.toLowerCase())
+				: NamespacedKey.minecraft(customEnum.toLowerCase());
+		CustomMaterialTemplate result = new CustomMaterialTemplate(key);
+		result.loadData(json);
+		return Optional.of(result);
 	}
 }
