@@ -28,34 +28,6 @@ public class CityBanners {
         cityBanners.put(cityId, patterns);
     }
 
-//    private List<Pattern> patterns;
-//    private UUID cityId;
-
-//    protected CityBanner(){
-//        patterns = new ArrayList<>();
-//    }
-//
-//    protected CityBanner(List<Pattern> patterns, UUID cityId){
-//        this.patterns = patterns;
-//        this.cityId = cityId;
-//    }
-//
-//    public UUID getCityId(){
-//        return cityId;
-//    }
-//
-//    protected void setCityId(UUID cityId){
-//        this.cityId = cityId;
-//    }
-//
-//    public List<Pattern> getPatterns(){
-//        return patterns;
-//    }
-//
-//    protected void setPatterns(List<Pattern> patterns){
-//        this.patterns = patterns;
-//    }
-
     public static boolean isBanner(ItemStack banner, Player player){
         if(!(banner.getItemMeta() instanceof BannerMeta)) return false;
         BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();

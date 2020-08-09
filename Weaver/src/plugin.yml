@@ -9,9 +9,6 @@ permissions:
   weaver.use:
     default: op
     description: Erlaubt Nutzen der Weberei-Funktion
-  weaver.setbanner:
-    default: op
-    description: Erlaubt Setzen des Stadtbanners mit Siegelring
   weaver.admin:
     default: op
     description: Allmighty
