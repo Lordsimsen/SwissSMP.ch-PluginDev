@@ -15,8 +15,8 @@ permissions:
   weaver.admin:
     default: op
     description: Allmighty
-  commands:
-    reloadbanners:
-      usage: /reloadbanners
-      description: Reloads banners
-      permission: weaver.admin
+commands:
+  weaver:
+    usage: /weaver reload
+    description: Reloads banners
+    permission: weaver.admin

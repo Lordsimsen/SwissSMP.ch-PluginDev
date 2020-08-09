@@ -14,9 +14,9 @@ public class WeaverPlugin extends JavaPlugin {
         plugin = this;
 
         Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
-        Bukkit.getPluginCommand("reloadbanners").setExecutor(new ReloadBannersCommand());
+        Bukkit.getPluginCommand("weaver").setExecutor(new ReloadBannersCommand());
 
-        CityBanners.reloadBanners();
+        CityBanners.reloadBanners(null);
 
         Bukkit.getLogger().info(getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
     }

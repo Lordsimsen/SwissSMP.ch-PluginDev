@@ -75,7 +75,7 @@ public class CityBanners {
         cityBanners.clear();
     }
 
-    protected static void reloadBanners(){
+    protected static void reloadBanners(Consumer<Boolean> callback){
         HTTPRequest request = DataSource.getResponse(WeaverPlugin.getInstance(), WeaverUrl.GET_BANNERS);
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
@@ -84,15 +84,15 @@ public class CityBanners {
             if (message != null) {
                 Bukkit.getLogger().info(WeaverPlugin.getPrefix() + " " + message);
             }
-            if(success) reloadBanners(json);
+            if(success) reloadBanners(json.getAsJsonArray("banners"));
+            if(callback != null) callback.accept(success);
         });
     }
 
-    private static void reloadBanners(JsonObject json){
-        JsonArray banners = json.getAsJsonArray("banners");
+    private static void reloadBanners(JsonArray banners){
         for(JsonElement banner : banners){
             if(!banner.isJsonObject()) continue;
-            reloadBanner((JsonObject) banner);
+            reloadBanner(banner.getAsJsonObject());
         }
     }
 
@@ -114,17 +114,19 @@ public class CityBanners {
     private static void reloadBanner(JsonObject json){
         UUID cityId = JsonUtil.getUUID("city_id", json);
         List<Pattern> patterns = new ArrayList<>();
-        JsonArray patternArray = json.getAsJsonArray("patterns");
-        for(JsonElement element : patternArray){
-            if(!element.isJsonObject()) continue;
-            JsonObject patternSection = element.getAsJsonObject();
-            DyeColor color = JsonUtil.getDyeColor("color", patternSection);
-            PatternType pattern = JsonUtil.getPattern("type", patternSection);
-            if(color==null || pattern==null){
-                Bukkit.getLogger().warning(WeaverPlugin.getPrefix()+" Konnte Banner Pattern nicht laden:\n"+element.toString());
-                continue;
+        if(json.has("patterns")) {
+            JsonArray patternArray = json.getAsJsonArray("patterns");
+            for (JsonElement element : patternArray) {
+                if (!element.isJsonObject()) continue;
+                JsonObject patternSection = element.getAsJsonObject();
+                DyeColor color = JsonUtil.getDyeColor("color", patternSection);
+                PatternType pattern = JsonUtil.getPattern("type", patternSection);
+                if (color == null || pattern == null) {
+                    Bukkit.getLogger().warning(WeaverPlugin.getPrefix() + " Konnte Banner nicht laden (" + color + ", " + pattern + "):\n" + element.toString());
+                    continue;
+                }
+                patterns.add(new Pattern(color, pattern));
             }
-            patterns.add(new Pattern(color, pattern));
         }
         cityBanners.put(cityId, patterns);
     }
@@ -135,7 +137,7 @@ public class CityBanners {
         for(int i = 0; i < patterns.size(); i++){
             Pattern p = patterns.get(i);
             arguments.add("patterns["+i+"][type]="+URLEncoder.encode(p.getPattern().getIdentifier()));
-            arguments.add("patterns["+i+"][color]="+ URLEncoder.encode(p.getColor().toString()));
+            arguments.add("patterns["+i+"][color]="+ p.getColor().getColor().asRGB());
         }
         HTTPRequest request = DataSource.getResponse(WeaverPlugin.getInstance(), WeaverUrl.SAVE_BANNER, arguments.toArray(new String[0]));
         request.onFinish(()->{

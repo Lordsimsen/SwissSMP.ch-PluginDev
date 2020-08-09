@@ -245,15 +245,19 @@ public class JsonUtil {
 
     public static DyeColor getDyeColor(JsonElement element){
         try{
-            return element!=null ? DyeColor.valueOf(element.toString()) : null;
+            Color color = getColor(element);
+            DyeColor dyeColor = color != null ? DyeColor.getByColor(color) : null;
+            if(dyeColor==null && color!=null) Bukkit.getLogger().warning("Couldn't load dyecolor based on color: " + color.asRGB());
+            return dyeColor;
         }
         catch(Exception ignored){
+            Bukkit.getLogger().warning("Ungültige DyeColor: " + element);
             return null;
         }
     }
 
     public static void set(String key, DyeColor color, JsonObject json){
-        json.addProperty(key, color.toString());
+        set(key, color.getColor(), json);
     }
 
     public static PatternType getPattern(String key, JsonObject json){
@@ -262,9 +266,12 @@ public class JsonUtil {
 
     public static PatternType getPattern(JsonElement element){
         try{
-            return element!=null ? PatternType.getByIdentifier(element.toString()) : null;
+            PatternType patternType = element!=null ? PatternType.getByIdentifier(element.getAsString()) : null;
+            if(patternType == null && element != null) Bukkit.getLogger().warning("Couldn't load patterntype from: " + element.toString());
+            return patternType;
         }
         catch(Exception ignored){
+            Bukkit.getLogger().warning("Ungültiges Pattern: " + element);
             return null;
         }
     }
