@@ -141,7 +141,8 @@ class EventListener implements Listener {
 			SwissSMPler.get(player).sendActionBar(ChatColor.YELLOW + "Heute kannst du keine Zeremonie mehr starten.");
 			return;
 		}
-		if(!ceremonyAnnounced) {
+		CityPromotionCeremony existing = CityPromotionCeremony.get(city).orElse(null);
+		if(existing==null) {
 			SwissSMPler.get(player).sendActionBar(ChatColor.GREEN + "Versammle deine Bürger vor Sonnenuntergang am Festplatz!");
 			SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + " Die Zeremonie beginnt bei Sonnenuntergang!");
 

@@ -222,6 +222,10 @@ public class CityPromotionCeremony extends CityCeremony implements Listener {
         this.cancel();
     }
 
+    public static Optional<CityPromotionCeremony> get(City city){
+        return ceremonies.stream().filter(c->c.getCity().getUniqueId().equals(city.getUniqueId())).findAny();
+    }
+
     private enum PromotionPhase {
         Beginning,
         Burning,

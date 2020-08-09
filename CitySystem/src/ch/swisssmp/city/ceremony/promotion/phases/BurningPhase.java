@@ -43,8 +43,10 @@ public class BurningPhase extends Phase implements Listener {
         fireIgnited = false;
 
         ceremony.setRingEffect(new CityCeremonyCircleEffect(chest.getLocation().add(0.5,0.5,0.5)));
-        ceremony.getRingEffect().setRadius(5);
         ceremony.getRingEffect().setRingEffectType(CityCeremonyCircleEffect.RingEffectType.WhirlingBlade);
+        ceremony.getRingEffect().setRadius(12);
+        ceremony.getRingEffect().setDetail(8);
+        // ceremony.getRingEffect().setRadiusMultiplier(1.5f);
         for(int i = 0; i < 5; i++){
             if((i+1) % 5 == 0) {
                 ceremony.getRingEffect().setColor(i, Color.fromRGB(55, 242, 255));

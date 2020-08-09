@@ -79,6 +79,10 @@ public class AddonUnlockTrade {
                 if (itemStack != null) items.add(itemStack);
             }
         }
+        else{
+            ItemStack itemStack = getItem(json);
+            if (itemStack != null) items.add(itemStack);
+        }
     }
 
     private static ItemStack getItem(JsonObject itemSection) {

@@ -122,6 +122,7 @@ public class ForgeRingPhase extends Phase implements ITributeListener {
 		if(!expandedRing){
 			expandedRing = true;
 			this.ceremony.getRingEffect().setRadius(7);
+			this.ceremony.getRingEffect().setTargetElevation(0.3f);
 			this.ceremony.getRingEffect().setRingEffectType(RingEffectType.RotatingRing);
 		}
 		

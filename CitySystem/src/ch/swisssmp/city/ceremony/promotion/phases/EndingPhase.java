@@ -52,7 +52,7 @@ public class EndingPhase extends Phase {
         JsonObject configuration = level.getConfiguration();
         String subtitle = (configuration!=null && configuration.has("promotion_message")
                 ? JsonUtil.getString("promotion_message", configuration)
-                : "{name} hat die Stadtstufe "+level.getName()+" erreicht!").replace("{name}", city.getName());
+                : "{name} hat die Stadtstufe "+level.getName()+" erreicht!").replace("{name}", city.getName()).replace("{level}", level.getName());
         Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), () ->{
             String title = ChatColor.GREEN + "Gratulation!";
             this.announceTitleLong(title, subtitle);

@@ -77,7 +77,7 @@ public class FireBurstEffect {
 		Location location = new Location(block.getWorld(),block.getX()+0.5,block.getY()+0.5,block.getZ()+0.5,0,-90);
 		FireBurstEffect result = new FireBurstEffect(plugin, location,size,colorA,colorB);
 		result.start();
-		block.getWorld().playSound(location, sound, SoundCategory.BLOCKS, 1f, 15f);
+		block.getWorld().playSound(location, sound, SoundCategory.BLOCKS, 0.6f, 15f);
 		return result;
 	}
 }
