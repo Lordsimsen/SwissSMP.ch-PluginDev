@@ -174,7 +174,7 @@ public class JsonUtil {
         String namespace = keyString.contains(":") ? keyString.substring(0, keyString.indexOf(":")) : "minecraft";
         String key = keyString.contains(":") ? keyString.substring(namespace.length() + 1) : keyString;
         //noinspection deprecation
-        return json != null ? new NamespacedKey(namespace, key) : null;
+        return json != null ? new NamespacedKey(namespace.toLowerCase(), key.toLowerCase()) : null;
     }
 
     public static void set(String key, NamespacedKey value, JsonObject json) {
@@ -185,15 +185,15 @@ public class JsonUtil {
         return json.has(key) ? getMaterial(json.get(key)) : null;
     }
 
-    public static Material getMaterial(JsonElement json) {
+    public static Material getMaterial(JsonElement element) {
         Material result;
         try {
-            result = json != null ? Material.valueOf(json.getAsString().toUpperCase()) : null;
+            result = element != null ? Material.valueOf(element.getAsString().toUpperCase()) : null;
         } catch (Exception ignored) {
             result = null;
         }
-        if (result != null || json == null) return result;
-        NamespacedKey key = getKey(json);
+        if (result != null || element == null) return result;
+        NamespacedKey key = getKey(element);
         return MaterialUtil.getMaterial(key).orElse(null);
     }
 
