@@ -111,7 +111,7 @@ public class TechtreeView extends CustomEditorView implements PaginatedView {
                 if (type == null) continue;
                 Addon addon = addons[x];
                 int slot = inventoryRow * 9 + x + 1;
-                if (addon != null) slots.add(new AddonSlot(this, slot, addon));
+                if (addon != null) slots.add(new AddonSlot(this, slot, techtree, addon));
                 else slots.add(new AddonTypeSlot(this, slot, type));
             }
         }

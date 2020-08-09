@@ -4,20 +4,20 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.JsonUtil;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 public class AddonType {
 
+    private final Techtree techtree;
     private final String addonId;
     private String name;
     private int slotX;
@@ -38,16 +38,26 @@ public class AddonType {
 
     private JsonObject configuration;
 
-    protected AddonType(String addonId) {
+    protected AddonType(Techtree techtree, String addonId) {
+        this.techtree = techtree;
         this.addonId = addonId;
+    }
+
+    public Techtree getTechtree(){
+        return techtree;
     }
 
     public String getAddonId() {
         return addonId;
     }
 
-    public int getSlotX(){return this.slotX;}
-    public int getSlotY(){return this.slotY;}
+    public int getSlotX() {
+        return this.slotX;
+    }
+
+    public int getSlotY() {
+        return this.slotY;
+    }
 
     public String getIconId() {
         return "addon_" + addonId;
@@ -61,15 +71,15 @@ public class AddonType {
         return name;
     }
 
-    public List<String> getShortDescription(){
+    public List<String> getShortDescription() {
         return shortDescription;
     }
 
-    public List<String> getRequirementsDescription(){
+    public List<String> getRequirementsDescription() {
         return requirementsDescription;
     }
 
-    public List<String> getOffersDescription(){
+    public List<String> getOffersDescription() {
         return offersDescription;
     }
 
@@ -77,7 +87,7 @@ public class AddonType {
         return this.cityLevel;
     }
 
-    public String[] getRequiredAddons(){
+    public String[] getRequiredAddons() {
         return requiredAddons;
     }
 
@@ -85,27 +95,53 @@ public class AddonType {
         return this.synonyms;
     }
 
-    public AddonUnlockTrade[] getUnlockTrades(){return unlockTrades;}
+    public AddonUnlockTrade[] getUnlockTrades() {
+        return unlockTrades;
+    }
 
-    public boolean getAutoActivate(){return autoActivate;}
+    public boolean getAutoActivate() {
+        return autoActivate;
+    }
 
     public JsonObject getConfiguration() {
         return configuration;
     }
 
-    public CustomItemBuilder getItemBuilder(){
-        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder("addon_"+ addonId);
-        if(itemBuilder==null){
+    public CustomItemBuilder getItemBuilder() {
+        return getItemBuilder(null);
+    }
+
+    public CustomItemBuilder getItemBuilder(AddonState state) {
+        String customEnum = "addon_" + addonId + (state != null ? getStateSuffix(state) : "");
+        String namespace = techtree.getNamespace();
+        @SuppressWarnings("deprecation") NamespacedKey key = new NamespacedKey(namespace, customEnum.toLowerCase());
+        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(key);
+        if (itemBuilder == null) {
             itemBuilder = new CustomItemBuilder();
             itemBuilder.setMaterial(Material.BOOK);
         }
-        itemBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES,ItemFlag.HIDE_ENCHANTS);
-        itemBuilder.setDisplayName(ChatColor.AQUA+name);
+        itemBuilder.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        itemBuilder.setDisplayName(ChatColor.AQUA + name);
 
         return itemBuilder;
     }
 
-    public ItemStack getItemStack(){return getItemBuilder().build();}
+    public ItemStack getItemStack() {
+        return getItemBuilder().build();
+    }
+
+    private static String getStateSuffix(AddonState state) {
+        switch (state) {
+            case AVAILABLE:
+                return "_AVAILABLE";
+            case BLOCKED:
+                return "_BLOCKED";
+            case UNAVAILABLE:
+                return "_UNAVAILABLE";
+            default:
+                return "";
+        }
+    }
 
     private void loadData(JsonObject json) {
         this.name = JsonUtil.getString("name", json);
@@ -126,10 +162,10 @@ public class AddonType {
         this.configuration = json.has("configuration") && json.get("configuration").isJsonObject() ? json.getAsJsonObject("configuration") : new JsonObject();
     }
 
-    protected static Optional<AddonType> load(JsonObject json) {
+    protected static Optional<AddonType> load(Techtree techtree, JsonObject json) {
         String addonId = JsonUtil.getString("addon_id", json);
         if (addonId == null) return Optional.empty();
-        AddonType type = new AddonType(addonId);
+        AddonType type = new AddonType(techtree, addonId);
         type.loadData(json);
         return Optional.of(type);
     }

@@ -22,11 +22,6 @@ import ch.swisssmp.utils.SwissSMPler;
 public class AddonEventListener implements Listener {
 	
 	@EventHandler
-	private void onResourcepackUpdate(PlayerResourcePackUpdateEvent event){
-		event.addComponent("addons");
-	}
-	
-	@EventHandler
 	public void onSignChange(SignChangeEvent event){
 		if(event.getBlock().getWorld()!=Bukkit.getWorlds().get(0)) return;
 		Player player = event.getPlayer();

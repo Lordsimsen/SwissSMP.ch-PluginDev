@@ -2,6 +2,7 @@ package ch.swisssmp.city;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonArray;
@@ -18,25 +19,10 @@ import ch.swisssmp.customitems.CustomItems;
 public class AddonUnlockTrade {
     private final List<ItemStack> items = new ArrayList<ItemStack>();
     private final UnlockType type;
-    private final String description;
+    private String description;
 
-    private AddonUnlockTrade(UnlockType type, JsonObject json) {
+    private AddonUnlockTrade(UnlockType type) {
         this.type = type;
-        this.description = JsonUtil.getString("description", json);
-        JsonArray itemsArray = json.has("items") && json.get("items").isJsonArray() ? json.getAsJsonArray("items") : null;
-        if (itemsArray != null) {
-            for (JsonElement element : itemsArray) {
-                if (!element.isJsonObject()) continue;
-                JsonObject itemSection = element.getAsJsonObject();
-                try {
-                    ItemStack itemStack = getItem(itemSection);
-                    if (itemStack == null) continue;
-                    items.add(itemStack);
-                } catch (Exception ignored) {
-
-                }
-            }
-        }
     }
 
     public List<ItemStack> getItems() {
@@ -73,16 +59,39 @@ public class AddonUnlockTrade {
         return result;
     }
 
+    private void loadData(JsonObject json) {
+        this.items.clear();
+        this.description = JsonUtil.getString("description", json);
+        if (json.has("items")) {
+            JsonElement itemsSection = json.get("items");
+            if(itemsSection.isJsonArray()){
+                for (JsonElement element : itemsSection.getAsJsonArray()) {
+                    if (!element.isJsonObject()) continue;
+                    JsonObject itemSection = element.getAsJsonObject();
+                    ItemStack itemStack = getItem(itemSection);
+                    if (itemStack == null) continue;
+                    items.add(itemStack);
+                }
+            }
+            else if(itemsSection.isJsonObject()){
+                JsonObject itemSection = itemsSection.getAsJsonObject();
+                ItemStack itemStack = getItem(itemSection);
+                if (itemStack != null) items.add(itemStack);
+            }
+        }
+    }
+
     private static ItemStack getItem(JsonObject itemSection) {
         CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(itemSection);
         if (itemBuilder == null) return null;
         return itemBuilder.build();
     }
 
-    public static AddonUnlockTrade get(UnlockType type, JsonObject json) {
-        AddonUnlockTrade trade = new AddonUnlockTrade(type, json);
-        if (trade.items.size() == 0) return null;
-        return trade;
+    public static Optional<AddonUnlockTrade> load(UnlockType type, JsonObject json) {
+        AddonUnlockTrade trade = new AddonUnlockTrade(type);
+        trade.loadData(json);
+        if (trade.items.size() == 0) return Optional.empty();
+        return Optional.of(trade);
     }
 
     protected enum UnlockType {

@@ -40,6 +40,11 @@ public class Addon {
         return type != null ? type.getName() : "Unbekanntes Addon";
     }
 
+    public String getName(Techtree techtree){
+        AddonType type = getType(techtree);
+        return type != null ? type.getName() : "Unbekanntes Addon";
+    }
+
     public String getAddonId() {
         return addonId;
     }
@@ -47,6 +52,10 @@ public class Addon {
     public AddonType getType() {
         City city = CitySystem.getCity(cityId).orElse(null);
         Techtree techtree = city != null ? CitySystem.getTechtree(city.getTechtreeId()).orElse(null) : null;
+        return getType(techtree);
+    }
+
+    public AddonType getType(Techtree techtree){
         return techtree != null ? techtree.getAddonType(addonId).orElse(null) : null;
     }
 
@@ -79,9 +88,14 @@ public class Addon {
         return this.reason;
     }
 
-    public String getStateReasonMessage() {
+    public String getStateReasonMessage(){
         City city = getCity();
         Techtree techtree = city.getTechtree();
+        return getStateReasonMessage(techtree);
+    }
+
+    public String getStateReasonMessage(Techtree techtree) {
+        City city = getCity();
         AddonType type = techtree.getAddonType(addonId).orElse(null);
         switch (reason) {
             case CITY_LEVEL: {

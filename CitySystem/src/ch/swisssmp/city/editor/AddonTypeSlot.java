@@ -1,6 +1,7 @@
 package ch.swisssmp.city.editor;
 
 import ch.swisssmp.city.AddonType;
+import ch.swisssmp.city.Techtree;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.InfoSlot;

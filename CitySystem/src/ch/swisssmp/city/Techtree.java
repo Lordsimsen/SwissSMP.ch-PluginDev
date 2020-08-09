@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 public class Techtree {
     private final String id;
+    private final String namespace;
     private String name;
     private List<String> description;
     private String addonDetailUrl;
@@ -23,11 +24,14 @@ public class Techtree {
 
     private Techtree(String id){
         this.id = id;
+        this.namespace = id.toLowerCase();
     }
 
     public String getId(){
         return id;
     }
+
+    public String getNamespace(){return namespace;}
 
     public String getName(){
         return name;
@@ -91,8 +95,13 @@ public class Techtree {
     public void updateAddonState(Addon addon){
         if(addon.getState()==AddonState.ACCEPTED || addon.getState()==AddonState.ACTIVATED || addon.getState()==AddonState.BLOCKED) return;
         City city = addon.getCity();
-        AddonType type = addon.getType();
-        CityLevel requiredLevel = this.getLevel(type.getCityLevel());
+        AddonType type = addon.getType(this);
+        if(type==null){
+            Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" AddonType "+addon.getAddonId()+" fehlt!");
+            return;
+        }
+        int requiredLevelIndex = type!=null ? type.getCityLevel() : 0;
+        CityLevel requiredLevel = this.getLevel(requiredLevelIndex);
         if(requiredLevel==null){
             addon.setAddonState(AddonState.UNAVAILABLE, AddonStateReason.NONE);
             return;
@@ -170,7 +179,7 @@ public class Techtree {
             for(JsonElement element : addonsSection){
                 if(!element.isJsonObject()) continue;
                 JsonObject addonSection = element.getAsJsonObject();
-                AddonType addonType = AddonType.load(addonSection).orElse(null);
+                AddonType addonType = AddonType.load(this, addonSection).orElse(null);
                 if(addonType==null){
                     Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" Konnte AddonType vom Techtree "+id+" nicht laden:\n"+element.toString());
                     continue;
