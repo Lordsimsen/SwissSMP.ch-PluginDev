@@ -25,6 +25,7 @@ class PlayerInteractListener implements Listener {
 	}
 
 	private void listen(PlayerInteractEvent event){
+		if(event.isCancelled()) return;
 		if(event.getAction()!=Action.RIGHT_CLICK_AIR && event.getAction()!=Action.RIGHT_CLICK_BLOCK) return;
 		try {
 			if (event.getClickedBlock().getType().isInteractable()) return;
