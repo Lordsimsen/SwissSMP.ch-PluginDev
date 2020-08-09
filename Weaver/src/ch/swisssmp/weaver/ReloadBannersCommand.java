@@ -11,7 +11,7 @@ public class ReloadBannersCommand implements CommandExecutor {
         if(args.length == 0) return false;
         switch(args[0]){
             case "reload":{
-                CityBanners.reloadBanners((success) -> {
+                CityBanner.reloadBanners((success) -> {
                     if(success){
                         commandSender.sendMessage(WeaverPlugin.getPrefix() + ChatColor.GREEN + " Banners reloaded!");
                     } else{
