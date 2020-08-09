@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.entity.Player;
@@ -20,25 +21,105 @@ import org.bukkit.inventory.meta.BannerMeta;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class CityBanners {
+public class CityBanner {
+    
+    private static final List<CityBanner> cityBanners = new ArrayList<>();
 
-    private static HashMap<UUID, List<Pattern>> cityBanners = new HashMap<>();
+    protected static void addCityBanner(UUID cityId, DyeColor baseColor, List<Pattern> patterns){
+        cityBanners.add(new CityBanner(cityId, baseColor, patterns));
+    }
 
-    protected static void addCityBanner(UUID cityId, List<Pattern> patterns){
-        cityBanners.put(cityId, patterns);
+    private final UUID cityId;
+    private final DyeColor baseColor;
+    private final List<Pattern> patterns;
+
+    private CityBanner(UUID cityId, DyeColor baseColor, List<Pattern> patterns){
+        this.cityId = cityId;
+        this.baseColor = baseColor;
+        this.patterns = patterns;
+    }
+
+    public static DyeColor getDyeColor(Material banner){
+        switch(banner){
+            case BLACK_BANNER:
+            case BLACK_WALL_BANNER:{
+                return DyeColor.BLACK;
+            }
+            case GRAY_BANNER:
+            case GRAY_WALL_BANNER:{
+                return DyeColor.GRAY;
+            }
+            case LIGHT_GRAY_BANNER:
+            case LIGHT_GRAY_WALL_BANNER:{
+                return DyeColor.LIGHT_GRAY;
+            }
+            case WHITE_BANNER:
+            case WHITE_WALL_BANNER:{
+                return DyeColor.WHITE;
+            }
+            case GREEN_BANNER:
+            case GREEN_WALL_BANNER:{
+                return DyeColor.GREEN;
+            }
+            case LIME_BANNER:
+            case LIME_WALL_BANNER:{
+                return DyeColor.LIME;
+            }
+            case CYAN_BANNER:
+            case CYAN_WALL_BANNER:{
+                return DyeColor.CYAN;
+            }
+            case LIGHT_BLUE_BANNER:
+            case LIGHT_BLUE_WALL_BANNER:{
+                return DyeColor.LIGHT_BLUE;
+            }
+            case BLUE_BANNER:
+            case BLUE_WALL_BANNER:{
+                return DyeColor.BLUE;
+            }
+            case MAGENTA_BANNER:
+            case MAGENTA_WALL_BANNER:{
+                return DyeColor.MAGENTA;
+            }
+            case PURPLE_BANNER:
+            case PURPLE_WALL_BANNER:{
+                return DyeColor.PURPLE;
+            }
+            case PINK_BANNER:
+            case PINK_WALL_BANNER:{
+                return DyeColor.PINK;
+            }
+            case RED_BANNER:
+            case RED_WALL_BANNER:{
+                return DyeColor.RED;
+            }
+            case YELLOW_BANNER:
+            case YELLOW_WALL_BANNER:{
+                return DyeColor.YELLOW;
+            }
+            case ORANGE_BANNER:
+            case ORANGE_WALL_BANNER:{
+                return DyeColor.ORANGE;
+            }
+            case BROWN_BANNER:
+            case BROWN_WALL_BANNER:{
+                return DyeColor.BROWN;
+            }
+            default: return null;
+        }
     }
 
     public static boolean isBanner(ItemStack banner, Player player){
         if(!(banner.getItemMeta() instanceof BannerMeta)) return false;
         BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();
         List<Pattern> bannerPatterns = bannerMeta.getPatterns();
+        DyeColor bannerBaseColor = getDyeColor(banner.getType());
 
-        for(UUID id : cityBanners.keySet()){
-            City city = CitySystem.getCity(id).orElse(null);
+        for(CityBanner cityBanner : cityBanners){
+            City city = CitySystem.getCity(cityBanner.cityId).orElse(null);
             if(city == null) continue;
             if(!city.isCitizen(player)) continue;
-            List<Pattern> cityBannerPatterns = cityBanners.get(id);
-            if(cityBannerPatterns.equals(bannerPatterns)) return true;
+            if(cityBanner.patterns.equals(bannerPatterns) && cityBanner.baseColor.equals(bannerBaseColor)) return true;
         }
         return false;
     }
@@ -85,6 +166,7 @@ public class CityBanners {
 
     private static void reloadBanner(JsonObject json){
         UUID cityId = JsonUtil.getUUID("city_id", json);
+        DyeColor baseColor =  JsonUtil.getDyeColor("base_color", json);
         List<Pattern> patterns = new ArrayList<>();
         if(json.has("patterns")) {
             JsonArray patternArray = json.getAsJsonArray("patterns");
@@ -100,12 +182,17 @@ public class CityBanners {
                 patterns.add(new Pattern(color, pattern));
             }
         }
-        cityBanners.put(cityId, patterns);
+        for(CityBanner banner : cityBanners){
+            if(!banner.cityId.equals(cityId)) continue;
+            cityBanners.remove(banner);
+            cityBanners.add(new CityBanner(cityId, baseColor, patterns));
+        }
     }
 
-    protected static void registerBanner(List<Pattern> patterns, City city, Consumer<Boolean> callback){
+    protected static void registerBanner(DyeColor baseColor, List<Pattern> patterns, City city, Consumer<Boolean> callback){
         List<String> arguments = new ArrayList<>();
         arguments.add("city="+city.getUniqueId());
+        arguments.add("base_color="+baseColor.getColor().asRGB());
         for(int i = 0; i < patterns.size(); i++){
             Pattern p = patterns.get(i);
             arguments.add("patterns["+i+"][type]="+URLEncoder.encode(p.getPattern().getIdentifier()));

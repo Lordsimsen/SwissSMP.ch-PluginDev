@@ -3,6 +3,7 @@ package ch.swisssmp.weaver;
 import ch.swisssmp.city.SigilRingInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
 import org.bukkit.block.banner.Pattern;
@@ -30,7 +31,7 @@ public class EventListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         if(!player.hasPermission("weaver.use")) return;
         ItemStack banner = event.getCursor().clone();
-        if(!CityBanners.isBanner(banner, player)) return;
+        if(!CityBanner.isBanner(banner, player)) return;
 
         ItemStack helmet = ((PlayerInventory) inventory).getHelmet();
         if(event.getCursor().getAmount() > 1 && helmet != null) return;
@@ -57,7 +58,7 @@ public class EventListener implements Listener {
         }
         if(!player.hasPermission("weaver.use")) return;
         ItemStack banner = event.getItem().clone();
-        if (!CityBanners.isBanner(banner, player)) {
+        if (!CityBanner.isBanner(banner, player)) {
             return;
         }
         event.getItem().setAmount(event.getItem().getAmount() - 1);
@@ -87,10 +88,11 @@ public class EventListener implements Listener {
         event.setCancelled(true);
         Banner banner = (Banner) event.getClickedBlock().getState();
         List<Pattern> patterns = banner.getPatterns();
+        DyeColor baseColor = banner.getBaseColor();
 
-        CityBanners.registerBanner(patterns, ringInfo.getCity(), (success)->{
+        CityBanner.registerBanner(baseColor, patterns, ringInfo.getCity(), (success)->{
             if(success){
-                CityBanners.addCityBanner(ringInfo.getCity().getUniqueId(), patterns);
+                CityBanner.addCityBanner(ringInfo.getCity().getUniqueId(), baseColor, patterns);
                 player.sendMessage(WeaverPlugin.getPrefix() + ChatColor.GREEN + " Banner als Stadtbanner registriert!");
             } else{
                 player.sendMessage(WeaverPlugin.getPrefix() + ChatColor.RED + " Etwas ist schief gelaufen. Bitte kontaktiere die Spielleitung bei wiederholtem scheitern.");

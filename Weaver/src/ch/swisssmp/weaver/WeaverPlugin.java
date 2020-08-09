@@ -16,14 +16,14 @@ public class WeaverPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
         Bukkit.getPluginCommand("weaver").setExecutor(new ReloadBannersCommand());
 
-        CityBanners.reloadBanners(null);
+        CityBanner.reloadBanners(null);
 
         Bukkit.getLogger().info(getName() + " has been enabled (Version: " + getDescription().getVersion() + ")");
     }
 
     @Override
     public void onDisable(){
-        CityBanners.unloadBanners();
+        CityBanner.unloadBanners();
         HandlerList.unregisterAll(this);
         Bukkit.getScheduler().cancelTasks(this);
         Bukkit.getLogger().info(getName() + " has been disabled (Version: " + getDescription().getVersion() + ")");
