@@ -39,8 +39,13 @@ public class AddonGuide {
 
     public void remove(){
         npc.remove();
-        addon.setGuideActive(false);
         addon.save();
+    }
+
+    public static Optional<AddonGuide> get(Entity entity){
+        NPCInstance npc = NPCInstance.get(entity);
+        if(npc==null) return Optional.empty();
+        return get(npc);
     }
 
     public static Optional<AddonGuide> get(NPCInstance npc){
@@ -56,7 +61,6 @@ public class AddonGuide {
         NPCInstance npc = NPCInstance.create(EntityType.VILLAGER, location);
         AddonGuide result = new AddonGuide(addon, npc);
         result.update();
-        addon.setGuideActive(true);
         addon.save();
         return result;
     }

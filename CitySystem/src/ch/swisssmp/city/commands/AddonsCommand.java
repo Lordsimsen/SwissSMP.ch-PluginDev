@@ -2,6 +2,7 @@ package ch.swisssmp.city.commands;
 
 import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.city.CitySystemPlugin;
+import ch.swisssmp.city.guides.AddonGuides;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,6 +18,7 @@ public class AddonsCommand implements CommandExecutor {
             case "reload":{
                 CitySystem.reloadAddons((success)->{
                     if(success){
+                        AddonGuides.updateAll();
                         sender.sendMessage(CitySystemPlugin.getPrefix()+ ChatColor.GREEN+" Alle Addons aktualisiert.");
                     }
                     else{

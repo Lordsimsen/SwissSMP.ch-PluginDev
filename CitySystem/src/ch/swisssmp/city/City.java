@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import ch.swisssmp.permissionmanager.PermissionManager;
 import ch.swisssmp.utils.*;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -68,8 +69,15 @@ public class City {
         return Citizenships.getCitizenship(uid, playerUid);
     }
 
+    public int getCitizenCount(){return Citizenships.getCitizenCount(this.uid);}
+
     public Collection<Addon> getAddons(){
         return Addons.getAll(this);
+    }
+
+    public Collection<Addon> getAddons(CityLevel level){
+        Collection<String> types = level.getAddonTypes().stream().map(AddonType::getAddonId).collect(Collectors.toList());
+        return Addons.getAll(this).stream().filter(a->types.contains(a.getAddonId())).collect(Collectors.toList());
     }
 
     public Optional<Addon> getAddon(String addonId) {
@@ -93,7 +101,10 @@ public class City {
     }
 
     public void broadcast(String message) {
-        getCitizenships().forEach((citizenship)->SwissSMPler.get(citizenship.getUniqueId()).sendMessage(message));
+        Collection<Citizenship> citizens = this.getCitizenships();
+        for(Citizenship citizen : citizens){
+            SwissSMPler.get(citizen.getUniqueId()).sendMessage(message);
+        }
     }
 
     public void unlockLevel(String levelId, Consumer<Boolean> callback){
@@ -107,11 +118,36 @@ public class City {
     }
 
     public void unlockLevel(CityLevel level, Consumer<Boolean> callback) {
-        CitySystem.unlockCityLevel(uid, level.getTechtree().getId(), level.getId(), callback);
+        CitySystem.unlockCityLevel(uid, level.getTechtree().getId(), level.getId(), (success)->{
+            if(success){
+                this.updateAddonStates();
+                this.reloadPermissions();
+            }
+            if(callback!=null) callback.accept(success);
+        });
     }
 
     public void lockLevel(CityLevel level, Consumer<Boolean> callback) {
-        CitySystem.lockCityLevel(uid, level.getTechtree().getId(), level.getId(), callback);
+        CitySystem.lockCityLevel(uid, level.getTechtree().getId(), level.getId(), (success)->{
+            if(success) this.reloadPermissions();
+            if(callback!=null) callback.accept(success);
+        });
+    }
+
+    public void updateAddonStates(){
+        Techtree techtree = this.getTechtree();
+        if(techtree==null) return;
+        for(Addon addon : this.getAddons()){
+            techtree.updateAddonState(addon);
+        }
+    }
+
+    public void reloadPermissions(){
+        for(Citizenship citizenship : this.getCitizenships()){
+            Player player = Bukkit.getPlayer(citizenship.getUniqueId());
+            if(player==null) continue;
+            PermissionManager.reloadPermissions(player);
+        }
     }
 
     public void addCitizen(Player player, Player parent, String role, Consumer<Boolean> callback) {

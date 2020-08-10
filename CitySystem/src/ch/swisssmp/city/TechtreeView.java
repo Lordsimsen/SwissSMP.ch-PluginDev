@@ -103,9 +103,10 @@ public class TechtreeView extends CustomEditorView implements PaginatedView {
         for (int row = topRow; row <= maxRow; row++) {
             int inventoryRow = row - topRow;
             CityLevel level = levelMap[row];
+            LevelStateInfo state = (city!=null) ? techtree.getLevelState(level, city) : null;
             AddonType[] types = typeMap[row];
             Addon[] addons = addonCache[row];
-            if (level != null) slots.add(new CityLevelSlot(this, inventoryRow * 9, level));
+            if (level != null) slots.add(new CityLevelSlot(this, inventoryRow * 9, level, state));
             for (int x = 0; x < 7; x++) {
                 AddonType type = types[x];
                 if (type == null) continue;

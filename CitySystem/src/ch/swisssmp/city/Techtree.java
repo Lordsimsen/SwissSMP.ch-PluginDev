@@ -8,6 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -129,6 +130,62 @@ public class Techtree {
         }
 
         addon.setAddonState(AddonState.AVAILABLE);
+    }
+
+    public LevelStateInfo getLevelState(CityLevel level, City city){
+        if(level==null){
+            Bukkit.getLogger().warning("CityLevel is null!");
+            return null;
+        }
+        if(city==null){
+            Bukkit.getLogger().warning("City is null!");
+            return null;
+        }
+        if(city.hasLevel(level)){
+            return new LevelStateInfo(LevelState.UNLOCKED);
+        }
+
+        List<String> conditions = new ArrayList<>();
+        boolean overallSuccess = true;
+
+        int levelIndex = this.getLevelIndex(level);
+        CityLevel previous = levelIndex>0 && levelIndex-1<this.levels.size() ? this.getLevel(levelIndex-1) : null;
+        if(previous!=null){
+            boolean success = city.hasLevel(previous);
+            conditions.add((success ? ChatColor.GREEN: ChatColor.RED)+"- "+previous.getName());
+            overallSuccess &= success;
+        }
+
+        int minPopulation = level.getMinPopulation();
+        if(minPopulation>0){
+            boolean success = city.getCitizenCount()>=minPopulation;
+            conditions.add((success ? ChatColor.GREEN: ChatColor.RED)+"- Min. "+minPopulation+" Bürger");
+            overallSuccess &= success;
+        }
+        int minAddonCount = level.getMinAddonCount();
+        if (minAddonCount > 0) {
+            boolean success = city.getAddons(previous).stream().filter(a->a.getState()==AddonState.ACCEPTED || a.getState()==AddonState.ACTIVATED).count()>=minAddonCount;
+            conditions.add((success ? ChatColor.GREEN: ChatColor.RED)+"- Min. "+minAddonCount+" Addons der Stufe");
+            conditions.add((success ? ChatColor.GREEN: ChatColor.RED)+"  "+previous.getName());
+            overallSuccess &= success;
+        }
+
+        String[] requiredAddons = level.getRequiredAddons();
+        if(requiredAddons.length>0){
+            for(String requiredAddonId : requiredAddons){
+                Addon addon = city.getAddon(requiredAddonId).orElse(null);
+                boolean success = addon.getState()==AddonState.ACCEPTED || addon.getState()==AddonState.ACTIVATED;
+                conditions.add((success ? ChatColor.GREEN: ChatColor.RED)+"- "+addon.getName());
+                overallSuccess &= success;
+            }
+        }
+
+        if(overallSuccess){
+            return new LevelStateInfo(LevelState.AVAILABLE);
+        }
+
+        conditions.add(0, ChatColor.GRAY+"Deine Stadt benötigt:");
+        return new LevelStateInfo(LevelState.UNAVAILABLE, conditions);
     }
 
     public void loadIcons(){

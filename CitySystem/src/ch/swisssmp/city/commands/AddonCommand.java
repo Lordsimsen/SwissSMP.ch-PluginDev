@@ -1,6 +1,8 @@
 package ch.swisssmp.city.commands;
 
 import ch.swisssmp.city.*;
+import ch.swisssmp.city.guides.AddonGuide;
+import ch.swisssmp.city.guides.AddonGuides;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -34,6 +36,7 @@ public class AddonCommand implements TabExecutor {
             case "reload":
                 addon.reload((success) -> {
                     if (success) {
+                        AddonGuides.findGuide(addon).ifPresent(AddonGuide::update);
                         sender.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + " Addon " + addon.getName() + " aktualisiert.");
                     } else {
                         sender.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Konnte Addon " + addon.getName() + " nicht aktualisieren.");

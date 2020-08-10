@@ -41,6 +41,7 @@ public class AddonSlot extends InfoSlot {
         List<String> result = new ArrayList<>();
         result.add(state.getColor()+state.getDisplayName());
         if(reasonMessage!=null){
+            result.add("");
             result.addAll(Arrays.stream(reasonMessage.split("\n")).map(l->ChatColor.GRAY+l).collect(Collectors.toList()));
         }
         return result;

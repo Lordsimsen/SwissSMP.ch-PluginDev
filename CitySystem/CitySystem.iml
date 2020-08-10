@@ -28,5 +28,6 @@
     <orderEntry type="module" module-name="RawTextBuilderAPI" />
     <orderEntry type="module" module-name="LivemapMarkerAPI" />
     <orderEntry type="module" module-name="Zones" />
+    <orderEntry type="module" module-name="PermissionManager" />
   </component>
 </module>

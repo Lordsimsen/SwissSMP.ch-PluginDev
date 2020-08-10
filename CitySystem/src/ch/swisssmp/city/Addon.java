@@ -26,7 +26,6 @@ public class Addon {
 
     private BlockVector origin;
     private String worldName;
-    private boolean guideActive;
 
     private JsonObject data;
 
@@ -100,7 +99,7 @@ public class Addon {
         switch (reason) {
             case CITY_LEVEL: {
                 CityLevel level = techtree.getLevel(type.getCityLevel());
-                return ChatColor.GRAY + "Benötigt Stadtstufe\n" + ChatColor.RED + level.getName();
+                return ChatColor.GRAY + "Benötigt:\n" + ChatColor.RED + "- "+level.getName();
             }
             case REQUIRED_ADDONS: {
                 Bukkit.getLogger().info(this.addonId+" requires addons "+String.join(", ", type.getRequiredAddons()));
@@ -111,9 +110,7 @@ public class Addon {
                         .filter(e -> e.getValue() == null || (e.getValue().getState() != AddonState.ACCEPTED && e.getValue().getState() != AddonState.ACTIVATED))
                         .map(e -> e.getKey().getName())
                         .collect(Collectors.toList());
-                return ChatColor.GRAY + "Benötigt Addon" + (missingAddons.size() > 1
-                        ? "s\n" + missingAddons.stream().map(a->"- " + ChatColor.RED + a).collect(Collectors.joining("\n"))
-                        : "\n"+ChatColor.RED+missingAddons.stream().findFirst().orElse("???"));
+                return ChatColor.GRAY + "Benötigt:\n" + missingAddons.stream().map(a->ChatColor.RED + "- " + a).collect(Collectors.joining("\n"));
             }
             default:
                 return null;
@@ -154,14 +151,6 @@ public class Addon {
         return worldName;
     }
 
-    public boolean hasGuideActive() {
-        return guideActive;
-    }
-
-    public void setGuideActive(boolean active) {
-        this.guideActive = active;
-    }
-
     public JsonObject getData() {
         return data;
     }
@@ -180,7 +169,6 @@ public class Addon {
                 "y=" + (origin != null ? origin.getBlockY() : 0),
                 "z=" + (origin != null ? origin.getBlockZ() : 0),
                 "world=" + (worldName != null ? worldName : ""),
-                "guide_active=" + (guideActive ? 1 : 0),
                 "data=" + (data != null ? URLEncoder.encode(data.toString()) : "[]")
         });
         request.onFinish(() -> {
@@ -222,7 +210,6 @@ public class Addon {
         reason = AddonStateReason.of(JsonUtil.getString("state_reason", json));
         origin = new BlockVector(JsonUtil.getInt("x", json), JsonUtil.getInt("y", json), JsonUtil.getInt("z", json));
         worldName = JsonUtil.getString("world", json);
-        guideActive = JsonUtil.getBool("guide_active", json);
         data = json.has("data") && json.get("data").isJsonObject() ? json.getAsJsonObject("data") : new JsonObject();
     }
 

@@ -1,6 +1,7 @@
 package ch.swisssmp.city;
 
 import ch.swisssmp.city.guides.AddonGuide;
+import ch.swisssmp.city.guides.AddonGuides;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.utils.SwissSMPler;
@@ -51,11 +52,6 @@ class AddonUtility {
     }
 
     protected static AddonGuide createAddonGuide(Player player, Sign sign, Addon addon){
-        if(addon.hasGuideActive()){
-            SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix()+ ChatColor.RED+" Dieses Addon hat bereits einen Addon Guide.");
-            SwissSMPler.get(player).sendMessage(CitySystemPlugin.getPrefix()+ChatColor.RED+" Entferne zuerst diesen und versuche es dann nochmals.");
-            return null;
-        }
         Location location = sign.getLocation();
         location.setYaw(player.getLocation().getYaw()+180);
         sign.getBlock().setType(Material.AIR);

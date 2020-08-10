@@ -56,11 +56,13 @@ public class AddonEventListener implements Listener {
 			return;
 		}
 
+		AddonGuide oldGuide = AddonGuides.findGuide(addon).orElse(null);
 		addon.setOrigin(event.getBlock());
 		Techtree techtree = city.getTechtree();
 		techtree.updateAddonState(addon);
 		Addon finalAddon = addon;
 		addon.save((success)->{
+			if(oldGuide!=null) oldGuide.remove();
 			CitySystem.createAddonGuide(player, sign, finalAddon);
 		});
 	}

@@ -1,12 +1,15 @@
 package ch.swisssmp.city;
 
+import ch.swisssmp.utils.JsonUtil;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 class Citizenships {
@@ -28,6 +31,8 @@ class Citizenships {
         return citizenships.stream().filter(c->c.getCityId().equals(cityId)).collect(Collectors.toList());
     }
 
+    protected static int getCitizenCount(UUID cityId){return (int) citizenships.stream().filter(c->c.getCityId().equals(cityId)).count();}
+
     protected static void add(Citizenship citizenship){
         citizenships.remove(citizenship);
     }
@@ -37,26 +42,37 @@ class Citizenships {
     }
 
     protected static void loadAll(){
-        loadAll(()->Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Alle Bürgerschaften geladen."));
-    }
-
-    protected static void loadAll(Runnable callback){
-        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIZENSHIPS);
-
-        request.onFinish(()->{
-            loadAll(request.getJsonResponse());
-            if(callback!=null) callback.run();
+        loadAll((success)->{
+            if(success){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Alle Bürgerschaften geladen.");
+            }
+            else{
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Bürgerschaften konnten nicht neu geladen werden.");
+            }
         });
     }
 
-    private static void loadAll(JsonObject json){
+    protected static void loadAll(Consumer<Boolean> callback){
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITIZENSHIPS);
+
+        request.onFinish(()->{
+            JsonObject json = request.getJsonResponse();
+            boolean success = json!=null && JsonUtil.getBool("success", json);
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+            }
+            if(success){
+                loadAll(json.getAsJsonArray("citizenships"));
+            }
+            if(callback!=null) callback.accept(success);
+        });
+    }
+
+    private static void loadAll(JsonArray citizenshipsArray){
         citizenships.clear();
-        if(json==null || !json.has("citizenships")){
-            Bukkit.getLogger().warning(CitySystemPlugin.getPrefix()+" Konnte Bürgerschaften nicht laden:\n"+json);
-            return;
-        }
         Collection<Citizenship> citizenships = new Stack<>();
-        for(JsonElement element : json.getAsJsonArray("citizenships")){
+        for(JsonElement element : citizenshipsArray){
             if(!element.isJsonObject()) continue;
             Citizenship citizenship = Citizenship.get(element.getAsJsonObject()).orElse(null);
             if(citizenship==null){
