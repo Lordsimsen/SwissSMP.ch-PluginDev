@@ -72,7 +72,7 @@ public class EventListener implements Listener {
         SwissSMPler.get(triggerPlayer).sendActionBar(ChatColor.GREEN + "Parameter angenommen! Schalte Wettermaschine an..");
 
         Bukkit.getScheduler().runTaskLater(ObservatoryPlugin.getInstance(), () -> {
-            Collection<String> cityRegions = city.getZones();
+            Collection<String> cityRegions = null;// TODO: city.getZones();
             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
             RegionManager regions = container.get((World) player.getWorld());
             for(String cityRegionKey : cityRegions){
@@ -112,7 +112,7 @@ public class EventListener implements Listener {
             }
         }
 
-        Collection<String> cityRegions = city.getZones();
+        Collection<String> cityRegions = null; // TODO: city.getZones();
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regions = container.get((World) entity.getWorld());
         for(String cityRegionKey : cityRegions){

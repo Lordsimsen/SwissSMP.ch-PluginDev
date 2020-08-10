@@ -1,6 +1,7 @@
 package ch.swisssmp.observatory;
 
 import ch.swisssmp.city.City;
+import ch.swisssmp.city.CitySystem;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -15,7 +16,7 @@ public class Observatory {
     public Observatory(World world, int id, int city_id, Location center) {
         this.world = world;
         this.id = id;
-        this.city = ch.swisssmp.city.Cities.getCity(city_id);
+        this.city = CitySystem.getCity(city_id).orElse(null); // TODO Hinweis detig_iii: Bitte UUID verwenden
         this.center = center;
     }
 
