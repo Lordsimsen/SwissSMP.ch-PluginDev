@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AddonAbnahme/AddonAbnahme.iml" filepath="$PROJECT_DIR$/AddonAbnahme/AddonAbnahme.iml" />
       <module fileurl="file://$PROJECT_DIR$/AdvancementLoader/AdvancementLoader.iml" filepath="$PROJECT_DIR$/AdvancementLoader/AdvancementLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/AdventureDungeons/AdventureDungeons.iml" filepath="$PROJECT_DIR$/AdventureDungeons/AdventureDungeons.iml" />
       <module fileurl="file://$PROJECT_DIR$/AfkKicker/AfkKicker.iml" filepath="$PROJECT_DIR$/AfkKicker/AfkKicker.iml" />
@@ -92,7 +91,6 @@
       <module fileurl="file://$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" filepath="$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" />
       <module fileurl="file://$PROJECT_DIR$/SewersFishing/SewersFishing.iml" filepath="$PROJECT_DIR$/SewersFishing/SewersFishing.iml" />
       <module fileurl="file://$PROJECT_DIR$/Shops/Shops.iml" filepath="$PROJECT_DIR$/Shops/Shops.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Slaughterhouse/Slaughterhouse.iml" filepath="$PROJECT_DIR$/Slaughterhouse/Slaughterhouse.iml" />
       <module fileurl="file://$PROJECT_DIR$/SmartDismount/SmartDismount.iml" filepath="$PROJECT_DIR$/SmartDismount/SmartDismount.iml" />
       <module fileurl="file://$PROJECT_DIR$/SoulboundItems/SoulboundItems.iml" filepath="$PROJECT_DIR$/SoulboundItems/SoulboundItems.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpawnManager/SpawnManager.iml" filepath="$PROJECT_DIR$/SpawnManager/SpawnManager.iml" />
