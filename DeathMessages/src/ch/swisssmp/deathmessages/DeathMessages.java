@@ -48,32 +48,36 @@ public class DeathMessages {
                 .filter(msg -> oldMessage.contains(using) == msg.message.contains(using))
                 .sorted(Comparator.comparingInt(msg -> msg.message.length()))
                 .findFirst();
-
         if (!vanillaDeathMessageOpt.isPresent())
             return oldMessage;
         VanillaDeathMessage vanillaDeathMessage = vanillaDeathMessageOpt.get();
 
-        Random r = new Random();
-        List<CustomDeathMessage> matchingCustomDeathMessages = customDeathMessages.stream()
-                .filter(msg -> msg.vanillaId == vanillaDeathMessage.id)
-                .filter(msg -> msg.cause == null || (msg.cause == null && cause == null) || (msg.cause != null && msg.cause.equals(cause)))
-                .filter(msg -> (msg.entity == null && entity == null) || (msg.entity != null && msg.entity.equals(entity)))
-                .filter(msg -> (msg.block == null && block == null) || (msg.block != null && msg.block.equals(block)))
-                .collect(Collectors.toList());
-        CustomDeathMessage randomMessage = matchingCustomDeathMessages.get(r.nextInt(matchingCustomDeathMessages.size() - 1));
+        CustomDeathMessage randomMessage = getRandomMatchingCustomDeathMessage(cause, entity, block, vanillaDeathMessage);
+        if (randomMessage == null)
+            return oldMessage;
+
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(vanillaDeathMessage.mask);
+        if (element == null)
+            return oldMessage;
         JsonArray array = element.getAsJsonArray();
+        if (array == null)
+            return oldMessage;
+
         String vanillaMessage = vanillaDeathMessage.message;
         String customMessage = randomMessage.message;
+
         ArrayList<String> masks = new ArrayList<>();
         for (JsonElement maskElement : array) {
             masks.add(maskElement.getAsString());
         }
-        for (String maskString : masks) {
-            vanillaMessage = vanillaMessage.replace(maskString, ";");
+        if (masks.isEmpty())
+            return oldMessage;
+
+        for (String mask : masks) {
+            vanillaMessage = vanillaMessage.replace(mask, ";");
         }
-        String oldCopy = new StringBuffer(oldMessage).toString();
+        String oldCopy = oldMessage;
         String[] splitVanillaMessage = vanillaMessage.split(Pattern.quote(";"));
         for (String splitVanillaMessagePart : splitVanillaMessage) {
             oldCopy = oldCopy.replace(splitVanillaMessagePart, "\n");
@@ -93,6 +97,19 @@ public class DeathMessages {
             customMessage = customMessage.replace(maskElement, maskInsert);
         }
         return customMessage;
+    }
+
+    private static CustomDeathMessage getRandomMatchingCustomDeathMessage(String cause, String entity, String block, VanillaDeathMessage vanillaDeathMessage) {
+        Random r = new Random();
+        List<CustomDeathMessage> matchingCustomDeathMessages = customDeathMessages.stream()
+                .filter(msg -> msg.vanillaId == vanillaDeathMessage.id)
+                .filter(msg -> msg.cause == null || (msg.cause == null && cause == null) || (msg.cause != null && msg.cause.equals(cause)))
+                .filter(msg -> (msg.entity == null && entity == null) || (msg.entity != null && msg.entity.equals(entity)))
+                .filter(msg -> (msg.block == null && block == null) || (msg.block != null && msg.block.equals(block)))
+                .collect(Collectors.toList());
+        if (matchingCustomDeathMessages == null || matchingCustomDeathMessages.isEmpty())
+            return null;
+        return matchingCustomDeathMessages.get(r.nextInt(matchingCustomDeathMessages.size()));
     }
 
     private static void reload(Consumer<String> sendResult, JsonObject deathMessageData) {

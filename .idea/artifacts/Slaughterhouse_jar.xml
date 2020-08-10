@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Slaughterhouse:jar">
+    <output-path>$PROJECT_DIR$/_Artifacts</output-path>
+    <root id="archive" name="Slaughterhouse.jar">
+      <element id="module-output" name="Slaughterhouse" />
+      <element id="file-copy" path="$PROJECT_DIR$/Slaughterhouse/src/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/Slaughterhouse/src/config.yml" />
+    </root>
+  </artifact>
+</component>

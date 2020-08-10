@@ -91,6 +91,7 @@
       <module fileurl="file://$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" filepath="$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" />
       <module fileurl="file://$PROJECT_DIR$/SewersFishing/SewersFishing.iml" filepath="$PROJECT_DIR$/SewersFishing/SewersFishing.iml" />
       <module fileurl="file://$PROJECT_DIR$/Shops/Shops.iml" filepath="$PROJECT_DIR$/Shops/Shops.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Slaughterhouse/Slaughterhouse.iml" filepath="$PROJECT_DIR$/Slaughterhouse/Slaughterhouse.iml" />
       <module fileurl="file://$PROJECT_DIR$/SmartDismount/SmartDismount.iml" filepath="$PROJECT_DIR$/SmartDismount/SmartDismount.iml" />
       <module fileurl="file://$PROJECT_DIR$/SoulboundItems/SoulboundItems.iml" filepath="$PROJECT_DIR$/SoulboundItems/SoulboundItems.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpawnManager/SpawnManager.iml" filepath="$PROJECT_DIR$/SpawnManager/SpawnManager.iml" />

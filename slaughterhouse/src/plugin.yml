@@ -1,0 +1,19 @@
+name: Slaughterhouse
+main: com.plexon21.Slaughterhouse.SlaughterhousePlugin
+version: 1.0
+permissions:
+  p21.slaughterhouse.*:
+    description: Gives access to all slaughterhouse commands
+    children:
+      p21.slaughterhouse.meat: true
+      p21.slaughterhouse.other: true
+  p21.slaughterhouse.meat:
+    description: Double the meatdrops of animals
+    default: false
+  p21.slaughterhouse.other:
+    description: Double all other drops of animals (e.g. wool, leather)
+    default: false
+commands:
+  slaughterhouse:
+    description: This command reloads the config from the file.
+    usage: /slaughterhouse reload
