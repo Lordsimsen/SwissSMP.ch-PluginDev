@@ -1,4 +1,4 @@
-package ch.swisssmp.city.guides;
+package ch.swisssmp.city.npcs.guides;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,10 +8,10 @@ import ch.swisssmp.city.Addon;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import ch.swisssmp.city.guides.editor.AddonSlot;
-import ch.swisssmp.city.guides.editor.AddonStateSlot;
-import ch.swisssmp.city.guides.editor.RemoveGuideSlot;
-import ch.swisssmp.city.guides.event.GuideViewEvent;
+import ch.swisssmp.city.npcs.guides.editor.AddonSlot;
+import ch.swisssmp.city.npcs.guides.editor.AddonStateSlot;
+import ch.swisssmp.city.npcs.guides.editor.RemoveGuideSlot;
+import ch.swisssmp.city.npcs.guides.event.GuideViewEvent;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.EditorSlot;
 

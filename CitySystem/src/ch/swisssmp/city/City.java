@@ -16,6 +16,7 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
 public class City {
+    private final int id;
     private final UUID uid;
     private final String techtreeId;
 
@@ -24,10 +25,14 @@ public class City {
     private UUID mayor;
     private final HashSet<UUID> founders = new HashSet<UUID>();
 
-    private City(UUID uid, String techtreeId) {
+    private City(int id, UUID uid, String techtreeId) {
+        this.id = id;
         this.uid = uid;
         this.techtreeId = techtreeId;
     }
+
+    @Deprecated
+    protected int getId(){return id;}
 
     public UUID getUniqueId() {
         return uid;
@@ -316,7 +321,8 @@ public class City {
         UUID uid = JsonUtil.getUUID("city_id", json);
         String techtreeId = JsonUtil.getString("techtree_id", json);
         if (uid == null) return Optional.empty();
-        City city = new City(uid, techtreeId);
+        int id = JsonUtil.getInt("id", json);
+        City city = new City(id, uid, techtreeId);
         city.loadData(json);
         return Optional.of(city);
     }

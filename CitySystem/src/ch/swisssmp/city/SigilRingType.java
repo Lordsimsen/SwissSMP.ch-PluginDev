@@ -90,7 +90,7 @@ public enum SigilRingType {
         ringBuilder.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         ringBuilder.setAttackDamage(0);
         ItemStack ring = ringBuilder.build();
-        SigilRingInfo ringInfo = new SigilRingInfo(city!=null ? city.getUniqueId() : null, this.toString());
+        SigilRingInfo ringInfo = new SigilRingInfo(city!=null ? city.getUniqueId() : null, this);
         ringInfo.setOwner(playerData);
         ringInfo.setRank(isMayor ? CitizenRank.MAYOR : CitizenRank.FOUNDER);
         ringInfo.apply(ring);

@@ -1,12 +1,9 @@
 package ch.swisssmp.city;
 
-import ch.swisssmp.city.guides.AddonGuide;
-import ch.swisssmp.city.guides.AddonGuides;
+import ch.swisssmp.city.npcs.guides.AddonGuide;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.JsonUtil;
-import ch.swisssmp.utils.SwissSMPler;
 import com.google.gson.JsonObject;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

@@ -102,7 +102,7 @@ public class Addon {
                 return ChatColor.GRAY + "Benötigt:\n" + ChatColor.RED + "- "+level.getName();
             }
             case REQUIRED_ADDONS: {
-                Bukkit.getLogger().info(this.addonId+" requires addons "+String.join(", ", type.getRequiredAddons()));
+                // Bukkit.getLogger().info(this.addonId+" requires addons "+String.join(", ", type.getRequiredAddons()));
                 Collection<String> missingAddons = Arrays.stream(type.getRequiredAddons())
                         .map(a -> techtree.getAddonType(a).orElse(null))
                         .filter(Objects::nonNull)

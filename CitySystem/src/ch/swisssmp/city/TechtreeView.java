@@ -78,7 +78,7 @@ public class TechtreeView extends CustomEditorView implements PaginatedView {
             }
         }
 
-        Bukkit.getLogger().info("Level-Zeilen: " + levelMap.size() + ", AddonType-Zeilen: " + typeMap.size() + ", Addon-Zeilen: " + addonCache.size());
+        // Bukkit.getLogger().info("Level-Zeilen: " + levelMap.size() + ", AddonType-Zeilen: " + typeMap.size() + ", Addon-Zeilen: " + addonCache.size());
 
         this.levelMap = levelMap.toArray(new CityLevel[0]);
         this.typeMap = typeMap.toArray(new AddonType[0][]);

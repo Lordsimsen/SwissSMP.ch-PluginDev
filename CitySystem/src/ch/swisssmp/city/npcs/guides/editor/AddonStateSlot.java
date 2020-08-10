@@ -1,4 +1,4 @@
-package ch.swisssmp.city.guides.editor;
+package ch.swisssmp.city.npcs.guides.editor;
 
 import java.util.ArrayList;
 import java.util.Arrays;

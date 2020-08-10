@@ -2,7 +2,7 @@ package ch.swisssmp.city.commands;
 
 import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.guides.AddonGuides;
+import ch.swisssmp.city.npcs.guides.AddonGuides;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

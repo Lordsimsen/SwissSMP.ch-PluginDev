@@ -86,6 +86,11 @@ class Cities {
         return cities.stream().filter(c -> c.getUniqueId().equals(cityId)).findAny();
     }
 
+    @Deprecated
+    protected static Optional<City> getCity(int legacyId) {
+        return cities.stream().filter(c -> c.getId()==legacyId).findAny();
+    }
+
     protected static Collection<City> getAll() {
         return Collections.unmodifiableCollection(cities);
     }

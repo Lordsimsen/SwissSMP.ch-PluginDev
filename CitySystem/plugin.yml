@@ -4,7 +4,7 @@ api-version: 1.13
 name: CitySystem
 authors: [detig_iii,WhiteGuggi]
 description: Erlaubt Spielern ingame Verwaltung ihrer Städte
-depend: [SwissSMPUtils,WebCore,PermissionManager,CustomItems,CustomEditorAPI,NPCs,Ceremonies,RawTextBuilderAPI,Zones]
+depend: [SwissSMPUtils,WebCore,CustomEditorAPI,CustomItems,NPCs,ResourcepackManager,Ceremonies,RawTextBuilderAPI,LivemapMarkerAPI,PermissionManager]
 permissions:
   citysystem.found:
     description: Erlaubt Gründung einer neuen Stadt

@@ -1,4 +1,4 @@
-package ch.swisssmp.city.guides.editor;
+package ch.swisssmp.city.npcs.guides.editor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 
-import ch.swisssmp.city.guides.AddonGuide;
+import ch.swisssmp.city.npcs.guides.AddonGuide;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.editor.CustomEditorView;

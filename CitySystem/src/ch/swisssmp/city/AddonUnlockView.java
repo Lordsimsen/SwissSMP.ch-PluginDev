@@ -3,7 +3,7 @@ package ch.swisssmp.city;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.swisssmp.city.guides.AddonGuide;
+import ch.swisssmp.city.npcs.guides.AddonGuide;
 import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

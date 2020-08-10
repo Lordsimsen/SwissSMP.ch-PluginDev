@@ -1,16 +1,15 @@
 package ch.swisssmp.city;
 
 import ch.swisssmp.city.commands.*;
-import ch.swisssmp.city.guides.AddonEventListener;
-import ch.swisssmp.city.guides.AddonGuides;
+import ch.swisssmp.city.npcs.NpcListener;
+import ch.swisssmp.city.npcs.guides.AddonGuideListener;
+import ch.swisssmp.city.npcs.guides.AddonGuides;
 import ch.swisssmp.utils.Procedure;
-import io.netty.util.concurrent.Promise;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 
 public class CitySystemPlugin extends JavaPlugin {
     private static CitySystemPlugin plugin;
@@ -20,9 +19,10 @@ public class CitySystemPlugin extends JavaPlugin {
         plugin = this;
         LivemapInterface.link();
         Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
-        Bukkit.getPluginManager().registerEvents(new AddonEventListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new NpcListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new AddonGuideListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new CraftingListener(), plugin);
-        Bukkit.getPluginManager().registerEvents(new PlayerInteractListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new CityToolListener(), plugin);
         this.getCommand("citizenship").setExecutor(new CitizenshipCommand());
         this.getCommand("citizenships").setExecutor(new CitizenshipsCommand());
         this.getCommand("city").setExecutor(new CityCommand());

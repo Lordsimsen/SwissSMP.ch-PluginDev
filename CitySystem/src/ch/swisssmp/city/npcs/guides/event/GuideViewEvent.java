@@ -1,9 +1,9 @@
-package ch.swisssmp.city.guides.event;
+package ch.swisssmp.city.npcs.guides.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import ch.swisssmp.city.guides.AddonGuideView;
+import ch.swisssmp.city.npcs.guides.AddonGuideView;
 
 public class GuideViewEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

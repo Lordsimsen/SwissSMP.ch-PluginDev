@@ -1,25 +1,21 @@
-package ch.swisssmp.city.guides;
+package ch.swisssmp.city.npcs.guides;
 
 import ch.swisssmp.city.Addon;
 import ch.swisssmp.city.AddonType;
 import ch.swisssmp.city.Techtree;
-import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
 import ch.swisssmp.city.City;
 import ch.swisssmp.npc.NPCInstance;
-import ch.swisssmp.webcore.HTTPRequest;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.UUID;
 
 public class AddonGuides {
 	public static void updateAll(){

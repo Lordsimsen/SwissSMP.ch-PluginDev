@@ -26,7 +26,7 @@ public class HayPile {
 
         int i = 0;
         while(!queue.isEmpty() && found.size() < size){
-            Bukkit.getLogger().info("Cycle: " + i);
+            // Bukkit.getLogger().info("Cycle: " + i);
             Block current = queue.pop();
             for(BlockFace face : directions){
                 Block relative = current.getRelative(face);

@@ -47,12 +47,12 @@ class CraftingListener implements Listener {
 			if(matrix[slot]==null || matrix[slot].getType()!=Material.PAPER) return;
 		}
 		ItemStack center = inventory.getMatrix()[4];
-		City city = ItemUtility.getCity((Player)view.getPlayer(), center);
-		if(city==null){
+		SigilRingInfo sigilRingInfo = SigilRingInfo.get(center).orElse(null);
+		if(sigilRingInfo==null){
 			inventory.setResult(null);
 			return;
 		}
-		CitizenBill bill = new CitizenBill(city);
+		CitizenBill bill = new CitizenBill(sigilRingInfo.getCity());
 		ItemStack itemStack = bill.createItemStack();
 		inventory.setResult(itemStack);
 	}
@@ -72,7 +72,7 @@ class CraftingListener implements Listener {
 	
 	private void onEditCitizenBill(PrepareAnvilEvent event){
 		ItemStack left = event.getInventory().getItem(0);
-		CitizenBill billInfo = CitizenBill.get(left);
+		CitizenBill billInfo = CitizenBill.get(left).orElse(null);
 		if(billInfo==null){
 			event.setResult(null);
 			return;
@@ -130,7 +130,7 @@ class CraftingListener implements Listener {
 		if(result==null){
 			return;
 		}
-		CitizenBill bill = CitizenBill.get(result);
+		CitizenBill bill = CitizenBill.get(result).orElse(null);
 		if(bill==null){
 			return;
 		}

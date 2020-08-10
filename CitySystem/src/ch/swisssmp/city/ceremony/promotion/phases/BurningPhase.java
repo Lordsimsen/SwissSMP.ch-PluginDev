@@ -128,7 +128,7 @@ public class BurningPhase extends Phase implements Listener {
 
     @EventHandler
     private void onIgnition(BlockIgniteEvent event){
-        Bukkit.getLogger().info("BlockigniteEvent");
+        // Bukkit.getLogger().info("BlockigniteEvent");
         if(!ceremony.getParticipants().contains(event.getPlayer())) return;
         if(ignitionReminder != null || !ignitionReminder.isCancelled()) ignitionReminder.cancel();
         fireIgnited = true;

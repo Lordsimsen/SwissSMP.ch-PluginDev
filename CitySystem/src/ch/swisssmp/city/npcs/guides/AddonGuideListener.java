@@ -1,8 +1,10 @@
-package ch.swisssmp.city.guides;
+package ch.swisssmp.city.npcs.guides;
 
 import ch.swisssmp.city.*;
+import ch.swisssmp.city.npcs.NpcType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -10,17 +12,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.npc.conversations.NPCConversation;
 import ch.swisssmp.npc.event.PlayerInteractNPCEvent;
-import ch.swisssmp.resourcepack.PlayerResourcePackUpdateEvent;
 import ch.swisssmp.utils.SwissSMPler;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
-public class AddonEventListener implements Listener {
-	
+public class AddonGuideListener implements Listener {
+
 	@EventHandler
 	public void onSignChange(SignChangeEvent event){
 		if(event.getBlock().getWorld()!=Bukkit.getWorlds().get(0)) return;
@@ -66,10 +70,10 @@ public class AddonEventListener implements Listener {
 			CitySystem.createAddonGuide(player, sign, finalAddon);
 		});
 	}
-	
+
 	@EventHandler(ignoreCancelled=true)
 	private void onNPCInteract(PlayerInteractNPCEvent event){
-		if(event.getHand()!=EquipmentSlot.HAND) return;
+		if(event.getHand()!= EquipmentSlot.HAND) return;
 		NPCInstance npc = event.getNPC();
 		// Check if it is an AddonGuide
 		AddonGuide guide = AddonGuide.get(npc).orElse(null);

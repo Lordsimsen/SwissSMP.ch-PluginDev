@@ -137,18 +137,18 @@ public class CityFoundingCeremony extends CityCeremony implements Listener {
 	@Override
 	protected Phase getNextPhase() {
 		if(phase==null){
-			Bukkit.getLogger().info("Begin now");
+			// Bukkit.getLogger().info("Begin now");
 			phase = FoundingCeremonyPhase.Begin;
 			return new BeginPhase(this);
 		}
 		switch(phase){
 		case Begin:{
-			Bukkit.getLogger().info("Pledge allegiance now");
+			// Bukkit.getLogger().info("Pledge allegiance now");
 			phase = FoundingCeremonyPhase.PledgeAllegiance;
 			return new PledgeAllegiancePhase(this);
 		}
 		case PledgeAllegiance:{
-			Bukkit.getLogger().info("Forge thy ring now");
+			// Bukkit.getLogger().info("Forge thy ring now");
 			phase = FoundingCeremonyPhase.ForgeRing;
 			return new ForgeRingPhase(this);
 		}
@@ -211,13 +211,13 @@ public class CityFoundingCeremony extends CityCeremony implements Listener {
 	
 	public static CityFoundingCeremony start(Block fire, Player initiator){
 		if(ceremoniesParticipants.contains(initiator)) { // || !initiator.hasPermission("citysystem.found")) return null;
-			Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Already participating somewhere");
+			// Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Already participating somewhere");
 			return null;
 		}
 		List<Player> nearbyPlayers = getNearbyPlayers(fire.getLocation());
 //		if(nearbyPlayers.size()<2) return null;
 		if(nearbyPlayers.size()<1) {
-			Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not enough players to start ceremony");
+			// Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not enough players to start ceremony");
 			return null;
 		}
 		for(CityFoundingCeremony nearby : ceremonies){

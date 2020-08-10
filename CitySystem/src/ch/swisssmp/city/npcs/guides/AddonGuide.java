@@ -1,6 +1,7 @@
-package ch.swisssmp.city.guides;
+package ch.swisssmp.city.npcs.guides;
 
 import ch.swisssmp.city.*;
+import ch.swisssmp.city.npcs.NpcType;
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -12,9 +13,9 @@ import org.bukkit.entity.Player;
 
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.npc.conversations.NPCConversation;
-import ch.swisssmp.utils.URLEncoder;
-import ch.swisssmp.webcore.DataSource;
 import org.bukkit.entity.Villager;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -107,8 +108,12 @@ public class AddonGuide {
                 break;
             default:
                 profession = Villager.Profession.FARMER;
+                break;
         }
         villager.setProfession(profession);
+        villager.setInvulnerable(false);
+        PersistentDataContainer container = villager.getPersistentDataContainer();
+        container.set(CitySystem.getNpcTypeKey(), PersistentDataType.STRING, NpcType.ADDON_GUIDE.getIdentifier());
     }
 
     public void openGuideView(Player player) {

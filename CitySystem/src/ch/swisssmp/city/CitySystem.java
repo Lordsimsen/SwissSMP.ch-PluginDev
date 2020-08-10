@@ -3,8 +3,10 @@ package ch.swisssmp.city;
 import java.util.*;
 import java.util.function.Consumer;
 
-import ch.swisssmp.city.guides.AddonGuide;
+import ch.swisssmp.city.npcs.NpcType;
+import ch.swisssmp.city.npcs.guides.AddonGuide;
 import ch.swisssmp.npc.NPCInstance;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -24,6 +26,11 @@ public class CitySystem {
 
 	public static Optional<City> getCity(UUID uid){
 		return Cities.getCity(uid);
+	}
+
+	@Deprecated
+	public static Optional<City> getCity(int legacyId){
+		return Cities.getCity(legacyId);
 	}
 
 	public static Optional<Addon> getAddon(UUID cityId, String addonId){
@@ -132,5 +139,9 @@ public class CitySystem {
 
 	public static Optional<Addon> findAddon(String cityKey, String addonKey, boolean createIfMissing) {
 		return AddonUtility.findAddon(cityKey, addonKey, createIfMissing);
+	}
+
+	public static NamespacedKey getNpcTypeKey(){
+		return NpcType.getKey();
 	}
 }
