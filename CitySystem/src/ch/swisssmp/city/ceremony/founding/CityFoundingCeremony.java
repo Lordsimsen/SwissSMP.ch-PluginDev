@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.city.SigilRingType;
 import ch.swisssmp.city.ceremony.CityCeremony;
 import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect;
 import org.bukkit.Bukkit;
@@ -24,7 +25,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.ItemManager;
 import ch.swisssmp.city.ceremony.founding.phases.BaptisePhase;
 import ch.swisssmp.city.ceremony.founding.phases.BeginPhase;
 import ch.swisssmp.city.ceremony.founding.phases.ForgeRingPhase;
@@ -66,8 +66,8 @@ public class CityFoundingCeremony extends CityCeremony implements Listener {
 		this.ringCoreMaterial = coreMaterial;
 	}
 	
-	public String getRingType(){
-		return ItemManager.getSigilType(ringBaseMaterial, ringCoreMaterial);
+	public SigilRingType getRingType(){
+		return SigilRingType.of(ringBaseMaterial, ringCoreMaterial);
 	}
 
 	@Override

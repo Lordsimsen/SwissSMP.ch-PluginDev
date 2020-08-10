@@ -34,6 +34,10 @@ public class ObservatoryPlugin extends JavaPlugin {
         return observatoryPlugin;
     }
 
+    public WorldGuardPlugin getWorldGuardPlugin(){
+        return worldGuardPlugin;
+    }
+
     public static String getPrefix(){
         return ChatColor.AQUA + "[" + ChatColor.LIGHT_PURPLE + "Observatorium" + ChatColor.AQUA + "]";
     }

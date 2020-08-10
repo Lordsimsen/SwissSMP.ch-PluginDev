@@ -39,8 +39,13 @@ public class AddonGuide {
 
     public void remove(){
         npc.remove();
-        addon.setGuideActive(false);
         addon.save();
+    }
+
+    public static Optional<AddonGuide> get(Entity entity){
+        NPCInstance npc = NPCInstance.get(entity);
+        if(npc==null) return Optional.empty();
+        return get(npc);
     }
 
     public static Optional<AddonGuide> get(NPCInstance npc){
@@ -56,7 +61,6 @@ public class AddonGuide {
         NPCInstance npc = NPCInstance.create(EntityType.VILLAGER, location);
         AddonGuide result = new AddonGuide(addon, npc);
         result.update();
-        addon.setGuideActive(true);
         addon.save();
         return result;
     }
@@ -73,7 +77,7 @@ public class AddonGuide {
 
         AddonType type = addon.getType();
         if (type == null) {
-            Bukkit.getLogger().warning(CitySystemPlugin.getPrefix() + "AddonType " + addon.getAddonId() + " für Stadt " + addon.getCityId() + " nicht gefunden!");
+            Bukkit.getLogger().warning(CitySystemPlugin.getPrefix() + " AddonType " + addon.getAddonId() + " für Stadt " + addon.getCityId() + " nicht gefunden!");
             return;
         }
         if (addon.getState() != null) {
@@ -128,15 +132,16 @@ public class AddonGuide {
         NPCConversation conversation = NPCConversation.start(npc, player, 200);
         AddonState state = addon.getState();
         AddonType type = addon.getType();
-        String reason = addon.getStateReasonMessage();
+        AddonStateReason reason = addon.getStateReason();
+        String reasonMessage = addon.getStateReasonMessage();
         switch (state) {
             case ACCEPTED: {
                 conversation.addLine("Dieses Addon ist " + state.getColor() + "einsatzbereit" + ChatColor.RESET + ".");
-                if (reason == null) {
+                if (reasonMessage == null) {
                     conversation.addLine("Kontaktiere ein Mitglied vom " + ChatColor.GREEN + "Staff MC" + ChatColor.RESET + "...");
                     conversation.addLine("... um es " + AddonState.ACTIVATED.getColor() + "aktivieren" + ChatColor.RESET + " zu lassen.");
                 } else {
-                    for (String line : reason.split("\n")) {
+                    for (String line : reasonMessage.split("\n")) {
                         conversation.addLine(line);
                     }
                 }
@@ -165,11 +170,11 @@ public class AddonGuide {
             }
             case BLOCKED: {
                 conversation.addLine("Dieses Addon ist momentan " + state.getColor() + "blockiert" + ChatColor.RESET + ".");
-                if (reason == null) {
+                if (reasonMessage == null) {
                     conversation.addLine("Mir ist zwar nicht bekannt weshalb,...");
                     conversation.addLine("...aber komm doch später nochmals vorbei.");
                 } else {
-                    for (String line : reason.split("<br>")) {
+                    for (String line : reasonMessage.split("\n")) {
                         conversation.addLine(line);
                     }
                 }
@@ -177,8 +182,13 @@ public class AddonGuide {
             }
             case UNAVAILABLE: {
                 conversation.addLine("Dieses Addon ist momentan " + state.getColor() + "nicht verfügbar" + ChatColor.RESET + ".");
-                if (reason != null) {
-                    for (String line : reason.split("<br>")) {
+                if (reasonMessage != null) {
+                    switch(reason){
+                        case CITY_LEVEL: reasonMessage = reasonMessage.replace("\n", " ");break;
+                        case REQUIRED_ADDONS: reasonMessage = reasonMessage.replace("\n", ",").replace(",- ", ", ");break;
+                        default:break;
+                    }
+                    for (String line : reasonMessage.split("\n")) {
                         conversation.addLine(line);
                     }
                     break;
@@ -187,8 +197,8 @@ public class AddonGuide {
             }
             default: {
                 conversation.addLine("Dieses Addon ist momentan " + state.getColor() + state.getDisplayName() + ChatColor.RESET + ".");
-                if (reason != null) {
-                    for (String line : reason.split("<br>")) {
+                if (reasonMessage != null) {
+                    for (String line : reasonMessage.split("\n")) {
                         conversation.addLine(line);
                     }
                 }

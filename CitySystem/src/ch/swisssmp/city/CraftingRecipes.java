@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 
 
@@ -20,17 +21,17 @@ class CraftingRecipes {
 	protected static void unregister(){
 		if(citizenBillRecipe!=null) Bukkit.removeRecipe(citizenBillRecipe.getKey());
 	}
-	
+
 	@SuppressWarnings({ "deprecation" })
 	private static void registerCitizenBill(){
-		ItemStack ringStack = ItemManager.createRing("METAL_RING");
-		ItemStack result = ItemManager.createCitizenBill(new CitizenBill());
+		ItemStack ringStack = SigilRingType.METAL_RING.createItemStack();
+		ItemStack result = CitizenBill.EMPTY.createItemStack();
 		citizenBillRecipe = new ShapedRecipe(new NamespacedKey(CitySystemPlugin.getInstance(),"citizen_bill"), result);
 		citizenBillRecipe.setGroup("Städtesystem");
 		citizenBillRecipe.shape("epe","prp","epe");
 		citizenBillRecipe.setIngredient('e', Material.EMERALD);
 		citizenBillRecipe.setIngredient('p', Material.PAPER);
-		citizenBillRecipe.setIngredient('r', ringStack.getType(), Short.MAX_VALUE);
+		citizenBillRecipe.setIngredient('r', new RecipeChoice.ExactChoice(ringStack));
 		citizenBillRecipe.getChoiceMap();
 		Bukkit.addRecipe(citizenBillRecipe);
 	}

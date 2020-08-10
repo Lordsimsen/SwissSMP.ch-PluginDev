@@ -22,11 +22,6 @@ import ch.swisssmp.utils.SwissSMPler;
 public class AddonEventListener implements Listener {
 	
 	@EventHandler
-	private void onResourcepackUpdate(PlayerResourcePackUpdateEvent event){
-		event.addComponent("addons");
-	}
-	
-	@EventHandler
 	public void onSignChange(SignChangeEvent event){
 		if(event.getBlock().getWorld()!=Bukkit.getWorlds().get(0)) return;
 		Player player = event.getPlayer();
@@ -34,7 +29,7 @@ public class AddonEventListener implements Listener {
 		if((!lines[0].toLowerCase().equals("[addonabnahme]") && !lines[0].toLowerCase().equals("[addon]")) || !player.hasPermission("addonabnahme.request")){
 			return;
 		}
-		Addon addon = CitySystem.findAddon(lines).orElse(null);
+		Addon addon = CitySystem.findAddon(lines, true).orElse(null);
 		Sign sign = (Sign) event.getBlock().getState();
 		City city;
 		if(addon!=null){
@@ -61,11 +56,13 @@ public class AddonEventListener implements Listener {
 			return;
 		}
 
+		AddonGuide oldGuide = AddonGuides.findGuide(addon).orElse(null);
 		addon.setOrigin(event.getBlock());
 		Techtree techtree = city.getTechtree();
 		techtree.updateAddonState(addon);
 		Addon finalAddon = addon;
 		addon.save((success)->{
+			if(oldGuide!=null) oldGuide.remove();
 			CitySystem.createAddonGuide(player, sign, finalAddon);
 		});
 	}

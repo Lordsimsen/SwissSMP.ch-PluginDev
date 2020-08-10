@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockVector;
@@ -173,7 +174,7 @@ public class JsonUtil {
         String namespace = keyString.contains(":") ? keyString.substring(0, keyString.indexOf(":")) : "minecraft";
         String key = keyString.contains(":") ? keyString.substring(namespace.length() + 1) : keyString;
         //noinspection deprecation
-        return json != null ? new NamespacedKey(namespace, key) : null;
+        return json != null ? new NamespacedKey(namespace.toLowerCase(), key.toLowerCase()) : null;
     }
 
     public static void set(String key, NamespacedKey value, JsonObject json) {
@@ -184,15 +185,15 @@ public class JsonUtil {
         return json.has(key) ? getMaterial(json.get(key)) : null;
     }
 
-    public static Material getMaterial(JsonElement json) {
+    public static Material getMaterial(JsonElement element) {
         Material result;
         try {
-            result = json != null ? Material.valueOf(json.getAsString().toUpperCase()) : null;
+            result = element != null ? Material.valueOf(element.getAsString().toUpperCase()) : null;
         } catch (Exception ignored) {
             result = null;
         }
-        if (result != null || json == null) return result;
-        NamespacedKey key = getKey(json);
+        if (result != null || element == null) return result;
+        NamespacedKey key = getKey(element);
         return MaterialUtil.getMaterial(key).orElse(null);
     }
 
@@ -220,7 +221,63 @@ public class JsonUtil {
     }
 
     public static Color getColor(String key, JsonObject json) {
-        return Color.fromRGB(getInt(key, json));
+        return getColor(json.get(key));
+    }
+
+    public static Color getColor(JsonElement element) {
+        return element!=null && element.isJsonPrimitive() ? Color.fromRGB(element.getAsInt()) : null;
+    }
+
+    public static ChatColor getChatColor(String key, JsonObject json) {
+        return getChatColor(json.get(key));
+    }
+
+    public static ChatColor getChatColor(JsonElement element){
+        try{
+            return element!=null && element.isJsonPrimitive() ? ChatColor.valueOf(element.getAsString()) : null;
+        }
+        catch(Exception ignored){
+            return null;
+        }
+    }
+
+    public static DyeColor getDyeColor(String key, JsonObject json){return getDyeColor(json.get(key));}
+
+    public static DyeColor getDyeColor(JsonElement element){
+        try{
+            Color color = getColor(element);
+            DyeColor dyeColor = color != null ? DyeColor.getByColor(color) : null;
+            if(dyeColor==null && color!=null) Bukkit.getLogger().warning("Couldn't load dyecolor based on color: " + color.asRGB());
+            return dyeColor;
+        }
+        catch(Exception ignored){
+            Bukkit.getLogger().warning("Ungültige DyeColor: " + element);
+            return null;
+        }
+    }
+
+    public static void set(String key, DyeColor color, JsonObject json){
+        set(key, color.getColor(), json);
+    }
+
+    public static PatternType getPattern(String key, JsonObject json){
+        return getPattern(json.get(key));
+    }
+
+    public static PatternType getPattern(JsonElement element){
+        try{
+            PatternType patternType = element!=null ? PatternType.getByIdentifier(element.getAsString()) : null;
+            if(patternType == null && element != null) Bukkit.getLogger().warning("Couldn't load patterntype from: " + element.toString());
+            return patternType;
+        }
+        catch(Exception ignored){
+            Bukkit.getLogger().warning("Ungültiges Pattern: " + element);
+            return null;
+        }
+    }
+
+    public static void set(String key, PatternType pattern, JsonObject json){
+        json.addProperty(key, pattern.getIdentifier());
     }
 
     public static void set(String key, Color value, JsonObject json) {

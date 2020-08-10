@@ -4,11 +4,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 public enum AddonState {
-	BLOCKED("Blockiert", ChatColor.DARK_RED, Material.RED_WOOL),
 	UNAVAILABLE("Nicht verfügbar", ChatColor.GRAY, Material.GRAY_WOOL),
+	BLOCKED("Blockiert", ChatColor.DARK_RED, Material.RED_WOOL),
 	AVAILABLE("Verfügbar", ChatColor.GREEN, Material.LIME_WOOL),
 	ACTIVATED("Aktiviert", ChatColor.AQUA, Material.CYAN_WOOL),
-	ACCEPTED("Freigeschaltet", ChatColor.GREEN, Material.GREEN_WOOL)
+	ACCEPTED("Freigeschaltet", ChatColor.DARK_GREEN, Material.GREEN_WOOL)
 	;
 	
 	private final String display_name;

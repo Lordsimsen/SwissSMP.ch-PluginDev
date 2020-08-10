@@ -47,13 +47,14 @@ class CraftingListener implements Listener {
 			if(matrix[slot]==null || matrix[slot].getType()!=Material.PAPER) return;
 		}
 		ItemStack center = inventory.getMatrix()[4];
-		City city = ItemManager.getCity((Player)view.getPlayer(), center);
+		City city = ItemUtility.getCity((Player)view.getPlayer(), center);
 		if(city==null){
 			inventory.setResult(null);
 			return;
 		}
-		ItemStack bill = ItemManager.createCitizenBill(new CitizenBill(city));
-		inventory.setResult(bill);
+		CitizenBill bill = new CitizenBill(city);
+		ItemStack itemStack = bill.createItemStack();
+		inventory.setResult(itemStack);
 	}
 	
 	@EventHandler
@@ -154,7 +155,7 @@ class CraftingListener implements Listener {
 		if (!city.isCitizen(responsible) && !responsible.hasPermission(CitySystemPermission.ADMIN)) return false;
 		if(bill.getRole()!=null && bill.getRole().equalsIgnoreCase("bürgermeister")){
 			if(!city.isMayor(responsible) && !responsible.hasPermission(CitySystemPermission.ADMIN)){
-				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Nur der Bürgermeister kann diesen Titel verleihen.");
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Nur der Bürgermeister kann diesen Titel verleihen.");
 				return false;
 			}
 		}
@@ -166,14 +167,14 @@ class CraftingListener implements Listener {
 					city.setMayor(citizenship.getUniqueId());
 				}
 				citizenship.announceRoleChange(responsible, previousRole);
-				ItemManager.updateItems();
+				ItemUtility.updateItems();
 			}
 			else{
 				// revert role change
 				citizenship.setRole(previousRole);
 				bill.setCitizenRole(previousRole);
 				bill.apply(result);
-				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Konnte den Titel nicht setzen. (Systemfehler)");
+				responsible.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Konnte den Titel nicht setzen. (Systemfehler)");
 			}
 		});
 

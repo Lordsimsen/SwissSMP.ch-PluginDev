@@ -17,7 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.ItemManager;
+import ch.swisssmp.city.ItemUtility;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.city.ceremony.founding.RingPresentation;
 import ch.swisssmp.utils.Random;
@@ -61,8 +61,8 @@ public class BaptisePhase extends Phase implements ITributeListener {
 	@Override
 	public void finish(){
 		if(reminderTask!=null) reminderTask.cancel();
-		Color colorA = ItemManager.getMaterialColor(ceremony.getBaseMaterial());
-		Color colorB = ItemManager.getMaterialColor(ceremony.getCoreMaterial());
+		Color colorA = ItemUtility.getMaterialColor(ceremony.getBaseMaterial());
+		Color colorB = ItemUtility.getMaterialColor(ceremony.getCoreMaterial());
 		Random random = new Random();
 		for(RingPresentation p : ringDisplays){
 			LightParticles.spawn(CitySystemPlugin.getInstance(), p.getLocation(), new Targetable(p.getPlayer()), 0, random.nextDouble()>0.3 ? colorA : colorB);

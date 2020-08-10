@@ -16,9 +16,19 @@ import ch.swisssmp.webcore.HTTPRequest;
 
 public class PermissionManager {
 	
-	private static HashMap<UUID, PermissionAttachment> attachments = new HashMap<UUID, PermissionAttachment>();
+	private static final HashMap<UUID, PermissionAttachment> attachments = new HashMap<UUID, PermissionAttachment>();
 	
 	protected static boolean debug = false;
+
+	public static void reloadPermissions(){
+		for(Player player : Bukkit.getOnlinePlayers()){
+			reloadPermissions(player);
+		}
+	}
+
+	public static void reloadPermissions(Player player){
+		loadPermissions(player);
+	}
 
 	protected static void loadPermissions(){
 		for(Player player : Bukkit.getOnlinePlayers()){

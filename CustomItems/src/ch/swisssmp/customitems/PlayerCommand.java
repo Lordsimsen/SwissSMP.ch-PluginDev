@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -145,19 +146,6 @@ public class PlayerCommand implements TabExecutor {
 			sender.sendMessage("[CustomItems] Items & Materialien aktualisiert.");
 			return true;
 		}
-		case "view":{
-			if(!(sender instanceof Player)){
-				return true;
-			}
-			Inventory inventory = Bukkit.createInventory(null, 54, "CustomItems");
-			for(CustomItemTemplate template : CustomItemTemplates.templates.values()){
-				CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(template.getCustomEnum(), 1);
-				inventory.addItem(itemBuilder.build());
-			}
-			Player player = (Player) sender;
-			player.openInventory(inventory);
-			return true;
-		}
 		default:
 			return false;
 		}
@@ -174,9 +162,9 @@ public class PlayerCommand implements TabExecutor {
 		switch(args[0]){
 			case "summon":{
 				List<String> options = Stream.concat(
-						CustomItemTemplates.getCustomEnums().stream(),
-						CustomMaterialTemplates.getCustomEnums().stream()
-				).distinct().map(String::toLowerCase).collect(Collectors.toList());
+						CustomItemTemplates.getKeys().stream(),
+						CustomMaterialTemplates.getKeys().stream()
+				).distinct().map(NamespacedKey::toString).collect(Collectors.toList());
 				String current = args.length>1 ? args[1] : "";
 				return StringUtil.copyPartialMatches(current, options, new ArrayList<>());
 			}

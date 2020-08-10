@@ -35,7 +35,7 @@ public class BeginPhase extends Phase {
 		Block fire = ceremony.getFire();
 		Player initiator = ceremony.getInitiator();
 		RawBase spectateMessage = new RawText(new RawText(CitySystemPlugin.getPrefix())
-				, new RawText(initiator.getDisplayName())
+				, new RawText(" "+initiator.getDisplayName())
 				, new RawText(" hat eine Gründungszeremonie gestartet!")).color(ChatColor.GREEN);
 		ceremony.broadcastSpectatorCommand(spectateMessage, initiator.getName(), (player)->fire.getLocation().distanceSquared(player.getLocation())>10000);
 	}

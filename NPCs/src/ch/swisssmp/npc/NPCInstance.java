@@ -164,7 +164,7 @@ public class NPCInstance {
 	
 	public static NPCInstance create(EntityType entityType, Location location){
 		UUID npc_id = UUID.randomUUID();
-		ArmorStand armorStand = createBase(entityType, location);
+		ArmorStand armorStand = createBase(location);
 		Entity visible = createVisible(location, entityType);
 		armorStand.addPassenger(visible);
 		EntityEquipment equipment = armorStand.getEquipment();
@@ -200,15 +200,15 @@ public class NPCInstance {
 		return new NPCInstance(npc_id, visible, armorStand);
 	}
 	
-	private static ArmorStand createBase(EntityType entityType, Location location){
-		Location spawnLocation = location.clone().add(NPCInfo.getBaseOffset(entityType));
-		ArmorStand result = (ArmorStand) location.getWorld().spawnEntity(spawnLocation, EntityType.ARMOR_STAND);
-		result.setInvulnerable(true);
-		result.setVisible(false);
-		result.setSmall(true);
-		result.setSilent(true);
-		result.setGravity(false);
-		return result;
+	private static ArmorStand createBase(Location location){
+		return location.getWorld().spawn(location, ArmorStand.class, (armorStand)->{
+			armorStand.setInvulnerable(true);
+			armorStand.setVisible(false);
+			armorStand.setSmall(true);
+			armorStand.setSilent(true);
+			armorStand.setGravity(false);
+			armorStand.setMarker(true);
+		});
 	}
 	
 	private static Entity createVisible(Location location, EntityType entityType){

@@ -1,0 +1,7 @@
+main: ch.swisssmp.boatraces.BoatRacesPlugin
+version: 1
+api-version: 1.13
+name: BoatRaces
+authors: [detig_iii,WhiteGuggi}
+description: Bootrennen-Minisipel-Plugin
+depend: [SwissSMPUtils]

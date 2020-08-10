@@ -35,7 +35,7 @@ public class BurningPhase extends Phase implements Listener {
 
     @Override
     public void begin(){
-        if(CityPromotionCeremony.getNearbyPlayers(chest.getLocation()).size() < ceremony.getCeremonyParameters().getPromotionPlayercount()) {
+        if(CityPromotionCeremony.getNearbyPlayers(chest.getLocation()).size() < ceremony.getCeremonyParameters().getPromotionPlayerCount()) {
             cancel();
         }
         super.begin();
@@ -43,8 +43,10 @@ public class BurningPhase extends Phase implements Listener {
         fireIgnited = false;
 
         ceremony.setRingEffect(new CityCeremonyCircleEffect(chest.getLocation().add(0.5,0.5,0.5)));
-        ceremony.getRingEffect().setRadius(5);
         ceremony.getRingEffect().setRingEffectType(CityCeremonyCircleEffect.RingEffectType.WhirlingBlade);
+        ceremony.getRingEffect().setRadius(12);
+        ceremony.getRingEffect().setDetail(8);
+        // ceremony.getRingEffect().setRadiusMultiplier(1.5f);
         for(int i = 0; i < 5; i++){
             if((i+1) % 5 == 0) {
                 ceremony.getRingEffect().setColor(i, Color.fromRGB(55, 242, 255));
@@ -86,15 +88,15 @@ public class BurningPhase extends Phase implements Listener {
 
     @Override
     public void run() {
-        if(ceremony.getParticipants().size() < ceremony.getCeremonyParameters().getPromotionPlayercount()) cancel();
+        if(ceremony.getParticipants().size() < ceremony.getCeremonyParameters().getPromotionPlayerCount()) cancel();
         if(fireIgnited) {
             double randomDouble = ceremony.random.nextDouble();
-            if (randomDouble < 0.1) playRandomLocatedFireBurst(chest.getLocation(), 2);
+            if (randomDouble < 0.03) playFireBurst(chest.getLocation());
         }
     }
 
-    private void playRandomLocatedFireBurst(Location location, int bound){
-        Location hayPileCorner = location.add(-bound,-bound,-bound);
+    private void playFireBurst(Location location){
+        Location hayPileCorner = location.add(0,-1,0);
         int x = ceremony.random.nextInt(4);
         int y = ceremony.random.nextInt(3);
         int z = ceremony.random.nextInt(4);

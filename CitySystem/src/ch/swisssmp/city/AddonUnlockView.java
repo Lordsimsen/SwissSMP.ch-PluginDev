@@ -66,7 +66,6 @@ public class AddonUnlockView implements Listener {
 		merchantInventory.clear();
 		Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(),()->{
 			event.getView().close();
-			addon.announceUnlock(player);
 		},3L);
 		addon.save((success)->{
 			if(!success){
@@ -78,6 +77,11 @@ public class AddonUnlockView implements Listener {
 				return;
 			}
 
+			City city = addon.getCity();
+			if(city!=null){
+				city.updateAddonStates();
+				city.reloadPermissions();
+			}
 			addon.announceUnlock(player);
 		});
 	}

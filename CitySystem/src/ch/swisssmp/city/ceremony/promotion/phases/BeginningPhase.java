@@ -42,10 +42,10 @@ public class BeginningPhase extends Phase {
         loadMusic();
         startShaker();
         Player initiator = ceremony.getInitiator();
-        initiator.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + "Versammle deine Bürger um den Altar! Die Zeremonie beginnt in einer Stunde!");
+        initiator.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + " Versammle deine Bürger um den Altar! Die Zeremonie beginnt in einer Stunde!");
         broadcastTitle("", ChatColor.LIGHT_PURPLE + "Die Zeremonie beginnt in einer Minecraft-Stunde!");
         RawBase spectateMessage = new RawText(new RawText(CitySystemPlugin.getPrefix())
-                , new RawText(initiator.getDisplayName())
+                , new RawText(" "+initiator.getDisplayName())
                 , new RawText(" hat eine Stadtaufstiegszeremonie gestartet!")).color(ChatColor.GREEN);
         ceremony.broadcastSpectatorCommand(spectateMessage, initiator.getName(), (player)->!ceremony.getCity().isCitizen(player));
 

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import ch.swisssmp.permissionmanager.PermissionManager;
 import ch.swisssmp.utils.*;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -19,7 +20,6 @@ public class City {
     private final String techtreeId;
 
     private String name;
-    private String levelId;
     private String ringType;
     private UUID mayor;
     private final HashSet<UUID> founders = new HashSet<UUID>();
@@ -45,13 +45,12 @@ public class City {
         return name;
     }
 
-    public String getLevelId() {
-        return levelId;
+    public boolean hasLevel(CityLevel level) {
+        return CitySystem.checkCityLevel(this, level);
     }
 
-    public CityLevel getLevel() {
-        Techtree techtree = CitySystem.getTechtree(techtreeId).orElse(null);
-        return techtree != null ? techtree.getLevel(levelId).orElse(null) : null;
+    public boolean hasLevel(String levelId){
+        return CitySystem.checkCityLevel(this, levelId);
     }
 
     public String getRingType() {
@@ -70,8 +69,15 @@ public class City {
         return Citizenships.getCitizenship(uid, playerUid);
     }
 
+    public int getCitizenCount(){return Citizenships.getCitizenCount(this.uid);}
+
     public Collection<Addon> getAddons(){
         return Addons.getAll(this);
+    }
+
+    public Collection<Addon> getAddons(CityLevel level){
+        Collection<String> types = level.getAddonTypes().stream().map(AddonType::getAddonId).collect(Collectors.toList());
+        return Addons.getAll(this).stream().filter(a->types.contains(a.getAddonId())).collect(Collectors.toList());
     }
 
     public Optional<Addon> getAddon(String addonId) {
@@ -95,26 +101,53 @@ public class City {
     }
 
     public void broadcast(String message) {
-        getCitizenships().forEach((citizenship)->SwissSMPler.get(citizenship.getUniqueId()).sendMessage(message));
+        Collection<Citizenship> citizens = this.getCitizenships();
+        for(Citizenship citizen : citizens){
+            SwissSMPler.get(citizen.getUniqueId()).sendMessage(message);
+        }
     }
 
-    public boolean setLevel(String levelId) {
-        Techtree techtree = getTechtree();
-        if (techtree == null || !techtree.getLevel(levelId).isPresent()) return false;
-        this.levelId = levelId;
-        return true;
-    }
-
-    public void promoteCity(Consumer<Boolean> callback) {
-        Techtree techtree = getTechtree();
-        int currentLevel = techtree.getLevelIndex(levelId);
-        if (currentLevel + 1 >= techtree.getLevels().size()){
+    public void unlockLevel(String levelId, Consumer<Boolean> callback){
+        Techtree techtree = this.getTechtree();
+        CityLevel level = techtree!=null ? techtree.getLevel(levelId).orElse(null) : null;
+        if(level==null){
             callback.accept(false);
             return;
-        };
-        String newLevelId = techtree.getLevel(currentLevel + 1).getId();
-        this.setLevel(newLevelId);
-        save(callback);
+        }
+        unlockLevel(level, callback);
+    }
+
+    public void unlockLevel(CityLevel level, Consumer<Boolean> callback) {
+        CitySystem.unlockCityLevel(uid, level.getTechtree().getId(), level.getId(), (success)->{
+            if(success){
+                this.updateAddonStates();
+                this.reloadPermissions();
+            }
+            if(callback!=null) callback.accept(success);
+        });
+    }
+
+    public void lockLevel(CityLevel level, Consumer<Boolean> callback) {
+        CitySystem.lockCityLevel(uid, level.getTechtree().getId(), level.getId(), (success)->{
+            if(success) this.reloadPermissions();
+            if(callback!=null) callback.accept(success);
+        });
+    }
+
+    public void updateAddonStates(){
+        Techtree techtree = this.getTechtree();
+        if(techtree==null) return;
+        for(Addon addon : this.getAddons()){
+            techtree.updateAddonState(addon);
+        }
+    }
+
+    public void reloadPermissions(){
+        for(Citizenship citizenship : this.getCitizenships()){
+            Player player = Bukkit.getPlayer(citizenship.getUniqueId());
+            if(player==null) continue;
+            PermissionManager.reloadPermissions(player);
+        }
     }
 
     public void addCitizen(Player player, Player parent, String role, Consumer<Boolean> callback) {
@@ -127,13 +160,13 @@ public class City {
         citizenship.save((success)->{
             if(success){
                 citizenship.announceCitizenshipAwarded(parent);
-                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + "Du hast " + player.getDisplayName() + ChatColor.GREEN + " aufgenommen!");
-                ItemManager.updateItems();
+                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.GREEN + " Du hast " + player.getDisplayName() + ChatColor.GREEN + " aufgenommen!");
+                ItemUtility.updateItems();
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "permission reload");
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
             }
             else{
-                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + "Konnte " + player.getDisplayName() + ChatColor.RED + " nicht aufnehmen. (Systemfehler)");
+                parent.sendMessage(CitySystemPlugin.getPrefix() + ChatColor.RED + " Konnte " + player.getDisplayName() + ChatColor.RED + " nicht aufnehmen. (Systemfehler)");
             }
             callback.accept(success);
         });
@@ -192,10 +225,6 @@ public class City {
         return CitySystem.getCitizenship(uid, playerUid).isPresent();
     }
 
-    public Collection<String> getZones(){
-        return Collections.singletonList(name.toLowerCase());
-    }
-
     public void save(){
         save(null);
     }
@@ -204,7 +233,6 @@ public class City {
         List<String> arguments = new ArrayList<>();
         arguments.addAll(Arrays.asList("city_id=" + uid,
                 "name=" + name,
-                "level=" + levelId,
                 "ring_type=" + ringType,
                 "mayor=" + mayor));
         arguments.addAll(founders.stream().map(f->"founders[]="+f).collect(Collectors.toList()));
@@ -212,8 +240,9 @@ public class City {
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
             boolean success = (json!=null && json.has("success") && JsonUtil.getBool("success", json));
-            if(json!=null && json.has("message")){
-                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+JsonUtil.getString("message", json));
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
             }
 
             if(callback!=null) callback.accept(success);
@@ -224,23 +253,46 @@ public class City {
         reload(null);
     }
 
-    public void reload(Runnable callback){
+    public void reload(Consumer<Boolean> callback){
         HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.GET_CITY, new String[]{
                 "city_id="+ uid
         });
         request.onFinish(()->{
             JsonObject json = request.getJsonResponse();
+            boolean success = (json!=null && json.has("success") && JsonUtil.getBool("success", json));
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+            }
             if(json!=null && json.has("city")){
                 loadData(json.getAsJsonObject("city"));
             }
-            if(callback!=null) callback.run();
+            if(callback!=null) callback.accept(success);
+        });
+    }
+
+    public void delete(Consumer<Boolean> callback){
+        HTTPRequest request = DataSource.getResponse(CitySystemPlugin.getInstance(), CitySystemUrl.REMOVE_CITY, new String[]{
+                "city=" + this.uid
+        });
+        request.onFinish(() -> {
+            JsonObject json = request.getJsonResponse();
+            boolean success = json!=null && JsonUtil.getBool("success", json);
+            String message = json!=null ? JsonUtil.getString("message", json) : null;
+            if(message!=null){
+                Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" "+message);
+                return;
+            }
+            if(success){
+                Cities.remove(this);
+            }
+            if(callback!=null) callback.accept(success);
         });
     }
 
     private void loadData(JsonObject json) {
 
         this.name = JsonUtil.getString("name", json);
-        this.levelId = JsonUtil.getString("level", json);
         this.ringType = JsonUtil.getString("ring_type", json);
         try {
             this.mayor = UUID.fromString(JsonUtil.getString("mayor", json));
@@ -269,7 +321,7 @@ public class City {
         return Optional.of(city);
     }
 
-    protected static void create(String name, Player mayor, Collection<Player> founders, String ringType, Block origin, long time, Consumer<City> callback){
+    protected static void create(String name, Player mayor, Collection<Player> founders, SigilRingType ringType, Block origin, long time, Consumer<City> callback){
         List<String> founderNames = new ArrayList<String>();
         for(Player player : founders){
             founderNames.add("founders[]="+player.getUniqueId().toString());
@@ -282,7 +334,7 @@ public class City {
                 "place[y]="+origin.getY(),
                 "place[z]="+origin.getZ(),
                 "time="+time,
-                "ring="+URLEncoder.encode(ringType),
+                "ring="+URLEncoder.encode(ringType.toString().toLowerCase()),
                 String.join("&", founderNames)
         });
         request.onFinish(()->{

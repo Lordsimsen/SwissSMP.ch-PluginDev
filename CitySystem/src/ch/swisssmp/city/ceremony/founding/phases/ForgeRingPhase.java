@@ -4,6 +4,7 @@ import ch.swisssmp.ceremonies.ITributeListener;
 import ch.swisssmp.ceremonies.Phase;
 import ch.swisssmp.ceremonies.effects.CircleBurstEffect;
 import ch.swisssmp.ceremonies.effects.FireBurstEffect;
+import ch.swisssmp.city.ItemUtility;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -14,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.ItemManager;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect.RingEffectType;
 
@@ -87,8 +87,8 @@ public class ForgeRingPhase extends Phase implements ITributeListener {
 	public void complete(){
 		super.complete();
 		ceremony.setRingMaterials(baseStack.getType(), coreStack.getType());
-		Color colorA = ItemManager.getMaterialColor(baseStack.getType());
-		Color colorB = ItemManager.getMaterialColor(coreStack.getType());
+		Color colorA = ItemUtility.getMaterialColor(baseStack.getType());
+		Color colorB = ItemUtility.getMaterialColor(coreStack.getType());
 		CircleBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), CityFoundingCeremony.ceremonyRange, colorA, colorB);
 	}
 	
@@ -122,10 +122,11 @@ public class ForgeRingPhase extends Phase implements ITributeListener {
 		if(!expandedRing){
 			expandedRing = true;
 			this.ceremony.getRingEffect().setRadius(7);
+			this.ceremony.getRingEffect().setTargetElevation(0.3f);
 			this.ceremony.getRingEffect().setRingEffectType(RingEffectType.RotatingRing);
 		}
 		
-		Color color = ItemManager.getMaterialColor(itemStack.getType());
+		Color color = ItemUtility.getMaterialColor(itemStack.getType());
 		FireBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), 3, color, color);
 		for(int i = previousAmount; i < submittedBaseCount + submittedCoreCount; i++) {
 			ceremony.getRingEffect().setColor(i, color);
@@ -137,12 +138,12 @@ public class ForgeRingPhase extends Phase implements ITributeListener {
 	}
 	
 	private boolean baseMaterialsProvided(){
-		return baseStack!=null && baseStack.getAmount()>=ItemManager.getRequiredBaseAmount(baseStack.getType());
+		return baseStack!=null && baseStack.getAmount()>= ItemUtility.getRequiredBaseAmount(baseStack.getType());
 	}
 	
 	private boolean coreMaterialsProvided(){
 		if(coreStack==null) return false;
-		int requiredAmount = ItemManager.getRequiredCoreAmount(coreStack.getType());
+		int requiredAmount = ItemUtility.getRequiredCoreAmount(coreStack.getType());
 		return coreStack.getAmount()>=requiredAmount;
 	}
 	

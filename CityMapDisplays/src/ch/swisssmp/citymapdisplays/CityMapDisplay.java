@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.custompaintings.CustomPainting;
 import ch.swisssmp.custompaintings.CustomPaintings;
 import ch.swisssmp.text.ClickEvent;
@@ -44,7 +45,7 @@ public class CityMapDisplay {
 	
 	private final UUID uid;
 	private String name;
-	private int currentCityId;
+	private UUID currentCityId;
 	
 	/**
 	 * Creates a new instance of CityMapdisplay
@@ -141,7 +142,7 @@ public class CityMapDisplay {
 		bookMeta.setTitle("Städte");
 		bookMeta.setGeneration(Generation.ORIGINAL);
 		bookMeta.setAuthor("");
-		Collection<City> cities = Cities.getAll();
+		Collection<City> cities = CitySystem.getCities();
 		ArrayList<BaseComponent> currentPage = new ArrayList<BaseComponent>();
 		List<BaseComponent[]> pages = new ArrayList<BaseComponent[]>();
 		
@@ -167,7 +168,7 @@ public class CityMapDisplay {
 			if(cityNameString.length()>19) {
 				cityNameString = cityNameString.substring(0,17)+"..";
 			}
-			if(this.currentCityId==city.getId()) cityNameString = ChatColor.DARK_RED+"> "+cityNameString+" <";
+			if(city.getUniqueId().equals(currentCityId)) cityNameString = ChatColor.DARK_RED+"> "+cityNameString+" <";
 			RawBase cityEntry = new RawText(cityNameString+"\n")
 					.color(ChatColor.BLACK)
 					.hoverEvent(HoverEvent.showText(
@@ -176,7 +177,7 @@ public class CityMapDisplay {
 						new RawText("Bürgermeister:\n"),
 						new RawText(mayor.isPresent() ? mayor.get().getDisplayName() : "unbekannt").color(ChatColor.GRAY)
 					))
-					.clickEvent(ClickEvent.runCommand("/citymapdisplay show "+this.uid+" "+city.getId()));
+					.clickEvent(ClickEvent.runCommand("/citymapdisplay show "+this.uid+" "+city.getUniqueId()));
 			currentPage.add(cityEntry.spigot());
 			
 			remainingLines--;
@@ -222,9 +223,9 @@ public class CityMapDisplay {
 		UUID uid = JsonUtil.getUUID("uid", json);
 		if(uid==null) throw new NullPointerException("Display UUID must not be empty.");
 		String name = JsonUtil.getString("name", json);
-		int currentCity = JsonUtil.getInt("current_city", json);
+		UUID currentCityId = JsonUtil.getUUID("current_city", json);
 		CityMapDisplay result = new CityMapDisplay(uid, name);
-		result.currentCityId = currentCity;
+		result.currentCityId = currentCityId;
 		return result;
 	}
 	

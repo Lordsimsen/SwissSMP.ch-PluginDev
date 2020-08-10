@@ -1,7 +1,7 @@
 package ch.swisssmp.customitems;
 
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -11,10 +11,15 @@ import ch.swisssmp.webcore.RequestMethod;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.NamespacedKey;
 
 public class CustomMaterialTemplates {
-	protected static HashMap<String,CustomMaterialTemplate> templates = new HashMap<String,CustomMaterialTemplate>();
-	
+	private static final Set<CustomMaterialTemplate> templates = new HashSet<>();
+
+	protected static Optional<CustomMaterialTemplate> getTemplate(NamespacedKey key){
+		return templates.stream().filter(t->t.getKey().equals(key)).findAny();
+	}
+
 	protected static void load(){
 		HTTPRequest request = DataSource.getResponse(CustomItemsPlugin.getInstance(), "get_materials.php", RequestMethod.POST_SYNC);
 		load(request.getJsonResponse());
@@ -26,13 +31,13 @@ public class CustomMaterialTemplates {
 		JsonArray materialsArray = json.getAsJsonArray("materials");
 		for(JsonElement element : materialsArray){
 			if(!element.isJsonObject()) continue;
-			CustomMaterialTemplate materialTemplate = new CustomMaterialTemplate(element.getAsJsonObject());
-			if(materialTemplate.getCustomEnum()==null || materialTemplate.getCustomEnum().isEmpty()) continue;
-			templates.put(materialTemplate.getCustomEnum().toLowerCase(), materialTemplate);
+			CustomMaterialTemplate materialTemplate = CustomMaterialTemplate.load(element.getAsJsonObject()).orElse(null);
+			if(materialTemplate==null) continue;
+			templates.add(materialTemplate);
 		}
 	}
 
-	protected static Collection<String> getCustomEnums(){
-		return templates.keySet();
+	protected static Collection<NamespacedKey> getKeys(){
+		return templates.stream().map(CustomMaterialTemplate::getKey).collect(Collectors.toList());
 	}
 }

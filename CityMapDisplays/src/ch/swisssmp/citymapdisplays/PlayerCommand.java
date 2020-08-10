@@ -3,6 +3,7 @@ package ch.swisssmp.citymapdisplays;
 import java.util.Optional;
 import java.util.UUID;
 
+import ch.swisssmp.city.CitySystem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -98,10 +99,10 @@ public class PlayerCommand implements CommandExecutor{
 				String key = args[1];
 				String cityIdString = args[2];
 				UUID displayUid;
-				int cityId;
+				UUID cityId;
 				try {
 					displayUid = UUID.fromString(key);
-					cityId = Integer.parseInt(cityIdString);
+					cityId = UUID.fromString(cityIdString);
 				}
 				catch(Exception e) {
 					e.printStackTrace();
@@ -109,7 +110,7 @@ public class PlayerCommand implements CommandExecutor{
 					return true;
 				}
 				Optional<CityMapDisplay> displayQuery = CityMapDisplay.get(displayUid);
-				City city = City.get(cityId);
+				City city = CitySystem.getCity(cityId).orElse(null);
 				if(!displayQuery.isPresent() || city==null) {
 					Bukkit.getLogger().info(CityMapDisplaysPlugin.getPrefix()+"Could not display city map: is display present? ("+displayQuery.isPresent()+", is city present? ("+city+")");
 					sender.sendMessage(CityMapDisplaysPlugin.getPrefix()+" Bei der Auswahl der Stadt ist ein Fehler aufgetreten.");

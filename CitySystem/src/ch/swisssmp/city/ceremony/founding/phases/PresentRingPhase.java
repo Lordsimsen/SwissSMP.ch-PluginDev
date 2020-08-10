@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.city.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.SoundCategory;
@@ -12,10 +13,6 @@ import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import ch.swisssmp.city.City;
-import ch.swisssmp.city.CitySystem;
-import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.ItemManager;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
 import ch.swisssmp.utils.PlayerData;
 
@@ -51,7 +48,7 @@ public class PresentRingPhase extends Phase {
 		String name = ceremony.getCityName();
 		Player mayor = ceremony.getInitiator();
 		Collection<Player> founders = ceremony.getParticipants();
-		String ringType = ceremony.getRingType();
+		SigilRingType ringType = ceremony.getRingType();
 		Block origin = ceremony.getFire();
 		long time = origin.getWorld().getTime();
 		CitySystem.createCity(name, mayor, founders, ringType, origin, time, this::sendFoundingFeedback);
@@ -70,17 +67,17 @@ public class PresentRingPhase extends Phase {
 
 		this.ceremony.broadcast(ChatColor.GREEN+"Du bist nun Gründer von "+ceremony.getCityName()+"!");
 		
-		String playersString = "";
+		StringBuilder playersString = new StringBuilder();
 		List<Player> participants = ceremony.getParticipants();
 		for(int i = 0; i < participants.size(); i++){
 			Player player = participants.get(i);
 			String name = player.getName();
-			if(i==0) playersString+=name;
-			else if(i<participants.size()-1) playersString+=", "+name;
-			else playersString+=" und "+name;
+			if(i==0) playersString.append(name);
+			else if(i<participants.size()-1) playersString.append(", ").append(name);
+			else playersString.append(" und ").append(name);
 		}
 		for(Player player : Bukkit.getOnlinePlayers()){
-			player.sendMessage(CitySystemPlugin.getPrefix()+ChatColor.GREEN+playersString+" haben die Stadt "+ceremony.getCityName()+" gegründet!");
+			player.sendMessage(CitySystemPlugin.getPrefix()+" "+ChatColor.GREEN+playersString+" haben die Stadt "+ceremony.getCityName()+" gegründet!");
 		}
 		super.complete();
 		try{
@@ -90,7 +87,7 @@ public class PresentRingPhase extends Phase {
 			e.printStackTrace();
 		}
 		String code = Base64.encodeBase64URLSafeString(("techtree_"+city.getTechtreeId()+","+city.getUniqueId()).getBytes());
-		ceremony.getInitiator().sendMessage(CitySystemPlugin.getPrefix()+ChatColor.YELLOW+"Folge dieser Anleitung, um den Techtree im Forum zu aktivieren:");
+		ceremony.getInitiator().sendMessage(CitySystemPlugin.getPrefix()+ChatColor.YELLOW+" Folge dieser Anleitung, um den Techtree im Forum zu aktivieren:");
 		ceremony.getInitiator().sendMessage(ChatColor.YELLOW+""+ChatColor.UNDERLINE+"https://minecraft.swisssmp.ch/techtree-code?code="+code);
 		cityFounded = true;
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "addon reload");
@@ -113,9 +110,9 @@ public class PresentRingPhase extends Phase {
 		block.getWorld().playSound(block.getLocation(), "founding_ceremony_finale", 15, 1);
 	}
 	
-	private void giveRings(String ringType, City city){
+	private void giveRings(SigilRingType ringType, City city){
 		for(Player player : this.ceremony.getParticipants()){
-			ItemStack ring = ItemManager.createRing(ringType, city, PlayerData.get(player));
+			ItemStack ring = ringType.createItemStack(city, PlayerData.get(player));
 			if(player.getInventory().firstEmpty()<0){
 				player.getWorld().dropItem(player.getEyeLocation(), ring);
 				return;
