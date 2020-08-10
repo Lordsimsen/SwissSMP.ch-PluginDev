@@ -77,7 +77,7 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         if(!player.hasPermission("weaver.use")) return;
         ItemStack ring = event.getItem();
-        SigilRingInfo ringInfo = SigilRingInfo.get(ring);
+        SigilRingInfo ringInfo = SigilRingInfo.get(ring).orElse(null);
         if(ringInfo == null) {
             return;
         }
