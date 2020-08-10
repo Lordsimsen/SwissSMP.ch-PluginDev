@@ -34,6 +34,6 @@ public class WeaverPlugin extends JavaPlugin {
     }
 
     public static String getPrefix(){
-        return ChatColor.BLUE + "[" + ChatColor.BOLD + "Weberei" + ChatColor.BLUE + "]";
+        return ChatColor.BLUE + "[" + ChatColor.GOLD + "Weberei" + ChatColor.BLUE + "]";
     }
 }

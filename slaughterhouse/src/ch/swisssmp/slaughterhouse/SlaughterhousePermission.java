@@ -7,8 +7,10 @@ package ch.swisssmp.slaughterhouse;
  *
  */
 public enum SlaughterhousePermission {
-	MEAT("p21.slaughterhouse.meat"), 
-	OTHER("p21.slaughterhouse.other");
+
+	MEAT("slaughterhouse.meat"),
+	OTHER("slaughterhouse.other");
+
 	private SlaughterhousePermission(String value) {
 		this.value = value;
 	}

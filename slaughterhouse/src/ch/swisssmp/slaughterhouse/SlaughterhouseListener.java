@@ -14,9 +14,6 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * Listener for slaughterhouse plugin, contains most of its functionality.
- * 
- * @author Plexon21
- *
  */
 public class SlaughterhouseListener implements Listener {
 	private List<Material> MeatList = new ArrayList<Material>();
@@ -28,8 +25,8 @@ public class SlaughterhouseListener implements Listener {
 		MeatList.add(Material.COOKED_BEEF);
 		MeatList.add(Material.CHICKEN);
 		MeatList.add(Material.COOKED_CHICKEN);
-		MeatList.add(Material.COOKED_PORKCHOP);
 		MeatList.add(Material.PORKCHOP);
+		MeatList.add(Material.COOKED_PORKCHOP);
 		MeatList.add(Material.RABBIT);
 		MeatList.add(Material.COOKED_RABBIT);
 		MeatList.add(Material.MUTTON);
@@ -40,16 +37,14 @@ public class SlaughterhouseListener implements Listener {
 			AnimalList.add(EntityType.CHICKEN);
 		if (config.getBoolean("animals.pig", true))
 			AnimalList.add(EntityType.PIG);
+		if (config.getBoolean("animals.hoglin", true))
+			AnimalList.add(EntityType.HOGLIN);
 		if (config.getBoolean("animals.rabbit", true))
 			AnimalList.add(EntityType.RABBIT);
 		if (config.getBoolean("animals.sheep", true))
 			AnimalList.add(EntityType.SHEEP);
 	}
 
-	/**
-	 * 
-	 * @param deathEvent
-	 */
 	@EventHandler
 	public void onAnimalDeath(EntityDeathEvent deathEvent) {
 		// only fire if the killed entity is in AnimalList
