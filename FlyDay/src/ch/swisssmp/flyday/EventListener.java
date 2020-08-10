@@ -9,21 +9,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class EventListener implements Listener{
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerJoin(PlayerJoinEvent event){
-		Bukkit.getLogger().info("[FlyDay] Prüfe ob Flyday ist");
-		Bukkit.getScheduler().runTaskLater(FlyDay.plugin, new Runnable(){
-			public void run(){
-				FlyDay.updatePlayer(event.getPlayer());
-			}
-		}, 2L);
+		Bukkit.getLogger().info(FlyDayPlugin.getPrefix()+" Prüfe ob Flyday ist");
+		Bukkit.getScheduler().runTaskLater(FlyDayPlugin.getInstance(), () -> FlyDay.updatePlayer(event.getPlayer()), 2L);
 	}
 	
 	@EventHandler(ignoreCancelled=true)
 	private void onPlayerChangedWorld(PlayerChangedWorldEvent event){
-		Bukkit.getLogger().info("[FlyDay] Prüfe ob Flyday ist");
-		Bukkit.getScheduler().runTaskLater(FlyDay.plugin, new Runnable(){
-			public void run(){
-				FlyDay.updatePlayer(event.getPlayer(), UpdateFlag.INSTANT);
-			}
-		}, 5L);
+		Bukkit.getLogger().info(FlyDayPlugin.getPrefix()+" Prüfe ob Flyday ist");
+		Bukkit.getScheduler().runTaskLater(FlyDayPlugin.getInstance(), () -> FlyDay.updatePlayer(event.getPlayer(), UpdateFlag.INSTANT), 5L);
 	}
 }

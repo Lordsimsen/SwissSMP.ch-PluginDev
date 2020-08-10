@@ -1,9 +1,10 @@
-main: ch.swisssmp.flyday.FlyDay
-version: 1.7
+main: ch.swisssmp.flyday.FlyDayPlugin
+version: 2
 api-version: 1.13
 name: FlyDay
 author: detig_iii
 description: Vergibt an FlyDays automatisch Flug-Rechte
+depend: [SwissSMPUtils,WebCore]
 softdepend: [Lift]
 permissions:
   flyday.admin:
