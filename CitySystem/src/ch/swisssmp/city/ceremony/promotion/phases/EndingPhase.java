@@ -76,7 +76,7 @@ public class EndingPhase extends Phase {
         if(!promotionCompleted) return;
         time++;
         if(time%15 == 0) this.spawnFireworks();
-        if(time>=(parameters.getFireworkCycles()*15) + 1){
+        if(time>(parameters.getFireworkCycles()*15)){
             setCompleted();
         }
     }

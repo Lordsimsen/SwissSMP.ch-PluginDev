@@ -22,19 +22,28 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class BeginningPhase extends Phase {
 
+    private final long PREPARATION_TIME = 1000L;
+
     private final CityPromotionCeremony ceremony;
     private final Block chest;
 
     private BukkitTask particleTask;
 
+    private long time;
+
     public BeginningPhase(CityPromotionCeremony ceremony){
+        time = 0;
         this.ceremony = ceremony;
         this.chest = ceremony.getChest();
     }
 
     @Override
     public void run() {
-        //nothing to run here
+        if(time > PREPARATION_TIME) return;
+        if(time % 20 == 0) {
+            broadcastActionBar(ChatColor.AQUA + "Noch " + ((PREPARATION_TIME - time)%20) + " bis zum Zeremoniestart!");
+        }
+        time++;
     }
 
     @Override
@@ -53,7 +62,7 @@ public class BeginningPhase extends Phase {
             FireBurstEffect.play(CitySystemPlugin.getInstance(), chest, 5, Color.fromRGB(255,215,0), Color.fromRGB(0,255,255));
         }, 1, 100);
 
-        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), this::setCompleted, 999L);
+        Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), this::setCompleted, PREPARATION_TIME);
     }
 
     @Override
@@ -87,6 +96,13 @@ public class BeginningPhase extends Phase {
         for(Player player : CityPromotionCeremony.getNearbyPlayers(chest.getLocation())){
             if(!ceremony.getCity().isCitizen(player)) continue;
             SwissSMPler.get(player).sendTitle(title, subtitle);
+        }
+    }
+
+    private void broadcastActionBar(String message){
+        for(Player player : CityPromotionCeremony.getNearbyPlayers(chest.getLocation())){
+            if(!ceremony.getCity().isCitizen(player)) continue;
+            SwissSMPler.get(player).sendActionBar(message);
         }
     }
 }

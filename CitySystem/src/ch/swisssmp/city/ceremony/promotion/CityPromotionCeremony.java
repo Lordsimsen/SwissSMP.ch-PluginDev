@@ -11,13 +11,18 @@ import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPler;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -180,17 +185,31 @@ public class CityPromotionCeremony extends CityCeremony implements Listener {
 
     }
 
-    public static CityPromotionCeremony start(Block Chest, Player initiator, City city, PromotionCeremonyData data){
+    public static CityPromotionCeremony start(Block tributeChest, Player initiator, City city, PromotionCeremonyData data){
         if(ceremoniesParticipants.contains(initiator) || Ceremonies.isParticipantAnywhere(initiator)) return null; //Todo permission ?
         // List<Player> nearbyPlayers = getNearbyPlayers(Chest.getLocation());
         for(CityPromotionCeremony nearby : ceremonies){
-            if(nearby.getChest().getLocation().distanceSquared(Chest.getLocation()) < 10000){
+            if(nearby.getChest().getLocation().distanceSquared(tributeChest.getLocation()) < 10000){
                 SwissSMPler.get(initiator).sendActionBar(ChatColor.RED + "Es findet bereits eine Aufstiegszeremonie in der Nähe statt");
                 return null;
             }
         }
+        Inventory inventory = ((org.bukkit.block.Chest) tributeChest.getState()).getBlockInventory();
+        for(ItemStack required : data.getTribute()){
+            int proposedAmount = 0;
+            for(ItemStack proposed : inventory){
+                if(proposed==null || required == null || required.getType() == Material.AIR) continue;
+                if(proposed.getType() != required.getType()) continue;
+                proposedAmount += proposed.getAmount();
+            }
+            if(proposedAmount < required.getAmount()){
+                tributeChest.getWorld().strikeLightning(initiator.getLocation());
+                SwissSMPler.get(initiator).sendActionBar(ChatColor.RED + "Du versuchst mich zu hintergehen!?");
+                return null;
+            }
+        }
         ceremoniesParticipants.add(initiator);
-        CityPromotionCeremony result = new CityPromotionCeremony(Chest, initiator, city, data);
+        CityPromotionCeremony result = new CityPromotionCeremony(tributeChest, initiator, city, data);
         ceremonies.add(result);
         result.begin(CitySystemPlugin.getInstance());
         Bukkit.getPluginManager().registerEvents(result, CitySystemPlugin.getInstance());
@@ -220,6 +239,13 @@ public class CityPromotionCeremony extends CityCeremony implements Listener {
         if(!block.getType().equals(Material.CHEST)) return;
         if(!block.equals(chest)) return;
         this.cancel();
+    }
+
+    @EventHandler
+    private void onTributeChestInteract(PlayerInteractEvent event){
+        if(event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        Block block = event.getClickedBlock();
+        if(block.equals(chest)) event.setCancelled(true);
     }
 
     public static Optional<CityPromotionCeremony> get(City city){

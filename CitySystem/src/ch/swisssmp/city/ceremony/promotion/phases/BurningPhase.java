@@ -96,11 +96,10 @@ public class BurningPhase extends Phase implements Listener {
     }
 
     private void playFireBurst(Location location){
-        Location hayPileCorner = location.add(0,-1,0);
-        int x = ceremony.random.nextInt(4);
-        int y = ceremony.random.nextInt(3);
-        int z = ceremony.random.nextInt(4);
-        Location effectLocation = hayPileCorner.add(x,-y,z);
+        Location effectLocation = location.add(0,-1,0);
+//        int x = ceremony.random.nextInt(4);
+//        int y = ceremony.random.nextInt(3);
+//        int z = ceremony.random.nextInt(4);
         FireBurstEffect.play(CitySystemPlugin.getInstance(), effectLocation.getBlock()
                 , 5, Color.fromRGB(255, 150, 0), Color.fromRGB(255, 100, 0));
     }
