@@ -4,7 +4,7 @@ api-version: 1.13
 name: TrophyPedestals
 author: detig_iii
 description: Ermöglicht craften und platzieren von Trophäensockeln
-depend: [PermissionManager,CustomItems]
+depend: [SwissSMPUtils,PermissionManager,CustomItems]
 permissions:
   trophypedestals.craft:
     description: Ermöglicht craften von Sockeln
