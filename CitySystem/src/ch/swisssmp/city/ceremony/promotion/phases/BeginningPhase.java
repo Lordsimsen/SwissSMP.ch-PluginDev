@@ -41,7 +41,7 @@ public class BeginningPhase extends Phase {
     public void run() {
         if(time > PREPARATION_TIME) return;
         if(time % 20 == 0) {
-            broadcastActionBar(ChatColor.AQUA + "Noch " + ((PREPARATION_TIME - time)%20) + " bis zum Zeremoniestart!");
+            broadcastActionBar(ChatColor.AQUA + "Noch " + ((PREPARATION_TIME - time)%20) + " Sekunden bis zum Zeremoniestart!");
         }
         time++;
     }
