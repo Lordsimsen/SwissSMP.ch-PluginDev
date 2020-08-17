@@ -13,11 +13,17 @@ public class ChangePageSlot extends ButtonSlot {
 
     private final PaginatedView view;
     private final boolean pageDown;
+    private final String label;
 
     public ChangePageSlot(PaginatedView view, int slot, boolean pageDown) {
+        this(view, slot, pageDown, null);
+    }
+
+    public ChangePageSlot(PaginatedView view, int slot, boolean pageDown, String label) {
         super((CustomEditorView) view, slot);
         this.view = view;
         this.pageDown = pageDown;
+        this.label = label;
     }
 
     @Override
@@ -37,7 +43,7 @@ public class ChangePageSlot extends ButtonSlot {
 
     @Override
     public String getName() {
-        return pageDown ? "Nächste Seite" : "Vorherige Seite";
+        return label!=null ? label : pageDown ? "Nächste Seite" : "Vorherige Seite";
     }
 
     @Override

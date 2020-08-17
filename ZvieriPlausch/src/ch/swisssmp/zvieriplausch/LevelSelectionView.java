@@ -46,7 +46,7 @@ public class LevelSelectionView implements Listener {
 
     public static LevelSelectionView open(Player player, ZvieriArena arena){
         LevelSelectionView selection = new LevelSelectionView(player, arena);
-        Bukkit.getPluginManager().registerEvents(selection, ZvieriGamePlugin.getInstance());
+        Bukkit.getPluginManager().registerEvents(selection, ZvieriPlauschPlugin.getInstance());
         selection.open();
         return selection;
     }
@@ -76,8 +76,8 @@ public class LevelSelectionView implements Listener {
             this.arena.prepareGame(level);
             this.arena.getGame().join((Player) event.getWhoClicked());
             player.closeInventory();
-            player.sendMessage(ZvieriGamePlugin.getPrefix() + " " + ChatColor.GRAY + level.getName() + " " + arena.getName() + " startet in 30 Sekunden.");
-            player.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Andere Spieler können jetzt beitreten.");
+            player.sendMessage(ZvieriPlauschPlugin.getPrefix() + " " + ChatColor.GRAY + level.getName() + " " + arena.getName() + " startet in 30 Sekunden.");
+            player.sendMessage(ZvieriPlauschPlugin.getPrefix() + ChatColor.GRAY + " Andere Spieler können jetzt beitreten.");
         } else{
             if(event.getSlot() == this.arena.getGame().getLevel().getLevelNumber() -1){
                 startNow();
@@ -97,7 +97,7 @@ public class LevelSelectionView implements Listener {
     }
 
     private void startNow(){
-        Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskLater(ZvieriPlauschPlugin.getInstance(), () -> {
             arena.getGame().startNow();
             }, 2L);
     }
@@ -116,7 +116,7 @@ public class LevelSelectionView implements Listener {
     }
 
     private List<String> getDescription(int i){
-        Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+        Configuration config = ZvieriPlauschPlugin.getInstance().getConfig();
         ConfigurationSection levels = config.getConfigurationSection("levels");
         List<String> description = new ArrayList<String>();
         description.add(levels.getString("level_" + i + ".name"));

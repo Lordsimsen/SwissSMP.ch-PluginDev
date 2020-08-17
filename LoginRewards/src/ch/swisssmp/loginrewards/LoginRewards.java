@@ -1,7 +1,13 @@
 package ch.swisssmp.loginrewards;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -14,48 +20,35 @@ import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
 public class LoginRewards extends JavaPlugin{
-	protected static Logger logger;
-	protected static PluginDescriptionFile pdfFile;
-	protected static LoginRewards plugin;
-	
-	protected static boolean debug = false;
-	
-	@Override
-	public void onEnable() {
-		plugin = this;
-		pdfFile = getDescription();
-		logger = Logger.getLogger("Minecraft");
-		
-		Bukkit.getPluginCommand("loginrewards").setExecutor(new PlayerCommand());
-		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
-		logger.info(pdfFile.getName() + " has been enabled (Version: " + pdfFile.getVersion() + ")");
-	}
-
-	@Override
-	public void onDisable() {
-		HandlerList.unregisterAll(this);
-		Bukkit.getScheduler().cancelTasks(this);
-		PluginDescriptionFile pdfFile = getDescription();
-		logger.info(pdfFile.getName() + " has been disabled (Version: " + pdfFile.getVersion() + ")");
-	}
 	
 	protected static void trigger(Player player){
-		HTTPRequest request = DataSource.getResponse(plugin, "trigger_rewards.php", new String[]{
+		HTTPRequest request = DataSource.getResponse(LoginRewardsPlugin.getInstance(), "trigger_rewards.php", new String[]{
 				"player_uuid="+player.getUniqueId().toString()
 		});
 		request.onFinish(()->{
-			trigger(request.getYamlResponse(), player);
+			trigger(request.getJsonResponse(), player);
 		});
 	}
 	
-	private static void trigger(YamlConfiguration yamlConfiguration, Player player){
-		if(yamlConfiguration==null || !yamlConfiguration.contains("message")) return;
-		for(String line : yamlConfiguration.getStringList("message")){
+	private static void trigger(JsonObject json, Player player){
+		if(json==null || !json.has("message")) return;
+		JsonElement messageElement = json.get("message");
+		List<String> lines;
+		if(messageElement.isJsonPrimitive()){
+			lines = Collections.singletonList(messageElement.getAsString());
+		}
+		else{
+			lines = new ArrayList<>();
+			for(JsonElement element : messageElement.getAsJsonArray()){
+				lines.add(element.getAsString());
+			}
+		}
+		for(String line : lines){
 			SwissSMPler.get(player).sendRawMessage(line);
 		}
 	}
 	
 	protected static void reset(){
-		DataSource.getResponse(plugin, "reset_rewards.php");
+		DataSource.getResponse(LoginRewardsPlugin.getInstance(), "reset_rewards.php");
 	}
 }

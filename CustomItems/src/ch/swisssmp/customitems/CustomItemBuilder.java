@@ -1,15 +1,11 @@
 package ch.swisssmp.customitems;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.ListTag;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -20,8 +16,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import ch.swisssmp.utils.EnchantmentData;
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
-import ch.swisssmp.utils.nbt.NBTTagList;
 
 public class CustomItemBuilder {
 	//itemStack
@@ -42,7 +36,7 @@ public class CustomItemBuilder {
 	private boolean useNMS = false;
 	private boolean useCustomModelDataProperty = false;
 	
-	private String customEnum = "";
+	private NamespacedKey key = null;
 	private int maxCustomDurability = 0;
 	private int customDurability = 0;
 	private int customModelId = 0;
@@ -64,96 +58,180 @@ public class CustomItemBuilder {
 	private final List<CustomItemBuilderModifier> components = new ArrayList<CustomItemBuilderModifier>();
 	
 	public CustomItemBuilder(){
+		this.amount = 1;
 	}
-	
-	public void setMaterial(Material material){
+
+	public CustomItemBuilder(Material material){
 		this.material = material;
+		this.amount = 1;
 	}
-	public void setAmount(int amount){
+
+	public CustomItemBuilder(Material material, int amount){
+		this.material = material;
 		this.amount = amount;
 	}
-	public void setDurability(short durability){
+	
+	public CustomItemBuilder setMaterial(Material material){
+		this.material = material;
+		return this;
+	}
+	public Material getMaterial(){
+		return material;
+	}
+	public CustomItemBuilder setAmount(int amount){
+		this.amount = amount;
+		return this;
+	}
+	public int getAmount(){
+		return amount;
+	}
+	public CustomItemBuilder setDurability(short durability){
 		this.durability = durability;
-		if(!this.customEnum.isEmpty() && this.durability>=0){
+		if(key!=null && this.durability>=0){
 			this.unbreakable = true;
 			if(!this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
 			}
 		}
+		return this;
 	}
-	public void setMaxCustomDurability(int maxCustomDurability){
+	public short getDurability(){
+		return durability;
+	}
+	public CustomItemBuilder setMaxCustomDurability(int maxCustomDurability){
 		this.useNMS = true;
 		this.maxCustomDurability = maxCustomDurability;
+		return this;
 	}
-	public void setCustomDurability(int customDurability){
+	public int getMaxCustomDurability(){
+		return maxCustomDurability;
+	}
+	public CustomItemBuilder setCustomDurability(int customDurability){
 		this.customDurability = customDurability;
+		return this;
 	}
-	public void setCustomModelId(int customModelId) {
+	public int getCustomDurability(){
+		return customDurability;
+	}
+	public CustomItemBuilder setCustomModelId(int customModelId) {
 		this.customModelId = customModelId;
 		this.useCustomModelDataProperty = true;
+		return this;
 	}
 
 	public int getCustomModelId(){
 		return customModelId;
 	}
 
-	public void setUseCustomModelDataProperty(boolean use) {
+	public CustomItemBuilder setUseCustomModelDataProperty(boolean use) {
 		this.useCustomModelDataProperty = use;
+		return this;
 	}
-	public void addEnchantments(List<EnchantmentData> enchantments){
+	public boolean getUseCustomModelDataProperty(){
+		return useCustomModelDataProperty;
+	}
+	public CustomItemBuilder addEnchantments(List<EnchantmentData> enchantments){
 		this.enchantments.addAll(enchantments);
+		return this;
 	}
-	public void addEnchantment(EnchantmentData enchantmentData){
+	public CustomItemBuilder addEnchantment(EnchantmentData enchantmentData){
 		this.enchantments.add(enchantmentData);
+		return this;
 	}
-	public void addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction){
+	public CustomItemBuilder addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction){
 		enchantments.add(new EnchantmentData(enchantment, level, ignoreLevelRestriction));
+		return this;
 	}
-	public void addItemFlags(List<ItemFlag> itemFlags){
+	public Collection<EnchantmentData> getEnchantments(){
+		return enchantments;
+	}
+	public CustomItemBuilder addItemFlags(List<ItemFlag> itemFlags){
 		itemFlags.addAll(itemFlags);
+		return this;
 	}
-	public void addItemFlags(ItemFlag... itemFlags){
+	public CustomItemBuilder addItemFlags(ItemFlag... itemFlags){
 		for(int i = 0; i < itemFlags.length; i++){
 			this.itemFlags.add(itemFlags[i]);
 		}
+		return this;
 	}
-	public void setDisplayName(String displayName){
+	public Collection<ItemFlag> getItemFlags(){
+		return itemFlags;
+	}
+	public CustomItemBuilder setDisplayName(String displayName){
 		this.displayName = displayName;
+		return this;
 	}
-	public void setLocalizedName(String localizedName){
+	public String getDisplayName(){
+		return displayName;
+	}
+	public CustomItemBuilder setLocalizedName(String localizedName){
 		this.localizedName = localizedName;
+		return this;
 	}
-	public void setLore(List<String> lore){
+	public String getLocalizedName(){
+		return localizedName;
+	}
+	public CustomItemBuilder setLore(List<String> lore){
 		this.lore = lore;
+		return this;
 	}
-	public void setUnbreakable(boolean unbreakable){
+	public List<String> getLore(){
+		return lore;
+	}
+	public CustomItemBuilder setUnbreakable(boolean unbreakable){
 		this.unbreakable = unbreakable;
+		return this;
 	}
-	public void setSkullOwner(UUID owner){
+	public boolean getUnbreakable(){
+		return unbreakable;
+	}
+	public CustomItemBuilder setSkullOwner(UUID owner){
 		this.skullOwner = owner;
+		return this;
 	}
-	public void addComponent(CustomItemBuilderModifier component) {
+	public UUID getSkullOwner(){
+		return skullOwner;
+	}
+	public CustomItemBuilder addComponent(CustomItemBuilderModifier component) {
 		this.components.add(component);
+		return this;
+	}
+	public Collection<CustomItemBuilderModifier> getModifiers(){
+		return components;
 	}
 	/**
 	 * Setzt wann der ItemStack aus Inventaren entfernt werden soll
 	 * @param expirationDate - Timestamp in Sekunden
 	 */
-	public void setExpirationDate(int expirationDate){
+	public CustomItemBuilder setExpirationDate(long expirationDate){
 		this.expirationDate = expirationDate;
 		this.useNMS = useNMS || expirationDate>0;
+		return this;
+	}
+	public long getExpirationDate(){
+		return expirationDate;
+	}
+
+	public CustomItemBuilder setCustomEnum(String customEnum){
+		return this.setCustomEnum(NamespacedKey.minecraft(customEnum.toLowerCase()));
+	}
+
+	public CustomItemBuilder setCustomEnum(NamespacedKey key){
+		this.setCustomEnum(key, null);
+		return this;
+	}
+
+	protected CustomItemBuilder setCustomEnum(String customEnum, CustomMaterialTemplate template){
+		return this.setCustomEnum(NamespacedKey.minecraft(customEnum.toLowerCase()), template);
 	}
 	
-	public void setCustomEnum(String customEnum){
-		this.setCustomEnum(customEnum, null);
-	}
-	
-	protected void setCustomEnum(String customEnum, CustomMaterialTemplate template){
-		this.customEnum = customEnum;
-		if(this.customEnum==null) return;
+	protected CustomItemBuilder setCustomEnum(NamespacedKey key, CustomMaterialTemplate template){
+		this.key = key;
+		if(this.key==null) return this;
 		if(this.material==null){
 			if(template==null){
-				template = CustomMaterialTemplate.get(customEnum);
+				template = CustomMaterialTemplate.get(key).orElse(null);
 			}
 			if(template!=null){
 				Material material = template.getMaterial();
@@ -163,53 +241,92 @@ public class CustomItemBuilder {
 				this.useCustomModelDataProperty = template.useCustomModelDataProperty();
 			}
 		}
-		if(this.durability!=0 && !this.customEnum.isEmpty()){
+		if(this.durability!=0 && key!=null){
 			this.useNMS = true;
 			this.unbreakable |= !this.useCustomModelDataProperty;
 			if(!this.useCustomModelDataProperty && !this.itemFlags.contains(ItemFlag.HIDE_UNBREAKABLE)){
 				this.itemFlags.add(ItemFlag.HIDE_UNBREAKABLE);
 			}
 		}
+		return this;
 	}
 
-	public void setAttackDamage(double attackDamage){
+	public String getCustomEnum(){
+		return key!=null ? key.getKey() : null;
+	}
+
+	public String getNamespace(){
+		return key!=null ? key.getNamespace() : null;
+	}
+
+	public NamespacedKey getKey(){
+		return key;
+	}
+
+	public CustomItemBuilder setAttackDamage(double attackDamage){
 		this.useNMS = true;
 		this.attackDamage = attackDamage;
+		return this;
 	}
-	public void setAttackSpeed(double attackSpeed){
+	public double getAttackDamage(){
+		return attackDamage;
+	}
+	public CustomItemBuilder setAttackSpeed(double attackSpeed){
 		this.useNMS = true;
 		this.attackSpeed = attackSpeed;
+		return this;
 	}
-	public void setMaxHealth(double maxHealth){
+	public double getAttackSpeed(){
+		return attackSpeed;
+	}
+	public CustomItemBuilder setMaxHealth(double maxHealth){
 		this.useNMS = true;
 		this.maxHealth = maxHealth;
+		return this;
 	}
-	public void setArmor(double armor){
+	public double getMaxHealth(){
+		return maxHealth;
+	}
+	public CustomItemBuilder setArmor(double armor){
 		this.useNMS = true;
 		this.armor = armor;
+		return this;
 	}
-	public void setMovementSpeed(double movementSpeed){
+	public double getArmor(){
+		return armor;
+	}
+	public CustomItemBuilder setMovementSpeed(double movementSpeed){
 		this.useNMS = true;
 		this.movementSpeed = movementSpeed;
+		return this;
 	}
-	public void setLuck(double luck){
+	public double getMovementSpeed(){
+		return movementSpeed;
+	}
+	public CustomItemBuilder setLuck(double luck){
 		this.useNMS = true;
 		this.luck = luck;
+		return this;
 	}
-	public void setCustomPotionColor(int customPotionColor){
+	public double getLuck(){
+		return luck;
+	}
+	public CustomItemBuilder setCustomPotionColor(int customPotionColor){
 		this.useNMS = true;
 		this.customPotionColor = customPotionColor;
+		return this;
 	}
-	public void setMaxStackSize(int maxStackSize){
+	public int getCustomPotionColor(){
+		return customPotionColor;
+	}
+	public CustomItemBuilder setMaxStackSize(int maxStackSize){
 		this.maxStackSize = maxStackSize;
+		return this;
 	}
-	/**
-	 * To check validity
-	 * @return
-	 */
-	public Material getMaterial(){
-		return this.material;
+	public int getMaxStackSize(){
+		return maxStackSize;
 	}
+
 	private ItemMeta buildItemMeta(ItemStack itemStack){
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		if(itemMeta instanceof EnchantmentStorageMeta){
@@ -272,49 +389,50 @@ public class CustomItemBuilder {
 		}
 		return itemMeta;
 	}
-	private NBTTagCompound buildNBTAttributeBase(String name){
-		NBTTagCompound base = new NBTTagCompound();
-		base.setString("AttributeName", name);
-		base.setString("Name", name);
-		base.setInt("UUIDLeast", 894654);
-		base.setInt("UUIDMost", 2872);
-		base.setString("Slot", this.slot);
+	private CompoundTag buildNBTAttributeBase(String name){
+		CompoundTag base = new CompoundTag();
+		base.putString("AttributeName", name);
+		base.putString("Name", name);
+		base.putInt("UUIDLeast", 894654);
+		base.putInt("UUIDMost", 2872);
+		base.putString("Slot", this.slot);
 		return base;
 	}
-	private NBTTagList buildAttributeModifiers(){
-		NBTTagList modifiers = new NBTTagList();
+	private ListTag<?> buildAttributeModifiers(){
+		ListTag<CompoundTag> modifiers = new ListTag<>(CompoundTag.class);
 		if(this.attackDamage>=0){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.attackDamage");
-			tag.setDouble("Amount", this.attackDamage);
+			CompoundTag tag = buildNBTAttributeBase("generic.attackDamage");
+			tag.putDouble("Amount", this.attackDamage);
 			modifiers.add(tag);
 		}
 		if(this.attackSpeed>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.attackSpeed");
-			tag.setDouble("Amount", this.attackSpeed);
+			CompoundTag tag = buildNBTAttributeBase("generic.attackSpeed");
+			tag.putDouble("Amount", this.attackSpeed);
 			modifiers.add(tag);
 		}
 		if(this.maxHealth>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.maxHealth");
-			tag.setDouble("Amount", this.maxHealth);
+			CompoundTag tag = buildNBTAttributeBase("generic.maxHealth");
+			tag.putDouble("Amount", this.maxHealth);
 			modifiers.add(tag);
 		}
 		if(this.armor>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.armor");
-			tag.setDouble("Amount", this.armor);
+			CompoundTag tag = buildNBTAttributeBase("generic.armor");
+			tag.putDouble("Amount", this.armor);
 			modifiers.add(tag);
 		}
 		if(this.movementSpeed>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.movementSpeed");
-			tag.setDouble("Amount", this.movementSpeed);
+			CompoundTag tag = buildNBTAttributeBase("generic.movementSpeed");
+			tag.putDouble("Amount", this.movementSpeed);
 			modifiers.add(tag);
 		}
 		if(this.luck>=0f){
-			NBTTagCompound tag = buildNBTAttributeBase("generic.luck");
-			tag.setDouble("Amount", this.luck);
+			CompoundTag tag = buildNBTAttributeBase("generic.luck");
+			tag.putDouble("Amount", this.luck);
 			modifiers.add(tag);
 		}
 		return modifiers;
 	}
+
 	public ItemStack build(){
 		if(material==null){
 			Bukkit.getLogger().info("[CustomItems] ItemStack konnte nicht kreiiert werden, da kein Material angegeben wurde.");
@@ -325,45 +443,52 @@ public class CustomItemBuilder {
 		this.update(result);
 		return result;
 	}
-	public void update(ItemStack itemStack){
+
+	/**
+	 * Aktualisiert alle Eigenschaften des ItemStacks, inklusive Material, solange diese im CustomItemBuilder festgelegt
+	 * sind. Die Anzahl bleibt unverändert.
+	 * @param itemStack - Der zu aktualisierende ItemStack
+	 * @return Derselbe CustomItemBuilder zur Verkettung von Befehlen
+	 */
+	public CustomItemBuilder update(ItemStack itemStack){
 		if(this.material!=null) itemStack.setType(material);
 		if(useNMS){
-			NBTTagCompound nbtTag = ItemUtil.getData(itemStack);
-			if(nbtTag==null) nbtTag = new NBTTagCompound();
+			CompoundTag nbtTag = ItemUtil.getData(itemStack);
+			if(nbtTag==null) nbtTag = new CompoundTag();
 			
-			if(!this.customEnum.isEmpty()){
-				nbtTag.setString("customEnum", this.customEnum);
+			if(key!=null){
+				nbtTag.putString("customEnum", !key.getNamespace().equals("minecraft") ? key.toString() : key.getKey());
 			}
 			
 			if(this.maxCustomDurability>0){
-				nbtTag.setInt("maxCustomDurability", this.maxCustomDurability);
-				if(!nbtTag.hasKey("customDurability")){
-					nbtTag.setInt("customDurability", this.customDurability);
+				nbtTag.putInt("maxCustomDurability", this.maxCustomDurability);
+				if(!nbtTag.containsKey("customDurability")){
+					nbtTag.putInt("customDurability", this.customDurability);
 				}
 				else if(nbtTag.getInt("customDurability")>this.maxCustomDurability){
-					nbtTag.setInt("customDurability", this.maxCustomDurability);
+					nbtTag.putInt("customDurability", this.maxCustomDurability);
 				}
 			}
 			
 			if(this.customPotionColor>0){
-				nbtTag.setInt("CustomPotionColor", this.customPotionColor);
+				nbtTag.putInt("CustomPotionColor", this.customPotionColor);
 			}
 			
 			if(this.colorMap>0){
-				nbtTag.setInt("ColorMap", this.colorMap);
+				nbtTag.putInt("ColorMap", this.colorMap);
 			}
 			
 			if(this.expirationDate>0){
-				nbtTag.setLong("expirationDate", this.expirationDate);
+				nbtTag.putLong("expirationDate", this.expirationDate);
 			}
 			
 			if(this.maxStackSize>0){
-				nbtTag.setInt("maxStackSize", this.maxStackSize);
+				nbtTag.putInt("maxStackSize", this.maxStackSize);
 			}
 			
-			NBTTagList attributeModifiers = this.buildAttributeModifiers();
-			if(!attributeModifiers.isEmpty()){
-				nbtTag.set("AttributeModifiers", attributeModifiers);
+			ListTag<?> attributeModifiers = this.buildAttributeModifiers();
+			if(attributeModifiers.size()>0){
+				nbtTag.put("AttributeModifiers", attributeModifiers);
 			}
 			
 			ItemUtil.setData(itemStack, nbtTag);
@@ -378,5 +503,7 @@ public class CustomItemBuilder {
 				e.printStackTrace();
 			}
 		}
+
+		return this;
 	}
 }

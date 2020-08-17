@@ -1,0 +1,32 @@
+main: ch.swisssmp.warps.WarpsPlugin
+version: 1
+api-version: 1.13
+name: Warps
+author: WhiteGuggi
+description: Erlaubt erstellen und nutzen von Warppunkten
+depend: [SwissSMPUtils,CustomEditorAPI,CustomItems,WorldManager]
+permissions:
+  smp.commands.warpset:
+    description: Erlaubt erstellen und entfernen von Wars
+    default: op
+  smp.commands.warp:
+    description: Erlaubt Verwendung von Wars
+    default: op
+commands:
+  warp:
+    description: Warpt zu einem existierenden Warp.
+    usage: /warp [world] (warp)
+    permission: smp.commands.warp
+  setwarp:
+    description: Erstellt einen neuen Warp
+    usage: /setwarp (warp)
+    permission: smp.commands.warpset
+  removewarp:
+    description: Entfernt einen bestehenden Warp
+    usage: /rmwarp (warp)
+    permission: smp.commands.warpset
+    aliases: [rmwarp,delwarp,deletewarp]
+  warps:
+    description: Öffnet Übersicht aller Warps
+    usage: /warps
+    permission: smp.commands.warp

@@ -1,5 +1,5 @@
 main: ch.swisssmp.events.halloween.HalloweenEventPlugin
-version: 1.0
+version: 1.1
 name: HalloweenEvent
 author: detig_iii
 description: Versetzt Mobs in Halloween Stimmung und ermöglicht einen geisterhaften Flash Mob mit der Schallplatte 'Gruselstunde'

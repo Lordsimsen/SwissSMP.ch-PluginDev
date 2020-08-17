@@ -23,8 +23,9 @@ public class ViewerInfo {
     private final GameMode gameMode;
     private final boolean flying;
     private final boolean gravity;
+    private final boolean invulnerable;
 
-    protected ViewerInfo(UUID uid, String world, Position position, GameMode gameMode, boolean flying, boolean gravity){
+    protected ViewerInfo(UUID uid, String world, Position position, GameMode gameMode, boolean flying, boolean gravity, boolean invulnerable){
         this.playerUid = uid;
 
         this.world = world;
@@ -33,22 +34,7 @@ public class ViewerInfo {
         this.gameMode = gameMode;
         this.flying = flying;
         this.gravity = gravity;
-    }
-
-    public UUID getUniqueId(){
-        return playerUid;
-    }
-
-    public GameMode getGameMode(){
-        return gameMode;
-    }
-
-    public boolean isFlying(){
-        return flying;
-    }
-
-    public boolean hasGravity(){
-        return gravity;
+        this.invulnerable = invulnerable;
     }
 
     public void apply(Player player){
@@ -70,6 +56,7 @@ public class ViewerInfo {
         player.setGameMode(gameMode);
         player.setFlying(flying);
         player.setGravity(gravity);
+        player.setInvulnerable(invulnerable);
         if(player.hasPotionEffect(PotionEffectType.SLOW)){
             player.removePotionEffect(PotionEffectType.SLOW);
         }
@@ -83,6 +70,7 @@ public class ViewerInfo {
         JsonUtil.set("gamemode", gameMode.toString(), json);
         JsonUtil.set("flying", flying, json);
         JsonUtil.set("gravity", gravity, json);
+        JsonUtil.set("invulnerable", invulnerable, json);
         File file = getViewerFile(playerUid);
         return JsonUtil.save(file, json);
     }
@@ -93,11 +81,11 @@ public class ViewerInfo {
         return file.delete();
     }
 
-    protected static ViewerInfo of(Player player){
-        return new ViewerInfo(player.getUniqueId(), player.getWorld().getName(), new Position(player.getLocation()), player.getGameMode(), player.isFlying(), player.hasGravity());
+    public static ViewerInfo of(Player player){
+        return new ViewerInfo(player.getUniqueId(), player.getWorld().getName(), new Position(player.getLocation()), player.getGameMode(), player.isFlying(), player.hasGravity(), player.isInvulnerable());
     }
 
-    protected static Optional<ViewerInfo> load(Player player){
+    public static Optional<ViewerInfo> load(Player player){
         return load(getViewerFile(player));
     }
 
@@ -135,7 +123,8 @@ public class ViewerInfo {
         GameMode gameMode = GameMode.valueOf(JsonUtil.getString("gamemode", json));
         boolean flying = JsonUtil.getBool("flying", json);
         boolean gravity = JsonUtil.getBool("gravity", json);
-        return new ViewerInfo(playerUid, world, position, gameMode, flying, gravity);
+        boolean invulnerable = JsonUtil.getBool("invulnerable", json);
+        return new ViewerInfo(playerUid, world, position, gameMode, flying, gravity, invulnerable);
     }
 
     public static File getViewerFile(Player player){

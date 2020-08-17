@@ -8,8 +8,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ch.swisssmp.city.CitySystem;
 import ch.swisssmp.custompaintings.CustomPainting;
 import ch.swisssmp.custompaintings.CustomPaintings;
+import ch.swisssmp.text.ClickEvent;
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
+import ch.swisssmp.text.RawText;
 import ch.swisssmp.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -20,16 +25,10 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
 import org.bukkit.util.BlockVector;
 
-import ch.swisssmp.city.Cities;
-import ch.swisssmp.city.CitizenInfo;
+import ch.swisssmp.city.Citizenship;
 import ch.swisssmp.city.City;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.livemap_render_api.LivemapView;
-import ch.swisssmp.text.RawTextObject;
-import ch.swisssmp.text.properties.ClickEventProperty;
-import ch.swisssmp.text.properties.ColorProperty;
-import ch.swisssmp.text.properties.ColorProperty.Color;
-import ch.swisssmp.text.properties.HoverEventProperty;
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.utils.YamlConfiguration;
@@ -46,7 +45,7 @@ public class CityMapDisplay {
 	
 	private final UUID uid;
 	private String name;
-	private int currentCityId;
+	private UUID currentCityId;
 	
 	/**
 	 * Creates a new instance of CityMapdisplay
@@ -90,7 +89,7 @@ public class CityMapDisplay {
 	
 	public void applyCity(City city) {
 		HTTPRequest request = DataSource.getResponse(CityMapDisplaysPlugin.getInstance(), "city_region.php", new String[] {
-				"city_id="+city.getId()
+				"city_id="+city.getUniqueId()
 		});
 		request.onFinish(()->{
 			YamlConfiguration yamlConfiguration = request.getYamlResponse();
@@ -128,7 +127,7 @@ public class CityMapDisplay {
 		}
 
 		CustomPaintings.replace(uid.toString(), file);
-		this.currentCityId = city.getId();
+		this.currentCityId = city.getUniqueId();
 		CityMapDisplays.save();
 	}
 	
@@ -143,40 +142,43 @@ public class CityMapDisplay {
 		bookMeta.setTitle("Städte");
 		bookMeta.setGeneration(Generation.ORIGINAL);
 		bookMeta.setAuthor("");
-		Collection<City> cities = Cities.getAll();
+		Collection<City> cities = CitySystem.getCities();
 		ArrayList<BaseComponent> currentPage = new ArrayList<BaseComponent>();
 		List<BaseComponent[]> pages = new ArrayList<BaseComponent[]>();
 		
-		RawTextObject title = new RawTextObject(
-				"Städte von\n"+
-				ChatColor.BOLD+ChatColor.UNDERLINE+WorldManager.getDisplayName(Bukkit.getWorlds().get(0))+ChatColor.RESET+"\n"+
-				ChatColor.RESET+"\n");
-		currentPage.add(title.toSpigot());
-		
-		RawTextObject helpText = new RawTextObject(
+		RawBase title = new RawText("Städte von\n")
+			.extra(
+					new RawText(WorldManager.getDisplayName(Bukkit.getWorlds().get(0))).bold(true).underlined(true),
+					new RawText("\n\n")
+			);
+		currentPage.add(title.spigot());
+
+		RawBase helpText = new RawText(
 				""+ChatColor.ITALIC+ChatColor.GRAY+"Wähle eine Stadt aus,"+ChatColor.RESET+"\n"+
 				ChatColor.ITALIC+ChatColor.GRAY+"um sie zu betrachten."+ChatColor.RESET+"\n"+
 				ChatColor.RESET+"\n");
-		currentPage.add(helpText.toSpigot());
+		currentPage.add(helpText.spigot());
 		
 		int remainingLines = 7;
 		int maxLinesPerPage = 14;
 		for(City city : cities) {
-			Collection<CitizenInfo> citizens = city.getCitizens();
-			Optional<CitizenInfo> mayor = citizens.stream().filter(c->c.getUniqueId().equals(city.getMayor())).findAny();
+			Collection<Citizenship> citizenships = city.getCitizenships();
+			Optional<Citizenship> mayor = citizenships.stream().filter(c->c.getUniqueId().equals(city.getMayor())).findAny();
 			String cityNameString = city.getName();
 			if(cityNameString.length()>19) {
 				cityNameString = cityNameString.substring(0,17)+"..";
 			}
-			if(this.currentCityId==city.getId()) cityNameString = ChatColor.DARK_RED+"> "+cityNameString+" <";
-			RawTextObject cityEntry = new RawTextObject(cityNameString+"\n");
-			cityEntry.add(new ColorProperty(Color.BLACK));
-			cityEntry.add(new HoverEventProperty(new RawTextObject(
-					ChatColor.AQUA+city.getName()+ChatColor.RESET+"\n"+
-					ChatColor.GRAY+citizens.size()+" Bürger\n"+
-					ChatColor.GRAY+"Bürgermeister:\n"+ChatColor.RESET+(mayor.isPresent()?mayor.get().getDisplayName():"unbekannt")+ChatColor.RESET+"\n")));
-			cityEntry.add(new ClickEventProperty(ClickEventProperty.Action.RUN_COMMAND, "/citymapdisplay show "+this.uid+" "+city.getId()));
-			currentPage.add(cityEntry.toSpigot());
+			if(city.getUniqueId().equals(currentCityId)) cityNameString = ChatColor.DARK_RED+"> "+cityNameString+" <";
+			RawBase cityEntry = new RawText(cityNameString+"\n")
+					.color(ChatColor.BLACK)
+					.hoverEvent(HoverEvent.showText(
+						new RawText(city.getName()+"\n").color(ChatColor.AQUA),
+						new RawText(citizenships.size()+" Bürger\n").color(ChatColor.GRAY),
+						new RawText("Bürgermeister:\n"),
+						new RawText(mayor.isPresent() ? mayor.get().getDisplayName() : "unbekannt").color(ChatColor.GRAY)
+					))
+					.clickEvent(ClickEvent.runCommand("/citymapdisplay show "+this.uid+" "+city.getUniqueId()));
+			currentPage.add(cityEntry.spigot());
 			
 			remainingLines--;
 			if(remainingLines<=0) {
@@ -184,7 +186,7 @@ public class CityMapDisplay {
 				currentPage.toArray(currentPageArray);
 				pages.add(currentPageArray);
 				currentPage.clear();
-				currentPage.add(helpText.toSpigot());
+				currentPage.add(helpText.spigot());
 				remainingLines = maxLinesPerPage-3;
 			}
 		}
@@ -221,9 +223,9 @@ public class CityMapDisplay {
 		UUID uid = JsonUtil.getUUID("uid", json);
 		if(uid==null) throw new NullPointerException("Display UUID must not be empty.");
 		String name = JsonUtil.getString("name", json);
-		int currentCity = JsonUtil.getInt("current_city", json);
+		UUID currentCityId = JsonUtil.getUUID("current_city", json);
 		CityMapDisplay result = new CityMapDisplay(uid, name);
-		result.currentCityId = currentCity;
+		result.currentCityId = currentCityId;
 		return result;
 	}
 	

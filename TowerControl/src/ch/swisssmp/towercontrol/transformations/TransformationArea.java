@@ -73,13 +73,14 @@ public class TransformationArea {
 	}
 	
 	public static TransformationArea load(World world, int transformation_area_id){
-		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
-			"transformation="+transformation_area_id	
-		});
-		if(yamlConfiguration==null||!yamlConfiguration.contains("transformation")){
-			Bukkit.getLogger().info("[TowerControl] Konnte Transformation mit der ID "+transformation_area_id+" nicht laden.");
-			return null;
-		}
-		return new TransformationArea(world, yamlConfiguration.getConfigurationSection("transformation"));
+//		YamlConfiguration yamlConfiguration = DataSource.getYamlResponse("transformations/get.php", new String[]{
+//			"transformation="+transformation_area_id
+//		});
+//		if(yamlConfiguration==null||!yamlConfiguration.contains("transformation")){
+//			Bukkit.getLogger().info("[TowerControl] Konnte Transformation mit der ID "+transformation_area_id+" nicht laden.");
+//			return null;
+//		}
+//		return new TransformationArea(world, yamlConfiguration.getConfigurationSection("transformation"));
+		return null;
 	}
 }

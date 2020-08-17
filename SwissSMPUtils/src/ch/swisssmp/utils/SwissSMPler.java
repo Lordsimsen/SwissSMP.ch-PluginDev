@@ -5,185 +5,135 @@
  */
 package ch.swisssmp.utils;
 
-import java.util.HashMap;
 import java.util.UUID;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+
+import com.google.gson.JsonParser;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
 
-import com.google.gson.JsonObject;
-
-import net.minecraft.server.v1_15_R1.ChatMessageType;
-import net.minecraft.server.v1_15_R1.IChatBaseComponent;
-import net.minecraft.server.v1_15_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_15_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_15_R1.PlayerConnection;
-import net.minecraft.server.v1_15_R1.IChatBaseComponent.ChatSerializer;
-import net.minecraft.server.v1_15_R1.PacketPlayOutTitle.EnumTitleAction;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 public final class SwissSMPler {
-	protected static HashMap<UUID, Vector> last_vectors = new HashMap<UUID, Vector>();
-	protected static HashMap<UUID, BukkitTask> afk_tasks = new HashMap<UUID, BukkitTask>();
-    protected final Player player;
-    private SwissSMPler(Player player){
+
+    private final UUID playerUid;
+    private final Player player;
+
+    private SwissSMPler(UUID playerUid) {
+        this.playerUid = playerUid;
+        this.player = null;
+    }
+
+    private SwissSMPler(Player player) {
+        this.playerUid = player != null ? player.getUniqueId() : null;
         this.player = player;
     }
-    public static SwissSMPler get(Player player){
+
+    public static SwissSMPler get(Player player) {
         return new SwissSMPler(player);
     }
-    public static SwissSMPler get(UUID player_uuid){
+
+    public static SwissSMPler get(UUID player_uuid) {
         Player bukkitPlayer = Bukkit.getPlayer(player_uuid);
-        if(bukkitPlayer==null) return null;
-        return new SwissSMPler(bukkitPlayer);
+        return bukkitPlayer != null ? new SwissSMPler(bukkitPlayer) : new SwissSMPler(player_uuid);
     }
-    
-    public void teleport(Location to){
+
+    public void teleport(Location to) {
+        if (player == null) return;
         player.teleport(to);
     }
-    
-    public void sendMessage(String message){
+
+    public void sendMessage(String message) {
+        if (player == null) return;
         player.sendMessage(message);
     }
-    
-    public UUID getUniqueId()
-    {
-        return player.getUniqueId();
-    }
-    
-    public String getName()
-    {
-        return player.getName();
-    }
-    
-    public String getDisplayName()
-    {
-        return player.getDisplayName();
-    }
-    
-    public GameMode getGameMode(){
-    	return player.getGameMode();
-    }
-    
-    public int getLevel(){
-    	return player.getLevel();
-    }
-    
-    public float getExp(){
-    	return player.getExp();
-    }
-    
-    public void giveExp(int exp){
-    	player.giveExp(exp);
-    }
-    
-    public void setLevel(int level){
-    	player.setLevel(level);
-    }
-    
-    public void setExp(float exp){
-    	player.setExp(exp);
-    }
-    
-    public boolean hasPermission(String permission){
-    	return player.hasPermission(permission);
-    }
-    
-    public void setInvulnerable(boolean invulnerable){
-    	player.setInvulnerable(invulnerable);
-    }
-    
-    public Location getLocation(){
-    	return player.getLocation();
-    }
-    
-    public World getWorld(){
-    	return player.getWorld();
-    }
-    
-    public void setAfk(boolean afk){
-		if(SwissSMPler.afk_tasks.containsKey(player.getUniqueId())){
-			if(afk) return;
-			else {
-				SwissSMPler.afk_tasks.get(player.getUniqueId()).cancel();
-				SwissSMPler.afk_tasks.remove(player.getUniqueId());
-				SwissSMPler.last_vectors.remove(this.getUniqueId());
-				SwissSMPUtils.broadcastMessage(this.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+" ist wieder da.");
-			}
-		}
-		else{
-			if(afk){
-				if(!this.hasPermission("smp.afk.auto")) return;
-				BukkitTask task = Bukkit.getScheduler().runTaskLater(SwissSMPUtils.plugin, new Runnable(){
 
-					@Override
-					public void run() {
-						if(!hasPermission("smp.afk.kick")) return;
-						player.kickPlayer("Du wurdest gekickt, weil du l�nger als 15 Minuten abwesend warst.");
-						SwissSMPler.afk_tasks.remove(player.getUniqueId());
-					}
-					
-				}, 15*60*20L);
-				SwissSMPler.afk_tasks.put(player.getUniqueId(), task);
-				SwissSMPUtils.broadcastMessage(this.getDisplayName()+ChatColor.RESET+ChatColor.DARK_GRAY+" ist nun abwesend.");
-			}
-			else{
-				SwissSMPler.last_vectors.remove(this.getUniqueId());
-			}
-		}
+    public UUID getUniqueId() {
+        return playerUid;
     }
-    
-    public void sendRawMessage(String message){
-    	if(!player.isOnline())return;
-        CraftPlayer craftplayer = (CraftPlayer) player;
-        PlayerConnection connection = craftplayer.getHandle().playerConnection;
-        IChatBaseComponent rawJSON = ChatSerializer.a(message.replace("'", "\""));
-        PacketPlayOutChat packet = new PacketPlayOutChat(rawJSON);
-        connection.sendPacket(packet);
-    } 
-    
-    public void sendActionBar(String message){
-    	if(player==null || message==null) return;
-        CraftPlayer craftPlayer = (CraftPlayer) player;
-        JsonObject json = new JsonObject();
-        json.addProperty("text", message);
-        IChatBaseComponent cbc = ChatSerializer.a(json.toString());
-        PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc, ChatMessageType.GAME_INFO);
-        ((CraftPlayer) craftPlayer).getHandle().playerConnection.sendPacket(ppoc);
+
+    public String getName() {
+        return player != null ? player.getName() : null;
     }
-    
+
+    public String getDisplayName() {
+        return player != null ? player.getDisplayName() : null;
+    }
+
+    public GameMode getGameMode() {
+        return player != null ? player.getGameMode() : null;
+    }
+
+    public int getLevel() {
+        return player != null ? player.getLevel() : null;
+    }
+
+    public float getExp() {
+        return player != null ? player.getExp() : null;
+    }
+
+    public void giveExp(int exp) {
+
+        if (player == null) return;
+        player.giveExp(exp);
+    }
+
+    public void setLevel(int level) {
+
+        if (player == null) return;
+        player.setLevel(level);
+    }
+
+    public void setExp(float exp) {
+        if (player == null) return;
+        player.setExp(exp);
+    }
+
+    public boolean hasPermission(String permission) {
+        return player != null && player.hasPermission(permission);
+    }
+
+    public void setInvulnerable(boolean invulnerable) {
+        if (player == null) return;
+        player.setInvulnerable(invulnerable);
+    }
+
+    public Location getLocation() {
+        return player != null ? player.getLocation() : null;
+    }
+
+    public World getWorld() {
+        return player != null ? player.getWorld() : null;
+    }
+
+    public void sendRawMessage(String rawMessage) {
+        if (player == null || !player.isOnline()) return;
+        try {
+            JsonParser parser = new JsonParser();
+            parser.parse(rawMessage);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + rawMessage);
+        } catch (Exception e) {
+            Bukkit.getLogger().warning("Tried to send invalid raw message:\n" + rawMessage);
+        }
+    }
+
+    public void sendRawMessage(BaseComponent... components) {
+        if (player == null || !player.isOnline()) return;
+        player.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.CHAT, components);
+    }
+
+    public void sendActionBar(String message) {
+        if (player == null || message == null) return;
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+    }
+
     public void sendTitle(String title, String subtitle) {
-    	if(!player.isOnline())return;
-        CraftPlayer craftplayer = (CraftPlayer) player;
-        PlayerConnection connection = craftplayer.getHandle().playerConnection;
-        JsonObject titleJson = new JsonObject();
-        titleJson.addProperty("text", title);
-        JsonObject subtitleJson = new JsonObject();
-        subtitleJson.addProperty("text", subtitle);
-        IChatBaseComponent titleJSON = ChatSerializer.a(titleJson.toString());
-        IChatBaseComponent subtitleJSON = ChatSerializer.a(subtitleJson.toString());
-        PacketPlayOutTitle titlePacket = new PacketPlayOutTitle(EnumTitleAction.TITLE, titleJSON);
-        PacketPlayOutTitle subtitlePacket = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitleJSON);
-        connection.sendPacket(titlePacket);
-        connection.sendPacket(subtitlePacket);
+        if (player == null || !player.isOnline()) return;
+        player.sendTitle(title, subtitle, 10, 70, 20);
     }
-    
-    /*protected static void checkAllAfk(boolean setAfk){
-		for(Player player : Bukkit.getOnlinePlayers()){
-			if(SwissSMPler.last_vectors.containsKey(player.getUniqueId())){
-				Vector last = SwissSMPler.last_vectors.get(player.getUniqueId());
-				double distance = player.getLocation().toVector().distanceSquared(last);
-				boolean afk = distance<1;
-				if(!afk || (afk && setAfk))
-					SwissSMPler.get(player).setAfk(afk);
-			}
-			SwissSMPler.last_vectors.put(player.getUniqueId(), player.getLocation().toVector());
-		}
-    }*/
 }

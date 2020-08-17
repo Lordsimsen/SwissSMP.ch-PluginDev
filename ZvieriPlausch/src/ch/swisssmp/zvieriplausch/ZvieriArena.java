@@ -33,7 +33,7 @@ public class ZvieriArena {
 	
 	private final World world;
 	private final UUID arena_id;
-	private final String music = ZvieriSound.FRENCH_MUSIC;
+	private final String music = ZvieriPlauschSounds.FRENCH_MUSIC;
 
 	private String name;
 	private Position entry;
@@ -49,7 +49,7 @@ public class ZvieriArena {
 
 	private PlayerDataContainer playerDataContainer;
 
-	private ZvieriGame game;
+	private ZvieriPlauschGame game;
 	private boolean gameRunning;
 	private boolean gamePreparing;
 	
@@ -208,7 +208,7 @@ public class ZvieriArena {
 		return  description;
 	}
 
-	public ZvieriGame getGame(){
+	public ZvieriPlauschGame getGame(){
 		return game;
 	}
 
@@ -418,7 +418,7 @@ public class ZvieriArena {
 
 	public boolean canPlayLevel(Level level, Player player){
 		int levelNumber = level.getLevelNumber();
-		Configuration config = ZvieriGamePlugin.getInstance().getConfig();
+		Configuration config = ZvieriPlauschPlugin.getInstance().getConfig();
 		org.bukkit.configuration.ConfigurationSection levels = config.getConfigurationSection("levels");
 		if(levels.getBoolean("level_" + levelNumber + ".unlocked")) return true;
 
@@ -478,7 +478,7 @@ public class ZvieriArena {
 			return;
 		}
 		gamePreparing = true;
-		game = ZvieriGame.prepare(this, level);
+		game = ZvieriPlauschGame.prepare(this, level);
 	}
 
 	public void endGame() {

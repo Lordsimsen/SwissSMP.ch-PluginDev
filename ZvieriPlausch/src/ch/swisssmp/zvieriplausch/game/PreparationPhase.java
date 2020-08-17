@@ -2,7 +2,7 @@ package ch.swisssmp.zvieriplausch.game;
 
 import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.zvieriplausch.ZvieriGame;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschGame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -13,7 +13,7 @@ public class PreparationPhase extends Phase{
 
     private int lastRemaining = -1;
 
-    public PreparationPhase(ZvieriGame game, long duration){
+    public PreparationPhase(ZvieriPlauschGame game, long duration){
         super(game);
         this.duration = duration;
     }

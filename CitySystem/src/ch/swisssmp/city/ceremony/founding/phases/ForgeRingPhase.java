@@ -1,5 +1,10 @@
 package ch.swisssmp.city.ceremony.founding.phases;
 
+import ch.swisssmp.ceremonies.ITributeListener;
+import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.ceremonies.effects.CircleBurstEffect;
+import ch.swisssmp.ceremonies.effects.FireBurstEffect;
+import ch.swisssmp.city.ItemUtility;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -10,15 +15,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.ItemManager;
-import ch.swisssmp.city.ceremony.ISacrificeListener;
-import ch.swisssmp.city.ceremony.Phase;
-import ch.swisssmp.city.ceremony.founding.CircleBurstEffect;
 import ch.swisssmp.city.ceremony.founding.CityFoundingCeremony;
-import ch.swisssmp.city.ceremony.founding.FireBurstEffect;
-import ch.swisssmp.city.ceremony.founding.FoundingCeremonyCircleEffect.RingEffectType;
+import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect.RingEffectType;
 
-public class ForgeRingPhase extends Phase implements ISacrificeListener {
+public class ForgeRingPhase extends Phase implements ITributeListener {
 	
 	private final Material[] baseMaterials = new Material[]{
 		Material.IRON_BLOCK,
@@ -69,7 +69,7 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 	
 	private void startMusic(){
 		Block block = ceremony.getFire();
-		for(Player player : ceremony.getPlayers()){
+		for(Player player : ceremony.getParticipants()){
 			player.stopSound("founding_ceremony_shaker", SoundCategory.RECORDS);
 		}
 		ceremony.setMusic(block.getLocation(), "founding_ceremony_finale", 932);
@@ -87,9 +87,9 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 	public void complete(){
 		super.complete();
 		ceremony.setRingMaterials(baseStack.getType(), coreStack.getType());
-		Color colorA = ItemManager.getMaterialColor(baseStack.getType());
-		Color colorB = ItemManager.getMaterialColor(coreStack.getType());
-		CircleBurstEffect.play(ceremony.getFire(), CityFoundingCeremony.ceremonyRange, colorA, colorB);
+		Color colorA = ItemUtility.getMaterialColor(baseStack.getType());
+		Color colorB = ItemUtility.getMaterialColor(coreStack.getType());
+		CircleBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), CityFoundingCeremony.ceremonyRange, colorA, colorB);
 	}
 	
 	@Override
@@ -99,7 +99,7 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 	}
 
 	@Override
-	public void sacrifice(ItemStack itemStack, Player player) {
+	public void payTribute(ItemStack itemStack, Player player) {
 		int previousAmount = submittedBaseCount + submittedCoreCount;
 		if(baseStack!=null && baseStack.isSimilar(itemStack) && !baseMaterialsProvided()){
 			baseStack.setAmount(baseStack.getAmount()+itemStack.getAmount());
@@ -122,11 +122,12 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 		if(!expandedRing){
 			expandedRing = true;
 			this.ceremony.getRingEffect().setRadius(7);
+			this.ceremony.getRingEffect().setTargetElevation(0.3f);
 			this.ceremony.getRingEffect().setRingEffectType(RingEffectType.RotatingRing);
 		}
 		
-		Color color = ItemManager.getMaterialColor(itemStack.getType());
-		FireBurstEffect.play(ceremony.getFire(), 3, color, color);
+		Color color = ItemUtility.getMaterialColor(itemStack.getType());
+		FireBurstEffect.play(CitySystemPlugin.getInstance(), ceremony.getFire(), 3, color, color);
 		for(int i = previousAmount; i < submittedBaseCount + submittedCoreCount; i++) {
 			ceremony.getRingEffect().setColor(i, color);
 		}
@@ -137,12 +138,12 @@ public class ForgeRingPhase extends Phase implements ISacrificeListener {
 	}
 	
 	private boolean baseMaterialsProvided(){
-		return baseStack!=null && baseStack.getAmount()>=ItemManager.getRequiredBaseAmount(baseStack.getType());
+		return baseStack!=null && baseStack.getAmount()>= ItemUtility.getRequiredBaseAmount(baseStack.getType());
 	}
 	
 	private boolean coreMaterialsProvided(){
 		if(coreStack==null) return false;
-		int requiredAmount = ItemManager.getRequiredCoreAmount(coreStack.getType());
+		int requiredAmount = ItemUtility.getRequiredCoreAmount(coreStack.getType());
 		return coreStack.getAmount()>=requiredAmount;
 	}
 	

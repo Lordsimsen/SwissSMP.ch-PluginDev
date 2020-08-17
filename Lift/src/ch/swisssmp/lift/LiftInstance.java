@@ -68,8 +68,8 @@ public class LiftInstance {
 		return null;
 	}
 	
-	public double getSpeed(){
-		return this.groundFloor.getSpeed();
+	public LiftType getType(){
+		return this.groundFloor.getType();
 	}
 	
 	public int getFloorCount(){

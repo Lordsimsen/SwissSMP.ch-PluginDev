@@ -10,6 +10,7 @@ import ch.swisssmp.zvieriplausch.game.PreparationPhase;
 import com.google.gson.JsonObject;
 import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Lectern;
@@ -55,8 +56,11 @@ public class EventListener implements Listener{
 			if(arena.getGame() == null || !arena.isGameRunning()) continue;
 			if(arena.getGame().getParticipants().contains(player)) return;
 		}
+		if(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR){
+			return;
+		}
+		event.getItem().remove();
 		event.setCancelled(true);
-		event.getItem().setItemStack(null);
 	}
 
 	/*
@@ -173,7 +177,7 @@ public class EventListener implements Listener{
 		String arena_id = json.get("zvieriarena").getAsString();
 		ZvieriArena arena = ZvieriArena.get(UUID.fromString(arena_id));
 		if(arena == null || !arena.isSetupComplete()) {
-			event.getPlayer().sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Momentan nicht benützbar.");
+			event.getPlayer().sendMessage(ZvieriPlauschPlugin.getPrefix() + ChatColor.GRAY + " Momentan nicht benützbar.");
 			return;
 		}
 		if(!arena.isGamePreparing()){
@@ -181,7 +185,7 @@ public class EventListener implements Listener{
 				LevelSelectionView.open(player, arena);
 				return;
 			} else{
-				player.sendMessage(ZvieriGamePlugin.getPrefix() + " Es läuft bereits ein Spiel");
+				player.sendMessage(ZvieriPlauschPlugin.getPrefix() + " Es läuft bereits ein Spiel");
 				return;
 			}
 		}
@@ -288,7 +292,7 @@ public class EventListener implements Listener{
     private void onArenaExit(RegionLeaveEvent event){
 		ZvieriArena arena = ZvieriArena.get(event.getRegion().getId());
 		if(arena == null) return;
-		ZvieriGame.cleanseInventory(event.getPlayer().getInventory());
+		ZvieriPlauschGame.cleanseInventory(event.getPlayer().getInventory());
     }
 	
 	@EventHandler

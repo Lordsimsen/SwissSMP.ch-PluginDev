@@ -1,5 +1,6 @@
 package ch.swisssmp.customitems;
 
+import com.google.gson.JsonObject;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -10,19 +11,19 @@ public class CreateCustomItemBuilderEvent extends Event {
 	private final static HandlerList handlers = new HandlerList();
 	
 	private final CustomItemBuilder itemBuilder;
-	private final ConfigurationSection dataSection;
+	private final JsonObject json;
 	
-	protected CreateCustomItemBuilderEvent(CustomItemBuilder itemBuilder, ConfigurationSection dataSection) {
+	protected CreateCustomItemBuilderEvent(CustomItemBuilder itemBuilder, JsonObject json) {
 		this.itemBuilder = itemBuilder;
-		this.dataSection = dataSection;
+		this.json = json;
 	}
 	
 	public CustomItemBuilder getCustomItemBuilder() {
 		return itemBuilder;
 	}
 	
-	public ConfigurationSection getConfigurationSection() {
-		return dataSection;
+	public JsonObject getJson() {
+		return json;
 	}
 	
 	@Override

@@ -5,9 +5,9 @@ import ch.swisssmp.utils.Mathf;
 import ch.swisssmp.utils.Random;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
-import ch.swisssmp.zvieriplausch.ZvieriGame;
-import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
-import ch.swisssmp.zvieriplausch.ZvieriSound;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschGame;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschSounds;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? Ausführungsgeschwindigkeit bei bukkitrunnable 20/sekunde?
 
-	private final ZvieriGame game;
+	private final ZvieriPlauschGame game;
 	private final ZvieriArena arena;
 	private final Level level;
 
@@ -50,7 +50,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 
 	private Random random = new Random();
 	
-	public GamePhase(ZvieriGame game) {
+	public GamePhase(ZvieriPlauschGame game) {
 		super(game);
 
 		this.game = game;
@@ -80,7 +80,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 			player.sendTitle(ChatColor.GREEN + "Au travail!", "", 5, 30, 5);
 		}
 		gamePhaseListener = new GamePhaseListener(this);
-		Bukkit.getPluginManager().registerEvents(gamePhaseListener, ZvieriGamePlugin.getInstance());
+		Bukkit.getPluginManager().registerEvents(gamePhaseListener, ZvieriPlauschPlugin.getInstance());
 		kickPlayersOutOfArena();
 		initializeBrewingStands();
 		this.objective = scoreboard.registerNewObjective("scoreboard", "dummy", ChatColor.YELLOW + "Saldo");
@@ -133,7 +133,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 
 	private void initializeStorage(){
 		storageChest.getBlockInventory().clear();
-		ConfigurationSection ingredientsSection = ZvieriGamePlugin.getInstance().getConfig().getConfigurationSection("ingredients");
+		ConfigurationSection ingredientsSection = ZvieriPlauschPlugin.getInstance().getConfig().getConfigurationSection("ingredients");
 
 		ItemStack[] result = new ItemStack[ingredients.size()];
 		int j = 0;
@@ -150,7 +150,6 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		Lectern lectern = arena.getRecipesLectern();
 		LecternInventory inventory = (LecternInventory) lectern.getInventory();
 		ItemStack book = arena.getRecipeDisplay().getItemStack();
-		Bukkit.getLogger().info("" + ItemUtil.serialize(book));
 		inventory.setItem(0, book);
 	}
 
@@ -262,7 +261,7 @@ public class GamePhase extends Phase { // Unterschied runnable/Bukkitrunnable ? 
 		for(Player p : game.getParticipants()) {
 			p.teleport(arena.getQueue().getLocation(p.getWorld()));
 			p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-			p.playSound(p.getLocation(), ZvieriSound.FAILED, SoundCategory.RECORDS, 1f, 1f);
+			p.playSound(p.getLocation(), ZvieriPlauschSounds.FAILED, SoundCategory.RECORDS, 1f, 1f);
 		}
 	}
 

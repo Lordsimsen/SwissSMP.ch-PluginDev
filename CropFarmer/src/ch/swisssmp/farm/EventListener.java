@@ -1,5 +1,6 @@
 package ch.swisssmp.farm;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -25,12 +26,24 @@ public class EventListener implements Listener {
 		SoilWorker.workGround(event.getPlayer(), event.getHand(), event.getClickedBlock(), radius);
 		active = true;
 	}
+
+	@EventHandler
+	private void BlockeruPlacedesu(BlockPlaceEvent event){
+		Bukkit.getLogger().info("Blockeru placedesu!");
+	}
 	
 	@EventHandler
 	private void onBlockPlace(BlockPlaceEvent event){
-		if(!active) return;
+		Bukkit.getLogger().info("BlockPlaceEvent (cropfarmer)");
+		if(!active) {
+			Bukkit.getLogger().info("!active");
+			return;
+		}
 		if(!event.getPlayer().hasPermission("cropfarm.use")) return;
-		if(!SeedPlacer.isCrop(event.getBlock().getType())) return;
+		if(!SeedPlacer.isCrop(event.getBlock().getType())) {
+			Bukkit.getLogger().info("Not a crop");
+			return;
+		}
 		active = false; //<--this prevents the plugin from listening to its own BlockPlaceEvents
 		SeedPlacer.placeSeeds(event.getPlayer(), event.getHand(), event.getBlock(), 1);
 		active = true;

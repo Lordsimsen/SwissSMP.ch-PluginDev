@@ -6,14 +6,14 @@ import java.util.List;
 public class TournamentBracket {
 	private final Tournament tournament;
 	private final TournamentParticipant[] participants;
-	private List<Duel> duels = new ArrayList<Duel>();
+	private List<Duel> duels = new ArrayList<>();
 	public TournamentBracket(Tournament tournament, TournamentParticipant[] participants){
 		this.tournament = tournament;
 		this.participants = participants;
 	}
 	
 	private void generateDuels(){
-		List<TournamentParticipant> remainingList = new ArrayList<TournamentParticipant>();
+		List<TournamentParticipant> remainingList = new ArrayList<>();
 		for(int i = 0; i < participants.length; i++){
 			if(participants[i].isOut()) continue;
 			remainingList.add(participants[i]);
@@ -43,7 +43,6 @@ public class TournamentBracket {
 		}
 		Duel duel = duels.get(0);
 		duels.remove(0);
-		this.tournament.runningDuel = duel;
 		return duel;
 	}
 }

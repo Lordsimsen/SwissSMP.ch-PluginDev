@@ -1,0 +1,7 @@
+main: ch.swisssmp.statemachines.StateMachinesPlugin
+version: 1
+api-version: 1.13
+name: StateMachines
+author: detig_iii
+description: Ermöglicht anderen Plugins, mächtige StateMachines mit grafischem Editor umzusetzen
+depend: [CustomEditorAPI,CustomItems,SwissSMPUtils]

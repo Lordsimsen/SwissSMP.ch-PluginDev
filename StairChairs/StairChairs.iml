@@ -17,7 +17,5 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Spigot" level="project" />
-    <orderEntry type="module" module-name="SwissSMPUtils" />
-    <orderEntry type="module" module-name="WebCore" />
   </component>
 </module>

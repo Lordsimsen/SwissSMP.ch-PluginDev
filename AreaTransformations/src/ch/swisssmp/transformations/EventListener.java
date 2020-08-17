@@ -8,10 +8,10 @@ import org.bukkit.event.world.WorldUnloadEvent;
 public class EventListener implements Listener{
 	@EventHandler(ignoreCancelled=true)
 	private void onWorldLoad(WorldLoadEvent event){
-		TransformationWorld.loadWorld(event.getWorld());
+		TransformationContainer.load(event.getWorld());
 	}
 	@EventHandler(ignoreCancelled=true)
 	private void onWorldUnload(WorldUnloadEvent event){
-		TransformationWorld.unloadWorld(event.getWorld());
+		//TransformationContainer.unloadWorld(event.getWorld());
 	}
 }

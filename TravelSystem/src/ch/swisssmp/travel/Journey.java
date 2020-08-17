@@ -21,6 +21,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.travel.phase.ArrivePhase;
@@ -34,11 +36,11 @@ public class Journey implements Runnable, Listener {
 	
 	private final static long PREPARATION_TIME = 600; //value is in server ticks
 	
-	private static List<Journey> journeys = new ArrayList<Journey>();
+	private static final List<Journey> journeys = new ArrayList<Journey>();
 	
-	private List<Player> players = new ArrayList<Player>();
-	private List<Player> sleeping = new ArrayList<Player>();
-	private List<Entity> entities = new ArrayList<Entity>();
+	private final List<Player> players = new ArrayList<Player>();
+	private final List<Player> sleeping = new ArrayList<Player>();
+	private final List<Entity> entities = new ArrayList<Entity>();
 	
 	private final TravelStation start; //where the journey starts
 	private TravelStation destination; //where the journey ends
@@ -47,8 +49,8 @@ public class Journey implements Runnable, Listener {
 	
 	private BukkitTask task;
 	
-	private String travelWorldInstanceName = "Fernreise_"+UUID.randomUUID().toString();
-	private List<Runnable> embarkListeners = new ArrayList<Runnable>();
+	private final String travelWorldInstanceName = "Fernreise_"+UUID.randomUUID().toString();
+	private final List<Runnable> embarkListeners = new ArrayList<Runnable>();
 	
 	private World worldInstance;
 	
@@ -73,6 +75,15 @@ public class Journey implements Runnable, Listener {
 			else{
 				this.currentPhase.initialize();
 			}
+		}
+		else if(currentPhase.isCancelled()){
+			currentPhase.cancel();
+			currentPhase.finish();
+			for(Player player : this.players){
+				player.sendMessage(TravelSystem.getPrefix()+ChatColor.RED+" Etwas ist schiefgelaufen und die Reise konnte nicht gestartet werden. Bitte kontaktiere den Staff MC.");
+			}
+
+			this.cancel();
 		}
 	}
 	
@@ -114,6 +125,20 @@ public class Journey implements Runnable, Listener {
 	private void onPlayerDeath(PlayerRespawnEvent event){
 		if(!this.players.contains(event.getPlayer())) return;
 		this.currentPhase.onPlayerRespawn(event);
+	}
+
+	@EventHandler
+	private void onWorldInit(WorldInitEvent event){
+		if(!event.getWorld().getName().equals(travelWorldInstanceName)) return;
+		event.getWorld().setKeepSpawnInMemory(false);
+		event.getWorld().setAutoSave(false);
+	}
+
+	@EventHandler
+	private void onWorldSave(WorldSaveEvent event){
+		if(!event.getWorld().getName().equals(travelWorldInstanceName)) return;
+		event.getWorld().setKeepSpawnInMemory(false);
+		event.getWorld().setAutoSave(false);
 	}
 	
 	/*
@@ -223,7 +248,7 @@ public class Journey implements Runnable, Listener {
 	}
 	
 	public void cancel(){
-		if(this.currentPhase!=null){
+		if(this.currentPhase!=null && !this.currentPhase.isFinished()){
 			this.currentPhase.cancel();
 			this.currentPhase.finish();
 		}

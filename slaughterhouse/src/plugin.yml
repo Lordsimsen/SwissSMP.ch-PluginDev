@@ -1,0 +1,17 @@
+name: Slaughterhouse
+main: ch.swisssmp.slaughterhouse.SlaughterhousePlugin
+api-version: 1.13
+version: 2
+author: Plexon21
+permissions:
+  slaughterhouse.*:
+    description: Gives access to all slaughterhouse abilities
+    children:
+      slaughterhouse.meat: true
+      slaughterhouse.other: true
+  slaughterhouse.meat:
+    description: Double the meatdrops of animals
+    default: false
+  slaughterhouse.other:
+    description: Double all other drops of animals (e.g. wool, leather)
+    default: false

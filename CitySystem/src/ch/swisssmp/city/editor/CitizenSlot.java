@@ -7,23 +7,23 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import ch.swisssmp.city.CitizenInfo;
+import ch.swisssmp.city.Citizenship;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.editor.CustomEditorView;
 import ch.swisssmp.editor.slot.InfoSlot;
 
 public class CitizenSlot extends InfoSlot {
 
-	private final CitizenInfo citizenInfo;
+	private final Citizenship citizenship;
 	
-	public CitizenSlot(CustomEditorView view, int slot, CitizenInfo citizenInfo) {
+	public CitizenSlot(CustomEditorView view, int slot, Citizenship citizenship) {
 		super(view, slot);
-		this.citizenInfo = citizenInfo;
+		this.citizenship = citizenship;
 	}
 
 	@Override
 	protected ItemStack createSlot() {
-		ItemStack result = citizenInfo.getHead();
+		ItemStack result = citizenship.getHead();
 		ItemMeta itemMeta = result.getItemMeta();
 		itemMeta.setDisplayName(this.getName());
 		itemMeta.setLore(this.getDescription());
@@ -33,15 +33,15 @@ public class CitizenSlot extends InfoSlot {
 
 	@Override
 	public String getName() {
-		return ChatColor.YELLOW+citizenInfo.getDisplayName();
+		return ChatColor.YELLOW+ citizenship.getDisplayName();
 	}
 
 	@Override
 	protected List<String> getNormalDescription() {
 		List<String> result = new ArrayList<String>();
-		result.add(citizenInfo.getRank().getDisplayName());
-		String role = citizenInfo.getRole();
-		if(!role.isEmpty() && !role.equals(citizenInfo.getRank().getDisplayName())) result.add(ChatColor.LIGHT_PURPLE+role);
+		result.add(citizenship.getRank().getDisplayName());
+		String role = citizenship.getRole();
+		if(!role.isEmpty() && !role.equals(citizenship.getRank().getDisplayName())) result.add(ChatColor.LIGHT_PURPLE+role);
 		return result;
 	}
 

@@ -35,7 +35,11 @@ public class MusicLoop implements Runnable{
 		player.stopSound(Sound.MUSIC_END, SoundCategory.MUSIC);
 		player.stopSound(Sound.MUSIC_GAME, SoundCategory.MUSIC);
 		player.stopSound(Sound.MUSIC_MENU, SoundCategory.MUSIC);
-		player.stopSound(Sound.MUSIC_NETHER, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_NETHER_BASALT_DELTAS, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_NETHER_NETHER_WASTES, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_NETHER_CRIMSON_FOREST, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_NETHER_SOUL_SAND_VALLEY, SoundCategory.MUSIC);
+		player.stopSound(Sound.MUSIC_NETHER_WARPED_FOREST, SoundCategory.MUSIC);
 		player.playSound(player.getLocation(), this.music_id, SoundCategory.MUSIC, 500f, 1);
 	}
 	
@@ -50,7 +54,7 @@ public class MusicLoop implements Runnable{
 			previous.cancel();
 		}
 		MusicLoop result = new MusicLoop(player, music_id);
-		result.task = Bukkit.getScheduler().runTaskTimer(AdventureDungeons.getInstance(), result, 0, looptime);
+		result.task = Bukkit.getScheduler().runTaskTimer(AdventureDungeonsPlugin.getInstance(), result, 0, looptime);
 		musicLoops.put(player.getUniqueId(), result);
 		return result;
 	}

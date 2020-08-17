@@ -103,6 +103,7 @@ public class EventListener implements Listener {
 		Block block = event.getClickedBlock();
 		if(!(block.getBlockData() instanceof Bed)) return;
 		World world = block.getWorld();
+		if(world.getEnvironment() != World.Environment.NORMAL) return;
 		long time = world.getTime();
 		boolean isDay = time < 12541 && !world.hasStorm();
 		Location previousBed = event.getPlayer().getBedSpawnLocation();
@@ -116,7 +117,7 @@ public class EventListener implements Listener {
 		
 		double distanceToPreviousBed = previousBed!=null && block!=null ? previousBed.distanceSquared(block.getLocation()) : Double.MAX_VALUE;
 		if(distanceToPreviousBed>36){
-			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GREEN+"Spawpunkt gesetzt!");
+			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.GREEN+"Spawnpunkt gesetzt!");
 		}
 		else if(isDay){
 			SwissSMPler.get(event.getPlayer()).sendActionBar(ChatColor.YELLOW+"Du fühlst dich erholt.");

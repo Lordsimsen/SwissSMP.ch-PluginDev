@@ -38,7 +38,6 @@ public class MonumentEntries {
     }
 
     private static void reload(Consumer<String> sendResult, JsonObject monumentData) {
-        Bukkit.getLogger().info(monumentData.toString());
         JsonArray rawMonuments = monumentData.getAsJsonArray("monuments");
         if (rawMonuments == null ) {
             if (sendResult != null) {

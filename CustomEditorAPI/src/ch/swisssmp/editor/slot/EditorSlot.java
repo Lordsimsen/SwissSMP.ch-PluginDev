@@ -3,6 +3,7 @@ package ch.swisssmp.editor.slot;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.swisssmp.editor.CustomEditorAPIPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,7 +12,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import ch.swisssmp.customitems.CustomItemBuilder;
-import ch.swisssmp.editor.CustomEditorAPI;
 import ch.swisssmp.editor.CustomEditorView;
 
 public abstract class EditorSlot {
@@ -37,7 +37,7 @@ public abstract class EditorSlot {
 	}
 	
 	protected void setItemLater(ItemStack itemStack){
-		Bukkit.getScheduler().runTaskLater(CustomEditorAPI.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(CustomEditorAPIPlugin.getInstance(), ()->{
 			this.view.getTopInventory().setItem(slot, itemStack);
 		}, 1L);
 	}

@@ -20,7 +20,7 @@ public class ZoneEditors {
         editors.remove(player);
     }
 
-    protected static void cancelAll(){
+    public static void cancelAll(){
         for(ZoneEditor editor : editors.values()){
             editor.cancel();
         }

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="NBT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/_Libraries/NBT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

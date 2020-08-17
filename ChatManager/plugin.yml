@@ -1,14 +1,34 @@
-main: ch.swisssmp.chatmanager.ChatManager
-version: 1.5
+main: ch.swisssmp.chatmanager.ChatManagerPlugin
+version: 4
 api-version: 1.13
 name: ChatManager
 author: detig_iii
 description: Chat-Protokoll, Audiosignale bei Schlüsselwörtern und Chat-Modul im Web-Interface
+depend: [SwissSMPUtils,WebCore,RawTextBuilderAPI]
 permissions:
   chatnotifier.personalalert:
     description: Sendet Audiosignale bei Schlüsselwörtern
+    default: op
+  chat.reply:
+    description: Erlaubt die Verwendung des /reply Befehls
+    default: true
+  chat.tell:
+    description: Erlaubt die Verwendung des /tell Befehls
+    default: true
+  chat.tell.targetselector:
+    description: Erlaubt die Verwendung TargetSelectors mit /tell
     default: op
 commands:
   chat:
     description: Sendet eine Chat Nachricht
     usage: /chat [Absender] [Nachricht]
+  reply:
+    description: Antwortet auf die zuletzt erhaltene private Nachricht
+    usage: "/<command> <Nachricht>"
+    permission: chat.reply
+    aliases: [r]
+  tell:
+    description: Sendet einem Spieler eine persönliche Nachricht
+    usage: "/<command> <Empfänger> <Nachricht>"
+    permission: chat.tell
+    aliases: [msg,w,m]

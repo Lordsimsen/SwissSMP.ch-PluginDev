@@ -2,15 +2,15 @@ package ch.swisssmp.zvieriplausch.game;
 
 import ch.swisssmp.custompaintings.CustomPainting;
 import ch.swisssmp.custompaintings.CustomPaintings;
-import ch.swisssmp.text.RawTextObject;
-import ch.swisssmp.text.properties.ClickEventProperty;
-import ch.swisssmp.text.properties.ColorProperty;
-import ch.swisssmp.text.properties.HoverEventProperty;
+import ch.swisssmp.text.ClickEvent;
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
+import ch.swisssmp.text.RawText;
 import ch.swisssmp.utils.ItemUtil;
 import ch.swisssmp.zvieriplausch.Dish;
 import ch.swisssmp.zvieriplausch.RecipePaintings;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
-import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -61,7 +61,7 @@ public class RecipeDisplay {
     public void applyRecipe(Dish dish) {
         CustomPainting painting = getPainting();
         if(painting == null){
-            Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " CustomPaiting für " + dish.toString() + " nicht gefunden");
+            Bukkit.getLogger().info(ZvieriPlauschPlugin.getPrefix() + " CustomPaiting für " + dish.toString() + " nicht gefunden");
             return;
         }
         File file = RecipePaintings.getLocalFile(dish);
@@ -84,23 +84,21 @@ public class RecipeDisplay {
         ArrayList<BaseComponent> currentPage = new ArrayList<BaseComponent>();
         List<BaseComponent[]> pages = new ArrayList<BaseComponent[]>();
 
-        RawTextObject title = new RawTextObject(level.getName() + "\n", new ColorProperty(ColorProperty.Color.DARK_PURPLE));
-        currentPage.add(title.toSpigot());
+        RawBase title = new RawText(level.getName() + "\n").color(ChatColor.DARK_PURPLE);
+        currentPage.add(title.spigot());
 
-        RawTextObject helpText = new RawTextObject(
-                "" + ChatColor.ITALIC + ChatColor.GRAY + "Wähle ein Rezept aus," + ChatColor.RESET + "\n" +
-                        ChatColor.ITALIC + ChatColor.GRAY + "um es zu betrachten." + ChatColor.RESET + "\n" + "\n");
-        currentPage.add(helpText.toSpigot());
+        RawBase helpText = new RawText("Wähle ein Rezept aus,\num es zu betrachten.\n\n").italic(true).color(ChatColor.GRAY);
+        currentPage.add(helpText.spigot());
 
-        int line = 5;
+        int line = 3;
         for(Dish dish : level.getDishes()){
             ItemStack dishStack = dish.getItemStack();
-            RawTextObject recipeEntry = new RawTextObject(dishStack.getItemMeta().getDisplayName()
-                    .replaceAll(Pattern.quote(ChatColor.COLOR_CHAR + "[a-z0-9]"), "") + "\n");
-            recipeEntry.add(new ColorProperty(ColorProperty.Color.BLACK));
-            recipeEntry.add(new HoverEventProperty(HoverEventProperty.Action.SHOW_TEXT, "Klicke um dieses Rezept zu betrachten"));
-            recipeEntry.add(new ClickEventProperty(ClickEventProperty.Action.RUN_COMMAND, "/zvierirecipedisplay show " + arena.getId() + " " + dish.getCustomEnum()));
-            currentPage.add(recipeEntry.toSpigot());
+            RawBase recipeEntry = new RawText(dishStack.getItemMeta().getDisplayName()
+                    .replaceAll(Pattern.quote(ChatColor.COLOR_CHAR + "[a-z0-9]"), "") + "\n")
+                    .color(ChatColor.BLACK)
+                    .hoverEvent(HoverEvent.showText("Klicke um dieses Rezept zu betrachten"))
+                    .clickEvent(ClickEvent.runCommand("/zvierirecipedisplay show " + arena.getId() + " " + dish.getCustomEnum()));
+            currentPage.add(recipeEntry.spigot());
             line++;
             if(line >= 8) {
                 pages.add(buildPage(currentPage));

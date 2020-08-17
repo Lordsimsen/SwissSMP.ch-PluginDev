@@ -1,9 +1,9 @@
 main: ch.swisssmp.ageofempires.AgeOfEmpiresTauntsPlugin
-version: 1.0
+version: 3
 api-version: 1.13
 name: AgeOfEmpiresTaunts
 author: detig_iii
-depend: [WebCore,RawTextBuilderAPI,CustomEditorAPI,SwissSMPUtils]
+depend: [SwissSMPUtils,WebCore,CustomEditorAPI,CustomItems,ResourcepackManager,RawTextBuilderAPI]
 description: Löst bei bestimmten Chat-Nachrichten die Wiedergabe einer Audiodatei aus, analog zu Taunts in Age of Empires
 permissions:
   aoetaunts.use:

@@ -1,11 +1,15 @@
 package ch.swisssmp.spleef;
 
-import ch.swisssmp.spleef.Spleef;
+import ch.swisssmp.schematics.SchematicUtil;
+import ch.swisssmp.utils.*;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 
+import ch.swisssmp.world.WorldManager;
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,11 +40,6 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
-import ch.swisssmp.utils.ConfigurationSection;
-import ch.swisssmp.utils.Random;
-import ch.swisssmp.utils.SwissSMPler;
-import ch.swisssmp.utils.YamlConfiguration;
-
 public class Arena implements Listener{
     
     protected final static HashMap<Integer,Arena> arenas = new HashMap<Integer,Arena>();
@@ -49,7 +48,7 @@ public class Arena implements Listener{
     private static Random random = new Random();
     
     //Arena Properties
-    protected final int arena_id;
+    protected final int arenaId;
     protected final String name;
     protected final int minPlayers;
     protected final String schematicName;
@@ -65,7 +64,7 @@ public class Arena implements Listener{
     protected final Location joinLocation;
     protected final Location leaveLocation;
     protected final Location spectateLocation;
-    protected final Location schematicLocation;
+    protected final Block schematicLocation;
     
     //Player lists
     protected final ArrayList<UUID> player_uuids = new ArrayList<UUID>();
@@ -96,7 +95,7 @@ public class Arena implements Listener{
     	this.breakableMaterials.add(Material.LIGHT_BLUE_GLAZED_TERRACOTTA);
     	this.breakableMaterials.add(Material.CYAN_CONCRETE);
     	
-        this.arena_id = dataSection.getInt("id");
+        this.arenaId = dataSection.getInt("id");
         this.name = dataSection.getString("name");
         this.minPlayers = dataSection.getInt("min_players");
         this.schematicName = dataSection.getString("schematic");
@@ -105,7 +104,7 @@ public class Arena implements Listener{
         this.joinLocation = pointsSection.getLocation("join");
         this.leaveLocation = pointsSection.getLocation("leave");
         this.spectateLocation = pointsSection.getLocation("spectator");
-        this.schematicLocation = pointsSection.getLocation("schematic");
+        this.schematicLocation = pointsSection.getLocation("schematic").getBlock();
         
         ConfigurationSection regionsSection = dataSection.getConfigurationSection("regions");
         this.enterRegionName = regionsSection.getString("enter");
@@ -126,7 +125,15 @@ public class Arena implements Listener{
         objective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         
         Bukkit.getPluginManager().registerEvents(this, Spleef.getInstance());
-        arenas.put(this.arena_id, this);
+        arenas.put(this.arenaId, this);
+    }
+
+    public World getWorld(){
+        return schematicLocation!=null ? schematicLocation.getWorld() : null;
+    }
+
+    public int getId(){
+        return arenaId;
     }
     
 	@EventHandler(ignoreCancelled=true)
@@ -409,7 +416,8 @@ public class Arena implements Listener{
     private void resetField()
     {
     	// Bukkit.getLogger().info("Reset Field! "+schematicName+", "+schematicLocation.getX()+", "+schematicLocation.getY()+", "+schematicLocation.getZ()+" in "+schematicLocation.getWorld().getName());
-        boolean result = SchematicUtil.paste(schematicName, schematicLocation);
+        File file = getSchematicFile();
+        boolean result = SchematicUtil.paste(file, schematicLocation);
         if(!result) {
         	Bukkit.getLogger().info("Reset failed!");
         }
@@ -468,7 +476,12 @@ public class Arena implements Listener{
     {
         return arenas.get(arena_id);
     }
-    
+
+    protected File getSchematicFile(){
+        World world = joinLocation!=null ? joinLocation.getWorld() : null;
+        if(world==null) return null;
+        return new File(WorldManager.getPluginDirectory(Spleef.getInstance(), world), "schematics/arena_" + arenaId+".schematic");
+    }
     
     protected static Location getLocationFromYaml(ConfigurationSection dataSection)
     {

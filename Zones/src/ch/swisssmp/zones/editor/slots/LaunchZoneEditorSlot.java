@@ -22,8 +22,7 @@ public class LaunchZoneEditorSlot extends ButtonSlot {
 
     @Override
     protected void triggerOnClick(ClickType clickType) {
-        getView().closeLater();
-        ZoneEditor.start(getView().getPlayer(), zone);
+        getView().closeLater(()-> ZoneEditor.start(getView().getPlayer(), zone));
     }
 
     @Override
@@ -43,9 +42,6 @@ public class LaunchZoneEditorSlot extends ButtonSlot {
 
     @Override
     protected CustomItemBuilder createSlotBase() {
-        CustomItemBuilder result = new CustomItemBuilder();
-        result.setMaterial(Material.WRITTEN_BOOK);
-        result.setAmount(1);
-        return result;
+        return new CustomItemBuilder(Material.WRITTEN_BOOK);
     }
 }

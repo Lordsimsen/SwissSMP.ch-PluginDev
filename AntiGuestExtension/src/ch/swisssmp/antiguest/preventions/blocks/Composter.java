@@ -1,16 +1,17 @@
 package ch.swisssmp.antiguest.preventions.blocks;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 public class Composter extends BlockInteractPrevention {
 
 	@Override
-	protected Material GetType() {
-		return Material.COMPOSTER;
+	protected boolean isMatch(Block block) {
+		return block.getType()==Material.COMPOSTER;
 	}
 
 	@Override
-	protected String GetSubPermission() {
+	protected String getSubPermission() {
 		return "composter";
 	}
 }

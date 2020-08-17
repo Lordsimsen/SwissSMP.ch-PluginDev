@@ -22,5 +22,7 @@
     <orderEntry type="library" name="WorldEdit" level="project" />
     <orderEntry type="library" name="WorldGuard" level="project" />
     <orderEntry type="module" module-name="WGRegionEvents" />
+    <orderEntry type="module" module-name="Schematics" />
+    <orderEntry type="module" module-name="WorldManager" />
   </component>
 </module>

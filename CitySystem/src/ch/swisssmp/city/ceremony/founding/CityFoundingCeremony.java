@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ch.swisssmp.ceremonies.Phase;
+import ch.swisssmp.city.SigilRingType;
+import ch.swisssmp.city.ceremony.CityCeremony;
+import ch.swisssmp.city.ceremony.effects.CityCeremonyCircleEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -20,12 +21,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import ch.swisssmp.city.CitySystemPlugin;
-import ch.swisssmp.city.ItemManager;
-import ch.swisssmp.city.ceremony.Ceremony;
-import ch.swisssmp.city.ceremony.Phase;
 import ch.swisssmp.city.ceremony.founding.phases.BaptisePhase;
 import ch.swisssmp.city.ceremony.founding.phases.BeginPhase;
 import ch.swisssmp.city.ceremony.founding.phases.ForgeRingPhase;
@@ -33,15 +32,11 @@ import ch.swisssmp.city.ceremony.founding.phases.PledgeAllegiancePhase;
 import ch.swisssmp.city.ceremony.founding.phases.PresentRingPhase;
 import ch.swisssmp.utils.SwissSMPler;
 
-public class CityFoundingCeremony extends Ceremony implements Listener {
+public class CityFoundingCeremony extends CityCeremony implements Listener {
 	public static final float ceremonyRange = 15;
-	private static Collection<Player> ceremoniesParticipants = new ArrayList<Player>();
-	private static Collection<CityFoundingCeremony> ceremonies = new ArrayList<CityFoundingCeremony>();
+	private static final Collection<CityFoundingCeremony> ceremonies = new ArrayList<CityFoundingCeremony>();
 	
 	private final Block fire;
-	private final Player initiator;
-	
-	private List<Player> participants = new ArrayList<Player>();
 	
 	private BukkitTask timeoutTask;
 	private FoundingCeremonyPhase phase = null;
@@ -50,30 +45,20 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	private Material ringCoreMaterial;
 	private String cityName;
 	
-	private FoundingCeremonyCircleEffect ringEffect;
+	private CityCeremonyCircleEffect ringEffect;
 	private BukkitTask ringEffectTask;
-	private BukkitTask musicTask;
 	
 	private long t;
 	private final long orbitTime = 1200;
 	private Location spectatorLocation;
 	
 	private CityFoundingCeremony(Block fire, Player initiator){
+		super(initiator);
 		this.fire = fire;
-		this.initiator = initiator;
-		participants.add(initiator);
 	}
 	
 	public Block getFire(){
 		return fire;
-	}
-	
-	public Player getInitiator(){
-		return initiator;
-	}
-	
-	public List<Player> getPlayers(){
-		return participants;
 	}
 	
 	public void setRingMaterials(Material baseMaterial, Material coreMaterial){
@@ -81,14 +66,14 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 		this.ringCoreMaterial = coreMaterial;
 	}
 	
-	public String getRingType(){
-		return ItemManager.getSigilType(ringBaseMaterial, ringCoreMaterial);
+	public SigilRingType getRingType(){
+		return SigilRingType.of(ringBaseMaterial, ringCoreMaterial);
 	}
-	
+
+	@Override
 	public void addParticipant(Player player){
 		if(isParticipant(player)) return;
-		participants.add(player);
-		ceremoniesParticipants.add(player);
+		super.addParticipant(player);
 		this.broadcast(player.getDisplayName()+ChatColor.RESET+ChatColor.LIGHT_PURPLE+" hat seine Treue geschworen.");
 	}
 	
@@ -108,17 +93,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 		return cityName;
 	}
 	
-	public void setMusic(Location location, String music, long length){
-		if(musicTask!=null) musicTask.cancel();
-		musicTask = Bukkit.getScheduler().runTaskTimerAsynchronously(CitySystemPlugin.getInstance(), ()->{
-			for(Player player : this.participants){
-				player.stopSound(music,SoundCategory.RECORDS);
-			}
-			location.getWorld().playSound(location, music, SoundCategory.RECORDS, 15, 1);
-		}, 0, length);
-	}
-	
-	public FoundingCeremonyCircleEffect getRingEffect(){
+	public CityCeremonyCircleEffect getRingEffect(){
 		return ringEffect;
 	}
 	
@@ -150,25 +125,30 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	
 	@EventHandler
 	private void onPlayerQuit(PlayerQuitEvent event){
+		Collection<Player> participants = this.getParticipants();
+		Player initiator = this.getInitiator();
 		if(!participants.contains(event.getPlayer())) return;
 		participants.remove(event.getPlayer());
 		ceremoniesParticipants.remove(event.getPlayer());
-		if(initiator!=event.getPlayer() && this.participants.size()>=2) return;
+		if(initiator!=event.getPlayer() && participants.size()>=2) return;
 		this.cancel();
 	}
 
 	@Override
 	protected Phase getNextPhase() {
 		if(phase==null){
+			// Bukkit.getLogger().info("Begin now");
 			phase = FoundingCeremonyPhase.Begin;
 			return new BeginPhase(this);
 		}
 		switch(phase){
 		case Begin:{
+			// Bukkit.getLogger().info("Pledge allegiance now");
 			phase = FoundingCeremonyPhase.PledgeAllegiance;
 			return new PledgeAllegiancePhase(this);
 		}
 		case PledgeAllegiance:{
+			// Bukkit.getLogger().info("Forge thy ring now");
 			phase = FoundingCeremonyPhase.ForgeRing;
 			return new ForgeRingPhase(this);
 		}
@@ -189,11 +169,11 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 	}
 	
 	@Override
-	public void begin(){
-		super.begin();
+	public void begin(JavaPlugin plugin){
+		super.begin(CitySystemPlugin.getInstance());
 		this.updateSpectatorLocation();
 		Location center = fire.getLocation().clone().add(0.5, 0.5, 0.5);
-		ringEffect = new FoundingCeremonyCircleEffect(center);
+		ringEffect = new CityCeremonyCircleEffect(center);
 		ringEffectTask = Bukkit.getScheduler().runTaskTimer(CitySystemPlugin.getInstance(), ringEffect, 0, 1);
 		timeoutTask = Bukkit.getScheduler().runTaskLater(CitySystemPlugin.getInstance(), ()->{
 			this.cancel();
@@ -215,86 +195,31 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 		if(timeoutTask!=null) timeoutTask.cancel();
 		if(ringEffectTask!=null) ringEffectTask.cancel();
 		HandlerList.unregisterAll(this);
-		for(Player player : this.participants){
-			ceremoniesParticipants.remove(player);
-		}
 		stopMusic();
 		ceremonies.remove(this);
-	}
-	
-	private void stopMusic(){
-		if(musicTask!=null) musicTask.cancel();
-		for(Player player : this.participants){
-			player.stopSound("founding_ceremony_shaker", SoundCategory.RECORDS);
-			player.stopSound("founding_ceremony_drums", SoundCategory.RECORDS);
-		}
-	}
-
-	@Override
-	public boolean isParticipant(Player player) {
-		return this.participants.contains(player);
-	}
-
-	@Override
-	public void broadcast(String message) {
-		for(Player player : this.participants){
-			player.sendMessage(this.getPrefix()+message);
-		}
-	}
-
-	@Override
-	public void broadcastTitle(String title, String subtitle) {
-		for(Player player : this.participants){
-			SwissSMPler.get(player).sendTitle(title, subtitle);
-		}
-	}
-
-	@Override
-	public void broadcastActionBar(String message) {
-		for(Player player : this.participants){
-			SwissSMPler.get(player).sendActionBar(message);
-		}
-	}
-	
-	@Override
-	protected boolean isMatch(String key){
-		return (this.initiator.getName().toLowerCase().contains(key) || this.initiator.getDisplayName().toLowerCase().contains(key));
 	}
 	
 	@Override
 	public Location getSpectatorLocation(){
 		return spectatorLocation.clone();
 	}
-	
+
 	@Override
-	public Location getInitialSpectatorLocation(){
-		return initiator.getLocation().add(1, 0, 0);
-	}
-	
-	private String getPrefix(){
+	protected String getPrefix(){
 		return ChatColor.WHITE+"["+ChatColor.DARK_PURPLE+"Stadtgründung"+ChatColor.WHITE+"] "+ChatColor.RESET;
 	}
 	
-	public static List<Player> getNearbyPlayers(Location location){
-		return getNearbyPlayers(location, CityFoundingCeremony.ceremonyRange);
-	}
-	
-	public static List<Player> getNearbyPlayers(Location location, float radius){
-		List<Player> result = new ArrayList<Player>();
-		for(Entity entity : location.getWorld().getNearbyEntities(location, radius, radius, radius)){
-			if(!(entity instanceof Player)) continue;
-			Player player = (Player) entity;
-			if(player.getGameMode()!=GameMode.SURVIVAL) continue;
-			if(ceremoniesParticipants.contains(player) || !player.hasPermission("citysystem.found")) continue;
-			result.add(player);
-		}
-		return result;
-	}
-	
 	public static CityFoundingCeremony start(Block fire, Player initiator){
-		if(ceremoniesParticipants.contains(initiator) || !initiator.hasPermission("citysystem.found")) return null;
+		if(ceremoniesParticipants.contains(initiator)) { // || !initiator.hasPermission("citysystem.found")) return null;
+			// Bukkit.getLogger().info(CitySystemPlugin.getPrefix() + " Already participating somewhere");
+			return null;
+		}
 		List<Player> nearbyPlayers = getNearbyPlayers(fire.getLocation());
-		if(nearbyPlayers.size()<2) return null;
+//		if(nearbyPlayers.size()<2) return null;
+		if(nearbyPlayers.size()<1) {
+			// Bukkit.getLogger().info(CitySystemPlugin.getPrefix()+" Not enough players to start ceremony");
+			return null;
+		}
 		for(CityFoundingCeremony nearby : ceremonies){
 			if(nearby.getFire().getLocation().distanceSquared(fire.getLocation())<10000){
 				SwissSMPler.get(initiator).sendActionBar(ChatColor.RED+"Es findet bereits eine Gründung in der Nähe statt.");
@@ -305,7 +230,7 @@ public class CityFoundingCeremony extends Ceremony implements Listener {
 		CityFoundingCeremony result = new CityFoundingCeremony(fire, initiator);
 		ceremonies.add(result);
 		Bukkit.getPluginManager().registerEvents(result, CitySystemPlugin.getInstance());
-		result.begin();
+		result.begin(CitySystemPlugin.getInstance());
 		return result;
 	}
 	

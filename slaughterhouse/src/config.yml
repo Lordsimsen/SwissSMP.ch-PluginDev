@@ -1,0 +1,7 @@
+animals:
+  cow: true
+  chicken: true
+  pig: true
+  rabbit: true
+  sheep: true
+  hoglin: true

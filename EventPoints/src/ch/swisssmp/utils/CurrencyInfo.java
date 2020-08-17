@@ -1,5 +1,6 @@
 package ch.swisssmp.utils;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.bukkit.inventory.ItemStack;
@@ -11,7 +12,7 @@ import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
 
 public class CurrencyInfo {
-	private static HashMap<String,CurrencyInfo> loadedCurrencies = new HashMap<String,CurrencyInfo>();
+	private static final HashMap<String,CurrencyInfo> loadedCurrencies = new HashMap<String,CurrencyInfo>();
 	
 	private final String name;
 	private final String currency_enum;
@@ -66,5 +67,9 @@ public class CurrencyInfo {
 	
 	protected static void clear() {
 		loadedCurrencies.clear();
+	}
+
+	public static Collection<CurrencyInfo> getAll(){
+		return loadedCurrencies.values();
 	}
 }

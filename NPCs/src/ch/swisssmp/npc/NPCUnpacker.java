@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class NPCUnpacker implements Listener {
 	
-	private static HashMap<World,NPCUnpacker> instances = new HashMap<World,NPCUnpacker>();
+	private static final HashMap<World,NPCUnpacker> instances = new HashMap<World,NPCUnpacker>();
 	
 	private final World world;
 	

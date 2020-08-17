@@ -28,7 +28,7 @@ public class ZvieriArenaCommand implements CommandExecutor{
 			String name = args[1];
 			ZvieriArena arena = ZvieriArena.create(p.getWorld(), name);
 			if(arena == null) {
-				p.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.RED + " Arena konnte nicht erstellt werden");
+				p.sendMessage(ZvieriPlauschPlugin.getPrefix() + ChatColor.RED + " Arena konnte nicht erstellt werden");
 			}
 			p.getInventory().addItem(arena.getTokenStack());
 			arena.openEditor(p);

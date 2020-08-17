@@ -1,12 +1,13 @@
 package ch.swisssmp.utils;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.banner.PatternType;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
@@ -15,19 +16,23 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JsonUtil {
 
-    public static boolean save(File file, JsonObject json){
-        try{
-            if(!file.getParentFile().isDirectory()){
-                if(!file.getParentFile().mkdirs()){
+    public static boolean save(File file, JsonObject json) {
+        try {
+            if (!file.getParentFile().isDirectory()) {
+                if (!file.getParentFile().mkdirs()) {
                     return false;
                 }
             }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
         try {
@@ -41,7 +46,7 @@ public class JsonUtil {
         }
     }
 
-    public static JsonObject parse(File file){
+    public static JsonObject parse(File file) {
         JsonParser parser = new JsonParser();
         try {
             FileReader reader = new FileReader(file);
@@ -53,100 +58,272 @@ public class JsonUtil {
         }
     }
 
-    public static JsonObject parse(String s){
+    public static JsonObject parse(String s) {
         JsonParser parser = new JsonParser();
-        try{
+        try {
             JsonElement result = parser.parse(s);
             return result.isJsonObject() ? result.getAsJsonObject() : null;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
-    public static UUID getUUID(String key, JsonObject json){
+    public static UUID getUUID(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        String idString = element!=null && element.isJsonPrimitive() ? element.getAsString() : null;
-        try{
-            return idString!=null ? UUID.fromString(idString) : null;
-        }
-        catch(Exception e){
+        String idString = element != null && element.isJsonPrimitive() ? element.getAsString() : null;
+        try {
+            return idString != null ? UUID.fromString(idString) : null;
+        } catch (Exception e) {
+            if(idString!=null && idString.length()>0){
+                Bukkit.getLogger().warning("[JsonUtil] Konnte ungültige UUID nicht lesen: "+idString);
+            }
             return null;
         }
     }
 
-    public static void set(String key, UUID uuid, JsonObject json){
+    public static void set(String key, UUID uuid, JsonObject json) {
         json.addProperty(key, uuid.toString());
     }
 
-    public static String getString(String key, JsonObject json){
+    public static String getString(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        return element!=null && element.isJsonPrimitive() ? element.getAsString() : null;
+        return element != null && element.isJsonPrimitive() ? element.getAsString() : null;
     }
 
-    public static void set(String key, String value, JsonObject json){
+    public static void set(String key, String value, JsonObject json) {
         json.addProperty(key, value);
     }
 
-    public static float getFloat(String key, JsonObject json){
+    public static float getFloat(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        return element!=null && element.isJsonPrimitive() ? element.getAsFloat() : 0;
+        return element != null && element.isJsonPrimitive() ? element.getAsFloat() : 0;
     }
 
-    public static void set(String key, float value, JsonObject json){
+    public static void set(String key, float value, JsonObject json) {
         json.addProperty(key, value);
     }
 
-    public static double getDouble(String key, JsonObject json){
+    public static double getDouble(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        return element!=null && element.isJsonPrimitive() ? element.getAsDouble() : 0;
+        return element != null && element.isJsonPrimitive() ? element.getAsDouble() : 0;
     }
 
-    public static void set(String key, double value, JsonObject json){
+    public static void set(String key, double value, JsonObject json) {
         json.addProperty(key, value);
     }
 
-    public static int getInt(String key, JsonObject json){
+    public static int getInt(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        return element!=null && element.isJsonPrimitive() ? element.getAsInt() : 0;
+        return element != null && element.isJsonPrimitive() ? element.getAsInt() : 0;
     }
 
-    public static void set(String key, int value, JsonObject json){
+    public static void set(String key, int value, JsonObject json) {
         json.addProperty(key, value);
     }
 
-    public static boolean getBool(String key, JsonObject json){
+    public static short getShort(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        return element!=null && element.isJsonPrimitive() && element.getAsBoolean();
+        return element != null && element.isJsonPrimitive() ? element.getAsShort() : 0;
     }
 
-    public static void set(String key, boolean value, JsonObject json){
+    public static void set(String key, short value, JsonObject json) {
         json.addProperty(key, value);
     }
 
-    public static Color getColor(String key, JsonObject json){
-        return Color.fromRGB(getInt(key,json));
+    public static boolean getBool(String key, JsonObject json) {
+        JsonElement element = json.has(key) ? json.get(key) : null;
+        return element != null && element.isJsonPrimitive() && element.getAsBoolean();
     }
 
-    public static void set(String key, Color value, JsonObject json){
+    public static void set(String key, boolean value, JsonObject json) {
+        json.addProperty(key, value);
+    }
+
+    public static List<String> getStringList(String key, JsonObject json){
+        if(!json.has(key)) return Collections.emptyList();
+        JsonElement element = json.get(key);
+        if(element.isJsonArray()) return getStringList(element.getAsJsonArray());
+        if(element.isJsonObject()) return element.getAsJsonObject().entrySet().stream().map(e->e.getValue().toString()).collect(Collectors.toList());
+        String stringValue = element.toString();
+        if(stringValue.equals("[]") || stringValue.equals("{}")) return Collections.emptyList();
+        return Collections.singletonList(element.toString());
+    }
+
+    public static List<String> getStringList(JsonArray json){
+        List<String> result = new ArrayList<>();
+        for(JsonElement element : json){
+            result.add(element.getAsString());
+        }
+        return result;
+    }
+
+    public static void set(String key, List<String> value, JsonObject json){
+        JsonArray valueArray = new JsonArray();
+        for(String element : value){
+            valueArray.add(element);
+        }
+        json.add(key, valueArray);
+    }
+
+    public static NamespacedKey getKey(String key, JsonObject json) {
+        return json.has(key) ? getKey(json.get(key)) : null;
+    }
+
+    public static NamespacedKey getKey(JsonElement json) {
+        String keyString = json.getAsString();
+        String namespace = keyString.contains(":") ? keyString.substring(0, keyString.indexOf(":")) : "minecraft";
+        String key = keyString.contains(":") ? keyString.substring(namespace.length() + 1) : keyString;
+        //noinspection deprecation
+        return json != null ? new NamespacedKey(namespace.toLowerCase(), key.toLowerCase()) : null;
+    }
+
+    public static void set(String key, NamespacedKey value, JsonObject json) {
+        json.addProperty(key, value.toString());
+    }
+
+    public static Material getMaterial(String key, JsonObject json) {
+        return json.has(key) ? getMaterial(json.get(key)) : null;
+    }
+
+    public static Material getMaterial(JsonElement element) {
+        Material result;
+        try {
+            result = element != null ? Material.valueOf(element.getAsString().toUpperCase()) : null;
+        } catch (Exception ignored) {
+            result = null;
+        }
+        if (result != null || element == null) return result;
+        NamespacedKey key = getKey(element);
+        return MaterialUtil.getMaterial(key).orElse(null);
+    }
+
+    public static void set(String key, Material value, JsonObject json) {
+        json.addProperty(key, value.toString());
+    }
+
+    public static Enchantment getEnchantment(String key, JsonObject json) {
+        return json.has(key) ? getEnchantment(json.get(key)) : null;
+    }
+
+    public static Enchantment getEnchantment(JsonElement json) {
+        if(json==null) return null;
+        String value = json.getAsString();
+        Enchantment[] values = Enchantment.values();
+        for (Enchantment e : values) {
+            if (e.toString().equalsIgnoreCase(value)) return e;
+        }
+
+        return Enchantment.getByKey(getKey(json));
+    }
+
+    public static void set(String key, Enchantment value, JsonObject json) {
+        json.addProperty(key, value.toString());
+    }
+
+    public static Color getColor(String key, JsonObject json) {
+        return getColor(json.get(key));
+    }
+
+    public static Color getColor(JsonElement element) {
+        return element!=null && element.isJsonPrimitive() ? Color.fromRGB(element.getAsInt()) : null;
+    }
+
+    public static ChatColor getChatColor(String key, JsonObject json) {
+        return getChatColor(json.get(key));
+    }
+
+    public static ChatColor getChatColor(JsonElement element){
+        try{
+            return element!=null && element.isJsonPrimitive() ? ChatColor.valueOf(element.getAsString()) : null;
+        }
+        catch(Exception ignored){
+            return null;
+        }
+    }
+
+    public static DyeColor getDyeColor(String key, JsonObject json){return getDyeColor(json.get(key));}
+
+    public static DyeColor getDyeColor(JsonElement element){
+        try{
+            Color color = getColor(element);
+            DyeColor dyeColor = color != null ? DyeColor.getByColor(color) : null;
+            if(dyeColor==null && color!=null) Bukkit.getLogger().warning("Couldn't load dyecolor based on color: " + color.asRGB());
+            return dyeColor;
+        }
+        catch(Exception ignored){
+            Bukkit.getLogger().warning("Ungültige DyeColor: " + element);
+            return null;
+        }
+    }
+
+    public static void set(String key, DyeColor color, JsonObject json){
+        set(key, color.getColor(), json);
+    }
+
+    public static PatternType getPattern(String key, JsonObject json){
+        return getPattern(json.get(key));
+    }
+
+    public static PatternType getPattern(JsonElement element){
+        try{
+            PatternType patternType = element!=null ? PatternType.getByIdentifier(element.getAsString()) : null;
+            if(patternType == null && element != null) Bukkit.getLogger().warning("Couldn't load patterntype from: " + element.toString());
+            return patternType;
+        }
+        catch(Exception ignored){
+            Bukkit.getLogger().warning("Ungültiges Pattern: " + element);
+            return null;
+        }
+    }
+
+    public static void set(String key, PatternType pattern, JsonObject json){
+        json.addProperty(key, pattern.getIdentifier());
+    }
+
+    public static void set(String key, Color value, JsonObject json) {
         json.addProperty(key, value.asRGB());
     }
 
-    public static Block getBlock(String key, World world, JsonObject json){
+    public static EnchantmentData getEnchantmentData(String key, JsonObject json) {
+        return json.has(key) ? getEnchantmentData(json.getAsJsonObject(key)) : null;
+    }
+
+    public static EnchantmentData getEnchantmentData(JsonObject json) {
+        Enchantment enchantment = JsonUtil.getEnchantment("enchantment", json);
+        if (enchantment == null) return null;
+        int level = JsonUtil.getInt("level", json);
+        boolean ignoreLevelRestriction = JsonUtil.getBool("ignore_level_restriction", json);
+        if (!ignoreLevelRestriction) level = Math.min(level, enchantment.getMaxLevel());
+        return new EnchantmentData(enchantment, level, ignoreLevelRestriction);
+    }
+
+    public static void set(String key, EnchantmentData block, JsonObject json) {
+        json.add(key, toJsonObject(block));
+    }
+
+    public static JsonObject toJsonObject(EnchantmentData data) {
+        JsonObject json = new JsonObject();
+        json.addProperty("enchantment", data.getEnchantment().toString());
+        json.addProperty("level", data.getLevel());
+        if(data.getIgnoreLevelRestriction()) json.addProperty("ignore_level_restriction", data.getIgnoreLevelRestriction());
+        return json;
+    }
+
+    public static Block getBlock(String key, World world, JsonObject json) {
         JsonElement locationElement = json.has(key) ? json.get(key) : null;
-        if(locationElement==null || !locationElement.isJsonObject()) return null;
+        if (locationElement == null || !locationElement.isJsonObject()) return null;
         JsonObject locationData = locationElement.getAsJsonObject();
         int x = getInt("x", locationData);
         int y = getInt("y", locationData);
         int z = getInt("z", locationData);
-        return world.getBlockAt(x,y,z);
+        return world.getBlockAt(x, y, z);
     }
 
-    public static void set(String key, Block block, JsonObject json){
+    public static void set(String key, Block block, JsonObject json) {
         json.add(key, toJsonObject(block));
     }
 
-    public static JsonObject toJsonObject(Block b){
+    public static JsonObject toJsonObject(Block b) {
         JsonObject json = new JsonObject();
         json.addProperty("x", b.getX());
         json.addProperty("y", b.getY());
@@ -154,12 +331,12 @@ public class JsonUtil {
         return json;
     }
 
-    public static Location getLocation(World world, JsonObject json){
-        if(json==null || !json.isJsonObject()) return null;
+    public static Location getLocation(World world, JsonObject json) {
+        if (json == null || !json.isJsonObject()) return null;
         double x = getDouble("x", json);
         double y = getDouble("y", json);
         double z = getDouble("z", json);
-        if(json.has("pitch") && json.has("yaw")){
+        if (json.has("pitch") && json.has("yaw")) {
             float pitch = getFloat("pitch", json);
             float yaw = getFloat("yaw", json);
             return new Location(world, x, y, z, yaw, pitch);
@@ -168,18 +345,18 @@ public class JsonUtil {
         return new Location(world, x, y, z);
     }
 
-    public static Location getLocation(String key, World world, JsonObject json){
+    public static Location getLocation(String key, World world, JsonObject json) {
         JsonElement locationElement = json.has(key) ? json.get(key) : null;
-        if(locationElement==null || !locationElement.isJsonObject()) return null;
+        if (locationElement == null || !locationElement.isJsonObject()) return null;
         JsonObject locationData = locationElement.getAsJsonObject();
         return getLocation(world, locationData);
     }
 
-    public static void set(String key, Location location, JsonObject json){
+    public static void set(String key, Location location, JsonObject json) {
         json.add(key, toJsonObject(location));
     }
 
-    public static JsonObject toJsonObject(Location l){
+    public static JsonObject toJsonObject(Location l) {
         JsonObject json = new JsonObject();
         json.addProperty("x", l.getX());
         json.addProperty("y", l.getY());
@@ -189,12 +366,12 @@ public class JsonUtil {
         return json;
     }
 
-    public static Position getPosition(JsonObject json){
-        if(json==null || !json.isJsonObject()) return null;
+    public static Position getPosition(JsonObject json) {
+        if (json == null || !json.isJsonObject()) return null;
         double x = getDouble("x", json);
         double y = getDouble("y", json);
         double z = getDouble("z", json);
-        if(json.has("pitch") && json.has("yaw")){
+        if (json.has("pitch") && json.has("yaw")) {
             float pitch = getFloat("pitch", json);
             float yaw = getFloat("yaw", json);
             return new Position(x, y, z, yaw, pitch);
@@ -203,18 +380,18 @@ public class JsonUtil {
         return new Position(x, y, z);
     }
 
-    public static Position getPosition(String key, JsonObject json){
+    public static Position getPosition(String key, JsonObject json) {
         JsonElement positionElement = json.has(key) ? json.get(key) : null;
-        if(positionElement==null || !positionElement.isJsonObject()) return null;
+        if (positionElement == null || !positionElement.isJsonObject()) return null;
         JsonObject locationData = positionElement.getAsJsonObject();
         return getPosition(locationData);
     }
 
-    public static void set(String key, Position position, JsonObject json){
+    public static void set(String key, Position position, JsonObject json) {
         json.add(key, toJsonObject(position));
     }
 
-    public static JsonObject toJsonObject(Position p){
+    public static JsonObject toJsonObject(Position p) {
         JsonObject json = new JsonObject();
         json.addProperty("x", p.getX());
         json.addProperty("y", p.getY());
@@ -224,8 +401,8 @@ public class JsonUtil {
         return json;
     }
 
-    public static Vector getVector(JsonObject json){
-        if(json==null || !json.isJsonObject()) return null;
+    public static Vector getVector(JsonObject json) {
+        if (json == null || !json.isJsonObject()) return null;
         double x = getDouble("x", json);
         double y = getDouble("y", json);
         double z = getDouble("z", json);
@@ -233,18 +410,18 @@ public class JsonUtil {
         return new Vector(x, y, z);
     }
 
-    public static Vector getVector(String key, JsonObject json){
+    public static Vector getVector(String key, JsonObject json) {
         JsonElement vectorElement = json.has(key) ? json.get(key) : null;
-        if(vectorElement==null || !vectorElement.isJsonObject()) return null;
+        if (vectorElement == null || !vectorElement.isJsonObject()) return null;
         JsonObject locationData = vectorElement.getAsJsonObject();
         return getVector(locationData);
     }
 
-    public static void set(String key, Vector vector, JsonObject json){
+    public static void set(String key, Vector vector, JsonObject json) {
         json.add(key, toJsonObject(vector));
     }
 
-    public static JsonObject toJsonObject(Vector v){
+    public static JsonObject toJsonObject(Vector v) {
         JsonObject json = new JsonObject();
         json.addProperty("x", v.getX());
         json.addProperty("y", v.getY());
@@ -252,8 +429,8 @@ public class JsonUtil {
         return json;
     }
 
-    public static BlockVector getBlockVector(JsonObject json){
-        if(json==null || !json.isJsonObject()) return null;
+    public static BlockVector getBlockVector(JsonObject json) {
+        if (json == null || !json.isJsonObject()) return null;
         int x = getInt("x", json);
         int y = getInt("y", json);
         int z = getInt("z", json);
@@ -261,18 +438,18 @@ public class JsonUtil {
         return new BlockVector(x, y, z);
     }
 
-    public static BlockVector getBlockVector(String key, JsonObject json){
+    public static BlockVector getBlockVector(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        if(element==null || !element.isJsonObject()) return null;
+        if (element == null || !element.isJsonObject()) return null;
         JsonObject locationData = element.getAsJsonObject();
         return getBlockVector(locationData);
     }
 
-    public static void set(String key, BlockVector vector, JsonObject json){
+    public static void set(String key, BlockVector vector, JsonObject json) {
         json.add(key, toJsonObject(vector));
     }
 
-    public static JsonObject toJsonObject(BlockVector v){
+    public static JsonObject toJsonObject(BlockVector v) {
         JsonObject json = new JsonObject();
         json.addProperty("x", v.getBlockX());
         json.addProperty("y", v.getBlockY());
@@ -280,15 +457,15 @@ public class JsonUtil {
         return json;
     }
 
-    public static ItemStack getItemStack(String key, JsonObject json){
+    public static ItemStack getItemStack(String key, JsonObject json) {
         JsonElement element = json.has(key) ? json.get(key) : null;
-        if(element==null || !element.isJsonPrimitive()) return null;
+        if (element == null || !element.isJsonPrimitive()) return null;
         return ItemUtil.deserialize(element.getAsString());
     }
 
-    public static void set(String key, ItemStack itemStack, JsonObject json){
-        if(itemStack==null){
-            if(json.has(key)) json.remove(key);
+    public static void set(String key, ItemStack itemStack, JsonObject json) {
+        if (itemStack == null) {
+            if (json.has(key)) json.remove(key);
             return;
         }
         json.addProperty(key, ItemUtil.serialize(itemStack));

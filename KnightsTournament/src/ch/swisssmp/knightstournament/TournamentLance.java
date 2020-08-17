@@ -3,10 +3,11 @@ package ch.swisssmp.knightstournament;
 import ch.swisssmp.customitems.CustomItemBuilder;
 import ch.swisssmp.customitems.CustomItems;
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
@@ -19,11 +20,12 @@ public class TournamentLance {
 	protected static final String dataProperty = "TournamentLance";
 	protected static final String primaryColorProperty = "PrimaryColor";
 	protected static final String secondaryColorProperty = "SecondaryColor";
+	protected static final String PLACEHOLDER_ITEM = "FAKE_ARROW_SHIELD";
 
 	public static boolean isLance(ItemStack itemStack){
 		if(itemStack==null) return false;
-		NBTTagCompound nbt = ItemUtil.getData(itemStack);
-		return nbt!=null && nbt.hasKey(dataProperty);
+		CompoundTag nbt = ItemUtil.getData(itemStack);
+		return nbt!=null && nbt.containsKey(dataProperty);
 	}
 
 	protected static void registerCraftingRecipe(){
@@ -50,6 +52,12 @@ public class TournamentLance {
 		Bukkit.getServer().addRecipe(recipe);
 	}
 
+	protected static void updateLegacyLances(){
+		for(Player player : Bukkit.getOnlinePlayers()){
+			updateLegacyLances(player.getInventory());
+		}
+	}
+
 	protected static void updateLegacyLances(Inventory inventory){
 		for(ItemStack itemStack : inventory){
 			if(itemStack==null) continue;
@@ -58,7 +66,7 @@ public class TournamentLance {
 			if(customEnum==null || !customEnum.equalsIgnoreCase("TOURNAMENT_LANCE")) continue;
 			CustomItemBuilder customItemBuilder = CustomItems.getCustomItemBuilder(TournamentLance.bareCustomEnum);
 			customItemBuilder.update(itemStack);
-			NBTTagCompound nbt = ItemUtil.getData(itemStack);
+			CompoundTag nbt = ItemUtil.getData(itemStack);
 			nbt.remove("AttributeModifiers");
 			nbt.remove("HideFlags");
 			ItemUtil.setData(itemStack, nbt);

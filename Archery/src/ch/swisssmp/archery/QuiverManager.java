@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.swisssmp.utils.ItemUtil;
-import ch.swisssmp.utils.nbt.NBTTagCompound;
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,18 +22,18 @@ public class QuiverManager {
 	}
 	
 	protected static ItemStack[] getQuiverContents(ItemStack quiver){
-		NBTTagCompound nbtData = ItemUtil.getData(quiver);
+		CompoundTag nbtData = ItemUtil.getData(quiver);
 		ItemStack[] result = new ItemStack[QuiverManager.getQuiverSize()];
-		if(nbtData.hasKey("contents")){
-			NBTTagCompound contentsSection = nbtData.getCompound("contents");
-			NBTTagCompound contentSection;
+		if(nbtData.containsKey("contents")){
+			CompoundTag contentsSection = nbtData.getCompoundTag("contents");
+			CompoundTag contentSection;
 			String arrowType;
 			ItemStack arrowStack;
 			for(int i = 0; i < QuiverManager.getQuiverSize(); i++){
-				if(!contentsSection.hasKey("slot_"+i))continue;
-				contentSection = contentsSection.getCompound("slot_"+i);
+				if(!contentsSection.containsKey("slot_"+i))continue;
+				contentSection = contentsSection.getCompoundTag("slot_"+i);
 				arrowType = contentSection.getString("t");
-				if(contentSection.hasKey("stack")){
+				if(contentSection.containsKey("stack")){
 					YamlConfiguration yamlConfiguration = new YamlConfiguration();
 					try {
 						yamlConfiguration.loadFromString(contentSection.getString("stack"));
@@ -64,9 +64,9 @@ public class QuiverManager {
 	}
 	
 	protected static void setQuiverContents(ItemStack quiver, ItemStack[] contents){
-		NBTTagCompound nbtData = ItemUtil.getData(quiver);
-		NBTTagCompound contentsSection = new NBTTagCompound();
-		NBTTagCompound contentSection;
+		CompoundTag nbtData = ItemUtil.getData(quiver);
+		CompoundTag contentsSection = new CompoundTag();
+		CompoundTag contentSection;
 		ItemStack itemStack;
 		String arrowType;
 		List<String> itemInfo = new ArrayList<String>();
@@ -74,7 +74,7 @@ public class QuiverManager {
 		for(int i = 0; i < contents.length; i++){
 			itemStack = contents[i];
 			if(itemStack==null)continue;
-			contentSection = new NBTTagCompound();
+			contentSection = new CompoundTag();
 			arrowType = CustomItems.getCustomEnum(itemStack);
 			if(arrowType==null || arrowType.isEmpty()){
 				if(itemStack.getType()==Material.ARROW) arrowType = "NORMAL_ARROW";
@@ -85,23 +85,23 @@ public class QuiverManager {
 				}
 				//Bukkit.getLogger().info("[Archery] Arrow Type is "+arrowType);
 			}
-			contentSection.setString("t", arrowType);
-			contentSection.setInt("c", itemStack.getAmount());
+			contentSection.putString("t", arrowType);
+			contentSection.putInt("c", itemStack.getAmount());
 			if(itemStack.getType() == Material.TIPPED_ARROW){
 				YamlConfiguration yamlConfiguration = new YamlConfiguration();
 				yamlConfiguration.set("item", itemStack);
-				contentSection.setString("stack", yamlConfiguration.saveToString());
+				contentSection.putString("stack", yamlConfiguration.saveToString());
 			}
-			contentsSection.set("slot_"+i, contentSection);
+			contentsSection.put("slot_"+i, contentSection);
 			infoString = ItemManager.getItemName(itemStack);
 			infoString+=" x"+itemStack.getAmount();
 			itemInfo.add(infoString);
 		}
-		if(nbtData.hasKey("contents")){
+		if(nbtData.containsKey("contents")){
 			nbtData.remove("contents");
 		}
 		if(itemInfo.size()>0){
-			nbtData.set("contents", contentsSection);
+			nbtData.put("contents", contentsSection);
 		}
 		ItemUtil.setData(quiver, nbtData);
 		ItemMeta itemMeta = quiver.getItemMeta();

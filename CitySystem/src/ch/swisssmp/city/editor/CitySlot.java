@@ -8,7 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
-import ch.swisssmp.city.CitizenInfo;
+import ch.swisssmp.city.Citizenship;
 import ch.swisssmp.city.City;
 import ch.swisssmp.city.CityView;
 import ch.swisssmp.customitems.CustomItemBuilder;
@@ -38,21 +38,20 @@ public class CitySlot extends ButtonSlot {
 	@Override
 	protected List<String> getNormalDescription() {
 		List<String> result = new ArrayList<String>();
-		CitizenInfo mayorInfo = city.getCitizen(city.getMayor());
-		if(mayorInfo!=null) result.add("Bürgermeister: "+mayorInfo.getDisplayName());
-		Collection<CitizenInfo> citizens = city.getCitizens();
+		city.getCitizenship(city.getMayor()).ifPresent(mayorInfo -> result.add("Bürgermeister: " + mayorInfo.getDisplayName()));
+		Collection<Citizenship> citizenships = city.getCitizenships();
 		result.add("Bürger:");
 		int limit = 5;
-		for(CitizenInfo citizen : citizens){
-			String displayString = "- "+citizen.getDisplayName();
-			if(citizen.getRole()!=null && !citizen.getRole().isEmpty()){
-				displayString+=ChatColor.ITALIC+" ("+citizen.getRole()+")";
+		for(Citizenship citizenship : citizenships){
+			String displayString = "- "+ citizenship.getDisplayName();
+			if(citizenship.getRole()!=null && !citizenship.getRole().isEmpty()){
+				displayString+=ChatColor.ITALIC+" ("+ citizenship.getRole()+")";
 			}
 			result.add(displayString);
 			limit--;
 			if(limit<=0) break;
 		}
-		if(citizens.size()>5) result.add("Und "+(citizens.size()-5)+" weitere..");
+		if(citizenships.size()>5) result.add("Und "+(citizenships.size()-5)+" weitere..");
 		return result;
 	}
 

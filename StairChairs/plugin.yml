@@ -1,5 +1,5 @@
-main: ch.swisssmp.stairchairs.StairChairs
-version: 1.3
+main: ch.swisssmp.stairchairs.StairChairsPlugin
+version: 3
 api-version: 1.13
 name: StairChairs
 author: detig_iii

@@ -1,7 +1,7 @@
 package ch.swisssmp.customitems;
 
-import ch.swisssmp.utils.ConfigurationSection;
+import com.google.gson.JsonObject;
 
 public interface IBuilderTemplate {
-	ConfigurationSection getData();
+	JsonObject getData();
 }

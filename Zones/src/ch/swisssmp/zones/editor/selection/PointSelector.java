@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface PointSelector {
 
+    void initialize();
+
     /**
      * Interact with a block and return whether the interaction changed anything
      * @param block - The interacted block
@@ -31,4 +33,6 @@ public interface PointSelector {
      * The current state of the selection as evaluated by the selector
      */
     PointSelectionState getState();
+
+    String getInstructions();
 }

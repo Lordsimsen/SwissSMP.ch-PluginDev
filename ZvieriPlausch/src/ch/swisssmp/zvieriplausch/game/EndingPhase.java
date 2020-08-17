@@ -2,9 +2,9 @@ package ch.swisssmp.zvieriplausch.game;
 
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.zvieriplausch.ZvieriArena;
-import ch.swisssmp.zvieriplausch.ZvieriGame;
-import ch.swisssmp.zvieriplausch.ZvieriGamePlugin;
-import ch.swisssmp.zvieriplausch.ZvieriSound;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschGame;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschPlugin;
+import ch.swisssmp.zvieriplausch.ZvieriPlauschSounds;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -14,11 +14,11 @@ import java.util.List;
 
 public class EndingPhase extends Phase{
 
-    private final ZvieriGame game;
+    private final ZvieriPlauschGame game;
     private final ZvieriArena arena;
     private final World world;
 
-    public EndingPhase(ZvieriGame game){
+    public EndingPhase(ZvieriPlauschGame game){
         super(game);
         this.game = game;
         this.arena = game.getArena();
@@ -29,7 +29,7 @@ public class EndingPhase extends Phase{
     public void run() {
         game.clearArena();
         for(Player player : game.getParticipants()){
-            ZvieriGame.cleanseInventory(player.getInventory());
+            ZvieriPlauschGame.cleanseInventory(player.getInventory());
             player.teleport(game.getArena().getQueue().getLocation(game.getArena().getWorld()));
         }
         this.setCompleted();
@@ -38,13 +38,13 @@ public class EndingPhase extends Phase{
     @Override
     public void finish() {
         for(Player player : game.getParticipants()){
-            Bukkit.getScheduler().runTaskLater(ZvieriGamePlugin.getInstance(), () -> {
+            Bukkit.getScheduler().runTaskLater(ZvieriPlauschPlugin.getInstance(), () -> {
                 SwissSMPler.get(player).sendTitle(ChatColor.GREEN + "Fin de partie!", "Score: " + ChatColor.YELLOW + game.getScore());
-                SwissSMPler.get(player).sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GRAY + " Du hast " + ChatColor.YELLOW + game.getScore()
+                SwissSMPler.get(player).sendMessage(ZvieriPlauschPlugin.getPrefix() + ChatColor.GRAY + " Du hast " + ChatColor.YELLOW + game.getScore()
                 + ChatColor.GRAY + " Smaragdmünzen in " + game.getLevel().getName() + " " + arena.getName() + " erreicht!");
             }, 1L);
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-            ZvieriGame.cleanseInventory(player.getInventory());
+            ZvieriPlauschGame.cleanseInventory(player.getInventory());
         }
         if(game.getArena().isHighscore(game.getLevel().getLevelNumber(), game.getScore())){
             String players = "";
@@ -69,13 +69,13 @@ public class EndingPhase extends Phase{
     private void playFinishSound(boolean highscore){
         Location location = arena.getJukebox().getLocation();
         if(highscore) {
-            world.playSound(location, ZvieriSound.HIGHSCORE, SoundCategory.RECORDS, 10f, 1f);
+            world.playSound(location, ZvieriPlauschSounds.HIGHSCORE, SoundCategory.RECORDS, 10f, 1f);
             return;
         }
         if(game.getScore() >= game.getLevel().getThreshhold()) {
-            world.playSound(location, ZvieriSound.SUCCESS, SoundCategory.RECORDS, 10f, 1f);
+            world.playSound(location, ZvieriPlauschSounds.SUCCESS, SoundCategory.RECORDS, 10f, 1f);
         } else{
-            world.playSound(location, ZvieriSound.FAILED, SoundCategory.RECORDS, 10f, 1f);
+            world.playSound(location, ZvieriPlauschSounds.FAILED, SoundCategory.RECORDS, 10f, 1f);
         }
     }
 

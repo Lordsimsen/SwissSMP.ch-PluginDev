@@ -1,8 +1,9 @@
 package ch.swisssmp.entitysafety;
 
-import ch.swisssmp.text.RawTextObject;
-import ch.swisssmp.text.properties.ClickEventProperty;
-import ch.swisssmp.text.properties.TextProperty;
+import ch.swisssmp.text.ClickEvent;
+import ch.swisssmp.text.HoverEvent;
+import ch.swisssmp.text.RawBase;
+import ch.swisssmp.text.RawText;
 import ch.swisssmp.utils.EntityUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -37,9 +38,8 @@ public class PackEntityCommand implements CommandExecutor {
             return true;
         }
 
-        RawTextObject rawText = new RawTextObject(new TextProperty("Entity kopieren"));
-        rawText.add(new ClickEventProperty(ClickEventProperty.Action.COPY_TO_CLIPBOARD, EntityUtil.serialize(entity.get()).toString()));
-        player.spigot().sendMessage(rawText.toSpigot());
+        RawBase text = new RawText("Entity kopieren").hoverEvent(HoverEvent.showText("Klicke, um die Entity zu kopieren")).clickEvent(ClickEvent.copyToClipboard(EntityUtil.serialize(entity.get()).toString()));
+        player.spigot().sendMessage(text.spigot());
         return true;
     }
 }

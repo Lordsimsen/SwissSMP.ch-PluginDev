@@ -32,7 +32,7 @@ public class DungeonsView extends InventoryView implements Listener{
 	}
 	
 	private void createDungeonTokens(){
-		HTTPRequest request = DataSource.getResponse(AdventureDungeons.getInstance(), "get_dungeons.php");
+		HTTPRequest request = DataSource.getResponse(AdventureDungeonsPlugin.getInstance(), "get_dungeons.php");
 		request.onFinish(()->{
 			YamlConfiguration yamlConfiguration = request.getYamlResponse();
 			if(yamlConfiguration==null || !yamlConfiguration.contains("dungeons")){
@@ -107,7 +107,7 @@ public class DungeonsView extends InventoryView implements Listener{
 	
 	protected static DungeonsView open(Player player){
 		DungeonsView result = new DungeonsView(player);
-		Bukkit.getPluginManager().registerEvents(result, AdventureDungeons.getInstance());
+		Bukkit.getPluginManager().registerEvents(result, AdventureDungeonsPlugin.getInstance());
 		player.openInventory(result);
 		return result;
 	}

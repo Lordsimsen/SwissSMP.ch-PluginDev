@@ -43,8 +43,6 @@ public class ZoneTypeSlot extends ButtonSlot {
 
     @Override
     protected CustomItemBuilder createSlotBase() {
-        CustomItemBuilder itemBuilder = CustomItems.getCustomItemBuilder(type.getCustomEnum());
-        itemBuilder.setAmount(1);
-        return itemBuilder;
+        return CustomItems.getCustomItemBuilder(type.getCustomEnum()).setAmount(1);
     }
 }

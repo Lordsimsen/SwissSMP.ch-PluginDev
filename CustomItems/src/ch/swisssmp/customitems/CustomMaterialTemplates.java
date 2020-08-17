@@ -1,29 +1,43 @@
 package ch.swisssmp.customitems;
 
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.bukkit.NamespacedKey;
 
 public class CustomMaterialTemplates {
-	protected static HashMap<String,CustomMaterialTemplate> templates = new HashMap<String,CustomMaterialTemplate>();
-	
+	private static final Set<CustomMaterialTemplate> templates = new HashSet<>();
+
+	protected static Optional<CustomMaterialTemplate> getTemplate(NamespacedKey key){
+		return templates.stream().filter(t->t.getKey().equals(key)).findAny();
+	}
+
 	protected static void load(){
-		HTTPRequest request = DataSource.getResponse(CustomItems.getInstance(), "get_materials.php", RequestMethod.POST_SYNC);
-		load(request.getYamlResponse());
+		HTTPRequest request = DataSource.getResponse(CustomItemsPlugin.getInstance(), "get_materials.php", RequestMethod.POST_SYNC);
+		load(request.getJsonResponse());
 	}
 	
-	protected static void load(YamlConfiguration yamlConfiguration){
+	protected static void load(JsonObject json){
 		templates.clear();
-		if(yamlConfiguration==null || !yamlConfiguration.contains("materials")) return;
-		ConfigurationSection materialsSection = yamlConfiguration.getConfigurationSection("materials");
-		for(String key : materialsSection.getKeys(false)){
-			CustomMaterialTemplate materialTemplate = new CustomMaterialTemplate(materialsSection.getConfigurationSection(key));
-			if(materialTemplate.getCustomEnum()==null || materialTemplate.getCustomEnum().isEmpty()) continue;
-			templates.put(materialTemplate.getCustomEnum().toLowerCase(), materialTemplate);
+		if(json==null || !json.has("materials")) return;
+		JsonArray materialsArray = json.getAsJsonArray("materials");
+		for(JsonElement element : materialsArray){
+			if(!element.isJsonObject()) continue;
+			CustomMaterialTemplate materialTemplate = CustomMaterialTemplate.load(element.getAsJsonObject()).orElse(null);
+			if(materialTemplate==null) continue;
+			templates.add(materialTemplate);
 		}
+	}
+
+	protected static Collection<NamespacedKey> getKeys(){
+		return templates.stream().map(CustomMaterialTemplate::getKey).collect(Collectors.toList());
 	}
 }

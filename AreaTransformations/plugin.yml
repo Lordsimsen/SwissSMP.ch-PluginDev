@@ -1,23 +1,28 @@
-main: ch.swisssmp.transformations.AreaTransformations
-version: 1.3
+main: ch.swisssmp.transformations.AreaTransformationsPlugin
+version: 2
 api-version: 1.13
 name: AreaTransformations
 author: detig_iii
 description: Transformierbare Zonen (grosse Tore, Zugbrücken etc.)
-depend: [WorldEdit,WebCore]
+depend: [WorldEdit,SwissSMPUtils,CustomEditorAPI,CustomItems,WorldManager]
 permissions: 
   transformations.admin:
     default: op
     description: Erlaubt die Verwaltung des Plugins
 commands:
   transformation:
-    description: Verwaltet Transformationen
-    usage: |
-      [Transformation] ersetzen mit Enum oder ID
-      /transformation reload
-      /transformation list
-      /transformation register [Transformation] [Zustand]
-      /transformation unregister [Transformation] [Zustand]
-      /transformation trigger [Welt] [Transformation] [Zustand] (Player)
-    aliases: [multistate]
+    description: Hauptbefehl für Transformationen
+    usage: "/<command> <subcommand> <Argumente>"
+    permission: transformations.admin
+  transformation create:
+    description: Erstellt eine Transformation
+    usage: "/<command> create <Name>"
+    permission: transformations.admin
+  transformation trigger:
+    description: Löst einen Transformations-Zustand aus
+    usage: "/<command> trigger <Id> <Zustand>"
+    permission: transformations.admin
+  transformations:
+    description: Listet alle Transformationen der aktuellen Welt auf
+    usage: "/<command>"
     permission: transformations.admin

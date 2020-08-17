@@ -49,6 +49,7 @@ public class ArrivePhase extends Phase {
 
 	@Override
 	public void finish() {
+		super.finish();
 		Bukkit.getScheduler().runTaskLater(TravelSystem.getInstance(), ()->{
 			String worldName = this.getJourney().getTravelWorldInstanceName();
 			WorldManager.deleteWorld(worldName);

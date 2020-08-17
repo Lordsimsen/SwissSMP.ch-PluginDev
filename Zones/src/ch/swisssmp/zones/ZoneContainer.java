@@ -53,6 +53,15 @@ public class ZoneContainer {
         collections.remove(collection);
     }
 
+    protected Optional<Zone> findZone(UUID zoneUid){
+        for(ZoneCollection c : collections){
+            Optional<Zone> result = c.findZone(zoneUid);
+            if(result.isPresent()) return result;
+        }
+
+        return Optional.empty();
+    }
+
     protected static ZoneContainer load(World world){
         ZoneContainer result = new ZoneContainer(world);
         for(ZoneType type : ZoneTypes.getAll()){

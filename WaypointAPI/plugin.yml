@@ -1,5 +1,5 @@
 main: ch.swisssmp.waypoints.WaypointAPI
-version: 1.5
+version: 1.6
 api-version: 1.13
 name: WaypointAPI
 author: detig_iii

@@ -6,8 +6,8 @@ import org.bukkit.event.HandlerList;
 
 public class TransformationTriggerEvent extends TransformationEvent{
     private static final HandlerList handlers = new HandlerList();
-	TransformationTriggerEvent(TransformationArea area, AreaState newState, World world, Player player) {
-		super(area, newState, world, player);
+	TransformationTriggerEvent(AreaTransformation area, TransformationState newState) {
+		super(area);
 	}
 
 	@Override

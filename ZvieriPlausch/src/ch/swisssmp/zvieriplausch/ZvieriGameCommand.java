@@ -1,6 +1,5 @@
 package ch.swisssmp.zvieriplausch;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,15 +12,15 @@ public class ZvieriGameCommand implements CommandExecutor {
         if(strings.length == 1){
             switch(strings[0]){
                 case "reload":{
-                    ZvieriGamePlugin.getInstance().reloadConfig();
-                    commandSender.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GREEN + " Reloaded config");
+                    ZvieriPlauschPlugin.getInstance().reloadConfig();
+                    commandSender.sendMessage(ZvieriPlauschPlugin.getPrefix() + ChatColor.GREEN + " Reloaded config");
                     return true;
                 }
                 case "resethighscores":{
                     for(ZvieriArena arena : ZvieriArenen.getAll()){
                         arena.getPlayerDataContainer().resetHighscores();
                     }
-                    commandSender.sendMessage(ZvieriGamePlugin.getPrefix() + ChatColor.GREEN + " Highscores reset. Please play one round, so that the changes are saved.");
+                    commandSender.sendMessage(ZvieriPlauschPlugin.getPrefix() + ChatColor.GREEN + " Highscores reset.");
                     return true;
                 }
             }

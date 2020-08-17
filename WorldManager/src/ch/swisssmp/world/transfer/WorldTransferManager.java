@@ -4,13 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ch.swisssmp.world.WorldDataPatcher;
+import ch.swisssmp.world.WorldManagerPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import ch.swisssmp.utils.FileUtil;
 import ch.swisssmp.webcore.FTPConnection;
 import ch.swisssmp.webcore.HTTPRequest;
-import ch.swisssmp.world.WorldManager;
 
 public class WorldTransferManager {
 
@@ -45,6 +46,9 @@ public class WorldTransferManager {
 		File packedWorldDirectory = new File(packedDirectory,"World/"+worldName);
 		File worldDirectory = new File(Bukkit.getWorldContainer(),overrideWorldName);
 		FileUtil.copyDirectory(packedWorldDirectory, worldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
+		if(!overrideWorldName.equals(worldName)){
+			WorldDataPatcher.changeLevelName(worldDirectory, overrideWorldName);
+		}
 		try{
 			Bukkit.getPluginManager().callEvent(new WorldUnpackEvent(overrideWorldName,packedDirectory,false));
 		}
@@ -53,7 +57,7 @@ public class WorldTransferManager {
 			return;
 		}
 		Bukkit.getLogger().info("[WorldManager] Unpacking of World "+worldName+" finished.");
-		Bukkit.getScheduler().runTaskLater(WorldManager.getInstance(), ()->{
+		Bukkit.getScheduler().runTaskLater(WorldManagerPlugin.getInstance(), ()->{
 			FileUtil.deleteRecursive(packedDirectory);
 		}, 5L);
 	}
@@ -65,10 +69,11 @@ public class WorldTransferManager {
 	 * @param packedDirectory - The Directory to pack into
 	 */
 	protected static void packWorld(String worldName, String overrideWorldName, File packedDirectory){
-		File worldDirectory = new File(Bukkit.getWorldContainer(),overrideWorldName);
-		File packedWorldDirectory = new File(packedDirectory,"World/"+worldName);
+		File worldDirectory = new File(Bukkit.getWorldContainer(),worldName);
+		File packedWorldDirectory = new File(packedDirectory,"World/"+overrideWorldName);
 		packedWorldDirectory.mkdirs();
 		FileUtil.copyDirectory(worldDirectory, packedWorldDirectory, new ArrayList<String>(Arrays.asList("session.lock")));
+		WorldDataPatcher.changeLevelName(packedWorldDirectory, overrideWorldName);
 		Bukkit.getPluginManager().callEvent(new WorldPackEvent(worldName,packedDirectory,true));
 	}
 	
@@ -127,6 +132,6 @@ public class WorldTransferManager {
 	}
 	
 	static File getTempFolder(){
-		return new File(WorldManager.getInstance().getDataFolder(), "temp");
+		return new File(WorldManagerPlugin.getInstance().getDataFolder(), "temp");
 	}
 }

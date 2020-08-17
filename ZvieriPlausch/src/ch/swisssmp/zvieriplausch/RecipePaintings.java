@@ -25,7 +25,7 @@ public class RecipePaintings {
                 BufferedImage image = ImageIO.read(new URL(url));
                 ImageIO.write(image, "png", file);
             } catch (Exception e){
-                Bukkit.getLogger().info(ZvieriGamePlugin.getPrefix() + " Couldn't load image for " + dish.toString());
+                Bukkit.getLogger().info(ZvieriPlauschPlugin.getPrefix() + " Couldn't load image for " + dish.toString());
                 e.printStackTrace();
             }
         }
@@ -40,6 +40,6 @@ public class RecipePaintings {
     }
 
     private static File getPaintingsDirectory(){
-        return new File(ZvieriGamePlugin.getInstance().getDataFolder(), "paintings");
+        return new File(ZvieriPlauschPlugin.getInstance().getDataFolder(), "paintings");
     }
 }

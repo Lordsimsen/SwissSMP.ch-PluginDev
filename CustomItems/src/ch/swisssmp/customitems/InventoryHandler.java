@@ -150,7 +150,7 @@ public class InventoryHandler {
 		ItemStack newCursorStack = cursorStack.clone();
 		newSlotStack.setAmount(slotStack.getAmount()+transferredAmount);
 		newCursorStack.setAmount(cursorStack.getAmount()-transferredAmount);
-		Bukkit.getScheduler().runTaskLater(CustomItems.plugin, ()->{
+		Bukkit.getScheduler().runTaskLater(CustomItemsPlugin.getInstance(), ()->{
 			view.setItem(slot, newSlotStack);
 			view.setCursor(newCursorStack);
 		}, 1L);
@@ -165,7 +165,7 @@ public class InventoryHandler {
 		int newCursorStackAmount = cursorStack.getAmount()-1;
 		ItemStack newCursorStack = cursorStack.clone();
 		newCursorStack.setAmount(newCursorStackAmount);
-		Bukkit.getScheduler().runTaskLater(CustomItems.plugin, ()->{
+		Bukkit.getScheduler().runTaskLater(CustomItemsPlugin.getInstance(), ()->{
 			view.setCursor(newCursorStack);
 		}, 1L);
 	}

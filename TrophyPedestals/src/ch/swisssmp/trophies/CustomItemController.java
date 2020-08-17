@@ -31,7 +31,7 @@ public class CustomItemController {
 			recipe.setIngredient('w', color.getMaterial());
 			recipe.setIngredient('h', Material.SMOOTH_STONE_SLAB);
 			
-			Bukkit.getLogger().info(prefix+ChatColor.GREEN+" Rezept für "+key.getKey()+" registriert! Wolle: "+color.getMaterial().toString());
+			// Bukkit.getLogger().info(prefix+ChatColor.GREEN+" Rezept für "+key.getKey()+" registriert! Wolle: "+color.getMaterial().toString());
 			
 			Bukkit.addRecipe(recipe);
 			keys[i] = key;

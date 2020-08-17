@@ -1,0 +1,40 @@
+main: ch.swisssmp.schematics.SchematicsPlugin
+version: 1
+api-version: 1.13
+name: Schematics
+author: detig_iii
+depend: [SwissSMPUtils,CustomEditorAPI,CustomItems]
+description: Schnittstelle für Schematics
+permissions:
+  schematics.admin:
+    description: Erlaubt die Verwaltung von Schematics
+    default: op
+commands:
+  schematic:
+    description: Hauptbefehl zur Verwaltung von Schematics
+    usage: "/<command> <subcommand> <Argumente>"
+    permission: schematics.admin
+    aliases: [schem]
+  schematic create:
+    description: Erstellt ein Schematic
+    usage: "/<command> create <Name>"
+    permission: schematics.admin
+    aliases: [schem]
+  schematic delete:
+    description: Löscht ein Schematic
+    usage: "/<command> delete <Name>"
+    permission: schematics.admin
+    aliases: [schem]
+  schematic load:
+    description: Lädt ein Schematic in die Zwischenablage
+    usage: "/<command> load <Name>"
+    permission: schematics.admin
+  schematic save:
+    description: Speichert die Zwischenablage als Schematic, überschreibt nur wenn -f gesetzt ist
+    usage: "/<command> save <Datei> [-f]"
+    permission: schematics.admin
+  schematics:
+    description: Zeigt alle verfügbaren Schematics
+    usage: "/<command> [<Ordner>]"
+    permission: schematics.admin
+    aliases: [schem]

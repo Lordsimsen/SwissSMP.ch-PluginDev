@@ -1,29 +1,43 @@
 package ch.swisssmp.customitems;
 
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import ch.swisssmp.utils.ConfigurationSection;
 import ch.swisssmp.utils.YamlConfiguration;
 import ch.swisssmp.webcore.DataSource;
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.webcore.RequestMethod;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.bukkit.NamespacedKey;
 
 public class CustomItemTemplates {
-	protected static HashMap<String,CustomItemTemplate> templates = new HashMap<String,CustomItemTemplate>();
-	
+	private static final Set<CustomItemTemplate> templates = new HashSet<>();
+
+	protected static Optional<CustomItemTemplate> getTemplate(NamespacedKey key){
+		return templates.stream().filter(t->t.getKey().equals(key)).findAny();
+	}
+
 	protected static void load(){
-		HTTPRequest request = DataSource.getResponse(CustomItems.getInstance(), "get_items.php", RequestMethod.POST_SYNC);
-		load(request.getYamlResponse());
+		HTTPRequest request = DataSource.getResponse(CustomItemsPlugin.getInstance(), "get_items.php", RequestMethod.POST_SYNC);
+		load(request.getJsonResponse());
 	}
 	
-	protected static void load(YamlConfiguration yamlConfiguration){
+	protected static void load(JsonObject json){
 		templates.clear();
-		if(yamlConfiguration==null || !yamlConfiguration.contains("items")) return;
-		ConfigurationSection itemsSection = yamlConfiguration.getConfigurationSection("items");
-		for(String key : itemsSection.getKeys(false)){
-			CustomItemTemplate itemTemplate = new CustomItemTemplate(itemsSection.getConfigurationSection(key));
-			if(itemTemplate.getCustomEnum()==null || itemTemplate.getCustomEnum().isEmpty()) continue;
-			templates.put(itemTemplate.getCustomEnum().toLowerCase(), itemTemplate);
+		if(json==null || !json.has("items")) return;
+		JsonArray itemsArray = json.getAsJsonArray("items");
+		for(JsonElement element : itemsArray){
+			if(!element.isJsonObject()) continue;
+			CustomItemTemplate itemTemplate = CustomItemTemplate.load(element.getAsJsonObject()).orElse(null);
+			if(itemTemplate.getKey()==null) continue;
+			templates.add(itemTemplate);
 		}
+	}
+
+	protected static Collection<NamespacedKey> getKeys(){
+		return templates.stream().map(CustomItemTemplate::getKey).collect(Collectors.toList());
 	}
 }

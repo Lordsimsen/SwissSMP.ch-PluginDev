@@ -16,10 +16,11 @@ import org.bukkit.inventory.PlayerInventory;
 public class SeedPlacer {
 	
 	protected static final Material[] cropMaterials = new Material[]{
-		Material.WHEAT,
-		Material.BEETROOTS,
+		Material.WHEAT_SEEDS,
+		Material.BEETROOT_SEEDS,
 		Material.CARROTS,
-		Material.POTATOES
+		Material.POTATOES,
+		Material.NETHER_WART
 	};
 	
 	public static boolean isCrop(Material material){
@@ -30,10 +31,14 @@ public class SeedPlacer {
 	}
 	
 	public static void placeSeeds(Player player, EquipmentSlot hand, Block center, int radius){
+		Bukkit.getLogger().info("PlaceSeeds");
 		World world = center.getWorld();
 		int y = center.getY();
 		ItemStack itemStack = hand==EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
-		if(itemStack==null) return;
+		if(itemStack==null) {
+			Bukkit.getLogger().info("Itemstack == null");
+			return;
+		}
 		Material material = itemStack.getType();
 		int amount = getAmount(player.getInventory(),material)-1;
 		ItemStack use = new ItemStack(material,1);
@@ -41,7 +46,11 @@ public class SeedPlacer {
 			for(int x = -radius; x<=radius && amount>0; x++){
 				if(x==0 && z==0) continue;
 				Block block = world.getBlockAt(center.getX()+x, y, center.getZ()+z);
-				if(block.getRelative(BlockFace.DOWN).getType()!=Material.FARMLAND) continue;
+				if (block.getRelative(BlockFace.DOWN).getType() != Material.FARMLAND
+						&& (block.getRelative(BlockFace.DOWN).getType() != Material.SOUL_SAND && !material.equals(Material.NETHER_WART))){
+					continue;
+				}
+
 				BlockState replacedBlockState = block.getState();
 				block.setBlockData(center.getBlockData());
 				BlockPlaceEvent event = new BlockPlaceEvent(block,replacedBlockState,block.getRelative(BlockFace.DOWN), null, player, true, hand);

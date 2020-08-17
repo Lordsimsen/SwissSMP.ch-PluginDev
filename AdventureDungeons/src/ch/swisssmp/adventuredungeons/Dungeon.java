@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 
 import ch.swisssmp.webcore.HTTPRequest;
 import ch.swisssmp.world.transfer.WorldTransferManager;
-import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,7 +15,6 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -206,7 +204,7 @@ public class Dungeon{
 		}
 		//save the world one last time before unloading
 		world.save();
-		Bukkit.getScheduler().runTaskLater(AdventureDungeons.getInstance(), new Runnable(){
+		Bukkit.getScheduler().runTaskLater(AdventureDungeonsPlugin.getInstance(), new Runnable(){
 			public void run(){
 				WorldTransferObserver transferObserver = WorldTransferManager.uploadWorld(sender, template_name);
 				transferObserver.addOnFinishListener(new Runnable(){
@@ -220,7 +218,7 @@ public class Dungeon{
 	}
 	
 	protected void saveSettings(){
-		DataSource.getResponse(AdventureDungeons.getInstance(), "save_dungeon_settings.php", new String[]{
+		DataSource.getResponse(AdventureDungeonsPlugin.getInstance(), "save_dungeon_settings.php", new String[]{
 			"id="+dungeon_id,
 			"name="+URLEncoder.encode(this.name),
 			this.lobby_join.getURLString("lobby_join"),
@@ -328,8 +326,7 @@ public class Dungeon{
 		Dungeon.load(dungeon_id, callback);
 	}
 
-	@Nullable
-	public static Dungeon get(@NotNull String identifier){
+	public static Dungeon get(String identifier){
 		return dungeons.values()
 				.stream()
 				.filter(d->d.getName().toLowerCase().contains(identifier.toLowerCase()))
@@ -365,7 +362,7 @@ public class Dungeon{
 	}
 	
 	private static void load(String[] args, Consumer<Dungeon> callback){
-		HTTPRequest request = DataSource.getResponse(AdventureDungeons.getInstance(), "get_dungeon.php", args);
+		HTTPRequest request = DataSource.getResponse(AdventureDungeonsPlugin.getInstance(), "get_dungeon.php", args);
 		request.onFinish(()->{
 			YamlConfiguration yamlConfiguration = request.getYamlResponse();
 			if(yamlConfiguration==null || !yamlConfiguration.contains("dungeon")){

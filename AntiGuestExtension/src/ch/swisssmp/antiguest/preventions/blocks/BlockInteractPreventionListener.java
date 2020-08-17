@@ -1,6 +1,7 @@
 package ch.swisssmp.antiguest.preventions.blocks;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,12 +28,12 @@ public class BlockInteractPreventionListener implements Listener {
 				event.getClickedBlock()==null ||
 				event.getPlayer().hasPermission("antiguest_extension.preventions.*")) return;
 		// Bukkit.getLogger().info("Let's check...");
-		Material material = event.getClickedBlock().getType();
+		Block block = event.getClickedBlock();
 		Player player = event.getPlayer();
 		Prevention triggered = null;
 		for(BlockInteractPrevention prevention : preventions) {
 			// Bukkit.getLogger().info(prevention.GetType()+"?");
-			if(material!=prevention.GetType() || player.hasPermission("antiguest_extension.preventions.blocks."+prevention.GetSubPermission())) continue;
+			if(!prevention.isMatch(block) || player.hasPermission("antiguest_extension.preventions.blocks."+prevention.getSubPermission())) continue;
 			triggered = prevention;
 			// Bukkit.getLogger().info("No!");
 			break;
