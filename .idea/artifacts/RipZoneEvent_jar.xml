@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="RipZoneEvent:jar">
+    <output-path>$PROJECT_DIR$/.build/artifacts/RipZoneEvent_jar</output-path>
+    <root id="archive" name="RipZoneEvent.jar">
+      <element id="module-output" name="RipZoneEvent" />
+      <element id="file-copy" path="$PROJECT_DIR$/RipZoneEvent/plugin.yml" />
+    </root>
+  </artifact>
+</component>

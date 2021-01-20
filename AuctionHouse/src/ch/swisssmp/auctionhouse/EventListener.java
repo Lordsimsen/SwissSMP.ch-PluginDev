@@ -2,9 +2,9 @@ package ch.swisssmp.auctionhouse;
 
 import java.util.List;
 
-import ch.swisssmp.addonabnahme.AddonInstanceGuide;
-import ch.swisssmp.addonabnahme.AddonInstanceInfo;
-import ch.swisssmp.addonabnahme.AddonManager;
+//import ch.swisssmp.addonabnahme.AddonInstanceGuide;
+//import ch.swisssmp.addonabnahme.AddonInstanceInfo;
+//import ch.swisssmp.addonabnahme.AddonManager;
 import ch.swisssmp.npc.NPCInstance;
 import ch.swisssmp.utils.SwissSMPler;
 import ch.swisssmp.webcore.HTTPRequest;
@@ -40,7 +40,7 @@ public class EventListener implements Listener{
 			return;
 		}
 
-		AddonInstanceInfo signInfo = AddonInstanceInfo.get(lines);
+//		AddonInstanceInfo signInfo = AddonInstanceInfo.get(lines);
 		Sign sign = (Sign) event.getBlock().getState();
 
 		String addon = lines[1];
@@ -49,11 +49,12 @@ public class EventListener implements Listener{
 		NPCInstance npc = NPCInstance.create(EntityType.VILLAGER, location);
 
 		// check jsondata first and override with new json object
-		npc.setJsonData();
+//		npc.setJsonData();
 
 
 //		HTTPRequest request = DataSource.getResponse(AuctionHouse.getInstance(), "auction/sign.php", new String[]{
 //				"player="+player.getUniqueId(),
+//				"city="+
 //				"addon="+URLEncoder.encode(addon),
 //				"world="+URLEncoder.encode(player.getWorld().getName()),
 //				"x="+(int)Math.round(player.getLocation().getX()),

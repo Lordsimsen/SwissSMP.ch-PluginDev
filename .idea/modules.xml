@@ -87,6 +87,7 @@
       <module fileurl="file://$PROJECT_DIR$/RegionEffects/RegionEffects.iml" filepath="$PROJECT_DIR$/RegionEffects/RegionEffects.iml" />
       <module fileurl="file://$PROJECT_DIR$/RemoteEventListener/RemoteEventListener.iml" filepath="$PROJECT_DIR$/RemoteEventListener/RemoteEventListener.iml" />
       <module fileurl="file://$PROJECT_DIR$/ResourcepackManager/ResourcepackManager.iml" filepath="$PROJECT_DIR$/ResourcepackManager/ResourcepackManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RipZoneEvent/RipZoneEvent.iml" filepath="$PROJECT_DIR$/RipZoneEvent/RipZoneEvent.iml" />
       <module fileurl="file://$PROJECT_DIR$/Schematics/Schematics.iml" filepath="$PROJECT_DIR$/Schematics/Schematics.iml" />
       <module fileurl="file://$PROJECT_DIR$/ServerManagerDONTUSE/ServerManager.iml" filepath="$PROJECT_DIR$/ServerManagerDONTUSE/ServerManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" filepath="$PROJECT_DIR$/ServerNetwork/ServerNetwork.iml" />

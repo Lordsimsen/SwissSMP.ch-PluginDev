@@ -1,0 +1,37 @@
+name: RipZoneEvent
+version: 0.1
+api-version: 1.13
+description: RipZone Event für Minecraft Server
+# author = Haupt-Autor, authors = übrige oder gleichgestellte Autoren wenn kein author zusätzlich definiert wird
+author: Lordsimsen
+website: #https://swisssmp.ch/threads/ritterspiele.8615/
+main: ch.swisssmp.ripzoneevent
+depend: [SwissSMPUtils, CustomItems]
+softdepend: [WorldEdit,WorldGuard]
+load:
+commands:
+  befehl-eins:
+    description: Setzt einen Wert
+    aliases: [eins, b-eins]
+    permission: beispiel.command.eins
+    usage: "/<command> [Wert]"
+  befehl-zwei:
+    description: Macht für irgendwas
+    aliases: [zwei, b-zwei]
+    permission: beispiel.command.zwei
+    usage: |
+      /<command> (player)
+      Beispiel: /<command> - Macht irgendwas
+      Beispiel: /<command> detig_iii - Macht irgendwas mit detig_iii
+permissions:
+  beispiel.*:
+    description: Gibt Zugriff auf alle Funktionen
+    children:
+      beispiel.eins: true
+      beispiel.zwei: true
+  beispiel.eins:
+    description: Ermöglicht Verwendung von /befehl-eins
+    default: true
+  beispiel.zwei:
+    description: Ermöglicht Verwendung von /befehl-zwei
+    default: true
