@@ -200,7 +200,6 @@ public class City {
     }
 
     public void setMayor(UUID mayor) {
-        UUID previousMayor = this.mayor;
         this.mayor = mayor;
         getCitizenship(previousMayor).ifPresent(prevMayor -> prevMayor.setRank(isFounder(previousMayor) ? CitizenRank.FOUNDER : CitizenRank.CITIZEN));
         getCitizenship(mayor).ifPresent(newMayor -> newMayor.setRank(CitizenRank.MAYOR));
@@ -226,6 +225,7 @@ public class City {
         return CitySystem.getCitizenship(uid, player).isPresent();
     }
 
+    UUID previousMayor = this.mayor;
     public boolean isCitizen(UUID playerUid) {
         return CitySystem.getCitizenship(uid, playerUid).isPresent();
     }

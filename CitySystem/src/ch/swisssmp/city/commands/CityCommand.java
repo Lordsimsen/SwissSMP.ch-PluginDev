@@ -1,15 +1,22 @@
 package ch.swisssmp.city.commands;
 
 import ch.swisssmp.city.*;
+import ch.swisssmp.utils.BlockUtil;
 import ch.swisssmp.utils.PlayerData;
+import ch.swisssmp.utils.SwissSMPler;
+import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Consumer;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
@@ -84,10 +91,23 @@ public class CityCommand implements TabExecutor {
                 });
                 return true;
             }
+            case "create": {
+                Location location = Bukkit.getPlayer(sender.getName()).getLocation();
+                Block origin = BlockUtil.getClosest(location, 2, (current) -> current.getType() == Material.FIRE);
+                long time = origin.getWorld().getTime();
+
+                CitySystem.createCity(args[1], Bukkit.getPlayer(args[2]), Lists.newArrayList(Bukkit.getPlayer(args[2])), SigilRingType.EMERALD_DAISY_RING, origin,time, this::sendMessage);
+
+            }
             default:
                 return false;
         }
     }
+
+    private void sendMessage(City city) {
+
+    }
+
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {

@@ -20,6 +20,7 @@ public class RipZoneEventPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
         super.onDisable();
     }
 }

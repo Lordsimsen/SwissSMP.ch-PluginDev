@@ -33,7 +33,7 @@ commands:
     usage: "/<command> <subcommand>"
     permission: citysystem.admin
   citizenship:
-    description: Hauptbefehl zur Verwaltung einzelner Bürgerschaften
+    description: Hauptbefehl zur Verwaltung einzelner Bürgers chaften
     usage: "/<command>"
     permission: citysystem.admin
   citizenship add:
